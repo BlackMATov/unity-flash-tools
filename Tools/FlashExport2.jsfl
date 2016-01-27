@@ -103,6 +103,23 @@ FlashTools.prototype.ClipItem_GetExportFullFilename = function(document, item) {
 		this.ClipItem_GetExportFilename(item));
 };
 
+FlashTools.prototype.ClipItem_Export = function(document, item) {
+	this.Document_ExitEditMode(document);
+	if ( !document.library.editItem(item.name) ) {
+		throw "Can't edit clip ({0})!"
+			.format(item.name);
+	}
+	this.Document_ExitEditMode(document);
+	this.Timeline_TraceInfo(item.timeline);
+	var xml_content = "<clip>\n";
+	xml_content += "</clip>";
+	var item_export_path = this.ClipItem_GetExportFullFilename(document, item);
+	if ( !FLfile.write(item_export_path, xml_content) ) {
+		throw "Can't create clip ({0})!"
+			.format(item_export_path);
+	}
+}
+
 // ------------------------------------
 // Bitmap item functions
 // ------------------------------------
@@ -124,6 +141,23 @@ FlashTools.prototype.BitmapItem_GetExportFullFilename = function(document, item)
 	return this.CombinePath(
 		this.Document_GetExportFolder(document),
 		this.BitmapItem_GetExportFilename(item));
+};
+
+FlashTools.prototype.BitmapItem_Export = function(document, item) {
+	var item_export_path = this.BitmapItem_GetExportFullFilename(document, item);
+	if ( !item.exportToFile(item_export_path) ) {
+		throw "Can't export bitmap ({0})!"
+			.format(item_export_path);
+	}
+};
+
+// ------------------------------------
+// Timeline functions
+// ------------------------------------
+
+FlashTools.prototype.Timeline_TraceInfo = function(timeline) {
+	this.Trace("\tName        : " + timeline.name);
+	this.Trace("\tLayer count : " + timeline.layerCount);
 };
 
 // ------------------------------------
@@ -178,44 +212,31 @@ FlashTools.prototype.Document_PrepareExportFolder = function(document) {
 };
 
 FlashTools.prototype.Document_ExportClips = function(document) {
-	this.Document_ExitEditMode(document);
 	this.Document_ForEachByLibraryItems(document, function(item) {
-		var xml_content = "<Clip>\n";
-		xml_content += "</Clip>";
-		var item_export_path = this.ClipItem_GetExportFullFilename(document, item);
-		if ( !FLfile.write(item_export_path, xml_content) ) {
-			throw "Can't create clip ({0})!"
-				.format(item_export_path);
-		}
+		this.ClipItem_Export(document, item);
 	}.bind(this), this.IsClipLibraryItem);
 };
 
 FlashTools.prototype.Document_ExportBitmaps = function(document) {
-	this.Document_ExitEditMode(document);
 	this.Document_ForEachByLibraryItems(document, function(item) {
-		var item_export_path = this.BitmapItem_GetExportFullFilename(document, item);
-		if ( !item.exportToFile(item_export_path) ) {
-			throw "Can't export bitmap ({0})!"
-				.format(item_export_path);
-		}
+		this.BitmapItem_Export(document, item);
 	}.bind(this), this.IsBitmapLibraryItem);
 };
 
 FlashTools.prototype.Document_ExportLibrary = function(document) {
-	this.Document_ExitEditMode(document);
-	var xml_content = "<Library>\n";
+	var xml_content = "<library>\n";
 	this.Document_ForEachByLibraryItems(document, function(item) {
 		if ( this.IsFolderLibraryItem(item) ) {
 			// nothing
 		} else if ( this.IsBitmapLibraryItem(item) ) {
 			xml_content +=
-				"\t<Asset name='{0}' type='{1}' filename='{2}'/>\n".format(
+				"\t<asset name='{0}' type='{1}' filename='{2}'/>\n".format(
 					item.name,
 					item.itemType,
 					this.BitmapItem_GetExportFilename(item));
 		} else if ( this.IsClipLibraryItem(item) ) {
 			xml_content +=
-				"\t<Asset name='{0}' type='{1}' filename='{2}'/>\n".format(
+				"\t<asset name='{0}' type='{1}' filename='{2}'/>\n".format(
 					item.name,
 					item.itemType,
 					this.ClipItem_GetExportFilename(item));
@@ -224,7 +245,7 @@ FlashTools.prototype.Document_ExportLibrary = function(document) {
 				.format(item.itemType);
 		}
 	}.bind(this));
-	xml_content += "</Library>";
+	xml_content += "</library>";
 	var library_path = this.Document_GetLibraryExportPath(document);
 	if ( !FLfile.write(library_path, xml_content) ) {
 		throw "Can't create library xml ({0})!"
@@ -291,3 +312,4 @@ ft.ClearOutput();
 if ( ft.RunTests() ) {
 	ft.ConvertAll();
 }
+
