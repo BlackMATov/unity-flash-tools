@@ -203,6 +203,12 @@ FlashTools.prototype.XmlNode = function(node_name) {
 		}
 	};
 	
+	Ctor.prototype.Save = function(xml_path) {
+		if ( !FLfile.write(xml_path, this.Content()) ) {
+			throw "Can't save xml to {0}!".format(xml_path);
+		}
+	};
+	
 	return new Ctor(node_name);
 };
 
@@ -298,11 +304,7 @@ FlashTools.prototype.SymbolItem_Export = function(document, item) {
 	var xml_node = this.XmlNode("symbol")
 		.Attr("name", this.GetStringId(item.name));
 	this.Timeline_ExportXmlContent(xml_node, item.timeline);
-	var item_export_path = this.SymbolItem_GetExportFullFilename(document, item);
-	if ( !FLfile.write(item_export_path, xml_node.Content()) ) {
-		throw "Can't create symbol ({0})!"
-			.format(item_export_path);
-	}
+	xml_node.Save(this.SymbolItem_GetExportFullFilename(document, item));
 };
 
 FlashTools.prototype.SymbolItem_ExportXmlDescription = function(xml_node, item) {
@@ -524,11 +526,7 @@ FlashTools.prototype.Document_ExportLibrary = function(document) {
 				.format(item.itemType);
 		}
 	}.bind(this));
-	var library_path = this.Document_GetLibraryExportPath(document);
-	if ( !FLfile.write(library_path, xml_node.Content()) ) {
-		throw "Can't create library xml ({0})!"
-			.format(library_path);
-	}
+	xml_node.Save(this.Document_GetLibraryExportPath(document));
 };
 
 FlashTools.prototype.Document_ExportBitmaps = function(document) {
@@ -550,22 +548,14 @@ FlashTools.prototype.Document_ExportStage = function(document) {
 	this.Document_ExitEditMode(document);
 	var xml_node = this.XmlNode("stage");
 	this.Timeline_ExportXmlContent(xml_node, document.getTimeline());
-	var stage_path = this.Document_GetStageExportPath(document);
-	if ( !FLfile.write(stage_path, xml_node.Content()) ) {
-		throw "Can't create stage xml ({0})!"
-			.format(stage_path);
-	}
+	xml_node.Save(this.Document_GetStageExportPath(document));
 };
 
 FlashTools.prototype.Document_ExportStringIds = function(document) {
 	this.TypeAssert(document, Document);
 	var xml_node = this.XmlNode("strings");
 	this.ExportStringIdsXmlContent(xml_node);
-	var xml_path = this.Document_GetStringIdsExportPath(document);
-	if ( !FLfile.write(xml_path, xml_node.Content()) ) {
-		throw "Can't create string ids xml ({0})!"
-			.format(xml_path);
-	}
+	xml_node.Save(this.Document_GetStringIdsExportPath(document));
 };
 
 // ------------------------------------
@@ -629,5 +619,6 @@ ft.ClearOutput();
 if ( ft.RunTests() ) {
 	ft.ConvertAll();
 }
+
 
 
