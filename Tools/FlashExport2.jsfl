@@ -130,6 +130,14 @@ FlashTools.prototype.ExportStringIdsXmlContent = function() {
 // Xml functions
 // ------------------------------------
 
+FlashTools.prototype.AssertTypeXmlNode = function(xml_node) {
+	this.Assert(
+		xml_node != undefined &&
+		xml_node.IsXmlNode != undefined &&
+		xml_node.IsXmlNode(),
+		"Type error: {0} != {1}".format(typeof xml_node, "XmlNode"));
+};
+
 FlashTools.prototype.XmlNode = function(node_name) {
 	var Assert              = this.Assert.bind(this);
 	var TypeAssert          = this.TypeAssert.bind(this);
@@ -144,6 +152,10 @@ FlashTools.prototype.XmlNode = function(node_name) {
 		this.parent   = node_parent;
 		this.attrs    = [];
 		this.children = [];
+	};
+	
+	Ctor.prototype.IsXmlNode = function() {
+		return true;
 	};
 	
 	Ctor.prototype.Attr = function(attr_name, attr_value) {
@@ -250,15 +262,13 @@ FlashTools.prototype.BitmapItem_Export = function(document, item) {
 	}
 };
 
-FlashTools.prototype.BitmapItem_GetLibraryXmlDescription = function(item, indent) {
-	indent = indent == undefined ? "" : indent;
+FlashTools.prototype.BitmapItem_ExportXmlDescription = function(xml_node, item) {
+	this.AssertTypeXmlNode(xml_node);
 	this.TypeAssert(item, BitmapItem);
-	this.TypeAssert(indent, 'string');
-	return '{0}<asset name="{1}" type="{2}" filename="{3}"/>\n'.format(
-		indent,
-		this.GetStringId(item.name),
-		"bitmap",
-		this.BitmapItem_GetExportFilename(item));
+	xml_node.Child("asset")
+		.Attr("name"    , this.GetStringId(item.name))
+		.Attr("type"    , "bitmap")
+		.Attr("filename", this.BitmapItem_GetExportFilename(item));
 };
 
 // ------------------------------------
@@ -287,43 +297,32 @@ FlashTools.prototype.SymbolItem_GetExportFullFilename = function(document, item)
 FlashTools.prototype.SymbolItem_Export = function(document, item) {
 	this.TypeAssert(document, Document);
 	this.TypeAssert(item, SymbolItem);
-	var xml_content = this.SymbolItem_ExportXmlContent(item);
+	var xml_node = this.XmlNode("symbol")
+		.Attr("name", this.GetStringId(item.name));
+	this.Timeline_ExportXmlContent(xml_node, item.timeline);
 	var item_export_path = this.SymbolItem_GetExportFullFilename(document, item);
-	if ( !FLfile.write(item_export_path, xml_content) ) {
+	if ( !FLfile.write(item_export_path, xml_node.Content()) ) {
 		throw "Can't create symbol ({0})!"
 			.format(item_export_path);
 	}
 };
 
-FlashTools.prototype.SymbolItem_ExportXmlContent = function(item, indent) {
-	indent = indent == undefined ? "" : indent;
+FlashTools.prototype.SymbolItem_ExportXmlDescription = function(xml_node, item) {
+	this.AssertTypeXmlNode(xml_node);
 	this.TypeAssert(item, SymbolItem);
-	this.TypeAssert(indent, 'string');
-	return '{0}<symbol name="{1}">\n{2}{0}</symbol>\n'.format(
-		indent,
-		this.GetStringId(item.name),
-		this.Timeline_ExportXmlContent(item.timeline, indent + this.defaultIndent));
-};
-
-FlashTools.prototype.SymbolItem_GetLibraryXmlDescription = function(item, indent) {
-	indent = indent == undefined ? "" : indent;
-	this.TypeAssert(item, SymbolItem);
-	this.TypeAssert(indent, 'string');
-	return '{0}<asset name="{1}" type="{2}" filename="{3}"/>\n'.format(
-		indent,
-		this.GetStringId(item.name),
-		"symbol",
-		this.SymbolItem_GetExportFilename(item));
+	xml_node.Child("symbol")
+		.Attr("name"    , this.GetStringId(item.name))
+		.Attr("type"    , "symbol")
+		.Attr("filename", this.SymbolItem_GetExportFilename(item));
 };
 
 // ------------------------------------
 // Element functions
 // ------------------------------------
 
-FlashTools.prototype.Element_ExportXmlContent = function(element, indent) {
-	indent = indent == undefined ? "" : indent;
+FlashTools.prototype.Element_ExportXmlContent = function(xml_node, element) {
+	this.AssertTypeXmlNode(xml_node);
 	this.TypeAssert(element, Element);
-	this.TypeAssert(indent, 'string');
 	
 	if ( element.elementType == "shape" ) {
 		/// \TODO: shape to bitmap
@@ -341,90 +340,75 @@ FlashTools.prototype.Element_ExportXmlContent = function(element, indent) {
 			.format(element.elementType);
 	}
 	
-	return ('{0}' +
-		'<element name="{1}" depth="{2}">\n{3}{0}</element>\n').format(
-			indent,
-			this.GetStringId(element.name),
-			element.depth,
-			this.ElementTransform_ExportXmlContent(element, indent + this.defaultIndent));
+	var element_node = xml_node.Child("element")
+		.Attr("name" , this.GetStringId(element.name))
+		.Attr("depth", element.depth);
+	this.ElementTransform_ExportXmlContent(element_node, element);
 };
 
-FlashTools.prototype.ElementTransform_ExportXmlContent = function(element, indent) {
-	indent = indent == undefined ? "" : indent;
+FlashTools.prototype.ElementTransform_ExportXmlContent = function(xml_node, element) {
+	this.AssertTypeXmlNode(xml_node);
 	this.TypeAssert(element, Element);
-	this.TypeAssert(indent, 'string');
-	return this.XmlNode("transform")
+	xml_node.Child("transform")
 		.Attr("a" , element.matrix.a)
 		.Attr("b" , element.matrix.b)
 		.Attr("c" , element.matrix.c)
 		.Attr("d" , element.matrix.d)
 		.Attr("tx", element.matrix.tx)
-		.Attr("ty", element.matrix.ty)
-		.Content(indent) + "\n";
+		.Attr("ty", element.matrix.ty);
 };
 
 // ------------------------------------
 // Frame functions
 // ------------------------------------
 
-FlashTools.prototype.Frame_ExportXmlContent = function(frame, indent) {
-	indent = indent == undefined ? "" : indent;
+FlashTools.prototype.Frame_ExportXmlContent = function(xml_node, frame) {
+	this.AssertTypeXmlNode(xml_node);
 	this.TypeAssert(frame, Frame);
-	this.TypeAssert(indent, 'string');
-	return ('{0}' +
-		'<frame name="{1}" start_frame="{2}" duration="{3}" elements="{4}">\n{5}{0}</frame>\n').format(
-			indent,
-			this.GetStringId(frame.name),
-			frame.startFrame,
-			frame.duration,
-			frame.elements.length,
-			this.FrameElements_ExportXmlContent(frame, indent + this.defaultIndent));
+	var frame_node = xml_node.Child("frame")
+		.Attr("name"       , this.GetStringId(frame.name))
+		.Attr("start_frame", frame.startFrame)
+		.Attr("duration"   , frame.duration)
+		.Attr("elements"   , frame.elements.length);
+	this.FrameElements_ExportXmlContent(frame_node, frame);
 };
 
-FlashTools.prototype.FrameElements_ExportXmlContent = function(frame, indent) {
-	indent = indent == undefined ? "" : indent;
+FlashTools.prototype.FrameElements_ExportXmlContent = function(xml_node, frame) {
+	this.AssertTypeXmlNode(xml_node);
 	this.TypeAssert(frame, Frame);
-	this.TypeAssert(indent, 'string');
-	var xml_content = "";
 	for ( var i = 0; i < frame.elements.length; ++i ) {
 		var element = frame.elements[i];
-		xml_content += this.Element_ExportXmlContent(element, indent);
+		this.Element_ExportXmlContent(xml_node, element);
 	}
-	return xml_content;
 };
 
 // ------------------------------------
 // Layer functions
 // ------------------------------------
 
-FlashTools.prototype.Layer_ExportXmlContent = function(layer, indent) {
-	indent = indent == undefined ? "" : indent;
+FlashTools.prototype.Layer_ExportXmlContent = function(xml_node, layer) {
+	this.AssertTypeXmlNode(xml_node);
 	this.TypeAssert(layer, Layer);
-	this.TypeAssert(indent, 'string');
-	return ('{0}' +
-		'<layer name="{1}" type="{2}" frames="{3}" locked="{4}" visible="{5}"' +
-		' animation_type="{6}" parent_layer="{7}">\n{8}{0}</layer>\n').format(
-			indent,
-			this.GetStringId(layer.name),
-			layer.layerType,
-			layer.frameCount,
-			layer.locked,
-			layer.visible,
-			layer.animationType,
-			layer.parentLayer ? this.GetStringId(layer.parentLayer.name) : "",
-			this.LayerFrames_ExportXmlContent(layer, indent + this.defaultIndent));
+	var layer_node = xml_node.Child("layer")
+		.Attr("name"          , this.GetStringId(layer.name))
+		.Attr("type"          , layer.layerType)
+		.Attr("frames"        , layer.frameCount)
+		.Attr("locked"        , layer.locked)
+		.Attr("visible"       , layer.visible)
+		.Attr("animation_type", layer.animationType);
+	if ( layer.parentLayer ) {
+		layer_node.Attr("parent_layer", this.GetStringId(layer.parentLayer.name));
+	}
+	this.LayerFrames_ExportXmlContent(layer_node, layer);
 };
 
-FlashTools.prototype.LayerFrames_ExportXmlContent = function(layer, indent) {
-	indent = indent == undefined ? "" : indent;
+FlashTools.prototype.LayerFrames_ExportXmlContent = function(xml_node, layer) {
+	this.AssertTypeXmlNode(xml_node);
 	this.TypeAssert(layer, Layer);
-	this.TypeAssert(indent, 'string');
-	var xml_content = "";
 	for ( var i = 0; i < layer.frames.length; ++i ) {
 		var frame = layer.frames[i];
-		xml_content += this.Frame_ExportXmlContent(frame, indent);
+		this.Frame_ExportXmlContent(xml_node, frame);
 	}
-	return xml_content;
 };
 
 // ------------------------------------
@@ -438,27 +422,22 @@ FlashTools.prototype.Timeline_TraceInfo = function(timeline) {
 	this.Trace("{0}Frame count : {1}".format(this.defaultIndent, timeline.frameCount));
 };
 
-FlashTools.prototype.Timeline_ExportXmlContent = function(timeline, indent) {
-	indent = indent == undefined ? "" : indent;
+FlashTools.prototype.Timeline_ExportXmlContent = function(xml_node, timeline) {
+	this.AssertTypeXmlNode(xml_node);
 	this.TypeAssert(timeline, Timeline);
-	this.TypeAssert(indent, 'string');
-	return '{0}<timeline layers="{1}" frames="{2}">\n{3}{0}</timeline>\n'.format(
-		indent,
-		timeline.layerCount,
-		timeline.frameCount,
-		this.TimelineLayers_ExportXmlContent(timeline, indent + this.defaultIndent));
+	var timeline_node = xml_node.Child("timeline")
+		.Attr("layers", timeline.layerCount)
+		.Attr("frames", timeline.frameCount);
+	this.TimelineLayers_ExportXmlContent(timeline_node, timeline);
 };
 
-FlashTools.prototype.TimelineLayers_ExportXmlContent = function(timeline, indent) {
-	indent = indent == undefined ? "" : indent;
+FlashTools.prototype.TimelineLayers_ExportXmlContent = function(xml_node, timeline) {
+	this.AssertTypeXmlNode(xml_node);
 	this.TypeAssert(timeline, Timeline);
-	this.TypeAssert(indent, 'string');
-	var xml_content = "";
 	for ( var i = 0; i < timeline.layers.length; ++i ) {
 		var layer = timeline.layers[i];
-		xml_content += this.Layer_ExportXmlContent(layer, indent);
+		this.Layer_ExportXmlContent(xml_node, layer);
 	}
-	return xml_content;
 };
 
 // ------------------------------------
@@ -533,24 +512,22 @@ FlashTools.prototype.Document_PrepareExportFolder = function(document) {
 
 FlashTools.prototype.Document_ExportLibrary = function(document) {
 	this.TypeAssert(document, Document);
-	var xml_content =
-		'<library frame_rate="{0}">\n'.format(
-			document.frameRate);
+	var xml_node = this.XmlNode("library")
+		.Attr("frame_rate", document.frameRate);
 	this.Document_ForEachByLibraryItems(document, function(item) {
 		if ( this.IsFolderLibraryItem(item) ) {
 			// nothing
 		} else if ( this.IsBitmapLibraryItem(item) ) {
-			xml_content += this.BitmapItem_GetLibraryXmlDescription(item, this.defaultIndent);
+			this.BitmapItem_ExportXmlDescription(xml_node, item);
 		} else if ( this.IsSymbolLibraryItem(item) ) {
-			xml_content += this.SymbolItem_GetLibraryXmlDescription(item, this.defaultIndent);
+			this.SymbolItem_ExportXmlDescription(xml_node, item);
 		} else {
 			throw "Unsupported library item type ({0})!"
 				.format(item.itemType);
 		}
 	}.bind(this));
-	xml_content += "</library>";
 	var library_path = this.Document_GetLibraryExportPath(document);
-	if ( !FLfile.write(library_path, xml_content) ) {
+	if ( !FLfile.write(library_path, xml_node.Content()) ) {
 		throw "Can't create library xml ({0})!"
 			.format(library_path);
 	}
@@ -573,11 +550,10 @@ FlashTools.prototype.Document_ExportSymbols = function(document) {
 FlashTools.prototype.Document_ExportStage = function(document) {
 	this.TypeAssert(document, Document);
 	this.Document_ExitEditMode(document);
-	var xml_content =
-		'<stage>\n{0}</stage>'.format(
-			this.Timeline_ExportXmlContent(document.getTimeline(), this.defaultIndent));
+	var xml_node = this.XmlNode("stage");
+	this.Timeline_ExportXmlContent(xml_node, document.getTimeline());
 	var stage_path = this.Document_GetStageExportPath(document);
-	if ( !FLfile.write(stage_path, xml_content) ) {
+	if ( !FLfile.write(stage_path, xml_node.Content()) ) {
 		throw "Can't create stage xml ({0})!"
 			.format(stage_path);
 	}
@@ -654,3 +630,4 @@ ft.ClearOutput();
 if ( ft.RunTests() ) {
 	ft.ConvertAll();
 }
+
