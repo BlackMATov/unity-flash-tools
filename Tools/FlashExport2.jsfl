@@ -66,6 +66,12 @@ FlashTools.prototype.TypeAssert = function(item, type) {
 		"Type error: {0} != {1}".format(typeof item, type.name));
 };
 
+FlashTools.prototype.TypeAssertIfDefined = function(item, type) {
+	if ( item != undefined ) {
+		this.TypeAssert(item, type);
+	}
+};
+
 FlashTools.prototype.ClearOutput = function() {
 	fl.outputPanel.clear();
 };
@@ -118,6 +124,76 @@ FlashTools.prototype.ExportStringIdsXmlContent = function() {
 		}
 	}
 	return xml_content + "</strings>";
+};
+
+// ------------------------------------
+// Xml functions
+// ------------------------------------
+
+FlashTools.prototype.XmlNode = function(node_name) {
+	var Assert              = this.Assert.bind(this);
+	var TypeAssert          = this.TypeAssert.bind(this);
+	var TypeAssertIfDefined = this.TypeAssertIfDefined.bind(this);
+	var EscapeString        = this.EscapeString.bind(this);
+	var DefaultIndent       = this.defaultIndent;
+	
+	var Ctor = function(node_name, node_parent) {
+		TypeAssert(node_name, 'string');
+		TypeAssertIfDefined(node_parent, Ctor);
+		this.name     = node_name;
+		this.parent   = node_parent;
+		this.attrs    = [];
+		this.children = [];
+	};
+	
+	Ctor.prototype.Attr = function(attr_name, attr_value) {
+		TypeAssert(attr_name, 'string');
+		attr_value = EscapeString(attr_value.toString());
+		for ( var i = 0; i < this.attrs.length; ++i ) {
+			var attr = this.attrs[i];
+			if ( attr.name == attr_name ) {
+				attr.value = attr_value;
+				return this;
+			}
+		}
+		this.attrs.push({name:attr_name, value:attr_value});
+		return this;
+	};
+	
+	Ctor.prototype.Child = function(child_name) {
+		TypeAssert(child_name, 'string');
+		var child = new Ctor(child_name, this);
+		this.children.push(child);
+		return child;
+	};
+	
+	Ctor.prototype.Parent = function() {
+		Assert(this.parent != undefined, "node parent is undefined");
+		return this.parent;
+	};
+	
+	Ctor.prototype.Content = function(indent) {
+		indent = indent == undefined ? "" : indent;
+		var str = '{0}<{1}'.format(indent, this.name);
+		if ( this.attrs.length > 0 ) {
+			for ( var i = 0; i < this.attrs.length; ++i ) {
+				var attr = this.attrs[i];
+				str += ' {0}="{1}"'.format(attr.name, attr.value);
+			}
+		}
+		if ( this.children.length > 0 ) {
+			str += ">\n";
+			for ( var i = 0; i < this.children.length; ++i ) {
+				var child = this.children[i];
+				str += child.Content(indent + DefaultIndent) + "\n";
+			}
+			return str + "{0}<{1}/>".format(indent, this.name);
+		} else {
+			return str + "/>";
+		}
+	};
+	
+	return new Ctor(node_name);
 };
 
 // ------------------------------------
@@ -241,6 +317,83 @@ FlashTools.prototype.SymbolItem_GetLibraryXmlDescription = function(item, indent
 };
 
 // ------------------------------------
+// Element functions
+// ------------------------------------
+
+FlashTools.prototype.Element_ExportXmlContent = function(element, indent) {
+	indent = indent == undefined ? "" : indent;
+	this.TypeAssert(element, Element);
+	this.TypeAssert(indent, 'string');
+	
+	if ( element.elementType == "shape" ) {
+		/// \TODO: shape to bitmap
+	} else if ( element.elementType == "instance" ) {
+		if ( element.instanceType == "bitmap" ) {
+		} else if ( element.instanceType == "symbol" ) {
+		} else {
+			throw "Unsupported element type ({0})!"
+				.format(element.elementType);
+		}
+		//this.Trace("Instance type : " + element.instanceType);
+		//this.Trace("Library item  : " + element.libraryItem.name);
+	} else {
+		throw "Unsupported element type ({0})!"
+			.format(element.elementType);
+	}
+	
+	return ('{0}' +
+		'<element name="{1}" depth="{2}">\n{3}{0}</element>\n').format(
+			indent,
+			this.GetStringId(element.name),
+			element.depth,
+			this.ElementTransform_ExportXmlContent(element, indent + this.defaultIndent));
+};
+
+FlashTools.prototype.ElementTransform_ExportXmlContent = function(element, indent) {
+	indent = indent == undefined ? "" : indent;
+	this.TypeAssert(element, Element);
+	this.TypeAssert(indent, 'string');
+	return this.XmlNode("transform")
+		.Attr("a" , element.matrix.a)
+		.Attr("b" , element.matrix.b)
+		.Attr("c" , element.matrix.c)
+		.Attr("d" , element.matrix.d)
+		.Attr("tx", element.matrix.tx)
+		.Attr("ty", element.matrix.ty)
+		.Content(indent) + "\n";
+};
+
+// ------------------------------------
+// Frame functions
+// ------------------------------------
+
+FlashTools.prototype.Frame_ExportXmlContent = function(frame, indent) {
+	indent = indent == undefined ? "" : indent;
+	this.TypeAssert(frame, Frame);
+	this.TypeAssert(indent, 'string');
+	return ('{0}' +
+		'<frame name="{1}" start_frame="{2}" duration="{3}" elements="{4}">\n{5}{0}</frame>\n').format(
+			indent,
+			this.GetStringId(frame.name),
+			frame.startFrame,
+			frame.duration,
+			frame.elements.length,
+			this.FrameElements_ExportXmlContent(frame, indent + this.defaultIndent));
+};
+
+FlashTools.prototype.FrameElements_ExportXmlContent = function(frame, indent) {
+	indent = indent == undefined ? "" : indent;
+	this.TypeAssert(frame, Frame);
+	this.TypeAssert(indent, 'string');
+	var xml_content = "";
+	for ( var i = 0; i < frame.elements.length; ++i ) {
+		var element = frame.elements[i];
+		xml_content += this.Element_ExportXmlContent(element, indent);
+	}
+	return xml_content;
+};
+
+// ------------------------------------
 // Layer functions
 // ------------------------------------
 
@@ -248,15 +401,30 @@ FlashTools.prototype.Layer_ExportXmlContent = function(layer, indent) {
 	indent = indent == undefined ? "" : indent;
 	this.TypeAssert(layer, Layer);
 	this.TypeAssert(indent, 'string');
-	return '{0}<layer name="{1}" type="{2}" frames="{3}" locked="{4}" visible="{5}" animation_type="{6}" parent_layer="{7}"/>\n'.format(
-		indent,
-		this.GetStringId(layer.name),
-		layer.layerType,
-		layer.frameCount,
-		layer.locked,
-		layer.visible,
-		layer.animationType,
-		layer.parentLayer ? this.GetStringId(layer.parentLayer.name) : "");
+	return ('{0}' +
+		'<layer name="{1}" type="{2}" frames="{3}" locked="{4}" visible="{5}"' +
+		' animation_type="{6}" parent_layer="{7}">\n{8}{0}</layer>\n').format(
+			indent,
+			this.GetStringId(layer.name),
+			layer.layerType,
+			layer.frameCount,
+			layer.locked,
+			layer.visible,
+			layer.animationType,
+			layer.parentLayer ? this.GetStringId(layer.parentLayer.name) : "",
+			this.LayerFrames_ExportXmlContent(layer, indent + this.defaultIndent));
+};
+
+FlashTools.prototype.LayerFrames_ExportXmlContent = function(layer, indent) {
+	indent = indent == undefined ? "" : indent;
+	this.TypeAssert(layer, Layer);
+	this.TypeAssert(indent, 'string');
+	var xml_content = "";
+	for ( var i = 0; i < layer.frames.length; ++i ) {
+		var frame = layer.frames[i];
+		xml_content += this.Frame_ExportXmlContent(frame, indent);
+	}
+	return xml_content;
 };
 
 // ------------------------------------
@@ -288,7 +456,7 @@ FlashTools.prototype.TimelineLayers_ExportXmlContent = function(timeline, indent
 	var xml_content = "";
 	for ( var i = 0; i < timeline.layers.length; ++i ) {
 		var layer = timeline.layers[i];
-		xml_content += this.Layer_ExportXmlContent(layer, indent + this.defaultIndent);
+		xml_content += this.Layer_ExportXmlContent(layer, indent);
 	}
 	return xml_content;
 };
@@ -337,10 +505,9 @@ FlashTools.prototype.Document_ExitEditMode = function(document) {
 };
 
 FlashTools.prototype.Document_ForEachByLibraryItems = function(document, func, filter_func) {
-	filter_func = filter_func == undefined ? function(item) { return true; } : filter_func;
 	this.TypeAssert(document, Document);
 	this.TypeAssert(func, 'function');
-	this.TypeAssert(filter_func, 'function');
+	this.TypeAssertIfDefined(filter_func, 'function');
 	for ( var i = 0; i < document.library.items.length; ++i ) {
 		var item = document.library.items[i];
 		if ( filter_func == undefined || filter_func(item) ) {
@@ -366,7 +533,9 @@ FlashTools.prototype.Document_PrepareExportFolder = function(document) {
 
 FlashTools.prototype.Document_ExportLibrary = function(document) {
 	this.TypeAssert(document, Document);
-	var xml_content = "<library>\n";
+	var xml_content =
+		'<library frame_rate="{0}">\n'.format(
+			document.frameRate);
 	this.Document_ForEachByLibraryItems(document, function(item) {
 		if ( this.IsFolderLibraryItem(item) ) {
 			// nothing
@@ -404,8 +573,9 @@ FlashTools.prototype.Document_ExportSymbols = function(document) {
 FlashTools.prototype.Document_ExportStage = function(document) {
 	this.TypeAssert(document, Document);
 	this.Document_ExitEditMode(document);
-	var xml_content = "<stage>\n{0}</stage>".format(
-		this.Timeline_ExportXmlContent(document.getTimeline(), this.defaultIndent));
+	var xml_content =
+		'<stage>\n{0}</stage>'.format(
+			this.Timeline_ExportXmlContent(document.getTimeline(), this.defaultIndent));
 	var stage_path = this.Document_GetStageExportPath(document);
 	if ( !FLfile.write(stage_path, xml_content) ) {
 		throw "Can't create stage xml ({0})!"
@@ -436,9 +606,9 @@ FlashTools.prototype.ConvertAll = function() {
 
 FlashTools.prototype.ConvertOne = function(document) {
 	this.TypeAssert(document, Document);
+	this.ClearStringIds();
 	this.Trace("-= Convert document start =-");
 	try {
-		this.ClearStringIds();
 		this.Document_TraceInfo(document);
 		this.Document_PrepareExportFolder(document);
 		this.Document_ExportLibrary(document);
@@ -484,6 +654,3 @@ ft.ClearOutput();
 if ( ft.RunTests() ) {
 	ft.ConvertAll();
 }
-
-
-
