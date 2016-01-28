@@ -36,8 +36,8 @@ if ( !Function.prototype.bind ) {
 // ------------------------------------
 
 var FlashTools = function() {
-	this.uniqueIdsMap = {};
-	this.uniqueLastId = 0;
+	this.defaultIndent = "  ";
+	this.ClearStringIds();
 };
 
 // ------------------------------------
@@ -75,10 +75,49 @@ FlashTools.prototype.EscapePath = function(path) {
 	return path.replace(/ /g, '%20');
 };
 
+FlashTools.prototype.EscapeString = function(str) {
+	this.TypeAssert(str, 'string');
+	return str
+		.replace(/\&/g, '&amp;')
+		.replace(/\"/g, '&quot;')
+		.replace(/\'/g, '&apos;')
+		.replace(/\</g, '&lt;')
+		.replace(/\>/g, '&gt;');
+};
+
 FlashTools.prototype.CombinePath = function(lhs, rhs) {
 	this.TypeAssert(lhs, 'string');
 	this.TypeAssert(rhs, 'string');
 	return this.EscapePath(lhs) + this.EscapePath(rhs);
+};
+
+FlashTools.prototype.ClearStringIds = function() {
+	this.stringIds    = {};
+	this.lastStringId = 0;
+};
+
+FlashTools.prototype.GetStringId = function(str) {
+	this.TypeAssert(str, 'string');
+	var id = this.stringIds[str];
+	if ( id == undefined ) {
+		this.stringIds[str] = ++this.lastStringId;
+		return this.lastStringId;
+	} else {
+		return id;
+	}
+};
+
+FlashTools.prototype.ExportStringIdsXmlContent = function() {
+	var xml_content = "<strings>\n";
+	for ( var str in this.stringIds ) {
+		if ( this.stringIds.hasOwnProperty(str) ) {
+			xml_content += '{0}<string id="{1}" str="{2}"/>\n'.format(
+				this.defaultIndent,
+				this.stringIds[str],
+				this.EscapeString(str));
+		}
+	}
+	return xml_content + "</strings>";
 };
 
 // ------------------------------------
@@ -101,31 +140,19 @@ FlashTools.prototype.IsSymbolLibraryItem = function(item) {
 	return item_type == "graphic" || item_type == "component" || item_type == "movie clip";
 };
 
-FlashTools.prototype.GetUniqueItemId = function(item) {
-	this.TypeAssert(item, LibraryItem);
-	var unique_item_name = "unique_item_name_" + item.name;
-	var unique_id_for_name = this.uniqueIdsMap[unique_item_name];
-	if ( unique_id_for_name == undefined ) {
-		this.uniqueIdsMap[unique_item_name] = ++this.uniqueLastId;
-		return this.uniqueLastId;
-	} else {
-		return unique_id_for_name;
-	}
-};
-
 // ------------------------------------
 // Bitmap item functions
 // ------------------------------------
 
 FlashTools.prototype.BitmapItem_TraceInfo = function(item) {
 	this.TypeAssert(item, BitmapItem);
-	this.Trace("  Name           : " + item.name);
-	this.Trace("  ExportFilename : " + this.BitmapItem_GetExportFilename(item));
+	this.Trace("{0}Name           : {1}".format(this.defaultIndent, item.name));
+	this.Trace("{0}ExportFilename : {1}".format(this.defaultIndent, this.BitmapItem_GetExportFilename(item)));
 };
 
 FlashTools.prototype.BitmapItem_GetExportFilename = function(item) {
 	this.TypeAssert(item, BitmapItem);
-	var item_id = this.GetUniqueItemId(item);
+	var item_id = this.GetStringId(item.name);
 	return "bitmaps/{0}.png".format(item_id);
 };
 
@@ -148,12 +175,12 @@ FlashTools.prototype.BitmapItem_Export = function(document, item) {
 };
 
 FlashTools.prototype.BitmapItem_GetLibraryXmlDescription = function(item, indent) {
-	indent = indent == undefined ? "" : indent,
+	indent = indent == undefined ? "" : indent;
 	this.TypeAssert(item, BitmapItem);
 	this.TypeAssert(indent, 'string');
 	return '{0}<asset name="{1}" type="{2}" filename="{3}"/>\n'.format(
 		indent,
-		this.GetUniqueItemId(item),
+		this.GetStringId(item.name),
 		"bitmap",
 		this.BitmapItem_GetExportFilename(item));
 };
@@ -164,13 +191,13 @@ FlashTools.prototype.BitmapItem_GetLibraryXmlDescription = function(item, indent
 
 FlashTools.prototype.SymbolItem_TraceInfo = function(item) {
 	this.TypeAssert(item, SymbolItem);
-	this.Trace("  Name           : " + item.name);
-	this.Trace("  ExportFilename : " + this.SymbolItem_GetExportFilename(item));
+	this.Trace("{0}Name           : {1}".format(this.defaultIndent, item.name));
+	this.Trace("{0}ExportFilename : {1}".format(this.defaultIndent, this.SymbolItem_GetExportFilename(item)));
 };
 
 FlashTools.prototype.SymbolItem_GetExportFilename = function(item) {
 	this.TypeAssert(item, SymbolItem);
-	var item_id = this.GetUniqueItemId(item);
+	var item_id = this.GetStringId(item.name);
 	return "symbols/{0}.xml".format(item_id);
 };
 
@@ -193,23 +220,43 @@ FlashTools.prototype.SymbolItem_Export = function(document, item) {
 };
 
 FlashTools.prototype.SymbolItem_ExportXmlContent = function(item, indent) {
-	indent = indent == undefined ? "" : indent,
+	indent = indent == undefined ? "" : indent;
 	this.TypeAssert(item, SymbolItem);
 	this.TypeAssert(indent, 'string');
-	return "{0}<symbol>\n{1}{0}</symbol>\n".format(
+	return '{0}<symbol name="{1}">\n{2}{0}</symbol>\n'.format(
 		indent,
-		this.Timeline_ExportXmlContent(item.timeline, indent + "  "));
+		this.GetStringId(item.name),
+		this.Timeline_ExportXmlContent(item.timeline, indent + this.defaultIndent));
 };
 
 FlashTools.prototype.SymbolItem_GetLibraryXmlDescription = function(item, indent) {
-	indent = indent == undefined ? "" : indent,
+	indent = indent == undefined ? "" : indent;
 	this.TypeAssert(item, SymbolItem);
 	this.TypeAssert(indent, 'string');
 	return '{0}<asset name="{1}" type="{2}" filename="{3}"/>\n'.format(
 		indent,
-		this.GetUniqueItemId(item),
+		this.GetStringId(item.name),
 		"symbol",
 		this.SymbolItem_GetExportFilename(item));
+};
+
+// ------------------------------------
+// Layer functions
+// ------------------------------------
+
+FlashTools.prototype.Layer_ExportXmlContent = function(layer, indent) {
+	indent = indent == undefined ? "" : indent;
+	this.TypeAssert(layer, Layer);
+	this.TypeAssert(indent, 'string');
+	return '{0}<layer name="{1}" type="{2}" frames="{3}" locked="{4}" visible="{5}" animation_type="{6}" parent_layer="{7}"/>\n'.format(
+		indent,
+		this.GetStringId(layer.name),
+		layer.layerType,
+		layer.frameCount,
+		layer.locked,
+		layer.visible,
+		layer.animationType,
+		layer.parentLayer ? this.GetStringId(layer.parentLayer.name) : "");
 };
 
 // ------------------------------------
@@ -218,19 +265,32 @@ FlashTools.prototype.SymbolItem_GetLibraryXmlDescription = function(item, indent
 
 FlashTools.prototype.Timeline_TraceInfo = function(timeline) {
 	this.TypeAssert(timeline, Timeline);
-	this.Trace("  Name        : " + timeline.name);
-	this.Trace("  Layer count : " + timeline.layerCount);
-	this.Trace("  Frame count : " + timeline.frameCount);
+	this.Trace("{0}Name        : {1}".format(this.defaultIndent, timeline.name));
+	this.Trace("{0}Layer count : {1}".format(this.defaultIndent, timeline.layerCount));
+	this.Trace("{0}Frame count : {1}".format(this.defaultIndent, timeline.frameCount));
 };
 
 FlashTools.prototype.Timeline_ExportXmlContent = function(timeline, indent) {
-	indent = indent == undefined ? "" : indent,
+	indent = indent == undefined ? "" : indent;
 	this.TypeAssert(timeline, Timeline);
 	this.TypeAssert(indent, 'string');
-	return '{0}<timeline layers="{1}" frames="{2}">\n{0}</timeline>\n'.format(
+	return '{0}<timeline layers="{1}" frames="{2}">\n{3}{0}</timeline>\n'.format(
 		indent,
 		timeline.layerCount,
-		timeline.frameCount);
+		timeline.frameCount,
+		this.TimelineLayers_ExportXmlContent(timeline, indent + this.defaultIndent));
+};
+
+FlashTools.prototype.TimelineLayers_ExportXmlContent = function(timeline, indent) {
+	indent = indent == undefined ? "" : indent;
+	this.TypeAssert(timeline, Timeline);
+	this.TypeAssert(indent, 'string');
+	var xml_content = "";
+	for ( var i = 0; i < timeline.layers.length; ++i ) {
+		var layer = timeline.layers[i];
+		xml_content += this.Layer_ExportXmlContent(layer, indent + this.defaultIndent);
+	}
+	return xml_content;
 };
 
 // ------------------------------------
@@ -239,9 +299,9 @@ FlashTools.prototype.Timeline_ExportXmlContent = function(timeline, indent) {
 
 FlashTools.prototype.Document_TraceInfo = function(document) {
 	this.TypeAssert(document, Document);
-	this.Trace("  Name         : " + document.name);
-	this.Trace("  Path         : " + this.Document_GetPath(document));
-	this.Trace("  ExportFolder : " + this.Document_GetExportFolder(document));
+	this.Trace("{0}Name         : {1}".format(this.defaultIndent, document.name));
+	this.Trace("{0}Path         : {1}".format(this.defaultIndent, this.Document_GetPath(document)));
+	this.Trace("{0}ExportFolder : {1}".format(this.defaultIndent, this.Document_GetExportFolder(document)));
 };
 
 FlashTools.prototype.Document_GetPath = function(document) {
@@ -262,6 +322,11 @@ FlashTools.prototype.Document_GetStageExportPath = function(document) {
 FlashTools.prototype.Document_GetLibraryExportPath = function(document) {
 	this.TypeAssert(document, Document);
 	return this.Document_GetExportFolder(document) + "library.xml";
+};
+
+FlashTools.prototype.Document_GetStringIdsExportPath = function(document) {
+	this.TypeAssert(document, Document);
+	return this.Document_GetExportFolder(document) + "strings.xml";
 };
 
 FlashTools.prototype.Document_ExitEditMode = function(document) {
@@ -299,15 +364,26 @@ FlashTools.prototype.Document_PrepareExportFolder = function(document) {
 	}
 };
 
-FlashTools.prototype.Document_ExportStage = function(document) {
+FlashTools.prototype.Document_ExportLibrary = function(document) {
 	this.TypeAssert(document, Document);
-	this.Document_ExitEditMode(document);
-	var xml_content = "<stage>\n{0}</stage>".format(
-		this.Timeline_ExportXmlContent(document.getTimeline(), "  "));
-	var stage_path = this.Document_GetStageExportPath(document);
-	if ( !FLfile.write(stage_path, xml_content) ) {
-		throw "Can't create stage xml ({0})!"
-			.format(stage_path);
+	var xml_content = "<library>\n";
+	this.Document_ForEachByLibraryItems(document, function(item) {
+		if ( this.IsFolderLibraryItem(item) ) {
+			// nothing
+		} else if ( this.IsBitmapLibraryItem(item) ) {
+			xml_content += this.BitmapItem_GetLibraryXmlDescription(item, this.defaultIndent);
+		} else if ( this.IsSymbolLibraryItem(item) ) {
+			xml_content += this.SymbolItem_GetLibraryXmlDescription(item, this.defaultIndent);
+		} else {
+			throw "Unsupported library item type ({0})!"
+				.format(item.itemType);
+		}
+	}.bind(this));
+	xml_content += "</library>";
+	var library_path = this.Document_GetLibraryExportPath(document);
+	if ( !FLfile.write(library_path, xml_content) ) {
+		throw "Can't create library xml ({0})!"
+			.format(library_path);
 	}
 };
 
@@ -325,26 +401,25 @@ FlashTools.prototype.Document_ExportSymbols = function(document) {
 	}.bind(this), this.IsSymbolLibraryItem.bind(this));
 };
 
-FlashTools.prototype.Document_ExportLibrary = function(document) {
+FlashTools.prototype.Document_ExportStage = function(document) {
 	this.TypeAssert(document, Document);
-	var xml_content = "<library>\n";
-	this.Document_ForEachByLibraryItems(document, function(item) {
-		if ( this.IsFolderLibraryItem(item) ) {
-			// nothing
-		} else if ( this.IsBitmapLibraryItem(item) ) {
-			xml_content += this.BitmapItem_GetLibraryXmlDescription(item, "  ");
-		} else if ( this.IsSymbolLibraryItem(item) ) {
-			xml_content += this.SymbolItem_GetLibraryXmlDescription(item, "  ");
-		} else {
-			throw "Unsupported library item type ({0})!"
-				.format(item.itemType);
-		}
-	}.bind(this));
-	xml_content += "</library>";
-	var library_path = this.Document_GetLibraryExportPath(document);
-	if ( !FLfile.write(library_path, xml_content) ) {
-		throw "Can't create library xml ({0})!"
-			.format(library_path);
+	this.Document_ExitEditMode(document);
+	var xml_content = "<stage>\n{0}</stage>".format(
+		this.Timeline_ExportXmlContent(document.getTimeline(), this.defaultIndent));
+	var stage_path = this.Document_GetStageExportPath(document);
+	if ( !FLfile.write(stage_path, xml_content) ) {
+		throw "Can't create stage xml ({0})!"
+			.format(stage_path);
+	}
+};
+
+FlashTools.prototype.Document_ExportStringIds = function(document) {
+	this.TypeAssert(document, Document);
+	var xml_content = this.ExportStringIdsXmlContent();
+	var xml_path = this.Document_GetStringIdsExportPath(document);
+	if ( !FLfile.write(xml_path, xml_content) ) {
+		throw "Can't create string ids xml ({0})!"
+			.format(xml_path);
 	}
 };
 
@@ -363,12 +438,14 @@ FlashTools.prototype.ConvertOne = function(document) {
 	this.TypeAssert(document, Document);
 	this.Trace("-= Convert document start =-");
 	try {
+		this.ClearStringIds();
 		this.Document_TraceInfo(document);
 		this.Document_PrepareExportFolder(document);
-		this.Document_ExportStage(document);
+		this.Document_ExportLibrary(document);
 		this.Document_ExportBitmaps(document);
 		this.Document_ExportSymbols(document);
-		this.Document_ExportLibrary(document);
+		this.Document_ExportStage(document);
+		this.Document_ExportStringIds(document);
 		this.Trace("-= Convert document finish =-");
 	} catch ( e ) {
 		this.Trace("-= Convert document error =- : " + e);
@@ -407,5 +484,6 @@ ft.ClearOutput();
 if ( ft.RunTests() ) {
 	ft.ConvertAll();
 }
+
 
 
