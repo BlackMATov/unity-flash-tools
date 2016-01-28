@@ -36,6 +36,8 @@ if ( !Function.prototype.bind ) {
 // ------------------------------------
 
 var FlashTools = function() {
+	this.uniqueIdsMap = {};
+	this.uniqueLastId = 0;
 };
 
 // ------------------------------------
@@ -43,10 +45,12 @@ var FlashTools = function() {
 // ------------------------------------
 
 FlashTools.prototype.Trace = function(text) {
+	this.TypeAssert(text, 'string');
 	fl.outputPanel.trace(text);
 };
 
 FlashTools.prototype.TraceError = function(text) {
+	this.TypeAssert(text, 'string');
 	this.Trace("!!!Error!!!: " + text);
 };
 
@@ -56,15 +60,24 @@ FlashTools.prototype.Assert = function(expr, msg) {
 	}
 };
 
+FlashTools.prototype.TypeAssert = function(item, type) {
+	this.Assert(
+		(typeof type === 'string' && typeof item === type) || (item instanceof type),
+		"Type error: {0} != {1}".format(typeof item, type.name));
+};
+
 FlashTools.prototype.ClearOutput = function() {
 	fl.outputPanel.clear();
 };
 
 FlashTools.prototype.EscapePath = function(path) {
+	this.TypeAssert(path, 'string');
 	return path.replace(/ /g, '%20');
 };
 
 FlashTools.prototype.CombinePath = function(lhs, rhs) {
+	this.TypeAssert(lhs, 'string');
+	this.TypeAssert(rhs, 'string');
 	return this.EscapePath(lhs) + this.EscapePath(rhs);
 };
 
@@ -73,15 +86,31 @@ FlashTools.prototype.CombinePath = function(lhs, rhs) {
 // ------------------------------------
 
 FlashTools.prototype.IsClipLibraryItem = function(item) {
-	return item.itemType == "graphic" || item.itemType == "component" || item.itemType == "movie clip";
+	this.TypeAssert(item, LibraryItem);
+	var item_type = item.itemType;
+	return item_type == "graphic" || item_type == "component" || item_type == "movie clip";
 };
 
 FlashTools.prototype.IsBitmapLibraryItem = function(item) {
+	this.TypeAssert(item, LibraryItem);
 	return item.itemType == "bitmap";
 };
 
 FlashTools.prototype.IsFolderLibraryItem = function(item) {
+	this.TypeAssert(item, LibraryItem);
 	return item.itemType == "folder";
+};
+
+FlashTools.prototype.GetUniqueItemId = function(item) {
+	this.TypeAssert(item, LibraryItem);
+	var unique_item_name = "unique_item_name_" + item.name;
+	var unique_id_for_name = this.uniqueIdsMap[unique_item_name];
+	if ( unique_id_for_name == undefined ) {
+		this.uniqueIdsMap[unique_item_name] = ++this.uniqueLastId;
+		return this.uniqueLastId;
+	} else {
+		return unique_id_for_name;
+	}
 };
 
 // ------------------------------------
@@ -89,61 +118,82 @@ FlashTools.prototype.IsFolderLibraryItem = function(item) {
 // ------------------------------------
 
 FlashTools.prototype.ClipItem_TraceInfo = function(item) {
-	this.Trace("\tName           : " + item.name);
-	this.Trace("\tExportFilename : " + this.ClipItem_GetExportFilename(item));
+	this.TypeAssert(item, SymbolItem);
+	this.Trace("  Name           : " + item.name);
+	this.Trace("  ExportFilename : " + this.ClipItem_GetExportFilename(item));
 };
 
 FlashTools.prototype.ClipItem_GetExportFilename = function(item) {
-	return "clips/" + item.name.replace(/\//g, ' ') + ".xml";
+	this.TypeAssert(item, SymbolItem);
+	var item_id = this.GetUniqueItemId(item);
+	return "clips/{0}.xml".format(item_id);
 };
 
 FlashTools.prototype.ClipItem_GetExportFullFilename = function(document, item) {
+	this.TypeAssert(item, SymbolItem);
 	return this.CombinePath(
 		this.Document_GetExportFolder(document),
 		this.ClipItem_GetExportFilename(item));
 };
 
 FlashTools.prototype.ClipItem_Export = function(document, item) {
-	this.Document_ExitEditMode(document);
-	if ( !document.library.editItem(item.name) ) {
-		throw "Can't edit clip ({0})!"
-			.format(item.name);
-	}
-	this.Document_ExitEditMode(document);
-	this.Timeline_TraceInfo(item.timeline);
-	var xml_content = "<clip>\n";
-	xml_content += "</clip>";
+	this.TypeAssert(document, Document);
+	this.TypeAssert(item, SymbolItem);
+	var xml_content = this.ClipItem_ExportXmlContent(item);
 	var item_export_path = this.ClipItem_GetExportFullFilename(document, item);
 	if ( !FLfile.write(item_export_path, xml_content) ) {
 		throw "Can't create clip ({0})!"
 			.format(item_export_path);
 	}
-}
+};
+
+FlashTools.prototype.ClipItem_ExportXmlContent = function(item, indent) {
+	indent = indent == undefined ? "" : indent,
+	this.TypeAssert(item, SymbolItem);
+	this.TypeAssert(indent, 'string');
+	return "{0}<clip>\n{1}{0}</clip>\n".format(
+		indent,
+		this.Timeline_ExportXmlContent(item.timeline, indent + "  "));
+};
+
+FlashTools.prototype.ClipItem_GetLibraryXmlDescription = function(item, indent) {
+	indent = indent == undefined ? "" : indent,
+	this.TypeAssert(item, SymbolItem);
+	this.TypeAssert(indent, 'string');
+	return '{0}<asset name="{1}" type="{2}" filename="{3}"/>\n'.format(
+		indent,
+		this.GetUniqueItemId(item),
+		item.itemType,
+		this.ClipItem_GetExportFilename(item));
+};
 
 // ------------------------------------
 // Bitmap item functions
 // ------------------------------------
 
 FlashTools.prototype.BitmapItem_TraceInfo = function(item) {
-	this.Trace("\tName           : " + item.name);
-	this.Trace("\tExportFilename : " + this.BitmapItem_GetExportFilename(item));
+	this.TypeAssert(item, BitmapItem);
+	this.Trace("  Name           : " + item.name);
+	this.Trace("  ExportFilename : " + this.BitmapItem_GetExportFilename(item));
 };
 
 FlashTools.prototype.BitmapItem_GetExportFilename = function(item) {
-	var export_filename = "bitmaps/" + item.name.replace(/\//g, ' ');
-	var regex_has_png_ext = /\.png$/i;
-	return regex_has_png_ext.test(export_filename)
-		? export_filename
-		: export_filename + ".png";
+	this.TypeAssert(item, BitmapItem);
+	var item_id = this.GetUniqueItemId(item);
+	return "bitmaps/{0}.png".format(item_id);
 };
 
 FlashTools.prototype.BitmapItem_GetExportFullFilename = function(document, item) {
+	this.TypeAssert(document, Document);
+	this.TypeAssert(item, BitmapItem);
 	return this.CombinePath(
 		this.Document_GetExportFolder(document),
 		this.BitmapItem_GetExportFilename(item));
 };
 
 FlashTools.prototype.BitmapItem_Export = function(document, item) {
+	this.TypeAssert(document, Document);
+	this.TypeAssert(item, BitmapItem);
 	var item_export_path = this.BitmapItem_GetExportFullFilename(document, item);
 	if ( !item.exportToFile(item_export_path) ) {
 		throw "Can't export bitmap ({0})!"
@@ -151,13 +201,33 @@ FlashTools.prototype.BitmapItem_Export = function(document, item) {
 	}
 };
 
+FlashTools.prototype.BitmapItem_GetLibraryXmlDescription = function(item, indent) {
+	indent = indent == undefined ? "" : indent,
+	this.TypeAssert(item, BitmapItem);
+	this.TypeAssert(indent, 'string');
+	return '{0}<asset name="{1}" type="{2}" filename="{3}"/>\n'.format(
+		indent,
+		this.GetUniqueItemId(item),
+		item.itemType,
+		this.BitmapItem_GetExportFilename(item));
+};
+
 // ------------------------------------
 // Timeline functions
 // ------------------------------------
 
 FlashTools.prototype.Timeline_TraceInfo = function(timeline) {
-	this.Trace("\tName        : " + timeline.name);
-	this.Trace("\tLayer count : " + timeline.layerCount);
+	this.TypeAssert(timeline, Timeline);
+	this.Trace("  Name        : " + timeline.name);
+	this.Trace("  Layer count : " + timeline.layerCount);
+};
+
+FlashTools.prototype.Timeline_ExportXmlContent = function(timeline, indent) {
+	indent = indent == undefined ? "" : indent,
+	this.TypeAssert(timeline, Timeline);
+	this.TypeAssert(indent, 'string');
+	return "{0}<timeline>\n{0}</timeline>\n".format(
+		indent);
 };
 
 // ------------------------------------
@@ -165,30 +235,44 @@ FlashTools.prototype.Timeline_TraceInfo = function(timeline) {
 // ------------------------------------
 
 FlashTools.prototype.Document_TraceInfo = function(document) {
-	this.Trace("\tName         : " + document.name);
-	this.Trace("\tPath         : " + this.Document_GetPath(document));
-	this.Trace("\tExportFolder : " + this.Document_GetExportFolder(document));
+	this.TypeAssert(document, Document);
+	this.Trace("  Name         : " + document.name);
+	this.Trace("  Path         : " + this.Document_GetPath(document));
+	this.Trace("  ExportFolder : " + this.Document_GetExportFolder(document));
 };
 
 FlashTools.prototype.Document_GetPath = function(document) {
+	this.TypeAssert(document, Document);
 	return this.EscapePath(document.pathURI);
 };
 
 FlashTools.prototype.Document_GetExportFolder = function(document) {
+	this.TypeAssert(document, Document);
 	return this.Document_GetPath(document) + "_export/";
 };
 
+FlashTools.prototype.Document_GetStageExportPath = function(document) {
+	this.TypeAssert(document, Document);
+	return this.Document_GetExportFolder(document) + "stage.xml";
+};
+
 FlashTools.prototype.Document_GetLibraryExportPath = function(document) {
+	this.TypeAssert(document, Document);
 	return this.Document_GetExportFolder(document) + "library.xml";
 };
 
 FlashTools.prototype.Document_ExitEditMode = function(document) {
+	this.TypeAssert(document, Document);
 	for ( var i = 0; i < 100; ++i ) {
 		document.exitEditMode();
 	}
 };
 
 FlashTools.prototype.Document_ForEachByLibraryItems = function(document, func, filter_func) {
+	filter_func = filter_func == undefined ? function(item) { return true; } : filter_func;
+	this.TypeAssert(document, Document);
+	this.TypeAssert(func, 'function');
+	this.TypeAssert(filter_func, 'function');
 	for ( var i = 0; i < document.library.items.length; ++i ) {
 		var item = document.library.items[i];
 		if ( filter_func == undefined || filter_func(item) ) {
@@ -198,6 +282,7 @@ FlashTools.prototype.Document_ForEachByLibraryItems = function(document, func, f
 };
 
 FlashTools.prototype.Document_PrepareExportFolder = function(document) {
+	this.TypeAssert(document, Document);
 	var export_folder = this.Document_GetExportFolder(document);
 	if ( FLfile.exists(export_folder) ) {
 		if ( !FLfile.remove(export_folder) ) {
@@ -211,35 +296,42 @@ FlashTools.prototype.Document_PrepareExportFolder = function(document) {
 	}
 };
 
+FlashTools.prototype.Document_ExportStage = function(document) {
+	this.TypeAssert(document, Document);
+	this.Document_ExitEditMode(document);
+	var xml_content = "<stage>\n{0}</stage>".format(
+		this.Timeline_ExportXmlContent(document.getTimeline(), "  "));
+	var stage_path = this.Document_GetStageExportPath(document);
+	if ( !FLfile.write(stage_path, xml_content) ) {
+		throw "Can't create stage xml ({0})!"
+			.format(stage_path);
+	}
+};
+
 FlashTools.prototype.Document_ExportClips = function(document) {
+	this.TypeAssert(document, Document);
 	this.Document_ForEachByLibraryItems(document, function(item) {
 		this.ClipItem_Export(document, item);
-	}.bind(this), this.IsClipLibraryItem);
+	}.bind(this), this.IsClipLibraryItem.bind(this));
 };
 
 FlashTools.prototype.Document_ExportBitmaps = function(document) {
+	this.TypeAssert(document, Document);
 	this.Document_ForEachByLibraryItems(document, function(item) {
 		this.BitmapItem_Export(document, item);
-	}.bind(this), this.IsBitmapLibraryItem);
+	}.bind(this), this.IsBitmapLibraryItem.bind(this));
 };
 
 FlashTools.prototype.Document_ExportLibrary = function(document) {
+	this.TypeAssert(document, Document);
 	var xml_content = "<library>\n";
 	this.Document_ForEachByLibraryItems(document, function(item) {
 		if ( this.IsFolderLibraryItem(item) ) {
 			// nothing
-		} else if ( this.IsBitmapLibraryItem(item) ) {
-			xml_content +=
-				"\t<asset name='{0}' type='{1}' filename='{2}'/>\n".format(
-					item.name,
-					item.itemType,
-					this.BitmapItem_GetExportFilename(item));
 		} else if ( this.IsClipLibraryItem(item) ) {
-			xml_content +=
-				"\t<asset name='{0}' type='{1}' filename='{2}'/>\n".format(
-					item.name,
-					item.itemType,
-					this.ClipItem_GetExportFilename(item));
+			xml_content += this.ClipItem_GetLibraryXmlDescription(item, "  ");
+		} else if ( this.IsBitmapLibraryItem(item) ) {
+			xml_content += this.BitmapItem_GetLibraryXmlDescription(item, "  ");
 		} else {
 			throw "Unsupported library item type ({0})!"
 				.format(item.itemType);
@@ -265,11 +357,12 @@ FlashTools.prototype.ConvertAll = function() {
 };
 
 FlashTools.prototype.ConvertOne = function(document) {
+	this.TypeAssert(document, Document);
 	this.Trace("-= Convert document start =-");
 	try {
 		this.Document_TraceInfo(document);
-		this.Document_ExportClips(document);
 		this.Document_PrepareExportFolder(document);
+		this.Document_ExportStage(document);
 		this.Document_ExportClips(document);
 		this.Document_ExportBitmaps(document);
 		this.Document_ExportLibrary(document);
@@ -296,8 +389,7 @@ FlashTools.prototype.RunTests = function() {
 		this.Test0();
 		this.Test1();
 		return true;
-	}
-	catch ( e ) {
+	} catch ( e ) {
 		this.TraceError("Unit test fail: " + e);
 		return false;
 	}
