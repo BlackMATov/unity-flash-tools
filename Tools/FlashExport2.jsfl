@@ -113,17 +113,15 @@ FlashTools.prototype.GetStringId = function(str) {
 	}
 };
 
-FlashTools.prototype.ExportStringIdsXmlContent = function() {
-	var xml_content = "<strings>\n";
+FlashTools.prototype.ExportStringIdsXmlContent = function(xml_node) {
+	this.AssertTypeXmlNode(xml_node);
 	for ( var str in this.stringIds ) {
 		if ( this.stringIds.hasOwnProperty(str) ) {
-			xml_content += '{0}<string id="{1}" str="{2}"/>\n'.format(
-				this.defaultIndent,
-				this.stringIds[str],
-				this.EscapeString(str));
+			xml_node.Child("string")
+				.Attr("id" , this.stringIds[str])
+				.Attr("str", this.EscapeString(str));
 		}
 	}
-	return xml_content + "</strings>";
 };
 
 // ------------------------------------
@@ -561,9 +559,10 @@ FlashTools.prototype.Document_ExportStage = function(document) {
 
 FlashTools.prototype.Document_ExportStringIds = function(document) {
 	this.TypeAssert(document, Document);
-	var xml_content = this.ExportStringIdsXmlContent();
+	var xml_node = this.XmlNode("strings");
+	this.ExportStringIdsXmlContent(xml_node);
 	var xml_path = this.Document_GetStringIdsExportPath(document);
-	if ( !FLfile.write(xml_path, xml_content) ) {
+	if ( !FLfile.write(xml_path, xml_node.Content()) ) {
 		throw "Can't create string ids xml ({0})!"
 			.format(xml_path);
 	}
@@ -630,4 +629,5 @@ ft.ClearOutput();
 if ( ft.RunTests() ) {
 	ft.ConvertAll();
 }
+
 
