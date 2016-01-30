@@ -1,4 +1,4 @@
-// ------------------------------------
+﻿// ------------------------------------
 // JS core
 // ------------------------------------
 
@@ -541,6 +541,14 @@ if ( !Array.prototype.find ) {
 		}
 		if ( !FLfile.createFolder(export_folder) ) {
 			throw "Can't create document export folder ({0})!"
+				.format(export_folder);
+		}
+		if ( !FLfile.createFolder(export_folder + "bitmaps/") ) {
+			throw "Can't create document bitmaps export folder ({0})!"
+				.format(export_folder);
+		}
+		if ( !FLfile.createFolder(export_folder + "symbols/") ) {
+			throw "Can't create document symbols export folder ({0})!"
 				.format(export_folder);
 		}
 	};
