@@ -225,7 +225,7 @@ if ( !Array.prototype.find ) {
 		if ( this.children.length > 0 ) {
 			str += ">\n";
 			ft.array_foreach(this.children, function(child) {
-				str += child.content(indent + "\t") + "\n";
+				str += child.content(indent + "  ") + "\n";
 			});
 			return str + "{0}<{1}/>".format(indent, this.name);
 		} else {
@@ -264,7 +264,7 @@ if ( !Array.prototype.find ) {
 	FlashTools.prototype.IsSymbolLibraryItem = function(item) {
 		ft.type_assert(item, LibraryItem);
 		var item_type = item.itemType;
-		return item_type == "graphic" || item_type == "component" || item_type == "movie clip";
+		return item_type == "graphic" || item_type == "movie clip";
 	};
 
 	// ------------------------------------
@@ -304,7 +304,7 @@ if ( !Array.prototype.find ) {
 	FlashTools.prototype.BitmapItem_ExportXmlDescription = function(xml_node, item) {
 		ft.type_assert(xml_node, XmlNode);
 		ft.type_assert(item, BitmapItem);
-		xml_node.child("asset")
+		xml_node.child("bitmap")
 			.attr("name"    , this.uniqueIds.get_string_id(item.name))
 			.attr("type"    , "bitmap")
 			.attr("filename", this.BitmapItem_GetExportFilename(item));
@@ -350,6 +350,40 @@ if ( !Array.prototype.find ) {
 			.attr("type"    , "symbol")
 			.attr("filename", this.SymbolItem_GetExportFilename(item));
 	};
+	
+	// ------------------------------------
+	// Bitmap
+	// ------------------------------------
+	
+	FlashTools.prototype.Bitmap_ExportXmlContent = function(xml_node, bitmap) {
+		xml_node.child("asset")
+			.attr("name", this.uniqueIds.get_string_id(bitmap.libraryItem.name))
+			.attr("type", "bitmap");
+	};
+	
+	// ------------------------------------
+	// Symbol
+	// ------------------------------------
+	
+	FlashTools.prototype.Symbol_ExportXmlContent = function(xml_node, symbol) {
+		var asset_node = xml_node.child("asset")
+			.attr("name", this.uniqueIds.get_string_id(symbol.libraryItem.name))
+			.attr("type", "symbol");
+
+		asset_node
+			.attr("color_mode", symbol.colorMode);
+		
+		if ( symbol.colorAlphaPercent ) {
+			asset_node.attr("alpha", symbol.colorAlphaPercent / 100.0);
+		}
+		if ( symbol.blendMode ) {
+			/// \TODO check blend mode
+			asset_node.attr("blend", symbol.blendMode);
+		}
+		if ( symbol.colorMode == "brightness" ) {
+			asset_node.attr("brightness", symbol.brightness);
+		}
+	};
 
 	// ------------------------------------
 	// Element
@@ -359,32 +393,32 @@ if ( !Array.prototype.find ) {
 		ft.type_assert(xml_node, XmlNode);
 		ft.type_assert(element, Element);
 
+		var element_node = xml_node.child("element")
+			.attr("name" , this.uniqueIds.get_string_id(element.name))
+			.attr("depth", element.depth);
+		this.ElementMatrix_ExportXmlContent(element_node, element);
+		
 		if ( element.elementType == "shape" ) {
 			/// \TODO: shape to bitmap
 		} else if ( element.elementType == "instance" ) {
 			if ( element.instanceType == "bitmap" ) {
+				this.Bitmap_ExportXmlContent(element_node, element);
 			} else if ( element.instanceType == "symbol" ) {
+				this.Symbol_ExportXmlContent(element_node, element);
 			} else {
-				throw "Unsupported element type ({0})!"
-					.format(element.elementType);
+				throw "Unsupported element instance type ({0})!".format(
+					element.instanceType);
 			}
-			//ft.trace("Instance type : " + element.instanceType);
-			//ft.trace("Library item  : " + element.libraryItem.name);
 		} else {
-			throw "Unsupported element type ({0})!"
-				.format(element.elementType);
+			throw "Unsupported element type ({0})!".format(
+				element.elementType);
 		}
-
-		var element_node = xml_node.child("element")
-			.attr("name" , this.uniqueIds.get_string_id(element.name))
-			.attr("depth", element.depth);
-		this.ElementTransform_ExportXmlContent(element_node, element);
 	};
 
-	FlashTools.prototype.ElementTransform_ExportXmlContent = function(xml_node, element) {
+	FlashTools.prototype.ElementMatrix_ExportXmlContent = function(xml_node, element) {
 		ft.type_assert(xml_node, XmlNode);
 		ft.type_assert(element, Element);
-		xml_node.child("transform")
+		xml_node.child("matrix")
 			.attr("a" , element.matrix.a)
 			.attr("b" , element.matrix.b)
 			.attr("c" , element.matrix.c)
@@ -404,8 +438,13 @@ if ( !Array.prototype.find ) {
 			.attr("name"       , this.uniqueIds.get_string_id(frame.name))
 			.attr("start_frame", frame.startFrame)
 			.attr("duration"   , frame.duration)
+			.attr("tween_type" , frame.tweenType)
 			.attr("elements"   , frame.elements.length);
 		this.FrameElements_ExportXmlContent(frame_node, frame);
+		
+		if ( frame.isMotionObject() ) {
+			ft.trace("!!!");
+		}
 	};
 
 	FlashTools.prototype.FrameElements_ExportXmlContent = function(xml_node, frame) {
