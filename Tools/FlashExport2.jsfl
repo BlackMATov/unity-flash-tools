@@ -63,9 +63,8 @@ if ( typeof Object.create != 'function' ) {
 			}
 			Temp.prototype = O;
 			var obj = new Temp();
-			Temp.prototype = null; // Let's not keep a stray reference to O...
+			Temp.prototype = null;
 			if (arguments.length > 1) {
-				// Object.defineProperties does ToObject on its first argument.
 				var Properties = Object(arguments[1]);
 				for (var prop in Properties) {
 					if (hasOwn.call(Properties, prop)) {
@@ -80,6 +79,8 @@ if ( typeof Object.create != 'function' ) {
 
 (function() {
 
+	"use strict";
+	
 	// ----------------------------------------------------------------------------
 	//
 	// ft
@@ -527,7 +528,7 @@ if ( typeof Object.create != 'function' ) {
 			.attr("index"       , this.get_index())
 			.attr("duration"    , this.frame.duration)
 			.attr("tween_type"  , this.frame.tweenType)
-			.attr("tween_easing", this.frame.tweenEasing)
+			.attr("tween_easing", this.frame.tweenEasing);
 		ft.array_foreach(this.frame.elements, function(element) {
 			this.export_element(frame_node, element);
 		}.bind(this));
