@@ -1,6 +1,8 @@
-﻿// ------------------------------------
+﻿// ----------------------------------------------------------------------------
+//
 // JS core
-// ------------------------------------
+//
+// ----------------------------------------------------------------------------
 
 if ( !String.prototype.format ) {
 	String.prototype.format = function() {
@@ -51,11 +53,38 @@ if ( !Array.prototype.find ) {
 	};
 }
 
+if ( typeof Object.create != 'function' ) {
+	Object.create = (function() {
+		function Temp() {}
+		var hasOwn = Object.prototype.hasOwnProperty;
+		return function (O) {
+      		if (typeof O != 'object') {
+				throw TypeError('Object prototype may only be an Object or null');
+			}
+			Temp.prototype = O;
+			var obj = new Temp();
+			Temp.prototype = null; // Let's not keep a stray reference to O...
+			if (arguments.length > 1) {
+				// Object.defineProperties does ToObject on its first argument.
+				var Properties = Object(arguments[1]);
+				for (var prop in Properties) {
+					if (hasOwn.call(Properties, prop)) {
+						obj[prop] = Properties[prop];
+					}
+				}
+			}
+			return obj;
+    	};
+	})();
+}
+
 (function() {
 
-	// ------------------------------------
+	// ----------------------------------------------------------------------------
+	//
 	// ft
-	// ------------------------------------
+	//
+	// ----------------------------------------------------------------------------
 
 	var ft = {};
 
@@ -125,10 +154,10 @@ if ( !Array.prototype.find ) {
 		ft.type_assert(arr, Array);
 		ft.type_assert(func, Function);
 		ft.type_assert_if_defined(filter, Function);
-		for ( var i = 0; i < arr.length; ++i ) {
-			var val = arr[i];
-			if ( !filter || filter(val) ) {
-				func(val);
+		for ( var index = 0; index < arr.length; ++index ) {
+			var value = arr[index];
+			if ( filter === undefined || filter(value, index) ) {
+				func(value, index);
 			}
 		}
 	};
@@ -139,52 +168,55 @@ if ( !Array.prototype.find ) {
 		ft.type_assert_if_defined(filter, Function);
 		for ( var key in obj ) {
 			if ( obj.hasOwnProperty(key) ) {
-				var val = obj[key];
-				if ( !filter || filter(key, val) ) {
-					func(key, val);
+				var value = obj[key];
+				if ( filter === undefined || filter(key, value) ) {
+					func(key, value);
 				}
 			}
 		}
 	};
 
-	// ------------------------------------
+	// ----------------------------------------------------------------------------
+	//
 	// UniqueIds
-	// ------------------------------------
+	//
+	// ----------------------------------------------------------------------------
 
 	var UniqueIds = function() {
 		this.clear();
 	};
 
 	UniqueIds.prototype.clear = function() {
-		this.stringIds    = {};
+		this.stringIds    = Object.create(null);
 		this.lastStringId = 0;
 	};
 
 	UniqueIds.prototype.get_string_id = function(str) {
 		ft.type_assert(str, 'string');
-		var id = this.stringIds[str];
-		if ( id === undefined ) {
+		if ( this.stringIds.hasOwnProperty(str) ) {
+			return this.stringIds[str];
+		} else {
 			this.stringIds[str] = ++this.lastStringId;
 			return this.lastStringId;
-		} else {
-			return id;
 		}
 	};
 
 	UniqueIds.prototype.save = function(xml_path) {
 		ft.type_assert(xml_path, 'string');
 		var xml_node = new XmlNode("strings");
-		ft.object_foreach(this.stringIds, function(key, val) {
+		ft.object_foreach(this.stringIds, function(key, value) {
 			xml_node.child("string")
-				.attr("id" , val)
+				.attr("id" , value)
 				.attr("str", ft.escape_string(key));
 		});
 		xml_node.save(xml_path);
 	};
 
-	// ------------------------------------
+	// ----------------------------------------------------------------------------
+	//
 	// XmlNode
-	// ------------------------------------
+	//
+	// ----------------------------------------------------------------------------
 
 	var XmlNode = function(node_name, node_parent) {
 		ft.type_assert(node_name, 'string');
@@ -215,9 +247,15 @@ if ( !Array.prototype.find ) {
 		this.children.push(child);
 		return child;
 	};
+	
+	XmlNode.prototype.parent = function() {
+		ft.assert(this.parent !== undefined, "xml node parent is undefined");
+		return this.parent;
+	};
 
 	XmlNode.prototype.content = function(indent) {
 		indent = indent || "";
+		ft.type_assert(indent, 'string');
 		var str = '{0}<{1}'.format(indent, this.name);
 		ft.array_foreach(this.attrs, function(attr) {
 			str += ' {0}="{1}"'.format(attr.name, attr.value);
@@ -225,7 +263,7 @@ if ( !Array.prototype.find ) {
 		if ( this.children.length > 0 ) {
 			str += ">\n";
 			ft.array_foreach(this.children, function(child) {
-				str += child.content(indent + "  ") + "\n";
+				str += child.content(indent + "\t") + "\n";
 			});
 			return str + "{0}<{1}/>".format(indent, this.name);
 		} else {
@@ -238,7 +276,403 @@ if ( !Array.prototype.find ) {
 			throw "Can't save xml to {0}!".format(xml_path);
 		}
 	};
+	
+	// ----------------------------------------------------------------------------
+	//
+	// BitmapAsset
+	//
+	// ----------------------------------------------------------------------------
+	
+	var BitmapAsset = function(item, unique_ids) {
+		ft.type_assert(item, BitmapItem);
+		ft.type_assert(unique_ids, UniqueIds);
+		this.item      = item;
+		this.uniqueIds = unique_ids;
+	};
+	
+	BitmapAsset.prototype.trace = function(indent) {
+		indent = indent || "";
+		ft.type_assert(indent, 'string');
+		ft.trace_fmt("{0}-= BitmapAsset =-"    , indent);
+		ft.trace_fmt("{0}-Name           : {1}", indent, this.item.name);
+		ft.trace_fmt("{0}-ExportFilename : {1}", indent, this.get_export_filename());
+	};
+	
+	BitmapAsset.prototype.get_id = function() {
+		return this.uniqueIds.get_string_id(this.item.name);
+	};
+	
+	BitmapAsset.prototype.get_export_filename = function() {
+		return "bitmaps/{0}.png".format(this.get_id());
+	};
+	
+	BitmapAsset.prototype.get_export_fullfilename = function(export_folder) {
+		ft.type_assert(document, Document);
+		return ft.combine_path(
+			export_folder,
+			this.get_export_filename());
+	};
+	
+	BitmapAsset.prototype.export_content = function(export_folder) {
+		ft.type_assert(document, Document);
+		var fullfilename = this.get_export_fullfilename(export_folder);
+		if ( !this.item.exportToFile(fullfilename) ) {
+			throw "Can't export bitmap ({0})!"
+				.format(fullfilename);
+		}
+	};
+	
+	BitmapAsset.prototype.export_description = function(xml_node) {
+		ft.type_assert(xml_node, XmlNode);
+		xml_node.child("bitmap")
+			.attr("name"    , this.get_id())
+			.attr("type"    , "bitmap")
+			.attr("filename", this.get_export_filename());
+	};
+	
+	// ----------------------------------------------------------------------------
+	//
+	// SymbolAsset
+	//
+	// ----------------------------------------------------------------------------
+	
+	var SymbolAsset = function(item, unique_ids) {
+		ft.type_assert(item, SymbolItem);
+		ft.type_assert(unique_ids, UniqueIds);
+		this.item      = item;
+		this.uniqueIds = unique_ids;
+	};
+	
+	SymbolAsset.prototype.trace = function(indent) {
+		indent = indent || "";
+		ft.type_assert(indent, 'string');
+		ft.trace_fmt("{0}-= SymbolAsset =-"    , indent);
+		ft.trace_fmt("{0}-Name           : {1}", indent, this.item.name);
+		ft.trace_fmt("{0}-ExportFilename : {1}", indent, this.get_export_filename());
+	};
+	
+	SymbolAsset.prototype.get_id = function() {
+		return this.uniqueIds.get_string_id(this.item.name);
+	};
+	
+	SymbolAsset.prototype.get_export_filename = function() {
+		return "symbols/{0}.xml".format(this.get_id());
+	};
+	
+	SymbolAsset.prototype.get_export_fullfilename = function(export_folder) {
+		ft.type_assert(document, Document);
+		return ft.combine_path(
+			export_folder,
+			this.get_export_filename());
+	};
+	
+	SymbolAsset.prototype.export_content = function(export_folder) {
+		ft.type_assert(document, Document);
+		var xml_node = new XmlNode("symbol")
+			.attr("name", this.get_id());
+		new TimelineInst(this.item.timeline, this.uniqueIds)
+			.export_description(xml_node);
+		xml_node.save(this.get_export_fullfilename(export_folder));
+	};
+	
+	SymbolAsset.prototype.export_description = function(xml_node) {
+		ft.type_assert(xml_node, XmlNode);
+		xml_node.child("symbol")
+			.attr("name"    , this.get_id())
+			.attr("type"    , "symbol")
+			.attr("filename", this.get_export_filename());
+	};
+	
+	// ----------------------------------------------------------------------------
+	//
+	// TimelineInst
+	//
+	// ----------------------------------------------------------------------------
 
+	var TimelineInst = function(timeline, unique_ids) {
+		ft.type_assert(timeline, Timeline);
+		ft.type_assert(unique_ids, UniqueIds);
+		this.timeline  = timeline;
+		this.uniqueIds = unique_ids;
+	};
+	
+	TimelineInst.prototype.trace = function(indent) {
+		indent = indent || "";
+		ft.type_assert(indent, 'string');
+		ft.trace_fmt("{0}-= TimelineInst =-", indent);
+		ft.trace_fmt("{0}-Name   : {1}"     , indent, this.timeline.name);
+		ft.trace_fmt("{0}-Layers : {1}"     , indent, this.timeline.layerCount);
+		ft.trace_fmt("{0}-Frames : {1}"     , indent, this.timeline.frameCount);
+	};
+	
+	TimelineInst.prototype.get_id = function() {
+		return this.uniqueIds.get_string_id(this.timeline.name);
+	};
+	
+	TimelineInst.prototype.export_description = function(xml_node) {
+		ft.type_assert(xml_node, XmlNode);
+		var timeline_node = xml_node.child("timeline");
+		ft.array_foreach(this.timeline.layers, function(layer) {
+			new LayerInst(layer, this.uniqueIds)
+				.export_description(timeline_node);
+		}.bind(this));
+	};
+	
+	// ----------------------------------------------------------------------------
+	//
+	// LayerInst
+	//
+	// ----------------------------------------------------------------------------
+	
+	var LayerInst = function(layer, unique_ids) {
+		ft.type_assert(layer, Layer);
+		ft.type_assert(unique_ids, UniqueIds);
+		this.layer     = layer;
+		this.uniqueIds = unique_ids;
+	};
+	
+	LayerInst.prototype.trace = function(indent) {
+		indent = indent || "";
+		ft.type_assert(indent, 'string');
+		ft.trace_fmt("{0}-= LayerInst =-", indent);
+		ft.trace_fmt("{0}-Name   : {1}"  , indent, this.layer.name);
+		ft.trace_fmt("{0}-Frames : {1}"  , indent, this.layer.frameCount);
+	};
+	
+	LayerInst.prototype.get_id = function() {
+		return this.uniqueIds.get_string_id(this.layer.name);
+	};
+	
+	LayerInst.prototype.export_description = function(xml_node) {
+		ft.type_assert(xml_node, XmlNode);
+		var layer_node = xml_node.child("layer")
+			.attr("name"           , this.get_id())
+			.attr("visible"        , this.layer.visible)
+			.attr("layer_type"     , this.layer.layerType);
+		if ( this.layer.parentLayer ) {
+			var parent_layer = new LayerInst(this.layer.parentLayer, this.uniqueIds);
+			layer_node.attr("parent_layer", parent_layer.get_id());
+		}
+		ft.array_foreach(this.layer.frames, function(frame, index) {
+			var inst = new FrameInst(frame, index, this.uniqueIds);
+			if ( inst.get_start_frame() == index ) {
+				inst.export_description(layer_node);
+			}
+		}.bind(this));
+	};
+	
+	// ----------------------------------------------------------------------------
+	//
+	// FrameInst
+	//
+	// ----------------------------------------------------------------------------
+
+	var FrameInst = function(frame, index, unique_ids) {
+		ft.type_assert(frame, Frame);
+		ft.type_assert(index, 'number');
+		ft.type_assert(unique_ids, UniqueIds);
+		this.frame     = frame;
+		this.index     = index;
+		this.uniqueIds = unique_ids;
+	};
+	
+	FrameInst.prototype.trace = function(indent) {
+		indent = indent || "";
+		ft.type_assert(indent, 'string');
+		ft.trace_fmt("{0}-= FrameInst =-", indent);
+		ft.trace_fmt("{0}-Name     : {1}", indent, this.frame.name);
+		ft.trace_fmt("{0}-Elements : {1}", indent, this.frame.elements.length);
+	};
+	
+	FrameInst.prototype.get_id = function() {
+		return this.uniqueIds.get_string_id(this.frame.name);
+	};
+	
+	FrameInst.prototype.get_index = function() {
+		return this.index;
+	};
+	
+	FrameInst.prototype.get_start_frame = function() {
+		return this.frame.startFrame;
+	};
+	
+	FrameInst.prototype.export_element = function(xml_node, element) {
+		ft.type_assert(xml_node, XmlNode);
+		ft.type_assert(element, Element);
+		if ( element.elementType == "shape" ) {
+			/// \TODO: shape to bitmap
+		} else if ( element.elementType == "instance" ) {
+			if ( element.instanceType == "bitmap" ) {
+				new BitmapInst(element, this.uniqueIds)
+					.export_description(xml_node);
+			} else if ( element.instanceType == "symbol" ) {
+				new SymbolInst(element, this.uniqueIds)
+					.export_description(xml_node);
+			} else {
+				ft.assert(false,
+					"Unsupported instance type ({0})!",
+					element.instanceType);
+			}
+		} else {
+			ft.assert(false,
+				"Unsupported element type ({0})!",
+				element.elementType);
+		}
+	};
+	
+	FrameInst.prototype.export_description = function(xml_node) {
+		ft.type_assert(xml_node, XmlNode);
+		var frame_node = xml_node.child("frame")
+			.attr("name"        , this.get_id())
+			.attr("index"       , this.get_index())
+			.attr("duration"    , this.frame.duration)
+			.attr("tween_type"  , this.frame.tweenType)
+			.attr("tween_easing", this.frame.tweenEasing)
+		ft.array_foreach(this.frame.elements, function(element) {
+			this.export_element(frame_node, element);
+		}.bind(this));
+	};
+	
+	// ----------------------------------------------------------------------------
+	//
+	// ElementInst
+	//
+	// ----------------------------------------------------------------------------
+
+	var ElementInst = function(inst, unique_ids) {
+		ft.type_assert(inst, Instance);
+		ft.type_assert(unique_ids, UniqueIds);
+		this.inst      = inst;
+		this.uniqueIds = unique_ids;
+	};
+	
+	ElementInst.prototype.trace = function(indent) {
+		indent = indent || "";
+		ft.type_assert(indent, 'string');
+		ft.trace_fmt("{0}-= ElementInst =-", indent);
+		ft.trace_fmt("{0}-Name : {1}"      , indent, this.inst.name);
+	};
+	
+	ElementInst.prototype.get_id = function() {
+		return this.uniqueIds.get_string_id(this.inst.name);
+	};
+	
+	ElementInst.prototype.export_description = function(xml_node) {
+		ft.type_assert(xml_node, XmlNode);
+		return xml_node.child("element")
+			.attr("name"  , this.get_id())
+			.attr("depth" , this.inst.depth)
+			.attr("matrix", "{0};{1};{2};{3};{4};{5}".format(
+				this.inst.matrix.a,  this.inst.matrix.b,
+				this.inst.matrix.c,  this.inst.matrix.d,
+				this.inst.matrix.tx, this.inst.matrix.ty));
+	};
+	
+	// ----------------------------------------------------------------------------
+	//
+	// BitmapInst
+	//
+	// ----------------------------------------------------------------------------
+	
+	var BitmapInst = function(inst, unique_ids) {
+		ElementInst.call(this, inst, unique_ids);
+	};
+	
+	BitmapInst.prototype = Object.create(ElementInst.prototype);
+	
+	BitmapInst.prototype.export_description = function(xml_node) {
+		ft.type_assert(xml_node, XmlNode);
+		ElementInst.prototype.export_description.call(this, xml_node)
+			.child("instance")
+				.attr("type"  , "bitmap")
+				.attr("asset" , this.uniqueIds.get_string_id(this.inst.libraryItem.name));
+	};
+	
+	// ----------------------------------------------------------------------------
+	//
+	// SymbolInst
+	//
+	// ----------------------------------------------------------------------------
+	
+	var SymbolInst = function(inst, unique_ids) {
+		ElementInst.call(this, inst, unique_ids);
+	};
+	
+	SymbolInst.prototype = Object.create(ElementInst.prototype);
+	
+	SymbolInst.prototype.export_description = function(xml_node) {
+		ft.type_assert(xml_node, XmlNode);
+		var instance_node = ElementInst.prototype.export_description.call(this, xml_node)
+			.child("instance")
+				.attr("type"        , "symbol")
+				.attr("symbol_type" , this.inst.symbolType)
+				.attr("asset"       , this.uniqueIds.get_string_id(this.inst.libraryItem.name))
+				.attr("visible"     , this.inst.visible)
+				.attr("blend_mode"  , this.inst.blendMode);
+		if ( this.inst.colorMode !== "none" ) {
+			var color_mode_node = instance_node.child("color_mode")
+				.attr("color_mode", this.inst.colorMode);
+			if ( this.inst.colorMode == "brightness" ) {
+				color_mode_node
+					.attr("brightness", this.inst.brightness);
+			} else if ( this.inst.colorMode == "tint" ) {
+				color_mode_node
+					.attr("tint" , this.inst.tintPercent)
+					.attr("color", this.inst.tintColor);
+			} else if ( this.inst.colorMode == "alpha" ) {
+				color_mode_node
+					.attr("alpha", this.inst.colorAlphaPercent);
+			} else if ( this.inst.colorMode == "advanced" ) {
+				color_mode_node
+					.attr("a", "{0};{1}".format(this.inst.colorAlphaAmount, this.inst.colorAlphaPercent))
+					.attr("r", "{0};{1}".format(this.inst.colorRedAmount  , this.inst.colorRedPercent))
+					.attr("g", "{0};{1}".format(this.inst.colorGreenAmount, this.inst.colorGreenPercent))
+					.attr("b", "{0};{1}".format(this.inst.colorBlueAmount , this.inst.colorBluePercent));
+			} else {
+				ft.assert(false,
+					"Unsupported color mode ({0})!",
+					this.inst.colorMode);
+			}
+		}
+		if ( this.inst.loop !== undefined && this.inst.firstFrame !== undefined ) {
+			instance_node.child("looping")
+				.attr("loop"       , this.inst.loop)
+				.attr("first_frame", this.inst.firstFrame);
+		}
+		if ( this.inst.filters && this.inst.filters.length > 0 ) {
+			var filters_node = instance_node.child("filters");
+			ft.array_foreach(this.inst.filters, function(filter) {
+				/// \TODO export filters
+				filters_node.child("filter")
+					.attr("name", filter.name);
+			});
+		}
+	};
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	// ------------------------------------
 	// FlashTools
 	// ------------------------------------
@@ -265,250 +699,6 @@ if ( !Array.prototype.find ) {
 		ft.type_assert(item, LibraryItem);
 		var item_type = item.itemType;
 		return item_type == "graphic" || item_type == "movie clip";
-	};
-
-	// ------------------------------------
-	// Bitmap item
-	// ------------------------------------
-
-	FlashTools.prototype.BitmapItem_TraceInfo = function(item) {
-		ft.type_assert(item, BitmapItem);
-		ft.trace_fmt("Name           : {0}", item.name);
-		ft.trace_fmt("ExportFilename : {0}", this.BitmapItem_GetExportFilename(item));
-	};
-
-	FlashTools.prototype.BitmapItem_GetExportFilename = function(item) {
-		ft.type_assert(item, BitmapItem);
-		var item_id = this.uniqueIds.get_string_id(item.name);
-		return "bitmaps/{0}.png".format(item_id);
-	};
-
-	FlashTools.prototype.BitmapItem_GetExportFullFilename = function(document, item) {
-		ft.type_assert(document, Document);
-		ft.type_assert(item, BitmapItem);
-		return ft.combine_path(
-			this.Document_GetExportFolder(document),
-			this.BitmapItem_GetExportFilename(item));
-	};
-
-	FlashTools.prototype.BitmapItem_Export = function(document, item) {
-		ft.type_assert(document, Document);
-		ft.type_assert(item, BitmapItem);
-		var item_export_path = this.BitmapItem_GetExportFullFilename(document, item);
-		if ( !item.exportToFile(item_export_path) ) {
-			throw "Can't export bitmap ({0})!"
-				.format(item_export_path);
-		}
-	};
-
-	FlashTools.prototype.BitmapItem_ExportXmlDescription = function(xml_node, item) {
-		ft.type_assert(xml_node, XmlNode);
-		ft.type_assert(item, BitmapItem);
-		xml_node.child("bitmap")
-			.attr("name"    , this.uniqueIds.get_string_id(item.name))
-			.attr("type"    , "bitmap")
-			.attr("filename", this.BitmapItem_GetExportFilename(item));
-	};
-
-	// ------------------------------------
-	// Symbol item
-	// ------------------------------------
-
-	FlashTools.prototype.SymbolItem_TraceInfo = function(item) {
-		ft.type_assert(item, SymbolItem);
-		ft.trace_fmt("Name           : {0}", item.name);
-		ft.trace_fmt("ExportFilename : {0}", this.SymbolItem_GetExportFilename(item));
-	};
-
-	FlashTools.prototype.SymbolItem_GetExportFilename = function(item) {
-		ft.type_assert(item, SymbolItem);
-		var item_id = this.uniqueIds.get_string_id(item.name);
-		return "symbols/{0}.xml".format(item_id);
-	};
-
-	FlashTools.prototype.SymbolItem_GetExportFullFilename = function(document, item) {
-		ft.type_assert(item, SymbolItem);
-		return ft.combine_path(
-			this.Document_GetExportFolder(document),
-			this.SymbolItem_GetExportFilename(item));
-	};
-
-	FlashTools.prototype.SymbolItem_Export = function(document, item) {
-		ft.type_assert(document, Document);
-		ft.type_assert(item, SymbolItem);
-		var xml_node = new XmlNode("symbol")
-			.attr("name", this.uniqueIds.get_string_id(item.name));
-		this.Timeline_ExportXmlContent(xml_node, item.timeline);
-		xml_node.save(this.SymbolItem_GetExportFullFilename(document, item));
-	};
-
-	FlashTools.prototype.SymbolItem_ExportXmlDescription = function(xml_node, item) {
-		ft.type_assert(xml_node, XmlNode);
-		ft.type_assert(item, SymbolItem);
-		xml_node.child("symbol")
-			.attr("name"    , this.uniqueIds.get_string_id(item.name))
-			.attr("type"    , "symbol")
-			.attr("filename", this.SymbolItem_GetExportFilename(item));
-	};
-	
-	// ------------------------------------
-	// Bitmap
-	// ------------------------------------
-	
-	FlashTools.prototype.Bitmap_ExportXmlContent = function(xml_node, bitmap) {
-		xml_node.child("asset")
-			.attr("name", this.uniqueIds.get_string_id(bitmap.libraryItem.name))
-			.attr("type", "bitmap");
-	};
-	
-	// ------------------------------------
-	// Symbol
-	// ------------------------------------
-	
-	FlashTools.prototype.Symbol_ExportXmlContent = function(xml_node, symbol) {
-		var asset_node = xml_node.child("asset")
-			.attr("name", this.uniqueIds.get_string_id(symbol.libraryItem.name))
-			.attr("type", "symbol");
-
-		asset_node
-			.attr("color_mode", symbol.colorMode);
-		
-		if ( symbol.colorAlphaPercent ) {
-			asset_node.attr("alpha", symbol.colorAlphaPercent / 100.0);
-		}
-		if ( symbol.blendMode ) {
-			/// \TODO check blend mode
-			asset_node.attr("blend", symbol.blendMode);
-		}
-		if ( symbol.colorMode == "brightness" ) {
-			asset_node.attr("brightness", symbol.brightness);
-		}
-	};
-
-	// ------------------------------------
-	// Element
-	// ------------------------------------
-
-	FlashTools.prototype.Element_ExportXmlContent = function(xml_node, element) {
-		ft.type_assert(xml_node, XmlNode);
-		ft.type_assert(element, Element);
-
-		var element_node = xml_node.child("element")
-			.attr("name" , this.uniqueIds.get_string_id(element.name))
-			.attr("depth", element.depth);
-		this.ElementMatrix_ExportXmlContent(element_node, element);
-		
-		if ( element.elementType == "shape" ) {
-			/// \TODO: shape to bitmap
-		} else if ( element.elementType == "instance" ) {
-			if ( element.instanceType == "bitmap" ) {
-				this.Bitmap_ExportXmlContent(element_node, element);
-			} else if ( element.instanceType == "symbol" ) {
-				this.Symbol_ExportXmlContent(element_node, element);
-			} else {
-				throw "Unsupported element instance type ({0})!".format(
-					element.instanceType);
-			}
-		} else {
-			throw "Unsupported element type ({0})!".format(
-				element.elementType);
-		}
-	};
-
-	FlashTools.prototype.ElementMatrix_ExportXmlContent = function(xml_node, element) {
-		ft.type_assert(xml_node, XmlNode);
-		ft.type_assert(element, Element);
-		xml_node.child("matrix")
-			.attr("a" , element.matrix.a)
-			.attr("b" , element.matrix.b)
-			.attr("c" , element.matrix.c)
-			.attr("d" , element.matrix.d)
-			.attr("tx", element.matrix.tx)
-			.attr("ty", element.matrix.ty);
-	};
-
-	// ------------------------------------
-	// Frame
-	// ------------------------------------
-
-	FlashTools.prototype.Frame_ExportXmlContent = function(xml_node, frame) {
-		ft.type_assert(xml_node, XmlNode);
-		ft.type_assert(frame, Frame);
-		var frame_node = xml_node.child("frame")
-			.attr("name"       , this.uniqueIds.get_string_id(frame.name))
-			.attr("start_frame", frame.startFrame)
-			.attr("duration"   , frame.duration)
-			.attr("tween_type" , frame.tweenType)
-			.attr("elements"   , frame.elements.length);
-		this.FrameElements_ExportXmlContent(frame_node, frame);
-		
-		if ( frame.isMotionObject() ) {
-			ft.trace("!!!");
-		}
-	};
-
-	FlashTools.prototype.FrameElements_ExportXmlContent = function(xml_node, frame) {
-		ft.type_assert(xml_node, XmlNode);
-		ft.type_assert(frame, Frame);
-		ft.array_foreach(frame.elements, function(element) {
-			this.Element_ExportXmlContent(xml_node, element);
-		}.bind(this));
-	};
-
-	// ------------------------------------
-	// Layer
-	// ------------------------------------
-
-	FlashTools.prototype.Layer_ExportXmlContent = function(xml_node, layer) {
-		ft.type_assert(xml_node, XmlNode);
-		ft.type_assert(layer, Layer);
-		var layer_node = xml_node.child("layer")
-			.attr("name"          , this.uniqueIds.get_string_id(layer.name))
-			.attr("type"          , layer.layerType)
-			.attr("frames"        , layer.frameCount)
-			.attr("locked"        , layer.locked)
-			.attr("visible"       , layer.visible)
-			.attr("animation_type", layer.animationType);
-		if ( layer.parentLayer ) {
-			layer_node.attr("parent_layer", this.uniqueIds.get_string_id(layer.parentLayer.name));
-		}
-		this.LayerFrames_ExportXmlContent(layer_node, layer);
-	};
-
-	FlashTools.prototype.LayerFrames_ExportXmlContent = function(xml_node, layer) {
-		ft.type_assert(xml_node, XmlNode);
-		ft.type_assert(layer, Layer);
-		ft.array_foreach(layer.frames, function(frame) {
-			this.Frame_ExportXmlContent(xml_node, frame);
-		}.bind(this));
-	};
-
-	// ------------------------------------
-	// Timeline
-	// ------------------------------------
-
-	FlashTools.prototype.Timeline_TraceInfo = function(timeline) {
-		ft.type_assert(timeline, Timeline);
-		ft.trace_fmt("Name        : {0}", timeline.name);
-		ft.trace_fmt("Layer count : {0}", timeline.layerCount);
-		ft.trace_fmt("Frame count : {0}", timeline.frameCount);
-	};
-
-	FlashTools.prototype.Timeline_ExportXmlContent = function(xml_node, timeline) {
-		ft.type_assert(xml_node, XmlNode);
-		ft.type_assert(timeline, Timeline);
-		var timeline_node = xml_node.child("timeline")
-			.attr("layers", timeline.layerCount)
-			.attr("frames", timeline.frameCount);
-		this.TimelineLayers_ExportXmlContent(timeline_node, timeline);
-	};
-
-	FlashTools.prototype.TimelineLayers_ExportXmlContent = function(xml_node, timeline) {
-		ft.type_assert(xml_node, XmlNode);
-		ft.type_assert(timeline, Timeline);
-		ft.array_foreach(timeline.layers, function(layer) {
-			this.Layer_ExportXmlContent(xml_node, layer);
-		}.bind(this));
 	};
 
 	// ------------------------------------
@@ -600,9 +790,11 @@ if ( !Array.prototype.find ) {
 			if ( this.IsFolderLibraryItem(item) ) {
 				// nothing
 			} else if ( this.IsBitmapLibraryItem(item) ) {
-				this.BitmapItem_ExportXmlDescription(xml_node, item);
+				var bitmap_asset = new BitmapAsset(item, this.uniqueIds);
+				bitmap_asset.export_description(xml_node);
 			} else if ( this.IsSymbolLibraryItem(item) ) {
-				this.SymbolItem_ExportXmlDescription(xml_node, item);
+				var symbol_asset = new SymbolAsset(item, this.uniqueIds);
+				symbol_asset.export_description(xml_node);
 			} else {
 				throw "Unsupported library item type ({0})!"
 					.format(item.itemType);
@@ -614,14 +806,16 @@ if ( !Array.prototype.find ) {
 	FlashTools.prototype.Document_ExportBitmaps = function(document) {
 		ft.type_assert(document, Document);
 		this.Document_ForEachByLibraryItems(document, function(item) {
-			this.BitmapItem_Export(document, item);
+			var bitmap_asset = new BitmapAsset(item, this.uniqueIds);
+			bitmap_asset.export_content(this.Document_GetExportFolder(document));
 		}.bind(this), this.IsBitmapLibraryItem.bind(this));
 	};
 
 	FlashTools.prototype.Document_ExportSymbols = function(document) {
 		ft.type_assert(document, Document);
 		this.Document_ForEachByLibraryItems(document, function(item) {
-			this.SymbolItem_Export(document, item);
+			var symbol_asset = new SymbolAsset(item, this.uniqueIds);
+			symbol_asset.export_content(this.Document_GetExportFolder(document));
 		}.bind(this), this.IsSymbolLibraryItem.bind(this));
 	};
 
@@ -629,7 +823,8 @@ if ( !Array.prototype.find ) {
 		ft.type_assert(document, Document);
 		this.Document_ExitEditMode(document);
 		var xml_node = new XmlNode("stage");
-		this.Timeline_ExportXmlContent(xml_node, document.getTimeline());
+		new TimelineInst(document.getTimeline(), this.uniqueIds)
+			.export_description(xml_node);
 		xml_node.save(this.Document_GetStageExportPath(document));
 	};
 
