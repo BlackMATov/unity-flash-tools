@@ -295,12 +295,21 @@ if ( typeof Object.create != 'function' ) {
 		indent = indent || "";
 		ft.type_assert(indent, 'string');
 		ft.trace_fmt("{0}-= BitmapAsset =-"    , indent);
-		ft.trace_fmt("{0}-Name           : {1}", indent, this.item.name);
+		ft.trace_fmt("{0}-Id             : {1}", indent, this.get_id());
+		ft.trace_fmt("{0}-Name           : {1}", indent, this.get_name());
 		ft.trace_fmt("{0}-ExportFilename : {1}", indent, this.get_export_filename());
 	};
 	
 	BitmapAsset.prototype.get_id = function() {
-		return this.uniqueIds.get_string_id(this.item.name);
+		return this.uniqueIds.get_string_id(this.get_name());
+	};
+	
+	BitmapAsset.prototype.get_name = function() {
+		return this.item.name;
+	};
+	
+	BitmapAsset.prototype.get_type = function() {
+		return "bitmap";
 	};
 	
 	BitmapAsset.prototype.get_export_filename = function() {
@@ -308,14 +317,21 @@ if ( typeof Object.create != 'function' ) {
 	};
 	
 	BitmapAsset.prototype.get_export_fullfilename = function(export_folder) {
-		ft.type_assert(document, Document);
+		ft.type_assert(export_folder, 'string');
 		return ft.combine_path(
 			export_folder,
 			this.get_export_filename());
 	};
 	
+	BitmapAsset.prototype.export = function(export_folder, xml_node) {
+		ft.type_assert(export_folder, 'string');
+		ft.type_assert(xml_node, XmlNode);
+		this.export_content(export_folder);
+		this.export_description(xml_node);
+	};
+	
 	BitmapAsset.prototype.export_content = function(export_folder) {
-		ft.type_assert(document, Document);
+		ft.type_assert(export_folder, 'string');
 		var fullfilename = this.get_export_fullfilename(export_folder);
 		if ( !this.item.exportToFile(fullfilename) ) {
 			throw "Can't export bitmap ({0})!"
@@ -326,8 +342,8 @@ if ( typeof Object.create != 'function' ) {
 	BitmapAsset.prototype.export_description = function(xml_node) {
 		ft.type_assert(xml_node, XmlNode);
 		xml_node.child("bitmap")
-			.attr("name"    , this.get_id())
-			.attr("type"    , "bitmap")
+			.attr("id"      , this.get_id())
+			.attr("type"    , this.get_type())
 			.attr("filename", this.get_export_filename());
 	};
 	
@@ -348,12 +364,21 @@ if ( typeof Object.create != 'function' ) {
 		indent = indent || "";
 		ft.type_assert(indent, 'string');
 		ft.trace_fmt("{0}-= SymbolAsset =-"    , indent);
-		ft.trace_fmt("{0}-Name           : {1}", indent, this.item.name);
+		ft.trace_fmt("{0}-Id             : {1}", indent, this.get_id());
+		ft.trace_fmt("{0}-Name           : {1}", indent, this.get_name());
 		ft.trace_fmt("{0}-ExportFilename : {1}", indent, this.get_export_filename());
 	};
 	
 	SymbolAsset.prototype.get_id = function() {
-		return this.uniqueIds.get_string_id(this.item.name);
+		return this.uniqueIds.get_string_id(this.get_name());
+	};
+	
+	SymbolAsset.prototype.get_name = function() {
+		return this.item.name;
+	};
+	
+	SymbolAsset.prototype.get_type = function() {
+		return "symbol";
 	};
 	
 	SymbolAsset.prototype.get_export_filename = function() {
@@ -361,16 +386,23 @@ if ( typeof Object.create != 'function' ) {
 	};
 	
 	SymbolAsset.prototype.get_export_fullfilename = function(export_folder) {
-		ft.type_assert(document, Document);
+		ft.type_assert(export_folder, 'string');
 		return ft.combine_path(
 			export_folder,
 			this.get_export_filename());
 	};
 	
+	SymbolAsset.prototype.export = function(export_folder, xml_node) {
+		ft.type_assert(export_folder, 'string');
+		ft.type_assert(xml_node, XmlNode);
+		this.export_content(export_folder);
+		this.export_description(xml_node);
+	};
+	
 	SymbolAsset.prototype.export_content = function(export_folder) {
-		ft.type_assert(document, Document);
+		ft.type_assert(export_folder, 'string');
 		var xml_node = new XmlNode("symbol")
-			.attr("name", this.get_id());
+			.attr("id", this.get_id());
 		new TimelineInst(this.item.timeline, this.uniqueIds)
 			.export_description(xml_node);
 		xml_node.save(this.get_export_fullfilename(export_folder));
@@ -379,9 +411,62 @@ if ( typeof Object.create != 'function' ) {
 	SymbolAsset.prototype.export_description = function(xml_node) {
 		ft.type_assert(xml_node, XmlNode);
 		xml_node.child("symbol")
-			.attr("name"    , this.get_id())
-			.attr("type"    , "symbol")
+			.attr("id"      , this.get_id())
+			.attr("type"    , this.get_type())
 			.attr("filename", this.get_export_filename());
+	};
+	
+	// ----------------------------------------------------------------------------
+	//
+	// LibraryInst
+	//
+	// ----------------------------------------------------------------------------
+	
+	var LibraryInst = function(library, unique_ids) {
+		ft.type_assert(library, Library);
+		ft.type_assert(unique_ids, UniqueIds);
+		this.library   = library;
+		this.uniqueIds = unique_ids;
+	};
+	
+	LibraryInst.prototype.is_folder_item = function(item) {
+		ft.type_assert(item, LibraryItem);
+		return item.itemType == "folder";
+	};
+
+	LibraryInst.prototype.is_bitmap_item = function(item) {
+		ft.type_assert(item, LibraryItem);
+		return item.itemType == "bitmap";
+	};
+
+	LibraryInst.prototype.is_symbol_item = function(item) {
+		ft.type_assert(item, LibraryItem);
+		return item.itemType == "graphic" || item.itemType == "movie clip";
+	};
+	
+	LibraryInst.prototype.for_each_by_items = function(func, filter) {
+		ft.type_assert(func, Function);
+		ft.type_assert_if_defined(filter, Function);
+		ft.array_foreach(this.library.items, func, filter);
+	};
+	
+	LibraryInst.prototype.export = function(export_folder, xml_node) {
+		ft.type_assert(export_folder, 'string');
+		ft.type_assert(xml_node, XmlNode);
+		this.for_each_by_items(function(item) {
+			if ( this.is_bitmap_item(item) ) {
+				new BitmapAsset(item, this.uniqueIds)
+					.export(export_folder, xml_node);
+			} else if ( this.is_symbol_item(item) ) {
+				new SymbolAsset(item, this.uniqueIds)
+					.export(export_folder, xml_node);
+			} else {
+				throw "Unsupported library item type ({0})!"
+					.format(item.itemType);
+			}
+		}.bind(this), function(item) {
+			return !this.is_folder_item(item);
+		}.bind(this));
 	};
 	
 	// ----------------------------------------------------------------------------
@@ -401,18 +486,24 @@ if ( typeof Object.create != 'function' ) {
 		indent = indent || "";
 		ft.type_assert(indent, 'string');
 		ft.trace_fmt("{0}-= TimelineInst =-", indent);
-		ft.trace_fmt("{0}-Name   : {1}"     , indent, this.timeline.name);
+		ft.trace_fmt("{0}-Id     : {1}"     , indent, this.get_id());
+		ft.trace_fmt("{0}-Name   : {1}"     , indent, this.get_name());
 		ft.trace_fmt("{0}-Layers : {1}"     , indent, this.timeline.layerCount);
 		ft.trace_fmt("{0}-Frames : {1}"     , indent, this.timeline.frameCount);
 	};
 	
 	TimelineInst.prototype.get_id = function() {
-		return this.uniqueIds.get_string_id(this.timeline.name);
+		return this.uniqueIds.get_string_id(this.get_name());
+	};
+	
+	TimelineInst.prototype.get_name = function() {
+		return this.timeline.name;
 	};
 	
 	TimelineInst.prototype.export_description = function(xml_node) {
 		ft.type_assert(xml_node, XmlNode);
-		var timeline_node = xml_node.child("timeline");
+		var timeline_node = xml_node.child("timeline")
+			.attr("id", this.get_id());
 		ft.array_foreach(this.timeline.layers, function(layer) {
 			new LayerInst(layer, this.uniqueIds)
 				.export_description(timeline_node);
@@ -436,18 +527,23 @@ if ( typeof Object.create != 'function' ) {
 		indent = indent || "";
 		ft.type_assert(indent, 'string');
 		ft.trace_fmt("{0}-= LayerInst =-", indent);
-		ft.trace_fmt("{0}-Name   : {1}"  , indent, this.layer.name);
+		ft.trace_fmt("{0}-Id     : {1}"  , indent, this.get_id());
+		ft.trace_fmt("{0}-Name   : {1}"  , indent, this.get_name());
 		ft.trace_fmt("{0}-Frames : {1}"  , indent, this.layer.frameCount);
 	};
 	
 	LayerInst.prototype.get_id = function() {
-		return this.uniqueIds.get_string_id(this.layer.name);
+		return this.uniqueIds.get_string_id(this.get_name());
+	};
+	
+	LayerInst.prototype.get_name = function() {
+		return this.layer.name;
 	};
 	
 	LayerInst.prototype.export_description = function(xml_node) {
 		ft.type_assert(xml_node, XmlNode);
 		var layer_node = xml_node.child("layer")
-			.attr("name"           , this.get_id())
+			.attr("id"             , this.get_id())
 			.attr("visible"        , this.layer.visible)
 			.attr("layer_type"     , this.layer.layerType);
 		if ( this.layer.parentLayer ) {
@@ -481,12 +577,17 @@ if ( typeof Object.create != 'function' ) {
 		indent = indent || "";
 		ft.type_assert(indent, 'string');
 		ft.trace_fmt("{0}-= FrameInst =-", indent);
-		ft.trace_fmt("{0}-Name     : {1}", indent, this.frame.name);
+		ft.trace_fmt("{0}-Id       : {1}", indent, this.get_id());
+		ft.trace_fmt("{0}-Name     : {1}", indent, this.get_name());
 		ft.trace_fmt("{0}-Elements : {1}", indent, this.frame.elements.length);
 	};
 	
 	FrameInst.prototype.get_id = function() {
-		return this.uniqueIds.get_string_id(this.frame.name);
+		return this.uniqueIds.get_string_id(this.get_name());
+	};
+	
+	FrameInst.prototype.get_name = function() {
+		return this.frame.name;
 	};
 	
 	FrameInst.prototype.get_index = function() {
@@ -497,23 +598,37 @@ if ( typeof Object.create != 'function' ) {
 		return this.frame.startFrame;
 	};
 	
+	FrameInst.prototype.is_element_shape = function(element) {
+		return element.elementType == "shape";
+	};
+	
+	FrameInst.prototype.is_element_instance = function(element) {
+		return element.elementType == "instance";
+	};
+	
+	FrameInst.prototype.is_element_bitmap = function(element) {
+		return this.is_element_instance(element) && element.instanceType == "bitmap";
+	};
+	
+	FrameInst.prototype.is_element_symbol = function(element) {
+		return this.is_element_instance(element) && element.instanceType == "symbol";
+	};
+	
 	FrameInst.prototype.export_element = function(xml_node, element) {
 		ft.type_assert(xml_node, XmlNode);
 		ft.type_assert(element, Element);
-		if ( element.elementType == "shape" ) {
+		if ( this.is_element_shape(element) ) {
 			/// \TODO: shape to bitmap
-		} else if ( element.elementType == "instance" ) {
-			if ( element.instanceType == "bitmap" ) {
-				new BitmapInst(element, this.uniqueIds)
-					.export_description(xml_node);
-			} else if ( element.instanceType == "symbol" ) {
-				new SymbolInst(element, this.uniqueIds)
-					.export_description(xml_node);
-			} else {
-				ft.assert(false,
-					"Unsupported instance type ({0})!",
-					element.instanceType);
-			}
+		} else if ( this.is_element_bitmap(element) ) {
+			new BitmapInst(element, this.uniqueIds)
+				.export_description(xml_node);
+		} else if ( this.is_element_symbol(element) ) {
+			new SymbolInst(element, this.uniqueIds)
+				.export_description(xml_node);
+		} else if ( this.is_element_instance(element) ) {
+			ft.assert(false,
+				"Unsupported instance type ({0})!",
+				element.instanceType);
 		} else {
 			ft.assert(false,
 				"Unsupported element type ({0})!",
@@ -524,7 +639,7 @@ if ( typeof Object.create != 'function' ) {
 	FrameInst.prototype.export_description = function(xml_node) {
 		ft.type_assert(xml_node, XmlNode);
 		var frame_node = xml_node.child("frame")
-			.attr("name"        , this.get_id())
+			.attr("id"          , this.get_id())
 			.attr("index"       , this.get_index())
 			.attr("duration"    , this.frame.duration)
 			.attr("tween_type"  , this.frame.tweenType)
@@ -551,17 +666,22 @@ if ( typeof Object.create != 'function' ) {
 		indent = indent || "";
 		ft.type_assert(indent, 'string');
 		ft.trace_fmt("{0}-= ElementInst =-", indent);
-		ft.trace_fmt("{0}-Name : {1}"      , indent, this.inst.name);
+		ft.trace_fmt("{0}-Id   : {1}"      , indent, this.get_id());
+		ft.trace_fmt("{0}-Name : {1}"      , indent, this.get_name());
 	};
 	
 	ElementInst.prototype.get_id = function() {
-		return this.uniqueIds.get_string_id(this.inst.name);
+		return this.uniqueIds.get_string_id(this.get_name());
+	};
+	
+	ElementInst.prototype.get_name = function() {
+		return this.inst.name;
 	};
 	
 	ElementInst.prototype.export_description = function(xml_node) {
 		ft.type_assert(xml_node, XmlNode);
 		return xml_node.child("element")
-			.attr("name"  , this.get_id())
+			.attr("id"    , this.get_id())
 			.attr("depth" , this.inst.depth)
 			.attr("matrix", "{0};{1};{2};{3};{4};{5}".format(
 				this.inst.matrix.a,  this.inst.matrix.b,
@@ -650,119 +770,71 @@ if ( typeof Object.create != 'function' ) {
 		}
 	};
 	
+	// ----------------------------------------------------------------------------
+	//
+	// Exporter
+	//
+	// ----------------------------------------------------------------------------
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	// ------------------------------------
-	// FlashTools
-	// ------------------------------------
-
-	var FlashTools = function() {
+	var Exporter = function(document) {
+		ft.type_assert(document, Document);
+		this.document  = document;
 		this.uniqueIds = new UniqueIds();
 	};
-
-	// ------------------------------------
-	// Library item
-	// ------------------------------------
-
-	FlashTools.prototype.IsFolderLibraryItem = function(item) {
-		ft.type_assert(item, LibraryItem);
-		return item.itemType == "folder";
+	
+	Exporter.prototype.trace = function(indent) {
+		indent = indent || "";
+		ft.type_assert(indent, 'string');
+		ft.trace_fmt("{0}-= Exporter =-", indent);
+		ft.trace_fmt("{0}-Document      : {1}", indent, this.document.name);
+		ft.trace_fmt("{0}-Document path : {1}", indent, this.get_document_path());
+		ft.trace_fmt("{0}-Export folter : {1}", indent, this.get_export_folder());
+	};
+	
+	Exporter.prototype.get_document_path = function() {
+		return ft.escape_path(this.document.pathURI);
 	};
 
-	FlashTools.prototype.IsBitmapLibraryItem = function(item) {
-		ft.type_assert(item, LibraryItem);
-		return item.itemType == "bitmap";
-	};
-
-	FlashTools.prototype.IsSymbolLibraryItem = function(item) {
-		ft.type_assert(item, LibraryItem);
-		var item_type = item.itemType;
-		return item_type == "graphic" || item_type == "movie clip";
-	};
-
-	// ------------------------------------
-	// Document
-	// ------------------------------------
-
-	FlashTools.prototype.Document_TraceInfo = function(document) {
-		ft.type_assert(document, Document);
-		ft.trace_fmt("Name         : {0}", document.name);
-		ft.trace_fmt("Path         : {0}", this.Document_GetPath(document));
-		ft.trace_fmt("ExportFolder : {0}", this.Document_GetExportFolder(document));
-	};
-
-	FlashTools.prototype.Document_GetPath = function(document) {
-		ft.type_assert(document, Document);
-		return ft.escape_path(document.pathURI);
-	};
-
-	FlashTools.prototype.Document_GetExportFolder = function(document) {
-		ft.type_assert(document, Document);
+	Exporter.prototype.get_export_folder = function() {
 		return ft.combine_path(
-			this.Document_GetPath(document),
+			this.get_document_path(),
 			"_export/");
 	};
-
-	FlashTools.prototype.Document_GetStageExportPath = function(document) {
-		ft.type_assert(document, Document);
+	
+	Exporter.prototype.get_stage_export_path = function() {
 		return ft.combine_path(
-			this.Document_GetExportFolder(document),
+			this.get_export_folder(),
 			"stage.xml");
 	};
 
-	FlashTools.prototype.Document_GetLibraryExportPath = function(document) {
-		ft.type_assert(document, Document);
+	Exporter.prototype.get_library_export_path = function() {
 		return ft.combine_path(
-			this.Document_GetExportFolder(document),
+			this.get_export_folder(),
 			"library.xml");
 	};
 
-	FlashTools.prototype.Document_GetStringIdsExportPath = function(document) {
-		ft.type_assert(document, Document);
+	Exporter.prototype.get_strings_export_path = function() {
 		return ft.combine_path(
-			this.Document_GetExportFolder(document),
+			this.get_export_folder(),
 			"strings.xml");
 	};
-
-	FlashTools.prototype.Document_ExitEditMode = function(document) {
-		ft.type_assert(document, Document);
-		for ( var i = 0; i < 100; ++i ) {
-			document.exitEditMode();
+	
+	Exporter.prototype.export = function() {
+		this.trace();
+		ft.trace("- Start...");
+		try {
+			this.prepare_export_folder();
+			this.export_library();
+			this.export_stage();
+			this.export_strings();
+			ft.trace_fmt("- Finish : {0}", this.get_export_folder());
+		} catch ( e ) {
+			ft.trace_fmt("- Error : {0}", e);
 		}
 	};
-
-	FlashTools.prototype.Document_ForEachByLibraryItems = function(document, func, filter) {
-		ft.type_assert(document, Document);
-		ft.type_assert(func, Function);
-		ft.type_assert_if_defined(filter, Function);
-		ft.array_foreach(document.library.items, func, filter);
-	};
-
-	FlashTools.prototype.Document_PrepareExportFolder = function(document) {
-		ft.type_assert(document, Document);
-		var export_folder = this.Document_GetExportFolder(document);
+	
+	Exporter.prototype.prepare_export_folder = function() {
+		var export_folder = this.get_export_folder();
 		if ( FLfile.exists(export_folder) ) {
 			if ( !FLfile.remove(export_folder) ) {
 				throw "Can't remove document export folder ({0})!"
@@ -782,106 +854,30 @@ if ( typeof Object.create != 'function' ) {
 				.format(export_folder);
 		}
 	};
-
-	FlashTools.prototype.Document_ExportLibrary = function(document) {
-		ft.type_assert(document, Document);
+	
+	Exporter.prototype.export_library = function() {
 		var xml_node = new XmlNode("library")
-			.attr("frame_rate", document.frameRate);
-		this.Document_ForEachByLibraryItems(document, function(item) {
-			if ( this.IsFolderLibraryItem(item) ) {
-				// nothing
-			} else if ( this.IsBitmapLibraryItem(item) ) {
-				var bitmap_asset = new BitmapAsset(item, this.uniqueIds);
-				bitmap_asset.export_description(xml_node);
-			} else if ( this.IsSymbolLibraryItem(item) ) {
-				var symbol_asset = new SymbolAsset(item, this.uniqueIds);
-				symbol_asset.export_description(xml_node);
-			} else {
-				throw "Unsupported library item type ({0})!"
-					.format(item.itemType);
-			}
-		}.bind(this));
-		xml_node.save(this.Document_GetLibraryExportPath(document));
+			.attr("frame_rate", this.document.frameRate);
+		new LibraryInst(this.document.library, this.uniqueIds)
+			.export(this.get_export_folder(), xml_node);
+		xml_node.save(this.get_library_export_path());
 	};
-
-	FlashTools.prototype.Document_ExportBitmaps = function(document) {
-		ft.type_assert(document, Document);
-		this.Document_ForEachByLibraryItems(document, function(item) {
-			var bitmap_asset = new BitmapAsset(item, this.uniqueIds);
-			bitmap_asset.export_content(this.Document_GetExportFolder(document));
-		}.bind(this), this.IsBitmapLibraryItem.bind(this));
-	};
-
-	FlashTools.prototype.Document_ExportSymbols = function(document) {
-		ft.type_assert(document, Document);
-		this.Document_ForEachByLibraryItems(document, function(item) {
-			var symbol_asset = new SymbolAsset(item, this.uniqueIds);
-			symbol_asset.export_content(this.Document_GetExportFolder(document));
-		}.bind(this), this.IsSymbolLibraryItem.bind(this));
-	};
-
-	FlashTools.prototype.Document_ExportStage = function(document) {
-		ft.type_assert(document, Document);
-		this.Document_ExitEditMode(document);
+	
+	Exporter.prototype.export_stage = function() {
+		this.exit_edit_mode();
 		var xml_node = new XmlNode("stage");
-		new TimelineInst(document.getTimeline(), this.uniqueIds)
+		new TimelineInst(this.document.getTimeline(), this.uniqueIds)
 			.export_description(xml_node);
-		xml_node.save(this.Document_GetStageExportPath(document));
+		xml_node.save(this.get_stage_export_path(document));
 	};
-
-	FlashTools.prototype.Document_ExportStringIds = function(document) {
-		ft.type_assert(document, Document);
-		this.uniqueIds.save(this.Document_GetStringIdsExportPath(document));
+	
+	Exporter.prototype.export_strings = function() {
+		this.uniqueIds.save(this.get_strings_export_path());
 	};
-
-	// ------------------------------------
-	// Convert
-	// ------------------------------------
-
-	FlashTools.prototype.ConvertAll = function() {
-		ft.array_foreach(fl.documents, function(document) {
-			this.ConvertOne(document);
-		}.bind(this));
-	};
-
-	FlashTools.prototype.ConvertOne = function(document) {
-		ft.type_assert(document, Document);
-		this.uniqueIds.clear();
-		ft.trace("-= Convert document start =-");
-		try {
-			this.Document_TraceInfo(document);
-			this.Document_PrepareExportFolder(document);
-			this.Document_ExportLibrary(document);
-			this.Document_ExportBitmaps(document);
-			this.Document_ExportSymbols(document);
-			this.Document_ExportStage(document);
-			this.Document_ExportStringIds(document);
-			ft.trace("-= Convert document finish =-");
-		} catch ( e ) {
-			ft.trace("-= Convert document error =- : " + e);
-		}
-	};
-
-	// ------------------------------------
-	// Tests
-	// ------------------------------------
-
-	FlashTools.prototype.Test0 = function() {
-		ft.assert(true);
-	};
-
-	FlashTools.prototype.Test1 = function() {
-		ft.assert(true);
-	};
-
-	FlashTools.prototype.RunTests = function() {
-		try {
-			this.Test0();
-			this.Test1();
-			return true;
-		} catch ( e ) {
-			ft.trace_fmt("!!!Error!!! Unit test fail: {0}", e);
-			return false;
+	
+	Exporter.prototype.exit_edit_mode = function() {
+		for ( var i = 0; i < 100; ++i ) {
+			this.document.exitEditMode();
 		}
 	};
 
@@ -891,9 +887,8 @@ if ( typeof Object.create != 'function' ) {
 
 	(function() {
 		ft.clear_output();
-		var flash_tools = new FlashTools();
-		if ( flash_tools.RunTests() ) {
-			flash_tools.ConvertAll();
-		}
+		ft.array_foreach(fl.documents, function(document) {
+			new Exporter(document).export();
+		});
 	})();
 })();
