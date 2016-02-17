@@ -150,7 +150,7 @@ if (typeof Object.create != 'function') {
 		ft.type_assert(rhs, 'string');
 		return ft.escape_path(lhs) + ft.escape_path(rhs);
 	};
-
+	
 	ft.array_foreach = function (arr, func, filter) {
 		ft.type_assert(arr, Array);
 		ft.type_assert(func, Function);
@@ -539,8 +539,22 @@ if (typeof Object.create != 'function') {
 		return this.timeline.name;
 	};
 	
+	TimelineInst.prototype.remove_empty_layers = function () {
+		var layers = this.timeline.layers;
+		for ( var i = 0; i < layers.length; ) {
+			var is_empty = new LayerInst(layers[i], this.uniqueIds).is_empty();
+			if ( is_empty ) {
+				this.timeline.deleteLayer(i);
+				layers = this.timeline.layers;
+			} else {
+				++i;
+			}
+		}
+	};
+	
 	TimelineInst.prototype.convert = function (document) {
 		ft.type_assert(document, Document);
+		this.remove_empty_layers();
 		if ( this.timeline.layers.length > 1 ) {
 			this.timeline.selectAllFrames();
 			this.timeline.convertToKeyframes();
@@ -600,6 +614,17 @@ if (typeof Object.create != 'function') {
 	LayerInst.prototype.get_name = function () {
 		return this.layer.name;
 	};
+	
+	LayerInst.prototype.is_empty = function () {
+		var frames = this.layer.frames;
+		for ( var i = 0; i < frames.length; ++i ) {
+			var is_empty = new FrameInst(frames[i], i, this.uniqueIds).is_empty();
+			if ( !is_empty ) {
+				return false;
+			}
+		}
+		return true;
+	};
 
 	LayerInst.prototype.do_in_unlocked = function (func) {
 		ft.type_assert(func, Function);
@@ -616,13 +641,13 @@ if (typeof Object.create != 'function') {
 		ft.type_assert(document, Document);
 		ft.type_assert(timeline, Timeline);
 		this.do_in_unlocked(function() {
-			ft.array_foreach(this.layer.frames, function(frame) {
+			ft.array_foreach(this.layer.frames, function(frame, index) {
 				frame.convertToFrameByFrameAnimation();
 			}.bind(this));
 			ft.array_foreach(this.layer.frames, function(frame, index) {
-				timeline.setSelectedFrames(index, index + 1);
 				var inst = new FrameInst(frame, index, this.uniqueIds);
 				if (inst.get_start_frame() == index) {
+					timeline.setSelectedFrames(index, index + 1);
 					inst.convert(document, timeline, this.layer);
 				}
 			}.bind(this));
@@ -634,9 +659,9 @@ if (typeof Object.create != 'function') {
 		ft.type_assert(timeline, Timeline);
 		this.do_in_unlocked(function() {
 			ft.array_foreach(this.layer.frames, function(frame, index) {
-				timeline.setSelectedFrames(index, index + 1);
 				var inst = new FrameInst(frame, index, this.uniqueIds);
 				if (inst.get_start_frame() == index) {
+					timeline.setSelectedFrames(index, index + 1);
 					inst.prepare(document, timeline, this.layer);
 				}
 			}.bind(this));
@@ -699,6 +724,10 @@ if (typeof Object.create != 'function') {
 
 	FrameInst.prototype.get_start_frame = function () {
 		return this.frame.startFrame;
+	};
+	
+	FrameInst.prototype.is_empty = function () {
+		return this.frame.elements.length == 0;
 	};
 
 	FrameInst.prototype.is_element_shape = function (element) {
@@ -939,9 +968,12 @@ if (typeof Object.create != 'function') {
 
 	Exporter.prototype.export = function () {
 		this.trace();
+		fl.showIdleMessage(false);
 		ft.trace("- Start...");
 		try {
+			this.full_exit_edit_mode();
 			this.prepare_folders();
+			this.delete_unused_items();
 			this.convert_document();
 			this.prepare_document();
 			this.export_library();
@@ -951,6 +983,7 @@ if (typeof Object.create != 'function') {
 		} catch (e) {
 			ft.trace_fmt("- Error : {0}", e);
 		}
+		fl.showIdleMessage(true);
 	};
 
 	Exporter.prototype.prepare_folders = function () {
@@ -975,8 +1008,15 @@ if (typeof Object.create != 'function') {
 		}
 	};
 	
+	Exporter.prototype.delete_unused_items = function() {
+		var unused_items = this.document.library.unusedItems;
+		ft.array_foreach(unused_items, function (item) {
+			ft.trace_fmt("Remove unused item: {0}", item.name);
+			this.document.library.deleteItem(item.name);
+		});
+	};
+	
 	Exporter.prototype.convert_document = function () {
-		this.exit_edit_mode();
 		new TimelineInst(this.document.getTimeline(), this.uniqueIds)
 			.convert(this.document);
 		new LibraryInst(this.document.library, this.uniqueIds)
@@ -984,7 +1024,6 @@ if (typeof Object.create != 'function') {
 	};
 
 	Exporter.prototype.prepare_document = function () {
-		this.exit_edit_mode();
 		new TimelineInst(this.document.getTimeline(), this.uniqueIds)
 			.prepare(this.document);
 		new LibraryInst(this.document.library, this.uniqueIds)
@@ -992,7 +1031,6 @@ if (typeof Object.create != 'function') {
 	};
 
 	Exporter.prototype.export_library = function () {
-		this.exit_edit_mode();
 		var xml_node = new XmlNode("library")
 			.attr("frame_rate", this.document.frameRate);
 		new LibraryInst(this.document.library, this.uniqueIds)
@@ -1001,7 +1039,6 @@ if (typeof Object.create != 'function') {
 	};
 
 	Exporter.prototype.export_stage = function () {
-		this.exit_edit_mode();
 		var xml_node = new XmlNode("stage");
 		new TimelineInst(this.document.getTimeline(), this.uniqueIds)
 			.export_description(xml_node);
@@ -1012,7 +1049,7 @@ if (typeof Object.create != 'function') {
 		this.uniqueIds.save(this.get_strings_export_path());
 	};
 
-	Exporter.prototype.exit_edit_mode = function () {
+	Exporter.prototype.full_exit_edit_mode = function () {
 		for (var i = 0; i < 100; ++i) {
 			this.document.exitEditMode();
 		}
