@@ -805,7 +805,7 @@ if (typeof Object.create != 'function') {
 	var ElementInst = function (inst, unique_ids) {
 		ft.type_assert(inst, Instance);
 		ft.type_assert(unique_ids, UniqueIds);
-		this.inst = inst;
+		this.inst      = inst;
 		this.uniqueIds = unique_ids;
 	};
 
@@ -925,8 +925,9 @@ if (typeof Object.create != 'function') {
 
 	var Exporter = function (document) {
 		ft.type_assert(document, Document);
-		this.document  = document;
-		this.uniqueIds = new UniqueIds();
+		this.document     = document;
+		this.uniqueIds    = new UniqueIds();
+		this.documentPath = ft.escape_path(this.document.pathURI);
 	};
 
 	Exporter.prototype.trace = function (indent) {
@@ -939,7 +940,7 @@ if (typeof Object.create != 'function') {
 	};
 
 	Exporter.prototype.get_document_path = function () {
-		return ft.escape_path(this.document.pathURI);
+		return this.documentPath;
 	};
 
 	Exporter.prototype.get_export_folder = function () {
@@ -971,8 +972,8 @@ if (typeof Object.create != 'function') {
 		fl.showIdleMessage(false);
 		ft.trace("- Start...");
 		try {
-			this.full_exit_edit_mode();
 			this.prepare_folders();
+			this.full_exit_edit_mode();
 			this.delete_unused_items();
 			this.convert_document();
 			this.prepare_document();
@@ -983,6 +984,7 @@ if (typeof Object.create != 'function') {
 		} catch (e) {
 			ft.trace_fmt("- Error : {0}", e);
 		}
+		fl.revertDocument(this.document);
 		fl.showIdleMessage(true);
 	};
 
@@ -1005,6 +1007,12 @@ if (typeof Object.create != 'function') {
 		if (!FLfile.createFolder(export_folder + "symbols/")) {
 			throw "Can't create document symbols export folder ({0})!"
 				.format(export_folder);
+		}
+	};
+	
+	Exporter.prototype.full_exit_edit_mode = function () {
+		for (var i = 0; i < 100; ++i) {
+			this.document.exitEditMode();
 		}
 	};
 	
@@ -1047,12 +1055,6 @@ if (typeof Object.create != 'function') {
 
 	Exporter.prototype.export_strings = function () {
 		this.uniqueIds.save(this.get_strings_export_path());
-	};
-
-	Exporter.prototype.full_exit_edit_mode = function () {
-		for (var i = 0; i < 100; ++i) {
-			this.document.exitEditMode();
-		}
 	};
 
 	// ------------------------------------
