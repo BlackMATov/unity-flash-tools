@@ -268,7 +268,7 @@ if (typeof Object.create != 'function') {
 			ft.array_foreach(this.children, function (child) {
 				str += child.content(indent + "\t") + "\n";
 			});
-			return str + "{0}<{1}/>".format(indent, this.name);
+			return str + "{0}</{1}>".format(indent, this.name);
 		} else {
 			return str + "/>";
 		}
