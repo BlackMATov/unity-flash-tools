@@ -4,6 +4,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using System.Globalization;
 
 namespace FlashTools.Internal {
 	public class FlashAnimPostprocessor : AssetPostprocessor {
@@ -179,8 +180,22 @@ namespace FlashTools.Internal {
 			return def_value;
 		}
 
-		static Matrix4x4 SafeLoadMatFromElemAttr(XElement elem, string attr_name, Matrix4x4 def_value) {
-			// TODO: implme
+		static FlashAnimMatrix SafeLoadMatFromElemAttr(XElement elem, string attr_name, FlashAnimMatrix def_value) {
+			var mat_str = SafeLoadStrFromElemAttr(elem, attr_name, "");
+			var mat_strs = mat_str.Split(';');
+			if ( mat_strs.Length == 6 ) {
+				float a, b, c, d, tx, ty;
+				if (
+					float.TryParse(mat_strs[0], NumberStyles.Any, CultureInfo.InvariantCulture, out a ) &&
+					float.TryParse(mat_strs[1], NumberStyles.Any, CultureInfo.InvariantCulture, out b ) &&
+					float.TryParse(mat_strs[2], NumberStyles.Any, CultureInfo.InvariantCulture, out c ) &&
+					float.TryParse(mat_strs[3], NumberStyles.Any, CultureInfo.InvariantCulture, out d ) &&
+					float.TryParse(mat_strs[4], NumberStyles.Any, CultureInfo.InvariantCulture, out tx) &&
+					float.TryParse(mat_strs[5], NumberStyles.Any, CultureInfo.InvariantCulture, out ty) )
+				{
+					return new FlashAnimMatrix(a, b, c, d, tx, ty);
+				}
+			}
 			return def_value;
 		}
 

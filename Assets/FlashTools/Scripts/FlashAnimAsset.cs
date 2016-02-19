@@ -39,6 +39,34 @@ namespace FlashTools {
 	}
 
 	[System.Serializable]
+	public struct FlashAnimMatrix {
+		public float a;
+		public float b;
+		public float c;
+		public float d;
+		public float tx;
+		public float ty;
+		public FlashAnimMatrix(
+			float a, float b, float c, float d,
+			float tx, float ty)
+		{
+			this.a  = a;
+			this.b  = b;
+			this.c  = c;
+			this.d  = d;
+			this.tx = tx;
+			this.ty = ty;
+		}
+		static public FlashAnimMatrix identity {
+			get {
+				return new FlashAnimMatrix(
+					1.0f, 1.0f, 1.0f, 1.0f,
+					0.0f, 0.0f);
+			}
+		}
+	}
+
+	[System.Serializable]
 	public class FlashAnimBitmapData {
 		public string Id          = string.Empty;
 		public string ImageSource = string.Empty;
@@ -58,7 +86,7 @@ namespace FlashTools {
 	public class FlashAnimElemData {
 		public string                  Id     = string.Empty;
 		public int                     Depth  = 0;
-		public Matrix4x4               Matrix = Matrix4x4.identity;
+		public FlashAnimMatrix         Matrix = FlashAnimMatrix.identity;
 		public List<FlashAnimInstData> Insts  = new List<FlashAnimInstData>();
 	}
 
