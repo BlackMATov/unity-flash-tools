@@ -815,13 +815,25 @@ if (typeof Object.create != 'function') {
 	};
 
 	SymbolInst.prototype = Object.create(ElementInst.prototype);
+	
+	SymbolInst.prototype.get_symbol_type = function () {
+		var symbol_type = this.inst.symbolType;
+		if ( symbol_type == "movie clip" ) {
+			return "movieclip";
+		} else if ( symbol_type == "graphic" ) {
+			return "graphic";
+		} else {
+			throw "Unsupported symbol type ({0})!"
+				.format(symbol_type);
+		}
+	};
 
 	SymbolInst.prototype.export_description = function (xml_node) {
 		ft.type_assert(xml_node, XmlNode);
 		var instance_node = ElementInst.prototype.export_description.call(this, xml_node)
 			.child("instance")
 			.attr("type"       , "symbol")
-			.attr("symbol_type", this.inst.symbolType)
+			.attr("symbol_type", this.get_symbol_type())
 			.attr("asset"      , this.uniqueIds.get_string_id(this.inst.libraryItem.name))
 			.attr("visible"    , this.inst.visible)
 			.attr("blend_mode" , this.inst.blendMode);
