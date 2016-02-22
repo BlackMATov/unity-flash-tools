@@ -4,7 +4,9 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using System.Reflection;
 using System.Globalization;
+using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	public class FlashAnimPostprocessor : AssetPostprocessor {
@@ -36,11 +38,13 @@ namespace FlashTools.Internal {
 
 		static FlashAnimData LoadFlashAnimFromFtaFile(string fta_path) {
 			try {
-				var fta_root_elem = XDocument.Load(fta_path).Document.Root;
+				var fta_root_elem   = XDocument.Load(fta_path).Document.Root;
 				var flash_anim_data = new FlashAnimData();
 				LoadFlashAnimStageFromFtaRootElem  (fta_root_elem, flash_anim_data);
 				LoadFlashAnimLibraryFromFtaRootElem(fta_root_elem, flash_anim_data);
 				LoadFlashAnimStringsFromFtaRootElem(fta_root_elem, flash_anim_data);
+				PrepareBitmapTextures(fta_path, flash_anim_data);
+				PackBitmapTextures(fta_path, flash_anim_data);
 				return flash_anim_data;
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat("Parsing FTA file error: {0}", e.Message);
@@ -70,12 +74,8 @@ namespace FlashTools.Internal {
 		static void LoadFlashAnimBitmapsFromFtaLibraryElem(XElement library_elem, FlashAnimData data) {
 			foreach ( var bitmap_elem in library_elem.Elements("bitmap") ) {
 				var bitmap = new FlashAnimBitmapData();
-				bitmap.Id = SafeLoadStrFromElemAttr(bitmap_elem, "id", bitmap.Id);
-				if ( string.IsNullOrEmpty(bitmap.Id) ) {
-					throw new UnityException("bitmap id not found");
-				}
+				bitmap.Id  = SafeLoadStrFromElemAttr(bitmap_elem, "id", bitmap.Id);
 				bitmap.ImageSource = bitmap.Id + ".png";
-				// TODO: add image importer check
 				data.Library.Bitmaps.Add(bitmap);
 			}
 		}
@@ -83,10 +83,7 @@ namespace FlashTools.Internal {
 		static void LoadFlashAnimSymbolsFromFtaLibraryElem(XElement library_elem, FlashAnimData data) {
 			foreach ( var symbol_elem in library_elem.Elements("symbol") ) {
 				var symbol = new FlashAnimSymbolData();
-				symbol.Id = SafeLoadStrFromElemAttr(symbol_elem, "id", symbol.Id);
-				if ( string.IsNullOrEmpty(symbol.Id) ) {
-					throw new UnityException("symbol id not found");
-				}
+				symbol.Id  = SafeLoadStrFromElemAttr(symbol_elem, "id", symbol.Id);
 				LoadFlashAnimLayersFromFtaSymbolElem(symbol_elem, symbol);
 				data.Library.Symbols.Add(symbol);
 			}
@@ -94,9 +91,8 @@ namespace FlashTools.Internal {
 
 		static void LoadFlashAnimLayersFromFtaSymbolElem(XElement symbol_elem, FlashAnimSymbolData data) {
 			foreach ( var layer_elem in symbol_elem.Elements("layer") ) {
-				var layer = new FlashAnimLayerData();
+				var layer       = new FlashAnimLayerData();
 				layer.Id        = SafeLoadStrFromElemAttr (layer_elem, "id"        , layer.Id);
-				layer.Visible   = SafeLoadBoolFromElemAttr(layer_elem, "visible"   , layer.Visible);
 				layer.LayerType = SafeLoadEnumFromElemAttr(layer_elem, "layer_type", FlashAnimLayerType.Normal);
 				LoadFlashAnimFramesFromFtaLayerElem(layer_elem, layer);
 				data.Layers.Add(layer);
@@ -106,9 +102,7 @@ namespace FlashTools.Internal {
 		static void LoadFlashAnimFramesFromFtaLayerElem(XElement layer_elem, FlashAnimLayerData data) {
 			foreach ( var frame_elem in layer_elem.Elements("frame") ) {
 				var frame = new FlashAnimFrameData();
-				frame.Id        = SafeLoadStrFromElemAttr(frame_elem, "id"        , frame.Id);
-				frame.Index     = SafeLoadIntFromElemAttr(frame_elem, "index"     , frame.Index);
-				frame.Duration  = SafeLoadIntFromElemAttr(frame_elem, "duration"  , frame.Duration);
+				frame.Id  = SafeLoadStrFromElemAttr(frame_elem, "id", frame.Id);
 				LoadFlashAnimElemsFromFtaFrameElem(frame_elem, frame);
 				data.Frames.Add(frame);
 			}
@@ -116,25 +110,28 @@ namespace FlashTools.Internal {
 
 		static void LoadFlashAnimElemsFromFtaFrameElem(XElement frame_elem, FlashAnimFrameData data) {
 			foreach ( var elem_elem in frame_elem.Elements("element") ) {
-				var elem = new FlashAnimElemData();
+				var elem    = new FlashAnimElemData();
 				elem.Id     = SafeLoadStrFromElemAttr(elem_elem, "id"    , elem.Id);
-				elem.Depth  = SafeLoadIntFromElemAttr(elem_elem, "depth" , elem.Depth);
 				elem.Matrix = SafeLoadMatFromElemAttr(elem_elem, "matrix", elem.Matrix);
-				LoadFlashAnimInstsFromFtaElemElem(elem_elem, elem);
+				LoadFlashAnimInstFromFtaElemElem(elem_elem, elem);
 				data.Elems.Add(elem);
 			}
 		}
 
-		static void LoadFlashAnimInstsFromFtaElemElem(XElement elem_elem, FlashAnimElemData data) {
-			foreach ( var inst_elem in elem_elem.Elements("instance") ) {
-				var inst = new FlashAnimInstData();
-				inst.Type       = SafeLoadEnumFromElemAttr(inst_elem, "type"       , inst.Type);
-				inst.SymbolType = SafeLoadEnumFromElemAttr(inst_elem, "symbol_type", inst.SymbolType);
-				inst.BlendMode  = SafeLoadEnumFromElemAttr(inst_elem, "blend_mode" , inst.BlendMode);
-				inst.Asset      = SafeLoadStrFromElemAttr (inst_elem, "asset"      , inst.Asset);
-				inst.Visible    = SafeLoadBoolFromElemAttr(inst_elem, "visible"    , inst.Visible);
-				data.Insts.Add(inst);
+		static void LoadFlashAnimInstFromFtaElemElem(XElement elem_elem, FlashAnimElemData data) {
+			var inst_elem       = elem_elem.Element("instance");
+			var instance        = new FlashAnimInstData();
+			instance.Type       = SafeLoadEnumFromElemAttr(inst_elem, "type"       , instance.Type);
+			instance.SymbolType = SafeLoadEnumFromElemAttr(inst_elem, "symbol_type", instance.SymbolType);
+			instance.BlendMode  = SafeLoadEnumFromElemAttr(inst_elem, "blend_mode" , instance.BlendMode);
+			instance.Asset      = SafeLoadStrFromElemAttr (inst_elem, "asset"      , instance.Asset);
+			instance.Visible    = SafeLoadBoolFromElemAttr(inst_elem, "visible"    , instance.Visible);
+			var looping_elem = inst_elem.Element("looping");
+			if ( looping_elem != null ) {
+				instance.LoopingType       = SafeLoadEnumFromElemAttr(looping_elem, "type"        , instance.LoopingType);
+				instance.LoopingFirstFrame = SafeLoadIntFromElemAttr (looping_elem, "first_frame" , instance.LoopingFirstFrame);
 			}
+			data.Instance = instance;
 		}
 
 		// -----------------------------
@@ -154,6 +151,91 @@ namespace FlashTools.Internal {
 		}
 
 		// -----------------------------
+		// Textures
+		// -----------------------------
+
+		static void PrepareBitmapTextures(string fta_path, FlashAnimData data) {
+		}
+
+		static void PackBitmapTextures(string fta_path, FlashAnimData data) {
+			var base_path = Path.GetDirectoryName(fta_path);
+			var textures  = new List<Texture2D>();
+			var texturen  = new List<string>();
+			foreach ( var bitmap in data.Library.Bitmaps ) {
+				var texture_path = Path.Combine(base_path, bitmap.ImageSource);
+				var importer = AssetImporter.GetAtPath(texture_path) as TextureImporter;
+				if ( !importer ) {
+					throw new UnityException(string.Format(
+						"bitmap ({0}) texture importer not found ({1})",
+						bitmap.Id, texture_path));
+				}
+				if ( !importer.isReadable ) {
+					importer.isReadable = true;
+					AssetDatabase.ImportAsset(texture_path, ImportAssetOptions.ForceUpdate);
+					AssetDatabase.ImportAsset(fta_path, ImportAssetOptions.ForceUpdate);
+					return;
+				}
+				var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(texture_path);
+				if ( !texture ) {
+					throw new UnityException(string.Format(
+						"bitmap ({0}) texture not found ({1})",
+						bitmap.Id, texture_path));
+				}
+				textures.Add(texture);
+				texturen.Add(bitmap.ImageSource);
+			}
+
+			var atlas = new Texture2D(0, 0);
+			var atlas_rects = atlas.PackTextures(textures.ToArray(), 1, 1024);
+			var atlas_asset_path = Path.Combine(
+				Path.GetDirectoryName(Application.dataPath),
+				Path.Combine(base_path, "atlas.png"));
+			File.WriteAllBytes(atlas_asset_path, atlas.EncodeToPNG());
+			GameObject.DestroyImmediate(atlas);
+			AssetDatabase.Refresh();
+
+			var atlas_path = Path.Combine(base_path, "atlas.png");
+			data.Atlas = AssetDatabase.LoadAssetAtPath<Texture2D>(atlas_path);
+			if ( !data.Atlas ) {
+				AssetDatabase.ImportAsset(fta_path, ImportAssetOptions.ForceUpdate);
+				return;
+			}
+
+			var atlas_importer = AssetImporter.GetAtPath(atlas_path) as TextureImporter;
+			if ( !atlas_importer ) {
+				throw new UnityException(string.Format(
+					"atlas importer not found ({0})",
+					atlas_path));
+			}
+
+			var method_args = new object[2]{0,0};
+			typeof(TextureImporter)
+				.GetMethod("GetWidthAndHeight", BindingFlags.NonPublic | BindingFlags.Instance)
+				.Invoke(atlas_importer, method_args);
+			var atlas_width  = (int)method_args[0];
+			var atlas_height = (int)method_args[1];
+
+			var meta_data = new List<SpriteMetaData>();
+			for ( var i = 0; i < atlas_rects.Length; ++i ) {
+				var meta_elem  = new SpriteMetaData();
+				meta_elem.name = texturen[i];
+				data.Library.Bitmaps[i].RealSize = new Vector2(textures[i].width, textures[i].height);
+				data.Library.Bitmaps[i].SourceRect = atlas_rects[i];
+				meta_elem.rect = new Rect(
+					atlas_rects[i].xMin   * atlas_width,
+					atlas_rects[i].yMin   * atlas_height,
+					atlas_rects[i].width  * atlas_width,
+					atlas_rects[i].height * atlas_height);
+				meta_data.Add(meta_elem);
+			}
+			atlas_importer.spritesheet      = meta_data.ToArray();
+			atlas_importer.textureType      = TextureImporterType.Sprite;
+			atlas_importer.spriteImportMode = SpriteImportMode.Multiple;
+			atlas_importer.textureFormat    = TextureImporterFormat.AutomaticTruecolor;
+			AssetDatabase.ImportAsset(atlas_path, ImportAssetOptions.ForceUpdate);
+		}
+
+		// -----------------------------
 		// Common
 		// -----------------------------
 
@@ -166,7 +248,7 @@ namespace FlashTools.Internal {
 
 		static int SafeLoadIntFromElemAttr(XElement elem, string attr_name, int def_value) {
 			int value;
-			if ( elem != null && int.TryParse(SafeLoadStrFromElemAttr(elem, attr_name, ""), out value) ) {
+			if ( elem != null && int.TryParse(SafeLoadStrFromElemAttr(elem, attr_name, string.Empty), out value) ) {
 				return value;
 			}
 			return def_value;
@@ -174,14 +256,14 @@ namespace FlashTools.Internal {
 
 		static bool SafeLoadBoolFromElemAttr(XElement elem, string attr_name, bool def_value) {
 			bool value;
-			if ( elem != null && bool.TryParse(SafeLoadStrFromElemAttr(elem, attr_name, ""), out value) ) {
+			if ( elem != null && bool.TryParse(SafeLoadStrFromElemAttr(elem, attr_name, string.Empty), out value) ) {
 				return value;
 			}
 			return def_value;
 		}
 
-		static FlashAnimMatrix SafeLoadMatFromElemAttr(XElement elem, string attr_name, FlashAnimMatrix def_value) {
-			var mat_str = SafeLoadStrFromElemAttr(elem, attr_name, "");
+		static Matrix4x4 SafeLoadMatFromElemAttr(XElement elem, string attr_name, Matrix4x4 def_value) {
+			var mat_str = SafeLoadStrFromElemAttr(elem, attr_name, string.Empty);
 			var mat_strs = mat_str.Split(';');
 			if ( mat_strs.Length == 6 ) {
 				float a, b, c, d, tx, ty;
@@ -193,7 +275,14 @@ namespace FlashTools.Internal {
 					float.TryParse(mat_strs[4], NumberStyles.Any, CultureInfo.InvariantCulture, out tx) &&
 					float.TryParse(mat_strs[5], NumberStyles.Any, CultureInfo.InvariantCulture, out ty) )
 				{
-					return new FlashAnimMatrix(a, b, c, d, tx, ty);
+					var mat = Matrix4x4.identity;
+					mat.m00 = a;
+					mat.m10 = b;
+					mat.m01 = c;
+					mat.m11 = d;
+					mat.m03 = tx;
+					mat.m13 = ty;
+					return mat;
 				}
 			}
 			return def_value;
@@ -201,7 +290,7 @@ namespace FlashTools.Internal {
 
 		static T SafeLoadEnumFromElemAttr<T>(XElement elem, string attr_name, T def_value) {
 			try {
-				return (T)Enum.Parse(typeof(T), SafeLoadStrFromElemAttr(elem, attr_name, ""));
+				return (T)Enum.Parse(typeof(T), SafeLoadStrFromElemAttr(elem, attr_name, string.Empty), true);
 			} catch ( Exception ) {
 				return def_value;
 			}

@@ -162,6 +162,18 @@ if (typeof Object.create != 'function') {
 			}
 		}
 	};
+	
+	ft.array_reverse_foreach = function (arr, func, filter) {
+		ft.type_assert(arr, Array);
+		ft.type_assert(func, Function);
+		ft.type_assert_if_defined(filter, Function);
+		for (var index = arr.length - 1; index >= 0; --index) {
+			var value = arr[index];
+			if (filter === undefined || filter(value, index)) {
+				func(value, index);
+			}
+		}
+	};
 
 	ft.object_foreach = function (obj, func, filter) {
 		ft.type_assert(obj, 'object');
@@ -509,7 +521,7 @@ if (typeof Object.create != 'function') {
 			this.timeline.selectAllFrames();
 			this.timeline.convertToKeyframes();
 		}
-		ft.array_foreach(this.timeline.layers, function(layer, index) {
+		ft.array_reverse_foreach(this.timeline.layers, function(layer, index) {
 			this.timeline.setSelectedLayers(index);
 			new LayerInst(layer, this.uniqueIds)
 				.convert(document, this.timeline);
@@ -518,7 +530,7 @@ if (typeof Object.create != 'function') {
 
 	TimelineInst.prototype.prepare = function (document) {
 		ft.type_assert(document, Document);
-		ft.array_foreach(this.timeline.layers, function(layer, index) {
+		ft.array_reverse_foreach(this.timeline.layers, function(layer, index) {
 			this.timeline.setSelectedLayers(index);
 			new LayerInst(layer, this.uniqueIds)
 				.prepare(document, this.timeline);
@@ -527,7 +539,7 @@ if (typeof Object.create != 'function') {
 
 	TimelineInst.prototype.export_description = function (xml_node) {
 		ft.type_assert(xml_node, XmlNode);
-		ft.array_foreach(this.timeline.layers, function(layer) {
+		ft.array_reverse_foreach(this.timeline.layers, function(layer) {
 			new LayerInst(layer, this.uniqueIds)
 				.export_description(xml_node);
 		}.bind(this));
@@ -564,11 +576,13 @@ if (typeof Object.create != 'function') {
 	};
 	
 	LayerInst.prototype.is_empty = function () {
-		var frames = this.layer.frames;
-		for ( var i = 0; i < frames.length; ++i ) {
-			var is_empty = new FrameInst(frames[i], i, this.uniqueIds).is_empty();
-			if ( !is_empty ) {
-				return false;
+		if ( this.layer.visible ) {
+			var frames = this.layer.frames;
+			for ( var i = 0; i < frames.length; ++i ) {
+				var is_empty = new FrameInst(frames[i], i, this.uniqueIds).is_empty();
+				if ( !is_empty ) {
+					return false;
+				}
 			}
 		}
 		return true;
@@ -620,7 +634,6 @@ if (typeof Object.create != 'function') {
 		ft.type_assert(xml_node, XmlNode);
 		var layer_node = xml_node.child("layer")
 			.attr("id"        , this.get_id())
-			.attr("visible"   , this.layer.visible)
 			.attr("layer_type", this.layer.layerType);
 		if (this.layer.parentLayer) {
 			var parent_layer = new LayerInst(this.layer.parentLayer, this.uniqueIds);
@@ -736,9 +749,7 @@ if (typeof Object.create != 'function') {
 	FrameInst.prototype.export_description = function (xml_node) {
 		ft.type_assert(xml_node, XmlNode);
 		var frame_node = xml_node.child("frame")
-			.attr("id"      , this.get_id())
-			.attr("index"   , this.get_index())
-			.attr("duration", this.frame.duration);
+			.attr("id", this.get_id());
 		ft.array_foreach(this.frame.elements, function (element) {
 			this.export_element(frame_node, element);
 		}.bind(this));
@@ -777,7 +788,6 @@ if (typeof Object.create != 'function') {
 		ft.type_assert(xml_node, XmlNode);
 		return xml_node.child("element")
 			.attr("id"    , this.get_id())
-			.attr("depth" , this.inst.depth)
 			.attr("matrix", "{0};{1};{2};{3};{4};{5}".format(
 				this.inst.matrix.a, this.inst.matrix.b,
 				this.inst.matrix.c, this.inst.matrix.d,
@@ -827,6 +837,24 @@ if (typeof Object.create != 'function') {
 				.format(symbol_type);
 		}
 	};
+	
+	SymbolInst.prototype.get_looping_type = function () {
+		var looping_type = this.inst.loop !== undefined ? this.inst.loop : "single frame";
+		if ( looping_type == "loop" ) {
+			return "loop";
+		} else if ( looping_type == "play once" ) {
+			return "playonce";
+		} else if ( looping_type == "single frame" ) {
+			return "single frame";
+		} else {
+			throw "Unsupported looping type ({0})!"
+				.format(looping_type);
+		}
+	};
+	
+	SymbolInst.prototype.get_looping_first_frame = function () {
+		return this.inst.firstFrame !== undefined ? this.inst.firstFrame : 0;
+	};
 
 	SymbolInst.prototype.export_description = function (xml_node) {
 		ft.type_assert(xml_node, XmlNode);
@@ -837,6 +865,11 @@ if (typeof Object.create != 'function') {
 			.attr("asset"      , this.uniqueIds.get_string_id(this.inst.libraryItem.name))
 			.attr("visible"    , this.inst.visible)
 			.attr("blend_mode" , this.inst.blendMode);
+		instance_node.child("looping")
+			.attr("type"       , this.get_looping_type())
+			.attr("first_frame", this.get_looping_first_frame());
+		
+		/* \TODO export color mode
 		if (this.inst.colorMode !== "none") {
 			var color_mode_node = instance_node.child("color_mode")
 				.attr("color_mode", this.inst.colorMode);
@@ -853,28 +886,23 @@ if (typeof Object.create != 'function') {
 			} else if (this.inst.colorMode == "advanced") {
 				color_mode_node
 					.attr("a", "{0};{1}".format(this.inst.colorAlphaAmount, this.inst.colorAlphaPercent))
-					.attr("r", "{0};{1}".format(this.inst.colorRedAmount, this.inst.colorRedPercent))
+					.attr("r", "{0};{1}".format(this.inst.colorRedAmount,   this.inst.colorRedPercent  ))
 					.attr("g", "{0};{1}".format(this.inst.colorGreenAmount, this.inst.colorGreenPercent))
-					.attr("b", "{0};{1}".format(this.inst.colorBlueAmount, this.inst.colorBluePercent));
+					.attr("b", "{0};{1}".format(this.inst.colorBlueAmount,  this.inst.colorBluePercent ));
 			} else {
 				ft.assert(false,
 					"Unsupported color mode ({0})!",
 					this.inst.colorMode);
 			}
-		}
-		if (this.inst.loop !== undefined && this.inst.firstFrame !== undefined) {
-			instance_node.child("looping")
-				.attr("loop"       , this.inst.loop)
-				.attr("first_frame", this.inst.firstFrame);
-		}
+		}*/
+		/* \TODO export filters
 		if (this.inst.filters && this.inst.filters.length > 0) {
 			var filters_node = instance_node.child("filters");
 			ft.array_foreach(this.inst.filters, function (filter) {
-				/// \TODO export filters
 				filters_node.child("filter")
 					.attr("name", filter.name);
 			});
-		}
+		}*/
 	};
 
 	// ----------------------------------------------------------------------------

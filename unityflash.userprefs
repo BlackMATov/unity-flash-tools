@@ -1,11 +1,10 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimPostprocessor.cs">
+  <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimAssetEditor.cs" Line="6" Column="2" />
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimPostprocessor.cs" Line="26" Column="20" />
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimEditor.cs" Line="3" Column="32" />
-      <File FileName="Assets/FlashTools/Scripts/FlashAnimAsset.cs" Line="12" Column="21" />
+      <File FileName="Assets/FlashTools/Scripts/FlashAnim.cs" Line="1" Column="1" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimPostprocessor.cs" Line="1" Column="1" />
+      <File FileName="Assets/FlashTools/Scripts/FlashAnimAsset.cs" Line="1" Column="1" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
