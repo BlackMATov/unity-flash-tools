@@ -46,8 +46,9 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimAssetEditor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimAssetPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimEditor.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimPostprocessor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimFtaPostprocessor.cs" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>

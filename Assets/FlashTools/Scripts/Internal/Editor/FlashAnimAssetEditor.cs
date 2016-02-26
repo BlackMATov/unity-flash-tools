@@ -8,6 +8,12 @@ namespace FlashTools.Internal {
 	public class FlashAnimAssetEditor : Editor {
 		FlashAnimAsset _asset = null;
 
+		void ApplySettings() {
+			AssetDatabase.ImportAsset(
+				AssetDatabase.GetAssetPath(_asset),
+				ImportAssetOptions.ForceUpdate);
+		}
+
 		void CreateFlashAnimOnScene() {
 			var anim_go = new GameObject("FlashAnim");
 			try {
@@ -49,6 +55,9 @@ namespace FlashTools.Internal {
 
 		public override void OnInspectorGUI() {
 			DrawDefaultInspector();
+			if ( GUILayout.Button("Apply settings") ) {
+				ApplySettings();
+			}
 			if ( GUILayout.Button("Create animation on scene") ) {
 				CreateFlashAnimOnScene();
 			}

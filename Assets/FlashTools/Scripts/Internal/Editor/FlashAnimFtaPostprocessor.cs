@@ -4,20 +4,18 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
-using System.Reflection;
 using System.Globalization;
-using System.Collections.Generic;
 
 namespace FlashTools.Internal {
-	public class FlashAnimPostprocessor : AssetPostprocessor {
+	public class FlashAnimFtaPostprocessor : AssetPostprocessor {
 		static void OnPostprocessAllAssets(
 			string[] imported_assets, string[] deleted_assets,
 			string[] moved_assets, string[] moved_from_asset_paths)
 		{
-			var fta_assets = imported_assets
+			var fta_asset_paths = imported_assets
 				.Where(p => Path.GetExtension(p).ToLower().Equals(".fta"));
-			foreach ( var fta_asset in fta_assets ) {
-				FtaAssetProcess(fta_asset);
+			foreach ( var fta_asset_path in fta_asset_paths ) {
+				FtaAssetProcess(fta_asset_path);
 			}
 		}
 
@@ -33,6 +31,7 @@ namespace FlashTools.Internal {
 				new_asset.Data = flash_anim_data;
 				EditorUtility.SetDirty(new_asset);
 				AssetDatabase.SaveAssets();
+				AssetDatabase.DeleteAsset(fta_asset);
 			}
 		}
 
@@ -43,11 +42,9 @@ namespace FlashTools.Internal {
 				LoadFlashAnimStageFromFtaRootElem  (fta_root_elem, flash_anim_data);
 				LoadFlashAnimLibraryFromFtaRootElem(fta_root_elem, flash_anim_data);
 				LoadFlashAnimStringsFromFtaRootElem(fta_root_elem, flash_anim_data);
-				PrepareBitmapTextures(fta_path, flash_anim_data);
-				PackBitmapTextures(fta_path, flash_anim_data);
 				return flash_anim_data;
 			} catch ( Exception e ) {
-				Debug.LogErrorFormat("Parsing FTA file error: {0}", e.Message);
+				Debug.LogErrorFormat("Parsing flash anim .fta file error: {0}", e.Message);
 				return null;
 			}
 		}
@@ -73,8 +70,8 @@ namespace FlashTools.Internal {
 
 		static void LoadFlashAnimBitmapsFromFtaLibraryElem(XElement library_elem, FlashAnimData data) {
 			foreach ( var bitmap_elem in library_elem.Elements("bitmap") ) {
-				var bitmap = new FlashAnimBitmapData();
-				bitmap.Id  = SafeLoadStrFromElemAttr(bitmap_elem, "id", bitmap.Id);
+				var bitmap         = new FlashAnimBitmapData();
+				bitmap.Id          = SafeLoadStrFromElemAttr(bitmap_elem, "id", bitmap.Id);
 				bitmap.ImageSource = bitmap.Id + ".png";
 				data.Library.Bitmaps.Add(bitmap);
 			}
@@ -128,8 +125,8 @@ namespace FlashTools.Internal {
 			instance.Visible    = SafeLoadBoolFromElemAttr(inst_elem, "visible"    , instance.Visible);
 			var looping_elem = inst_elem.Element("looping");
 			if ( looping_elem != null ) {
-				instance.LoopingType       = SafeLoadEnumFromElemAttr(looping_elem, "type"        , instance.LoopingType);
-				instance.LoopingFirstFrame = SafeLoadIntFromElemAttr (looping_elem, "first_frame" , instance.LoopingFirstFrame);
+				instance.LoopingType       = SafeLoadEnumFromElemAttr(looping_elem, "type"       , instance.LoopingType);
+				instance.LoopingFirstFrame = SafeLoadIntFromElemAttr (looping_elem, "first_frame", instance.LoopingFirstFrame);
 			}
 			data.Instance = instance;
 		}
@@ -148,91 +145,6 @@ namespace FlashTools.Internal {
 					data.Strings.Add(string_str);
 				}
 			}
-		}
-
-		// -----------------------------
-		// Textures
-		// -----------------------------
-
-		static void PrepareBitmapTextures(string fta_path, FlashAnimData data) {
-		}
-
-		static void PackBitmapTextures(string fta_path, FlashAnimData data) {
-			var base_path = Path.GetDirectoryName(fta_path);
-			var textures  = new List<Texture2D>();
-			var texturen  = new List<string>();
-			foreach ( var bitmap in data.Library.Bitmaps ) {
-				var texture_path = Path.Combine(base_path, bitmap.ImageSource);
-				var importer = AssetImporter.GetAtPath(texture_path) as TextureImporter;
-				if ( !importer ) {
-					throw new UnityException(string.Format(
-						"bitmap ({0}) texture importer not found ({1})",
-						bitmap.Id, texture_path));
-				}
-				if ( !importer.isReadable ) {
-					importer.isReadable = true;
-					AssetDatabase.ImportAsset(texture_path, ImportAssetOptions.ForceUpdate);
-					AssetDatabase.ImportAsset(fta_path, ImportAssetOptions.ForceUpdate);
-					return;
-				}
-				var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(texture_path);
-				if ( !texture ) {
-					throw new UnityException(string.Format(
-						"bitmap ({0}) texture not found ({1})",
-						bitmap.Id, texture_path));
-				}
-				textures.Add(texture);
-				texturen.Add(bitmap.ImageSource);
-			}
-
-			var atlas = new Texture2D(0, 0);
-			var atlas_rects = atlas.PackTextures(textures.ToArray(), 1, 1024);
-			var atlas_asset_path = Path.Combine(
-				Path.GetDirectoryName(Application.dataPath),
-				Path.Combine(base_path, "atlas.png"));
-			File.WriteAllBytes(atlas_asset_path, atlas.EncodeToPNG());
-			GameObject.DestroyImmediate(atlas);
-			AssetDatabase.Refresh();
-
-			var atlas_path = Path.Combine(base_path, "atlas.png");
-			data.Atlas = AssetDatabase.LoadAssetAtPath<Texture2D>(atlas_path);
-			if ( !data.Atlas ) {
-				AssetDatabase.ImportAsset(fta_path, ImportAssetOptions.ForceUpdate);
-				return;
-			}
-
-			var atlas_importer = AssetImporter.GetAtPath(atlas_path) as TextureImporter;
-			if ( !atlas_importer ) {
-				throw new UnityException(string.Format(
-					"atlas importer not found ({0})",
-					atlas_path));
-			}
-
-			var method_args = new object[2]{0,0};
-			typeof(TextureImporter)
-				.GetMethod("GetWidthAndHeight", BindingFlags.NonPublic | BindingFlags.Instance)
-				.Invoke(atlas_importer, method_args);
-			var atlas_width  = (int)method_args[0];
-			var atlas_height = (int)method_args[1];
-
-			var meta_data = new List<SpriteMetaData>();
-			for ( var i = 0; i < atlas_rects.Length; ++i ) {
-				var meta_elem  = new SpriteMetaData();
-				meta_elem.name = texturen[i];
-				data.Library.Bitmaps[i].RealSize = new Vector2(textures[i].width, textures[i].height);
-				data.Library.Bitmaps[i].SourceRect = atlas_rects[i];
-				meta_elem.rect = new Rect(
-					atlas_rects[i].xMin   * atlas_width,
-					atlas_rects[i].yMin   * atlas_height,
-					atlas_rects[i].width  * atlas_width,
-					atlas_rects[i].height * atlas_height);
-				meta_data.Add(meta_elem);
-			}
-			atlas_importer.spritesheet      = meta_data.ToArray();
-			atlas_importer.textureType      = TextureImporterType.Sprite;
-			atlas_importer.spriteImportMode = SpriteImportMode.Multiple;
-			atlas_importer.textureFormat    = TextureImporterFormat.AutomaticTruecolor;
-			AssetDatabase.ImportAsset(atlas_path, ImportAssetOptions.ForceUpdate);
 		}
 
 		// -----------------------------

@@ -13,6 +13,11 @@ namespace FlashTools {
 		List<int>     _triangles = new List<int>();
 		List<Vector2> _uvs       = new List<Vector2>();
 
+		Mesh      _mesh          = null;
+		Vector3[] _vertices_arr  = new Vector3[0];
+		int[]     _triangles_arr = new int[0];
+		Vector2[] _uvs_arr       = new Vector2[0];
+
 		public void Play() {
 		}
 
@@ -29,7 +34,9 @@ namespace FlashTools {
 			get {
 				int frames = 0;
 				if ( Asset ) {
-					foreach ( var layer in GetCurrentSymbol().Layers ) {
+					var layers = GetCurrentSymbol().Layers;
+					for ( var i = 0; i < layers.Count; ++i ) {
+						var layer = layers[i];
 						frames = Mathf.Max(frames, layer.Frames.Count);
 					}
 				}
@@ -55,7 +62,8 @@ namespace FlashTools {
 		}
 
 		FlashAnimSymbolData FindSymbol(FlashAnimLibraryData library, string symbol_id) {
-			foreach ( var symbol in library.Symbols ) {
+			for ( var i = 0; i < library.Symbols.Count; ++i ) {
+				var symbol = library.Symbols[i];
 				if ( symbol.Id == symbol_id ) {
 					return symbol;
 				}
@@ -64,7 +72,8 @@ namespace FlashTools {
 		}
 
 		FlashAnimBitmapData FindBitmap(FlashAnimLibraryData library, string bitmap_id) {
-			foreach ( var bitmap in library.Bitmaps ) {
+			for ( var i = 0; i < library.Bitmaps.Count; ++i ) {
+				var bitmap = library.Bitmaps[i];
 				if ( bitmap.Id == bitmap_id ) {
 					return bitmap;
 				}
@@ -111,11 +120,13 @@ namespace FlashTools {
 		}
 
 		void RenderSymbol(FlashAnimSymbolData symbol, int frame_num, Matrix4x4 matix) {
-			foreach ( var layer in symbol.Layers ) {
+			for ( var i = 0; i < symbol.Layers.Count; ++i ) {
+				var layer = symbol.Layers[i];
 				if ( layer.LayerType != FlashAnimLayerType.Mask ) {
 					var frame = GetFrameByNum(layer, frame_num);
 					if ( frame != null ) {
-						foreach ( var elem in frame.Elems ) {
+						for ( var j = 0; j < frame.Elems.Count; ++j ) {
+							var elem = frame.Elems[j];
 							if ( elem.Instance != null ) {
 								RenderInstance(
 									elem.Instance, frame_num, matix * elem.Matrix);
@@ -148,12 +159,42 @@ namespace FlashTools {
 					_current_frame,
 					Matrix4x4.Scale(new Vector3(1,-1,1)));
 
+				/*
+				if ( _vertices_arr.Length < _vertices.Count ) {
+					_vertices_arr = _vertices.ToArray();
+				} else {
+					_vertices.CopyTo(_vertices_arr);
+				}
+				if ( _triangles_arr.Length < _triangles.Count ) {
+					_triangles_arr = _triangles.ToArray();
+				} else {
+					_triangles.CopyTo(_triangles_arr);
+				}
+				if ( _uvs_arr.Length < _uvs.Count ) {
+					_uvs_arr = _uvs.ToArray();
+				} else {
+					_uvs.CopyTo(_uvs_arr);
+				}
+
 				var mesh       = new Mesh();
-				mesh.vertices  = _vertices.ToArray();
-				mesh.triangles = _triangles.ToArray();
-				mesh.uv        = _uvs.ToArray();
+				mesh.vertices  = _vertices_arr;
+				mesh.triangles = _triangles_arr;
+				mesh.uv        = _uvs_arr;
 				mesh.RecalculateNormals();
-				GetComponent<MeshFilter>().mesh = mesh;
+				GetComponent<MeshFilter>().mesh = mesh;*/
+
+				if ( !_mesh ) {
+					_mesh = new Mesh();
+				}
+
+				if ( _mesh ) {
+					_mesh.Clear();
+					_mesh.SetVertices(_vertices);
+					_mesh.SetTriangles(_triangles, 0);
+					_mesh.SetUVs(0, _uvs);
+					_mesh.RecalculateNormals();
+					GetComponent<MeshFilter>().mesh = _mesh;
+				}
 			}
 		}
 	}

@@ -50,6 +50,11 @@ namespace FlashTools {
 		public Vector2 RealSize    = Vector2.zero;
 		public Rect    SourceRect  = new Rect();
 		public string  ImageSource = string.Empty;
+		public void CopyDataFrom(FlashAnimBitmapData other) {
+			RealSize    = other.RealSize;
+			SourceRect  = other.SourceRect;
+			ImageSource = other.ImageSource;
+		}
 	}
 
 	[System.Serializable]
@@ -105,6 +110,8 @@ namespace FlashTools {
 	}
 
 	public class FlashAnimAsset : ScriptableObject {
-		public FlashAnimData Data = new FlashAnimData();
+		public FlashAnimData Data         = new FlashAnimData();
+		public int           MaxAtlasSize = 1024;
+		public int           AtlasPadding = 1;
 	}
 }

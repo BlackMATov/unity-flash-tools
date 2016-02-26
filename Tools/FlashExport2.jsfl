@@ -922,10 +922,14 @@ if (typeof Object.create != 'function') {
 		indent = indent || "";
 		ft.type_assert(indent, 'string');
 		ft.trace_fmt("{0}-= Exporter =-", indent);
-		ft.trace_fmt("{0}-Document      : {1}", indent, this.document.name);
+		ft.trace_fmt("{0}-Document name : {1}", indent, this.get_document_name());
 		ft.trace_fmt("{0}-Document path : {1}", indent, this.get_document_path());
 		ft.trace_fmt("{0}-Export folter : {1}", indent, this.get_export_folder());
 		ft.trace_fmt("{0}-Export path   : {1}", indent, this.get_export_path());
+	};
+	
+	Exporter.prototype.get_document_name = function () {
+		return this.document.name;
 	};
 
 	Exporter.prototype.get_document_path = function () {
@@ -941,7 +945,7 @@ if (typeof Object.create != 'function') {
 	Exporter.prototype.get_export_path = function () {
 		return ft.combine_path(
 			this.get_export_folder(),
-			"asset.fta");
+			this.get_document_name() + ".fta");
 	};
 
 	Exporter.prototype.export = function () {
