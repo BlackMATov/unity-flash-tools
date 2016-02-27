@@ -26,18 +26,25 @@ namespace FlashTools.Internal {
 			try {
 				if ( !fa_asset.Atlas ) {
 					if ( !MarkAllBitmapsReadable(fa_asset_path, fa_asset) ) {
-						AssetDatabase.ImportAsset(fa_asset_path, ImportAssetOptions.ForceUncompressedImport);
+						AssetDatabase.ImportAsset(
+							fa_asset_path,
+							ImportAssetOptions.ForceUncompressedImport);
 						return;
 					}
 					RemoveDuplicatedBitmaps(fa_asset_path, fa_asset);
 					if ( !PackBitmapsAtlas(fa_asset_path, fa_asset) ) {
-						AssetDatabase.ImportAsset(fa_asset_path, ImportAssetOptions.ForceUncompressedImport);
+						AssetDatabase.ImportAsset(
+							fa_asset_path,
+							ImportAssetOptions.ForceUncompressedImport);
 						return;
 					}
 					ConfigureBitmapsAtlas(fa_asset_path, fa_asset);
+					FlashAnimAssetEditor.CreateFlashAnimPrefab(fa_asset);
 				}
 			} catch ( Exception e ) {
-				Debug.LogErrorFormat("Postprocess flash anim asset error: {0}", e.Message);
+				Debug.LogErrorFormat(
+					"Postprocess flash anim asset error: {0}",
+					e.Message);
 			}
 		}
 

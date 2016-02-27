@@ -66,7 +66,6 @@ namespace FlashTools {
 		public bool                    Visible           = true;
 		public FlashAnimLoopingType    LoopingType       = FlashAnimLoopingType.SingleFrame;
 		public int                     LoopingFirstFrame = 0;
-		// TODO: color_mode, filters
 	}
 
 	[System.Serializable]

@@ -13,6 +13,7 @@ namespace FlashTools.Internal {
 			if ( asset.Atlas ) {
 				AssetDatabase.DeleteAsset(
 					AssetDatabase.GetAssetPath(asset.Atlas));
+				asset.Atlas = null;
 			}
 			AssetDatabase.ImportAsset(
 				AssetDatabase.GetAssetPath(asset),
@@ -37,13 +38,17 @@ namespace FlashTools.Internal {
 		// ------------------------------------------------------------------------
 
 		public static void CreateFlashAnimPrefab(FlashAnimAsset asset) {
-			var prefab_path = Path.ChangeExtension(AssetDatabase.GetAssetPath(asset), ".prefab");
-			var flash_anim_go = CreateFlashAnimOnScene(asset);
-			PrefabUtility.CreatePrefab(prefab_path, flash_anim_go);
-			GameObject.DestroyImmediate(flash_anim_go, true);
+			var prefab_path = Path.ChangeExtension(
+				AssetDatabase.GetAssetPath(asset),
+				".prefab");
+			var flash_anim_go = CreateFlashAnimOnScene(asset, false);
+			if ( flash_anim_go ) {
+				PrefabUtility.CreatePrefab(prefab_path, flash_anim_go);
+				GameObject.DestroyImmediate(flash_anim_go, true);
+			}
 		}
 
-		public static GameObject CreateFlashAnimOnScene(FlashAnimAsset asset) {
+		public static GameObject CreateFlashAnimOnScene(FlashAnimAsset asset, bool undo) {
 			var anim_go = new GameObject("FlashAnim");
 			try {
 				CreateFlashAnim(asset, anim_go);
@@ -75,7 +80,7 @@ namespace FlashTools.Internal {
 					CreateFlashAnimPrefab(_asset);
 				}
 				if ( GUILayout.Button("Create animation on scene") ) {
-					CreateFlashAnimOnScene(_asset);
+					CreateFlashAnimOnScene(_asset, true);
 				}
 			GUILayout.EndHorizontal();
 		}
