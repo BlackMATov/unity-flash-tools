@@ -503,13 +503,11 @@ if (typeof Object.create != 'function') {
 	
 	TimelineInst.prototype.remove_empty_layers = function () {
 		var layers = this.timeline.layers;
-		for ( var i = 0; i < layers.length; ) {
+		for ( var i = layers.length - 1; i >= 0; --i ) {
 			var is_empty = new LayerInst(layers[i], this.uniqueIds).is_empty();
 			if ( is_empty ) {
 				this.timeline.deleteLayer(i);
 				layers = this.timeline.layers;
-			} else {
-				++i;
 			}
 		}
 	};
@@ -576,13 +574,17 @@ if (typeof Object.create != 'function') {
 	};
 	
 	LayerInst.prototype.is_empty = function () {
-		if ( this.layer.visible ) {
-			var frames = this.layer.frames;
-			for ( var i = 0; i < frames.length; ++i ) {
-				var is_empty = new FrameInst(frames[i], i, this.uniqueIds).is_empty();
-				if ( !is_empty ) {
-					return false;
-				}
+		if ( !this.layer.visible ) {
+			return true;
+		}
+		if ( this.layer.layerType == "guide" || this.layer.layerType == "mask" || this.layer.layerType == "folder" ) {
+			return false;
+		}
+		var frames = this.layer.frames;
+		for ( var i = 0; i < frames.length; ++i ) {
+			var is_empty = new FrameInst(frames[i], i, this.uniqueIds).is_empty();
+			if ( !is_empty ) {
+				return false;
 			}
 		}
 		return true;
