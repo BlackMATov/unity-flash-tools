@@ -3,6 +3,8 @@ using UnityEditor;
 using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	public class FlashAnimAssetPostprocessor : AssetPostprocessor {
@@ -22,14 +24,17 @@ namespace FlashTools.Internal {
 
 		static void FaAssetProcess(string fa_asset_path, FlashAnimAsset fa_asset) {
 			try {
-				if ( !MarkAllBitmapsReadable(fa_asset_path, fa_asset) ) {
-					AssetDatabase.ImportAsset(fa_asset_path, ImportAssetOptions.ForceUpdate);
-					return;
-				}
-				RemoveDuplicatedBitmaps(fa_asset_path, fa_asset);
-				if ( !PackBitmapsAtlas(fa_asset_path, fa_asset) ) {
-					AssetDatabase.ImportAsset(fa_asset_path, ImportAssetOptions.ForceUpdate);
-					return;
+				if ( !fa_asset.Atlas ) {
+					if ( !MarkAllBitmapsReadable(fa_asset_path, fa_asset) ) {
+						AssetDatabase.ImportAsset(fa_asset_path, ImportAssetOptions.ForceUncompressedImport);
+						return;
+					}
+					RemoveDuplicatedBitmaps(fa_asset_path, fa_asset);
+					if ( !PackBitmapsAtlas(fa_asset_path, fa_asset) ) {
+						AssetDatabase.ImportAsset(fa_asset_path, ImportAssetOptions.ForceUncompressedImport);
+						return;
+					}
+					ConfigureBitmapsAtlas(fa_asset_path, fa_asset);
 				}
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat("Postprocess flash anim asset error: {0}", e.Message);
@@ -41,7 +46,9 @@ namespace FlashTools.Internal {
 				var readable = importer.isReadable;
 				if ( !readable ) {
 					importer.isReadable = true;
-					AssetDatabase.ImportAsset(importer.assetPath, ImportAssetOptions.ForceUpdate);
+					AssetDatabase.ImportAsset(
+						importer.assetPath,
+						ImportAssetOptions.ForceUncompressedImport);
 				}
 				return readable && acc;
 			});
@@ -73,16 +80,44 @@ namespace FlashTools.Internal {
 			var atlas_rects = atlas.PackTextures(
 				textures.ToArray(), fa_asset.AtlasPadding, fa_asset.MaxAtlasSize);
 			File.WriteAllBytes(atlas_path, atlas.EncodeToPNG());
-			GameObject.DestroyImmediate(atlas);
-			AssetDatabase.ImportAsset(atlas_path, ImportAssetOptions.ForceUpdate);
+			GameObject.DestroyImmediate(atlas, true);
+			AssetDatabase.ImportAsset(
+				atlas_path,
+				ImportAssetOptions.ForceUncompressedImport);
 			for ( var i = 0; i < textures.Count; ++i ) {
 				var bitmap_data        = fa_asset.Data.Library.Bitmaps[i];
 				bitmap_data.RealSize   = new Vector2(textures[i].width, textures[i].height);
 				bitmap_data.SourceRect = atlas_rects[i];
 			}
-			fa_asset.Data.Atlas = AssetDatabase.LoadAssetAtPath<Texture2D>(atlas_path);
+			fa_asset.Atlas = AssetDatabase.LoadAssetAtPath<Texture2D>(atlas_path);
 			EditorUtility.SetDirty(fa_asset);
-			return fa_asset.Data.Atlas != null;
+			return fa_asset.Atlas != null;
+		}
+
+		static void ConfigureBitmapsAtlas(string fa_asset_path, FlashAnimAsset fa_asset) {
+			var meta_data      = new List<SpriteMetaData>();
+			var atlas_importer = GetBitmapsAtlasImporter(fa_asset_path);
+			var atlas_size     = GetSizeFromTextureImporter(atlas_importer);
+			var unique_bitmaps = fa_asset.Data.Library.Bitmaps
+				.GroupBy(p => p.ImageSource)
+				.Select(p => p.First());
+			foreach ( var bitmap_data in unique_bitmaps ) {
+				var meta_elem = new SpriteMetaData();
+				meta_elem.name = bitmap_data.Id.ToString();
+				meta_elem.rect = new Rect(
+					bitmap_data.SourceRect.xMin   * atlas_size.x,
+					bitmap_data.SourceRect.yMin   * atlas_size.y,
+					bitmap_data.SourceRect.width  * atlas_size.x,
+					bitmap_data.SourceRect.height * atlas_size.y);
+				meta_data.Add(meta_elem);
+				atlas_importer.spritesheet         = meta_data.ToArray();
+				atlas_importer.textureType         = TextureImporterType.Sprite;
+				atlas_importer.spriteImportMode    = SpriteImportMode.Multiple;
+				atlas_importer.spritePixelsPerUnit = fa_asset.PixelsPerUnit;
+				AssetDatabase.ImportAsset(
+					GetBitmapsAtlasPath(fa_asset_path),
+					ImportAssetOptions.ForceUncompressedImport);
+			}
 		}
 
 		// -----------------------------
@@ -174,7 +209,26 @@ namespace FlashTools.Internal {
 		}
 
 		static string GetBitmapsAtlasPath(string fa_asset_path) {
-			return Path.ChangeExtension(fa_asset_path, "atlas.png");
+			return Path.ChangeExtension(fa_asset_path, ".png");
+		}
+
+		static TextureImporter GetBitmapsAtlasImporter(string fa_asset_path) {
+			var atlas_path = GetBitmapsAtlasPath(fa_asset_path);
+			var importer   = AssetImporter.GetAtPath(atlas_path) as TextureImporter;
+			if ( !importer ) {
+				throw new UnityException(string.Format(
+					"atlas texture importer not found ({0})",
+					atlas_path));
+			}
+			return importer;
+		}
+
+		static Vector2 GetSizeFromTextureImporter(TextureImporter importer) {
+			var method_args = new object[2]{0,0};
+			typeof(TextureImporter)
+				.GetMethod("GetWidthAndHeight", BindingFlags.NonPublic | BindingFlags.Instance)
+				.Invoke(importer, method_args);
+			return new Vector2((int)method_args[0], (int)method_args[1]);
 		}
 	}
 }

@@ -103,15 +103,17 @@ namespace FlashTools {
 
 	[System.Serializable]
 	public class FlashAnimData {
-		public Texture2D            Atlas   = null;
 		public FlashAnimSymbolData  Stage   = new FlashAnimSymbolData();
 		public FlashAnimLibraryData Library = new FlashAnimLibraryData();
 		public List<string>         Strings = new List<string>();
 	}
 
 	public class FlashAnimAsset : ScriptableObject {
-		public FlashAnimData Data         = new FlashAnimData();
-		public int           MaxAtlasSize = 1024;
-		public int           AtlasPadding = 1;
+		[HideInInspector]
+		public FlashAnimData Data          = new FlashAnimData();
+		public Texture2D     Atlas         = null;
+		public int           MaxAtlasSize  = 1024;
+		public int           AtlasPadding  = 1;
+		public int           PixelsPerUnit = 100;
 	}
 }

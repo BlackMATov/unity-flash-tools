@@ -3,20 +3,16 @@ using System.Collections.Generic;
 
 namespace FlashTools {
 	[ExecuteInEditMode]
+	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 	public class FlashAnim : MonoBehaviour {
 		public FlashAnimAsset Asset = null;
 
-		int _current_frame = 0;
-		float _frame_timer = 0.0f;
+		int           _current_frame = 0;
+		float         _frame_timer   = 0.0f;
 
-		List<Vector3> _vertices  = new List<Vector3>();
-		List<int>     _triangles = new List<int>();
-		List<Vector2> _uvs       = new List<Vector2>();
-
-		Mesh      _mesh          = null;
-		Vector3[] _vertices_arr  = new Vector3[0];
-		int[]     _triangles_arr = new int[0];
-		Vector2[] _uvs_arr       = new Vector2[0];
+		List<Vector2> _uvs           = new List<Vector2>();
+		List<Vector3> _vertices      = new List<Vector3>();
+		List<int>     _triangles     = new List<int>();
 
 		public void Play() {
 		}
@@ -137,6 +133,20 @@ namespace FlashTools {
 			}
 		}
 
+		// ------------------------------------------------------------------------
+		//
+		// Messages
+		//
+		// ------------------------------------------------------------------------
+
+		void Start() {
+			if ( Asset && Asset.Atlas ) {
+				var material = new Material(Shader.Find("Sprites/Default"));
+				material.SetTexture("_MainTex", Asset.Atlas);
+				GetComponent<MeshRenderer>().sharedMaterial = material;
+			}
+		}
+
 		void Update() {
 			_frame_timer += 25.0f * Time.deltaTime;
 			while ( _frame_timer > 1.0f ) {
@@ -157,7 +167,10 @@ namespace FlashTools {
 				RenderSymbol(
 					GetCurrentSymbol(),
 					_current_frame,
-					Matrix4x4.Scale(new Vector3(1,-1,1)));
+					Matrix4x4.Scale(new Vector3(
+						 1.0f / Asset.PixelsPerUnit,
+						-1.0f / Asset.PixelsPerUnit,
+						 1.0f / Asset.PixelsPerUnit)));
 
 				/*
 				if ( _vertices_arr.Length < _vertices.Count ) {
@@ -183,17 +196,17 @@ namespace FlashTools {
 				mesh.RecalculateNormals();
 				GetComponent<MeshFilter>().mesh = mesh;*/
 
-				if ( !_mesh ) {
-					_mesh = new Mesh();
-				}
-
-				if ( _mesh ) {
-					_mesh.Clear();
-					_mesh.SetVertices(_vertices);
-					_mesh.SetTriangles(_triangles, 0);
-					_mesh.SetUVs(0, _uvs);
-					_mesh.RecalculateNormals();
-					GetComponent<MeshFilter>().mesh = _mesh;
+				var mesh_filter = GetComponent<MeshFilter>();
+				if ( mesh_filter ) {
+					var mesh = mesh_filter.sharedMesh
+						? mesh_filter.sharedMesh
+						: new Mesh();
+					mesh.Clear();
+					mesh.SetVertices(_vertices);
+					mesh.SetTriangles(_triangles, 0);
+					mesh.SetUVs(0, _uvs);
+					mesh.RecalculateNormals();
+					mesh_filter.sharedMesh = mesh;
 				}
 			}
 		}

@@ -2,45 +2,57 @@
 using UnityEngine.Rendering;
 using UnityEditor;
 using System;
+using System.IO;
 
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(FlashAnimAsset))]
 	public class FlashAnimAssetEditor : Editor {
 		FlashAnimAsset _asset = null;
 
-		void ApplySettings() {
+		static void ApplySettings(FlashAnimAsset asset) {
+			if ( asset.Atlas ) {
+				AssetDatabase.DeleteAsset(
+					AssetDatabase.GetAssetPath(asset.Atlas));
+			}
 			AssetDatabase.ImportAsset(
-				AssetDatabase.GetAssetPath(_asset),
-				ImportAssetOptions.ForceUpdate);
+				AssetDatabase.GetAssetPath(asset),
+				ImportAssetOptions.ForceUncompressedImport);
 		}
 
-		void CreateFlashAnimOnScene() {
+		static void CreateFlashAnim(FlashAnimAsset asset, GameObject anim_go) {
+			var mesh_renderer = anim_go.AddComponent<MeshRenderer>();
+			mesh_renderer.sharedMaterial = null;
+			mesh_renderer.useLightProbes = false;
+			mesh_renderer.receiveShadows = false;
+			mesh_renderer.shadowCastingMode = ShadowCastingMode.Off;
+			mesh_renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+			anim_go.AddComponent<MeshFilter>().sharedMesh = null;
+			anim_go.AddComponent<FlashAnim>().Asset = asset;
+		}
+
+		// ------------------------------------------------------------------------
+		//
+		// Public
+		//
+		// ------------------------------------------------------------------------
+
+		public static void CreateFlashAnimPrefab(FlashAnimAsset asset) {
+			var prefab_path = Path.ChangeExtension(AssetDatabase.GetAssetPath(asset), ".prefab");
+			var flash_anim_go = CreateFlashAnimOnScene(asset);
+			PrefabUtility.CreatePrefab(prefab_path, flash_anim_go);
+			GameObject.DestroyImmediate(flash_anim_go, true);
+		}
+
+		public static GameObject CreateFlashAnimOnScene(FlashAnimAsset asset) {
 			var anim_go = new GameObject("FlashAnim");
 			try {
-				CreateFlashAnim(anim_go);
+				CreateFlashAnim(asset, anim_go);
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat("Create animation error: {0}", e.Message);
 				DestroyImmediate(anim_go, true);
 			}
 			Undo.RegisterCreatedObjectUndo(anim_go, "Create Animation");
-		}
-
-		void CreateFlashAnim(GameObject anim_go) {
-			var flash_anim   = anim_go.AddComponent<FlashAnim>();
-			flash_anim.Asset = _asset;
-
-			var mesh_filter = anim_go.AddComponent<MeshFilter>();
-			mesh_filter.mesh = null;
-
-			var material = new Material(Shader.Find("Sprites/Default"));
-			material.SetTexture("_MainTex", _asset.Data.Atlas);
-
-			var mesh_renderer                  = anim_go.AddComponent<MeshRenderer>();
-			mesh_renderer.sharedMaterial       = material;
-			mesh_renderer.useLightProbes       = false;
-			mesh_renderer.receiveShadows       = false;
-			mesh_renderer.shadowCastingMode    = ShadowCastingMode.Off;
-			mesh_renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+			return anim_go;
 		}
 
 		// ------------------------------------------------------------------------
@@ -56,11 +68,16 @@ namespace FlashTools.Internal {
 		public override void OnInspectorGUI() {
 			DrawDefaultInspector();
 			if ( GUILayout.Button("Apply settings") ) {
-				ApplySettings();
+				ApplySettings(_asset);
 			}
-			if ( GUILayout.Button("Create animation on scene") ) {
-				CreateFlashAnimOnScene();
-			}
+			GUILayout.BeginHorizontal();
+				if ( GUILayout.Button("Create animation prefab") ) {
+					CreateFlashAnimPrefab(_asset);
+				}
+				if ( GUILayout.Button("Create animation on scene") ) {
+					CreateFlashAnimOnScene(_asset);
+				}
+			GUILayout.EndHorizontal();
 		}
 	}
 }
