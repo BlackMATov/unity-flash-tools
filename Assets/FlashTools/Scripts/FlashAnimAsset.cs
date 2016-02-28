@@ -108,7 +108,7 @@ namespace FlashTools {
 	}
 
 	public class FlashAnimAsset : ScriptableObject {
-		[HideInInspector]
+		//[HideInInspector]
 		public FlashAnimData Data          = new FlashAnimData();
 		public Texture2D     Atlas         = null;
 		public int           MaxAtlasSize  = 1024;

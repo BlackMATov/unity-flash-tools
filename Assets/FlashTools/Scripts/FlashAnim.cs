@@ -9,6 +9,7 @@ namespace FlashTools {
 
 		int           _current_frame = 0;
 		float         _frame_timer   = 0.0f;
+		float         _current_z     = 0.0f;
 
 		List<Vector2> _uvs           = new List<Vector2>();
 		List<Vector3> _vertices      = new List<Vector3>();
@@ -54,7 +55,7 @@ namespace FlashTools {
 			if ( frame_num >= 0 && frame_num < layer.Frames.Count ) {
 				return layer.Frames[frame_num];
 			}
-			return null;
+			return layer.Frames.Count > 0 ? layer.Frames[layer.Frames.Count - 1] : null;
 		}
 
 		FlashAnimSymbolData FindSymbol(FlashAnimLibraryData library, string symbol_id) {
@@ -84,10 +85,11 @@ namespace FlashTools {
 					var width  = bitmap.RealSize.x;
 					var height = bitmap.RealSize.y;
 
-					var v0 = new Vector3(     0,       0, 0);
-					var v1 = new Vector3( width,       0, 0);
-					var v2 = new Vector3( width,  height, 0);
-					var v3 = new Vector3(     0,  height, 0);
+					var v0 = new Vector3(     0,       0, _current_z);
+					var v1 = new Vector3( width,       0, _current_z);
+					var v2 = new Vector3( width,  height, _current_z);
+					var v3 = new Vector3(     0,  height, _current_z);
+					_current_z -= 20f;
 
 					_vertices.Add(matrix.MultiplyPoint3x4(v0));
 					_vertices.Add(matrix.MultiplyPoint3x4(v1));
@@ -164,6 +166,7 @@ namespace FlashTools {
 				_vertices.Clear();
 				_triangles.Clear();
 				_uvs.Clear();
+				_current_z = 0.0f;
 				RenderSymbol(
 					GetCurrentSymbol(),
 					_current_frame,

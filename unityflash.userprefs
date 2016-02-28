@@ -1,14 +1,16 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimAssetPostprocessor.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/Scripts/FlashAnim.cs">
     <Files>
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimAssetPostprocessor.cs" Line="15" Column="1" />
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimFtaPostprocessor.cs" Line="24" Column="36" />
+      <File FileName="Assets/FlashTools/Scripts/FlashAnim.cs" Line="82" Column="33" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimAssetPostprocessor.cs" Line="113" Column="48" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimFtaPostprocessor.cs" Line="139" Column="30" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Scripts/Internal/Editor/FlashAnimFtaPostprocessor.cs" line="15" column="1" />
+      <Breakpoint file="/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Scripts/FlashAnim.cs" line="86" column="1" />
+      <Breakpoint file="/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Scripts/FlashAnim.cs" line="82" column="33" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

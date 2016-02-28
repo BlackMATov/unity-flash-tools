@@ -515,7 +515,7 @@ if (typeof Object.create != 'function') {
 	TimelineInst.prototype.convert = function (document) {
 		ft.type_assert(document, Document);
 		this.remove_empty_layers();
-		if ( this.timeline.layers.length > 1 ) {
+		if ( this.timeline.layers.length > 0 ) {
 			this.timeline.selectAllFrames();
 			this.timeline.convertToKeyframes();
 		}

@@ -211,7 +211,7 @@ namespace FlashTools.Internal {
 				return false;
 			}
 			var tex_data_a = texture_a.GetPixels32();
-			var tex_data_b = texture_a.GetPixels32();
+			var tex_data_b = texture_b.GetPixels32();
 			return tex_data_a.SequenceEqual(tex_data_b);
 		}
 
