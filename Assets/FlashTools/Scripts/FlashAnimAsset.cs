@@ -96,9 +96,10 @@ namespace FlashTools {
 
 	[System.Serializable]
 	public class FlashAnimData {
-		public FlashAnimSymbolData  Stage   = new FlashAnimSymbolData();
-		public FlashAnimLibraryData Library = new FlashAnimLibraryData();
-		public List<string>         Strings = new List<string>();
+		public FlashAnimSymbolData  Stage     = new FlashAnimSymbolData();
+		public FlashAnimLibraryData Library   = new FlashAnimLibraryData();
+		public List<string>         Strings   = new List<string>();
+		public int                  FrameRate = 24;
 	}
 
 	public class FlashAnimAsset : ScriptableObject {

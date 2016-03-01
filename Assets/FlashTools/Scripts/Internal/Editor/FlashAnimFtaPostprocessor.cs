@@ -37,16 +37,25 @@ namespace FlashTools.Internal {
 
 		static FlashAnimData LoadFlashAnimFromFtaFile(string fta_path) {
 			try {
-				var fta_root_elem   = XDocument.Load(fta_path).Document.Root;
-				var flash_anim_data = new FlashAnimData();
-				LoadFlashAnimStageFromFtaRootElem  (fta_root_elem, flash_anim_data);
-				LoadFlashAnimLibraryFromFtaRootElem(fta_root_elem, flash_anim_data);
-				LoadFlashAnimStringsFromFtaRootElem(fta_root_elem, flash_anim_data);
-				return flash_anim_data;
+				return LoadFlashAnimDocFromFtaRootElem(
+					XDocument.Load(fta_path).Document.Root,
+					new FlashAnimData());
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat("Parsing flash anim .fta file error: {0}", e.Message);
 				return null;
 			}
+		}
+
+		// -----------------------------
+		// Document
+		// -----------------------------
+
+		static FlashAnimData LoadFlashAnimDocFromFtaRootElem(XElement root_elem, FlashAnimData data) {
+			data.FrameRate = SafeLoadIntFromElemAttr(root_elem, "frame_rate", data.FrameRate);
+			LoadFlashAnimStageFromFtaRootElem  (root_elem, data);
+			LoadFlashAnimLibraryFromFtaRootElem(root_elem, data);
+			LoadFlashAnimStringsFromFtaRootElem(root_elem, data);
+			return data;
 		}
 
 		// -----------------------------

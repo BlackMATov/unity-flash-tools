@@ -183,14 +183,16 @@ namespace FlashTools {
 		}
 
 		void Update() {
-			_frame_timer += 25.0f * Time.deltaTime;
-			while ( _frame_timer > 1.0f ) {
-				_frame_timer -= 1.0f;
-				++_current_frame;
-				if ( _current_frame > frameCount - 1 ) {
-					_current_frame = 0;
+			if ( Asset ) {
+				_frame_timer += Asset.Data.FrameRate * Time.deltaTime;
+				while ( _frame_timer > 1.0f ) {
+					_frame_timer -= 1.0f;
+					++_current_frame;
+					if ( _current_frame > frameCount - 1 ) {
+						_current_frame = 0;
+					}
+					//Debug.LogFormat("Cur frame: {0}", _current_frame);
 				}
-				//Debug.LogFormat("Cur frame: {0}", _current_frame);
 			}
 		}
 
@@ -207,31 +209,6 @@ namespace FlashTools {
 						 1.0f / Asset.PixelsPerUnit,
 						-1.0f / Asset.PixelsPerUnit,
 						 1.0f / Asset.PixelsPerUnit)));
-
-				/*
-				if ( _vertices_arr.Length < _vertices.Count ) {
-					_vertices_arr = _vertices.ToArray();
-				} else {
-					_vertices.CopyTo(_vertices_arr);
-				}
-				if ( _triangles_arr.Length < _triangles.Count ) {
-					_triangles_arr = _triangles.ToArray();
-				} else {
-					_triangles.CopyTo(_triangles_arr);
-				}
-				if ( _uvs_arr.Length < _uvs.Count ) {
-					_uvs_arr = _uvs.ToArray();
-				} else {
-					_uvs.CopyTo(_uvs_arr);
-				}
-
-				var mesh       = new Mesh();
-				mesh.vertices  = _vertices_arr;
-				mesh.triangles = _triangles_arr;
-				mesh.uv        = _uvs_arr;
-				mesh.RecalculateNormals();
-				GetComponent<MeshFilter>().mesh = mesh;*/
-
 				var mesh_filter = GetComponent<MeshFilter>();
 				if ( mesh_filter ) {
 					var mesh = mesh_filter.sharedMesh
