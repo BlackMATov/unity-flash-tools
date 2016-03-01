@@ -19,6 +19,12 @@ namespace FlashTools {
 		Erase
 	}
 
+	public enum FlashAnimLoopingMode {
+		Loop,
+		PlayOnce,
+		SingleFrame
+	}
+
 	public enum FlashAnimLayerType {
 		Normal,
 		Guide,
@@ -28,20 +34,9 @@ namespace FlashTools {
 		Folder
 	}
 
-	public enum FlashAnimLoopingType {
-		Loop,
-		PlayOnce,
-		SingleFrame
-	}
-
 	public enum FlashAnimInstType {
 		Bitmap,
 		Symbol
-	}
-
-	public enum FlashAnimInstSymbolType {
-		Graphic,
-		MovieClip
 	}
 
 	[System.Serializable]
@@ -59,13 +54,12 @@ namespace FlashTools {
 
 	[System.Serializable]
 	public class FlashAnimInstData {
-		public FlashAnimInstType       Type              = FlashAnimInstType.Bitmap;
-		public FlashAnimInstSymbolType SymbolType        = FlashAnimInstSymbolType.Graphic;
-		public FlashAnimBlendMode      BlendMode         = FlashAnimBlendMode.Normal;
-		public string                  Asset             = string.Empty;
-		public bool                    Visible           = true;
-		public FlashAnimLoopingType    LoopingType       = FlashAnimLoopingType.SingleFrame;
-		public int                     LoopingFirstFrame = 0;
+		public FlashAnimInstType    Type        = FlashAnimInstType.Bitmap;
+		public FlashAnimBlendMode   BlendMode   = FlashAnimBlendMode.Normal;
+		public string               Asset       = string.Empty;
+		public bool                 Visible     = true;
+		public int                  FirstFrame  = 0;
+		public FlashAnimLoopingMode LoopingMode = FlashAnimLoopingMode.SingleFrame;
 	}
 
 	[System.Serializable]
@@ -108,7 +102,7 @@ namespace FlashTools {
 	}
 
 	public class FlashAnimAsset : ScriptableObject {
-		//[HideInInspector]
+		[HideInInspector]
 		public FlashAnimData Data          = new FlashAnimData();
 		public Texture2D     Atlas         = null;
 		public int           MaxAtlasSize  = 1024;

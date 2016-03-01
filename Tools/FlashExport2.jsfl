@@ -828,33 +828,21 @@ if (typeof Object.create != 'function') {
 
 	SymbolInst.prototype = Object.create(ElementInst.prototype);
 	
-	SymbolInst.prototype.get_symbol_type = function () {
-		var symbol_type = this.inst.symbolType;
-		if ( symbol_type == "movie clip" ) {
-			return "movieclip";
-		} else if ( symbol_type == "graphic" ) {
-			return "graphic";
-		} else {
-			throw "Unsupported symbol type ({0})!"
-				.format(symbol_type);
-		}
-	};
-	
-	SymbolInst.prototype.get_looping_type = function () {
+	SymbolInst.prototype.get_looping_mode = function () {
 		var looping_type = this.inst.loop !== undefined ? this.inst.loop : "single frame";
 		if ( looping_type == "loop" ) {
 			return "loop";
 		} else if ( looping_type == "play once" ) {
 			return "playonce";
 		} else if ( looping_type == "single frame" ) {
-			return "single frame";
+			return "singleframe";
 		} else {
 			throw "Unsupported looping type ({0})!"
 				.format(looping_type);
 		}
 	};
 	
-	SymbolInst.prototype.get_looping_first_frame = function () {
+	SymbolInst.prototype.get_first_frame = function () {
 		return this.inst.firstFrame !== undefined ? this.inst.firstFrame : 0;
 	};
 
@@ -862,14 +850,12 @@ if (typeof Object.create != 'function') {
 		ft.type_assert(xml_node, XmlNode);
 		var instance_node = ElementInst.prototype.export_description.call(this, xml_node)
 			.child("instance")
-			.attr("type"       , "symbol")
-			.attr("symbol_type", this.get_symbol_type())
-			.attr("asset"      , this.uniqueIds.get_string_id(this.inst.libraryItem.name))
-			.attr("visible"    , this.inst.visible)
-			.attr("blend_mode" , this.inst.blendMode);
-		instance_node.child("looping")
-			.attr("type"       , this.get_looping_type())
-			.attr("first_frame", this.get_looping_first_frame());
+			.attr("type"        , "symbol")
+			.attr("asset"       , this.uniqueIds.get_string_id(this.inst.libraryItem.name))
+			.attr("visible"     , this.inst.visible)
+			.attr("blend_mode"  , this.inst.blendMode)
+			.attr("first_frame" , this.get_first_frame())
+			.attr("looping_mode", this.get_looping_mode());
 		
 		/* \TODO export color mode
 		if (this.inst.colorMode !== "none") {

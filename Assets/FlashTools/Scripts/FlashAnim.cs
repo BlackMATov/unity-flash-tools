@@ -1,15 +1,20 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace FlashTools {
 	[ExecuteInEditMode]
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 	public class FlashAnim : MonoBehaviour {
 		public FlashAnimAsset Asset = null;
 
-		int           _current_frame = 0;
-		float         _frame_timer   = 0.0f;
-		float         _current_z     = 0.0f;
+		int           _current_frame  = 0;
+		int           _current_symbol = -1;
+		float         _frame_timer    = 0.0f;
+		float         _current_z      = 0.0f;
 
 		List<Vector2> _uvs           = new List<Vector2>();
 		List<Vector3> _vertices      = new List<Vector3>();
@@ -27,6 +32,20 @@ namespace FlashTools {
 		public void GoToFrame(int frame) {
 		}
 
+		public int currentFrame {
+			get { return _current_frame; }
+			set {
+				_current_frame = Mathf.Clamp(value, 0, frameCount - 1);
+			}
+		}
+
+		public int currentSymbol {
+			get { return _current_symbol; }
+			set {
+				_current_symbol = value;
+			}
+		}
+
 		public int frameCount {
 			get {
 				int frames = 0;
@@ -42,8 +61,11 @@ namespace FlashTools {
 		}
 
 		FlashAnimSymbolData GetCurrentSymbol() {
-			//return Asset.Data.Library.Symbols[0];
-			return Asset.Data.Stage;
+			if ( currentSymbol >= 0 && currentSymbol < Asset.Data.Library.Symbols.Count ) {
+				return Asset.Data.Library.Symbols[currentSymbol];
+			} else {
+				return Asset.Data.Stage;
+			}
 		}
 
 		int GetNumFrameByNum(FlashAnimLayerData layer, int num) {
@@ -120,19 +142,30 @@ namespace FlashTools {
 		void RenderSymbol(FlashAnimSymbolData symbol, int frame_num, Matrix4x4 matix) {
 			for ( var i = 0; i < symbol.Layers.Count; ++i ) {
 				var layer = symbol.Layers[i];
-				if ( layer.LayerType != FlashAnimLayerType.Mask ) {
+				if ( layer.LayerType != FlashAnimLayerType.Guide &&
+					 layer.LayerType != FlashAnimLayerType.Mask &&
+					 layer.LayerType != FlashAnimLayerType.Folder )
+				{
 					var frame = GetFrameByNum(layer, frame_num);
 					if ( frame != null ) {
 						for ( var j = 0; j < frame.Elems.Count; ++j ) {
 							var elem = frame.Elems[j];
 							if ( elem.Instance != null ) {
 								RenderInstance(
-									elem.Instance, frame_num, matix * elem.Matrix);
+									elem.Instance,
+									elem.Instance.FirstFrame,
+									matix * elem.Matrix);
 							}
 						}
 					}
 				}
 			}
+		}
+
+		void MartDirtySelf() {
+		#if UNITY_EDITOR
+			EditorUtility.SetDirty(this);
+		#endif
 		}
 
 		// ------------------------------------------------------------------------

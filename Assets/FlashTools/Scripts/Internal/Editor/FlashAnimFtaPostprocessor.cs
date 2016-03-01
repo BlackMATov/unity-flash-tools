@@ -116,18 +116,14 @@ namespace FlashTools.Internal {
 		}
 
 		static void LoadFlashAnimInstFromFtaElemElem(XElement elem_elem, FlashAnimElemData data) {
-			var inst_elem       = elem_elem.Element("instance");
-			var instance        = new FlashAnimInstData();
-			instance.Type       = SafeLoadEnumFromElemAttr(inst_elem, "type"       , instance.Type);
-			instance.SymbolType = SafeLoadEnumFromElemAttr(inst_elem, "symbol_type", instance.SymbolType);
-			instance.BlendMode  = SafeLoadEnumFromElemAttr(inst_elem, "blend_mode" , instance.BlendMode);
-			instance.Asset      = SafeLoadStrFromElemAttr (inst_elem, "asset"      , instance.Asset);
-			instance.Visible    = SafeLoadBoolFromElemAttr(inst_elem, "visible"    , instance.Visible);
-			var looping_elem = inst_elem.Element("looping");
-			if ( looping_elem != null ) {
-				instance.LoopingType       = SafeLoadEnumFromElemAttr(looping_elem, "type"       , instance.LoopingType);
-				instance.LoopingFirstFrame = SafeLoadIntFromElemAttr (looping_elem, "first_frame", instance.LoopingFirstFrame);
-			}
+			var inst_elem        = elem_elem.Element("instance");
+			var instance         = new FlashAnimInstData();
+			instance.Type        = SafeLoadEnumFromElemAttr(inst_elem, "type"        , instance.Type);
+			instance.BlendMode   = SafeLoadEnumFromElemAttr(inst_elem, "blend_mode"  , instance.BlendMode);
+			instance.Asset       = SafeLoadStrFromElemAttr (inst_elem, "asset"       , instance.Asset);
+			instance.Visible     = SafeLoadBoolFromElemAttr(inst_elem, "visible"     , instance.Visible);
+			instance.FirstFrame  = SafeLoadIntFromElemAttr (inst_elem, "first_frame" , instance.FirstFrame);
+			instance.LoopingMode = SafeLoadEnumFromElemAttr(inst_elem, "looping_mode", instance.LoopingMode);
 			data.Instance = instance;
 		}
 
