@@ -51,10 +51,11 @@ namespace FlashTools.Internal {
 		// -----------------------------
 
 		static FlashAnimData LoadFlashAnimDocFromFtaRootElem(XElement root_elem, FlashAnimData data) {
-			data.FrameRate = SafeLoadIntFromElemAttr(root_elem, "frame_rate", data.FrameRate);
 			LoadFlashAnimStageFromFtaRootElem  (root_elem, data);
 			LoadFlashAnimLibraryFromFtaRootElem(root_elem, data);
 			LoadFlashAnimStringsFromFtaRootElem(root_elem, data);
+			data.FrameRate = SafeLoadIntFromElemAttr(
+				root_elem, "frame_rate", data.FrameRate);
 			return data;
 		}
 
