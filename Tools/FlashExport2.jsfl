@@ -151,6 +151,20 @@ if (typeof Object.create != 'function') {
 		return ft.escape_path(lhs) + ft.escape_path(rhs);
 	};
 	
+	ft.hex_str_to_color32 = function (hstr) {
+		ft.type_assert(hstr, 'string');
+		ft.assert(hstr.length == 7, "incorrect hex_str");
+		var result = [];
+		var hex_digit = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
+		for (var i = 1; i < hstr.length; i += 2) {
+			result.push(
+				hex_digit.indexOf(hstr[i + 0].toUpperCase()) * 16.0 +
+				hex_digit.indexOf(hstr[i + 1].toUpperCase())
+			);
+		}
+		return result;
+	};
+	
 	ft.array_foreach = function (arr, func, filter) {
 		ft.type_assert(arr, Array);
 		ft.type_assert(func, Function);
@@ -856,41 +870,58 @@ if (typeof Object.create != 'function') {
 			.attr("blend_mode"  , this.inst.blendMode)
 			.attr("first_frame" , this.get_first_frame())
 			.attr("looping_mode", this.get_looping_mode());
-		
-		/* \TODO export color mode
 		if (this.inst.colorMode !== "none") {
-			var color_mode_node = instance_node.child("color_mode")
-				.attr("color_mode", this.inst.colorMode);
+			var color_effect_node = instance_node.child("color_transform");
 			if (this.inst.colorMode == "brightness") {
-				color_mode_node
-					.attr("brightness", this.inst.brightness);
+				var brightness = this.inst.brightness / 100.0;
+				color_effect_node
+					.attr("ap", 1)
+					.attr("rp", 1 - Math.abs(brightness))
+					.attr("gp", 1 - Math.abs(brightness))
+					.attr("bp", 1 - Math.abs(brightness))
+					.attr("aa", 0)
+					.attr("ra", brightness < 0 ? 0 : brightness)
+					.attr("ga", brightness < 0 ? 0 : brightness)
+					.attr("ba", brightness < 0 ? 0 : brightness);
 			} else if (this.inst.colorMode == "tint") {
-				color_mode_node
-					.attr("tint" , this.inst.tintPercent)
-					.attr("color", this.inst.tintColor);
+				var tint_color   = ft.hex_str_to_color32(this.inst.tintColor);
+				var tint_percent = this.inst.tintPercent / 100.0;
+				color_effect_node
+					.attr("ap", 1)
+					.attr("rp", 1 - tint_percent)
+					.attr("gp", 1 - tint_percent)
+					.attr("bp", 1 - tint_percent)
+					.attr("aa", 0)
+					.attr("ra", tint_color[0] / 255.0 * tint_percent)
+					.attr("ga", tint_color[1] / 255.0 * tint_percent)
+					.attr("ba", tint_color[2] / 255.0 * tint_percent);
 			} else if (this.inst.colorMode == "alpha") {
-				color_mode_node
-					.attr("alpha", this.inst.colorAlphaPercent);
+				var alpha = this.inst.colorAlphaPercent / 100.0;
+				color_effect_node
+					.attr("ap", alpha)
+					.attr("rp", 1)
+					.attr("gp", 1)
+					.attr("bp", 1)
+					.attr("aa", 0)
+					.attr("ra", 0)
+					.attr("ga", 0)
+					.attr("ba", 0);
 			} else if (this.inst.colorMode == "advanced") {
-				color_mode_node
-					.attr("a", "{0};{1}".format(this.inst.colorAlphaAmount, this.inst.colorAlphaPercent))
-					.attr("r", "{0};{1}".format(this.inst.colorRedAmount,   this.inst.colorRedPercent  ))
-					.attr("g", "{0};{1}".format(this.inst.colorGreenAmount, this.inst.colorGreenPercent))
-					.attr("b", "{0};{1}".format(this.inst.colorBlueAmount,  this.inst.colorBluePercent ));
+				color_effect_node
+					.attr("aa", this.inst.colorAlphaAmount  / 255.0)
+					.attr("ra", this.inst.colorRedAmount    / 255.0)
+					.attr("ga", this.inst.colorGreenAmount  / 255.0)
+					.attr("ba", this.inst.colorBlueAmount   / 255.0)
+					.attr("ap", this.inst.colorAlphaPercent / 100.0)
+					.attr("rp", this.inst.colorRedPercent   / 100.0)
+					.attr("gp", this.inst.colorGreenPercent / 100.0)
+					.attr("bp", this.inst.colorBluePercent  / 100.0);
 			} else {
 				ft.assert(false,
 					"Unsupported color mode ({0})!",
 					this.inst.colorMode);
 			}
-		}*/
-		/* \TODO export filters
-		if (this.inst.filters && this.inst.filters.length > 0) {
-			var filters_node = instance_node.child("filters");
-			ft.array_foreach(this.inst.filters, function (filter) {
-				filters_node.child("filter")
-					.attr("name", filter.name);
-			});
-		}*/
+		}
 	};
 
 	// ----------------------------------------------------------------------------
