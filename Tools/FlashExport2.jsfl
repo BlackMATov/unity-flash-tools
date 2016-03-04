@@ -165,6 +165,19 @@ if (typeof Object.create != 'function') {
 		return result;
 	};
 	
+	ft.array_filter = function (arr, filter) {
+		ft.type_assert(arr, Array);
+		ft.type_assert(filter, Function);
+		var new_arr = [];
+		for (var index = 0; index < arr.length; ++index) {
+			var value = arr[index];
+			if ( filter(value, index) ) {
+				new_arr.push(value);
+			}
+		}
+		return new_arr;
+	};
+	
 	ft.array_foreach = function (arr, func, filter) {
 		ft.type_assert(arr, Array);
 		ft.type_assert(func, Function);
@@ -529,7 +542,7 @@ if (typeof Object.create != 'function') {
 	TimelineInst.prototype.convert = function (document) {
 		ft.type_assert(document, Document);
 		this.remove_empty_layers();
-		if ( this.timeline.layers.length > 0 ) {
+		if ( this.timeline.layers.length > 0 && this.timeline.frameCount > 1 ) {
 			this.timeline.selectAllFrames();
 			this.timeline.convertToKeyframes();
 		}
@@ -733,13 +746,15 @@ if (typeof Object.create != 'function') {
 		ft.type_assert(document, Document);
 		ft.type_assert(timeline, Timeline);
 		ft.type_assert(layer, Layer);
-		ft.array_foreach(this.frame.elements, function (element, index) {
-			if (this.is_element_shape(element)) {
-				timeline.currentFrame = this.frame.startFrame;
-				document.selection = [element];
-				document.convertSelectionToBitmap();
-			}
-		}.bind(this));
+		timeline.currentFrame = this.frame.startFrame;
+		document.selectNone();
+		document.selection = ft.array_filter(
+			this.frame.elements,
+			this.is_element_shape.bind(this));
+		if ( document.selection.length > 0 ) {
+			document.convertSelectionToBitmap();
+			document.arrange("back");
+		}
 	};
 
 	FrameInst.prototype.export_element = function (xml_node, element) {
