@@ -61,14 +61,14 @@ namespace FlashTools {
 			FlashAnimColorTransform a, FlashAnimColorTransform b)
 		{
 			var res = new FlashAnimColorTransform();
-			res.Mul.x = a.Mul.x * b.Mul.x;
-			res.Mul.y = a.Mul.y * b.Mul.y;
-			res.Mul.z = a.Mul.z * b.Mul.z;
-			res.Mul.w = a.Mul.w * b.Mul.w;
-			res.Add.x = a.Add.x * b.Mul.x + b.Add.x;
-			res.Add.y = a.Add.y * b.Mul.y + b.Add.y;
-			res.Add.z = a.Add.z * b.Mul.z + b.Add.z;
-			res.Add.w = a.Add.w * b.Mul.w + b.Add.w;
+			res.Mul.x = b.Mul.x * a.Mul.x;
+			res.Mul.y = b.Mul.y * a.Mul.y;
+			res.Mul.z = b.Mul.z * a.Mul.z;
+			res.Mul.w = b.Mul.w * a.Mul.w;
+			res.Add.x = b.Add.x * a.Mul.x + a.Add.x;
+			res.Add.y = b.Add.y * a.Mul.y + a.Add.y;
+			res.Add.z = b.Add.z * a.Mul.z + a.Add.z;
+			res.Add.w = b.Add.w * a.Mul.w + a.Add.w;
 			return res;
 		}
 	}
