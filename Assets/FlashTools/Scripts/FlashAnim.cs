@@ -162,7 +162,7 @@ namespace FlashTools {
 					if ( frame != null ) {
 						for ( var j = 0; j < frame.Elems.Count; ++j ) {
 							var elem = frame.Elems[j];
-							if ( elem.Instance != null ) {
+							if ( elem.Instance != null && elem.Instance.Visible ) {
 								RenderInstance(
 									elem.Instance,
 									elem.Instance.FirstFrame,
