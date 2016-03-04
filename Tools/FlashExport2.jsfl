@@ -871,51 +871,51 @@ if (typeof Object.create != 'function') {
 			.attr("first_frame" , this.get_first_frame())
 			.attr("looping_mode", this.get_looping_mode());
 		if (this.inst.colorMode !== "none") {
-			var color_effect_node = instance_node.child("color_transform");
+			var color_effect_node = instance_node.child("color_effect");
 			if (this.inst.colorMode == "brightness") {
 				var brightness = this.inst.brightness / 100.0;
-				color_effect_node
-					.attr("ap", 1)
-					.attr("rp", 1 - Math.abs(brightness))
-					.attr("gp", 1 - Math.abs(brightness))
-					.attr("bp", 1 - Math.abs(brightness))
-					.attr("aa", 0)
-					.attr("ra", brightness < 0 ? 0 : brightness)
-					.attr("ga", brightness < 0 ? 0 : brightness)
-					.attr("ba", brightness < 0 ? 0 : brightness);
+				color_effect_node.attr("transform", "{0};{1};{2};{3};{4};{5};{6};{7}".format(
+					1 - Math.abs(brightness),
+					1 - Math.abs(brightness),
+					1 - Math.abs(brightness),
+					1,
+					brightness < 0 ? 0 : brightness,
+					brightness < 0 ? 0 : brightness,
+					brightness < 0 ? 0 : brightness,
+					0));
 			} else if (this.inst.colorMode == "tint") {
 				var tint_color   = ft.hex_str_to_color32(this.inst.tintColor);
 				var tint_percent = this.inst.tintPercent / 100.0;
-				color_effect_node
-					.attr("ap", 1)
-					.attr("rp", 1 - tint_percent)
-					.attr("gp", 1 - tint_percent)
-					.attr("bp", 1 - tint_percent)
-					.attr("aa", 0)
-					.attr("ra", tint_color[0] / 255.0 * tint_percent)
-					.attr("ga", tint_color[1] / 255.0 * tint_percent)
-					.attr("ba", tint_color[2] / 255.0 * tint_percent);
+				color_effect_node.attr("transform", "{0};{1};{2};{3};{4};{5};{6};{7}".format(
+					1 - tint_percent,
+					1 - tint_percent,
+					1 - tint_percent,
+					1,
+					tint_color[0] / 255.0 * tint_percent,
+					tint_color[1] / 255.0 * tint_percent,
+					tint_color[2] / 255.0 * tint_percent,
+					0));
 			} else if (this.inst.colorMode == "alpha") {
 				var alpha = this.inst.colorAlphaPercent / 100.0;
-				color_effect_node
-					.attr("ap", alpha)
-					.attr("rp", 1)
-					.attr("gp", 1)
-					.attr("bp", 1)
-					.attr("aa", 0)
-					.attr("ra", 0)
-					.attr("ga", 0)
-					.attr("ba", 0);
+				color_effect_node.attr("transform", "{0};{1};{2};{3};{4};{5};{6};{7}".format(
+					1,
+					1,
+					1,
+					alpha,
+					0,
+					0,
+					0,
+					0));
 			} else if (this.inst.colorMode == "advanced") {
-				color_effect_node
-					.attr("aa", this.inst.colorAlphaAmount  / 255.0)
-					.attr("ra", this.inst.colorRedAmount    / 255.0)
-					.attr("ga", this.inst.colorGreenAmount  / 255.0)
-					.attr("ba", this.inst.colorBlueAmount   / 255.0)
-					.attr("ap", this.inst.colorAlphaPercent / 100.0)
-					.attr("rp", this.inst.colorRedPercent   / 100.0)
-					.attr("gp", this.inst.colorGreenPercent / 100.0)
-					.attr("bp", this.inst.colorBluePercent  / 100.0);
+				color_effect_node.attr("transform", "{0};{1};{2};{3};{4};{5};{6};{7}".format(
+					this.inst.colorRedPercent   / 100.0,
+					this.inst.colorGreenPercent / 100.0,
+					this.inst.colorBluePercent  / 100.0,
+					this.inst.colorAlphaPercent / 100.0,
+					this.inst.colorRedAmount    / 255.0,
+					this.inst.colorGreenAmount  / 255.0,
+					this.inst.colorBlueAmount   / 255.0,
+					this.inst.colorAlphaAmount  / 255.0));
 			} else {
 				ft.assert(false,
 					"Unsupported color mode ({0})!",

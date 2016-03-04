@@ -40,6 +40,40 @@ namespace FlashTools {
 	}
 
 	[System.Serializable]
+	public struct FlashAnimColorTransform {
+		public Vector4 Mul;
+		public Vector4 Add;
+
+		public FlashAnimColorTransform(Vector4 Mul, Vector4 Add) {
+			this.Mul = Mul;
+			this.Add = Add;
+		}
+
+		public static FlashAnimColorTransform identity {
+			get {
+				return new FlashAnimColorTransform(
+					new Vector4(1,1,1,1),
+					new Vector4(0,0,0,0));
+			}
+		}
+
+		public static FlashAnimColorTransform operator*(
+			FlashAnimColorTransform a, FlashAnimColorTransform b)
+		{
+			var res = new FlashAnimColorTransform();
+			res.Mul.x = a.Mul.x * b.Mul.x;
+			res.Mul.y = a.Mul.y * b.Mul.y;
+			res.Mul.z = a.Mul.z * b.Mul.z;
+			res.Mul.w = a.Mul.w * b.Mul.w;
+			res.Add.x = a.Add.x * b.Mul.x + b.Add.x;
+			res.Add.y = a.Add.y * b.Mul.y + b.Add.y;
+			res.Add.z = a.Add.z * b.Mul.z + b.Add.z;
+			res.Add.w = a.Add.w * b.Mul.w + b.Add.w;
+			return res;
+		}
+	}
+
+	[System.Serializable]
 	public class FlashAnimBitmapData {
 		public string  Id          = string.Empty;
 		public Vector2 RealSize    = Vector2.zero;
@@ -54,12 +88,13 @@ namespace FlashTools {
 
 	[System.Serializable]
 	public class FlashAnimInstData {
-		public FlashAnimInstType    Type        = FlashAnimInstType.Bitmap;
-		public FlashAnimBlendMode   BlendMode   = FlashAnimBlendMode.Normal;
-		public string               Asset       = string.Empty;
-		public bool                 Visible     = true;
-		public int                  FirstFrame  = 0;
-		public FlashAnimLoopingMode LoopingMode = FlashAnimLoopingMode.SingleFrame;
+		public FlashAnimInstType       Type           = FlashAnimInstType.Bitmap;
+		public FlashAnimBlendMode      BlendMode      = FlashAnimBlendMode.Normal;
+		public string                  Asset          = string.Empty;
+		public bool                    Visible        = true;
+		public int                     FirstFrame     = 0;
+		public FlashAnimLoopingMode    LoopingMode    = FlashAnimLoopingMode.SingleFrame;
+		public FlashAnimColorTransform ColorTransform = FlashAnimColorTransform.identity;
 	}
 
 	[System.Serializable]

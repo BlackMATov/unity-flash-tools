@@ -134,6 +134,10 @@ namespace FlashTools.Internal {
 			instance.Visible     = SafeLoadBoolFromElemAttr(inst_elem, "visible"     , instance.Visible);
 			instance.FirstFrame  = SafeLoadIntFromElemAttr (inst_elem, "first_frame" , instance.FirstFrame);
 			instance.LoopingMode = SafeLoadEnumFromElemAttr(inst_elem, "looping_mode", instance.LoopingMode);
+			var color_transform_elem = inst_elem.Element("color_effect");
+			if ( color_transform_elem != null ) {
+				instance.ColorTransform = SafeLoadColFromElemAttr(color_transform_elem, "transform", instance.ColorTransform);
+			}
 			data.Instance = instance;
 		}
 
@@ -166,7 +170,17 @@ namespace FlashTools.Internal {
 
 		static int SafeLoadIntFromElemAttr(XElement elem, string attr_name, int def_value) {
 			int value;
-			if ( elem != null && int.TryParse(SafeLoadStrFromElemAttr(elem, attr_name, string.Empty), out value) ) {
+			var int_str = SafeLoadStrFromElemAttr(elem, attr_name, string.Empty);
+			if ( elem != null && int.TryParse(int_str, out value) ) {
+				return value;
+			}
+			return def_value;
+		}
+
+		static float SafeLoadFloatFromElemAttr(XElement elem, string attr_name, float def_value) {
+			float value;
+			var float_str = SafeLoadStrFromElemAttr(elem, attr_name, string.Empty);
+			if ( elem != null && float.TryParse(float_str, NumberStyles.Any, CultureInfo.InvariantCulture, out value) ) {
 				return value;
 			}
 			return def_value;
@@ -174,7 +188,8 @@ namespace FlashTools.Internal {
 
 		static bool SafeLoadBoolFromElemAttr(XElement elem, string attr_name, bool def_value) {
 			bool value;
-			if ( elem != null && bool.TryParse(SafeLoadStrFromElemAttr(elem, attr_name, string.Empty), out value) ) {
+			var bool_str = SafeLoadStrFromElemAttr(elem, attr_name, string.Empty);
+			if ( elem != null && bool.TryParse(bool_str, out value) ) {
 				return value;
 			}
 			return def_value;
@@ -201,6 +216,30 @@ namespace FlashTools.Internal {
 					mat.m03 = tx;
 					mat.m13 = ty;
 					return mat;
+				}
+			}
+			return def_value;
+		}
+
+		static FlashAnimColorTransform SafeLoadColFromElemAttr(XElement elem, string attr_name, FlashAnimColorTransform def_value) {
+			var col_str = SafeLoadStrFromElemAttr(elem, attr_name, string.Empty);
+			var col_strs = col_str.Split(';');
+			if ( col_strs.Length == 8 ) {
+				float rp, gp, bp, ap, ra, ga, ba, aa;
+				if (
+					float.TryParse(col_strs[0], NumberStyles.Any, CultureInfo.InvariantCulture, out rp) &&
+					float.TryParse(col_strs[1], NumberStyles.Any, CultureInfo.InvariantCulture, out gp) &&
+					float.TryParse(col_strs[2], NumberStyles.Any, CultureInfo.InvariantCulture, out bp) &&
+					float.TryParse(col_strs[3], NumberStyles.Any, CultureInfo.InvariantCulture, out ap) &&
+					float.TryParse(col_strs[4], NumberStyles.Any, CultureInfo.InvariantCulture, out ra) &&
+					float.TryParse(col_strs[5], NumberStyles.Any, CultureInfo.InvariantCulture, out ga) &&
+					float.TryParse(col_strs[6], NumberStyles.Any, CultureInfo.InvariantCulture, out ba) &&
+					float.TryParse(col_strs[7], NumberStyles.Any, CultureInfo.InvariantCulture, out aa))
+				{
+					return new FlashAnimColorTransform(
+						new Vector4(rp, gp, bp, ap),
+						new Vector4(ra, ga, ba, aa)
+					);
 				}
 			}
 			return def_value;

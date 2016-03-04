@@ -49,6 +49,7 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimAssetPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimFtaPostprocessor.cs" />
+     <None Include="Assets\FlashTools\Shaders\FlashAnim.shader" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>

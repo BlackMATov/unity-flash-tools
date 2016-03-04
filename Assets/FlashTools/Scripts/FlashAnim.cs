@@ -17,6 +17,8 @@ namespace FlashTools {
 		float         _current_z      = 0.0f;
 
 		List<Vector2> _uvs           = new List<Vector2>();
+		List<Color>   _mulcolors     = new List<Color>();
+		List<Vector4> _addcolors     = new List<Vector4>();
 		List<Vector3> _vertices      = new List<Vector3>();
 		List<int>     _triangles     = new List<int>();
 
@@ -100,7 +102,7 @@ namespace FlashTools {
 			return null;
 		}
 
-		void RenderInstance(FlashAnimInstData elem_data, int frame_num, Matrix4x4 matrix) {
+		void RenderInstance(FlashAnimInstData elem_data, int frame_num, Matrix4x4 matrix, FlashAnimColorTransform color_trans) {
 			if ( elem_data.Type == FlashAnimInstType.Bitmap ) {
 				var bitmap = Asset ? FindBitmap(Asset.Data.Library, elem_data.Asset) : null;
 				if ( bitmap != null ) {
@@ -130,16 +132,26 @@ namespace FlashTools {
 					_uvs.Add(new Vector2(source_rect.xMax, source_rect.yMax));
 					_uvs.Add(new Vector2(source_rect.xMax, source_rect.yMin));
 					_uvs.Add(new Vector2(source_rect.xMin, source_rect.yMin));
+
+					_mulcolors.Add(color_trans.Mul);
+					_mulcolors.Add(color_trans.Mul);
+					_mulcolors.Add(color_trans.Mul);
+					_mulcolors.Add(color_trans.Mul);
+
+					_addcolors.Add(color_trans.Add);
+					_addcolors.Add(color_trans.Add);
+					_addcolors.Add(color_trans.Add);
+					_addcolors.Add(color_trans.Add);
 				}
 			} else if ( elem_data.Type == FlashAnimInstType.Symbol ) {
 				var symbol = Asset ? FindSymbol(Asset.Data.Library, elem_data.Asset) : null;
 				if ( symbol != null ) {
-					RenderSymbol(symbol, frame_num, matrix);
+					RenderSymbol(symbol, frame_num, matrix, color_trans);
 				}
 			}
 		}
 
-		void RenderSymbol(FlashAnimSymbolData symbol, int frame_num, Matrix4x4 matix) {
+		void RenderSymbol(FlashAnimSymbolData symbol, int frame_num, Matrix4x4 matix, FlashAnimColorTransform color_trans) {
 			for ( var i = 0; i < symbol.Layers.Count; ++i ) {
 				var layer = symbol.Layers[i];
 				if ( layer.LayerType != FlashAnimLayerType.Guide &&
@@ -154,7 +166,8 @@ namespace FlashTools {
 								RenderInstance(
 									elem.Instance,
 									elem.Instance.FirstFrame,
-									matix * elem.Matrix);
+									matix * elem.Matrix,
+									color_trans * elem.Instance.ColorTransform);
 							}
 						}
 					}
@@ -176,7 +189,7 @@ namespace FlashTools {
 
 		void Start() {
 			if ( Asset && Asset.Atlas ) {
-				var material = new Material(Shader.Find("Sprites/Default"));
+				var material = new Material(Shader.Find("FlashTools/FlashAnim"));
 				material.SetTexture("_MainTex", Asset.Atlas);
 				GetComponent<MeshRenderer>().sharedMaterial = material;
 			}
@@ -201,14 +214,18 @@ namespace FlashTools {
 				_vertices.Clear();
 				_triangles.Clear();
 				_uvs.Clear();
+				_mulcolors.Clear();
+				_addcolors.Clear();
 				_current_z = 0.0f;
+
 				RenderSymbol(
 					GetCurrentSymbol(),
 					_current_frame,
 					Matrix4x4.Scale(new Vector3(
 						 1.0f / Asset.PixelsPerUnit,
 						-1.0f / Asset.PixelsPerUnit,
-						 1.0f / Asset.PixelsPerUnit)));
+						 1.0f / Asset.PixelsPerUnit)),
+					FlashAnimColorTransform.identity);
 				var mesh_filter = GetComponent<MeshFilter>();
 				if ( mesh_filter ) {
 					var mesh = mesh_filter.sharedMesh
@@ -218,6 +235,8 @@ namespace FlashTools {
 					mesh.SetVertices(_vertices);
 					mesh.SetTriangles(_triangles, 0);
 					mesh.SetUVs(0, _uvs);
+					mesh.SetUVs(1, _addcolors);
+					mesh.SetColors(_mulcolors);
 					mesh.RecalculateNormals();
 					mesh_filter.sharedMesh = mesh;
 				}
