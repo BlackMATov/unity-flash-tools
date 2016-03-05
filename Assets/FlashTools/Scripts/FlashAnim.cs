@@ -15,6 +15,7 @@ namespace FlashTools {
 		int           _current_symbol = -1;
 		float         _frame_timer    = 0.0f;
 		float         _current_z      = 0.0f;
+		string        _lastAssetPath  = string.Empty;
 
 		List<Vector2> _uvs           = new List<Vector2>();
 		List<Color>   _mulcolors     = new List<Color>();
@@ -205,6 +206,19 @@ namespace FlashTools {
 						_current_frame = 0;
 					}
 					//Debug.LogFormat("Cur frame: {0}", _current_frame);
+				}
+			} else {
+				OnValidate();
+			}
+		}
+
+		void OnValidate() {
+			if ( Asset ) {
+				_lastAssetPath = AssetDatabase.GetAssetPath(Asset);
+			} else {
+				if ( !string.IsNullOrEmpty(_lastAssetPath) ) {
+					Asset = AssetDatabase.LoadAssetAtPath<FlashAnimAsset>(_lastAssetPath);
+					EditorUtility.SetDirty(this);
 				}
 			}
 		}

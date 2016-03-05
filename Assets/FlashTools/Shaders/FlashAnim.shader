@@ -64,8 +64,12 @@ Shader "FlashTools/FlashAnim" {
 				return color;
 			}
 
+
 			fixed4 frag(v2f IN) : SV_Target {
-				fixed4 c = SampleSpriteTexture(IN.uv) * IN.mulcolor + IN.addcolor;
+				fixed4 c = SampleSpriteTexture(IN.uv);
+				if ( c.a > 0.01 ) {
+					c = c * IN.mulcolor + IN.addcolor;
+				}
 				c.rgb *= c.a;
 				return c;
 			}

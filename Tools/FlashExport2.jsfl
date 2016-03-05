@@ -368,8 +368,9 @@ if (typeof Object.create != 'function') {
 
 	BitmapAsset.prototype.export_content = function (export_folder) {
 		ft.type_assert(export_folder, 'string');
+		this.item.compressionType = "lossless";
 		var fullfilename = this.get_export_fullfilename(export_folder);
-		if (!this.item.exportToFile(fullfilename)) {
+		if (!this.item.exportToFile(fullfilename, 100)) {
 			throw "Can't export bitmap ({0})!"
 				.format(fullfilename);
 		}
