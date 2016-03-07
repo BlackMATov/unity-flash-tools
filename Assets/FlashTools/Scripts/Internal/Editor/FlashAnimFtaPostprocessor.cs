@@ -54,6 +54,7 @@ namespace FlashTools.Internal {
 			LoadFlashAnimStageFromFtaRootElem  (root_elem, data);
 			LoadFlashAnimLibraryFromFtaRootElem(root_elem, data);
 			LoadFlashAnimStringsFromFtaRootElem(root_elem, data);
+			ConfigureMovieClips(data);
 			data.FrameRate = SafeLoadIntFromElemAttr(
 				root_elem, "frame_rate", data.FrameRate);
 			return data;
@@ -130,6 +131,7 @@ namespace FlashTools.Internal {
 			var instance         = new FlashAnimInstData();
 			instance.Type        = SafeLoadEnumFromElemAttr(inst_elem, "type"        , instance.Type);
 			instance.BlendMode   = SafeLoadEnumFromElemAttr(inst_elem, "blend_mode"  , instance.BlendMode);
+			instance.SymbolType  = SafeLoadEnumFromElemAttr(inst_elem, "symbol_type" , instance.SymbolType);
 			instance.Asset       = SafeLoadStrFromElemAttr (inst_elem, "asset"       , instance.Asset);
 			instance.Visible     = SafeLoadBoolFromElemAttr(inst_elem, "visible"     , instance.Visible);
 			instance.FirstFrame  = SafeLoadIntFromElemAttr (inst_elem, "first_frame" , instance.FirstFrame);
@@ -153,6 +155,68 @@ namespace FlashTools.Internal {
 				if ( !string.IsNullOrEmpty(string_id) && string_str != null ) {
 					data.Strings.Add(string_id);
 					data.Strings.Add(string_str);
+				}
+			}
+		}
+
+		static void ConfigureMovieClips(FlashAnimData data) {
+			ConfigureSymbol(data.Stage);
+			foreach ( var symbol in data.Library.Symbols ) {
+				ConfigureSymbol(symbol);
+			}
+		}
+
+		static void ConfigureSymbol(FlashAnimSymbolData data) {
+			foreach ( var layer in data.Layers ) {
+				ConfigureLayer(layer);
+			}
+		}
+
+		static void ConfigureLayer(FlashAnimLayerData data) {
+			ResetMovieClipsOnLayer(data);
+			for ( var i = 0; i < data.Frames.Count; ++i ) {
+				var frame = data.Frames[i];
+				foreach ( var elem in frame.Elems ) {
+					if ( IsInstanceMovieClip(elem.Instance) && elem.Instance.FirstFrame == -1 ) {
+						elem.Instance.FirstFrame = 0;
+						int count = 0;
+						for ( var i2 = i + 1; i2 < data.Frames.Count; ++i2 ) {
+							var frame2 = data.Frames[i2];
+							var has_elem = false;
+							foreach ( var elem2 in frame2.Elems ) {
+								if ( IsInstanceMovieClip(elem2.Instance) && elem2.Instance.FirstFrame == -1 ) {
+									if ( elem.Id == elem2.Id && elem.Instance.Asset == elem2.Instance.Asset ) {
+										Debug.LogFormat("Bingo: {0} - {1}", i, i2);
+										elem2.Instance.FirstFrame = ++count;
+										has_elem = true;
+										break;
+									}
+								}
+							}
+							if ( !has_elem ) {
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		static bool IsInstanceMovieClip(FlashAnimInstData instance) {
+			return
+				instance.Type       == FlashAnimInstType.Symbol &&
+				instance.SymbolType == FlashAnimSymbolType.MovieClip;
+		}
+
+		static void ResetMovieClipsOnLayer(FlashAnimLayerData data) {
+			foreach ( var frame in data.Frames ) {
+				foreach ( var elem in frame.Elems ) {
+					if (
+						elem.Instance.Type == FlashAnimInstType.Symbol &&
+						elem.Instance.SymbolType == FlashAnimSymbolType.MovieClip )
+					{
+						elem.Instance.FirstFrame = -1;
+					}
 				}
 			}
 		}

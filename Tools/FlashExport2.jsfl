@@ -858,6 +858,22 @@ if (typeof Object.create != 'function') {
 
 	SymbolInst.prototype = Object.create(ElementInst.prototype);
 	
+	SymbolInst.prototype.get_symbol_type = function () {
+		var symbol_type = this.inst.symbolType;
+		if ( symbol_type == "movie clip" ) {
+			return "movieclip";
+		} else if ( symbol_type == "graphic" ) {
+			return "graphic";
+		} else {
+			throw "Unsupported symbol type ({0})!"
+				.format(symbol_type);
+		}
+	};
+	
+	SymbolInst.prototype.get_first_frame = function () {
+		return this.inst.firstFrame !== undefined ? this.inst.firstFrame : 0;
+	};
+	
 	SymbolInst.prototype.get_looping_mode = function () {
 		var looping_type = this.inst.loop !== undefined ? this.inst.loop : "single frame";
 		if ( looping_type == "loop" ) {
@@ -871,10 +887,6 @@ if (typeof Object.create != 'function') {
 				.format(looping_type);
 		}
 	};
-	
-	SymbolInst.prototype.get_first_frame = function () {
-		return this.inst.firstFrame !== undefined ? this.inst.firstFrame : 0;
-	};
 
 	SymbolInst.prototype.export_description = function (xml_node) {
 		ft.type_assert(xml_node, XmlNode);
@@ -884,6 +896,7 @@ if (typeof Object.create != 'function') {
 			.attr("asset"       , this.uniqueIds.get_string_id(this.inst.libraryItem.name))
 			.attr("visible"     , this.inst.visible)
 			.attr("blend_mode"  , this.inst.blendMode)
+			.attr("symbol_type" , this.get_symbol_type())
 			.attr("first_frame" , this.get_first_frame())
 			.attr("looping_mode", this.get_looping_mode());
 		if (this.inst.colorMode !== "none") {

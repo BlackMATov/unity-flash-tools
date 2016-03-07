@@ -39,6 +39,11 @@ namespace FlashTools {
 		Symbol
 	}
 
+	public enum FlashAnimSymbolType {
+		Graphic,
+		MovieClip
+	}
+
 	[System.Serializable]
 	public struct FlashAnimColorTransform {
 		public Vector4 Mul;
@@ -90,6 +95,7 @@ namespace FlashTools {
 	public class FlashAnimInstData {
 		public FlashAnimInstType       Type           = FlashAnimInstType.Bitmap;
 		public FlashAnimBlendMode      BlendMode      = FlashAnimBlendMode.Normal;
+		public FlashAnimSymbolType     SymbolType     = FlashAnimSymbolType.Graphic;
 		public string                  Asset          = string.Empty;
 		public bool                    Visible        = true;
 		public int                     FirstFrame     = 0;
