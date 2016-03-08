@@ -49,6 +49,9 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimAssetPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimFtaPostprocessor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimSwfPostprocessor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimSwfTags.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimSwfUtils.cs" />
      <None Include="Assets\FlashTools\Shaders\FlashAnim.shader" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
@@ -103,6 +106,9 @@
  </Reference>
  <Reference Include="UnityEditor.OSXStandalone.Extensions">
  <HintPath>/Applications/Unity/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
+ </Reference>
+ <Reference Include="Ionic.Zip.Unity">
+ <HintPath>/Users/matov/Programming/Projects/unityflash/Assets/Plugins/Ionic.Zip.Unity.dll</HintPath>
  </Reference>
   </ItemGroup>
   <ItemGroup>
