@@ -176,11 +176,25 @@ namespace FlashTools.Internal {
 	struct SceneOffsetData {
 		public uint   Offset;
 		public string Name;
+
+		public static SceneOffsetData Read(SwfStreamReader reader) {
+			var data    = new SceneOffsetData();
+			data.Offset = reader.ReadEncodedU32();
+			data.Name   = reader.ReadString();
+			return data;
+		}
 	}
 
 	struct FrameLabelData {
 		public uint   Number;
 		public string Label;
+
+		public static FrameLabelData Read(SwfStreamReader reader) {
+			var data    = new FrameLabelData();
+			data.Number = reader.ReadEncodedU32();
+			data.Label  = reader.ReadString();
+			return data;
+		}
 	}
 
 	struct SwfRGB {
@@ -254,8 +268,8 @@ namespace FlashTools.Internal {
 		public float ScaleY;
 		public float RotateSkew0;
 		public float RotateSkew1;
-		public int   TranslateX;
-		public int   TranslateY;
+		public float TranslateX;
+		public float TranslateY;
 
 		public static SwfMatrix Identity {
 			get {
@@ -265,8 +279,7 @@ namespace FlashTools.Internal {
 					RotateSkew0 = 0,
 					RotateSkew1 = 0,
 					TranslateX  = 0,
-					TranslateY  = 0
-				};
+					TranslateY  = 0};
 			}
 		}
 
@@ -285,8 +298,8 @@ namespace FlashTools.Internal {
 				matrix.RotateSkew1 = reader.ReadFixedPoint16(bits);
 			}
 			var translate_bits = (byte)reader.ReadUnsignedBits(5);
-			matrix.TranslateX  = reader.ReadSignedBits(translate_bits);
-			matrix.TranslateY  = reader.ReadSignedBits(translate_bits);
+			matrix.TranslateX  = reader.ReadSignedBits(translate_bits) / 20.0f;
+			matrix.TranslateY  = reader.ReadSignedBits(translate_bits) / 20.0f;
 			reader.AlignToByte();
 			return matrix;
 		}
@@ -307,8 +320,23 @@ namespace FlashTools.Internal {
 		public short GAdd;
 		public short BAdd;
 		public bool  HasAdd;
+
+		public static SwfColorTransformRGB Identity {
+			get {
+				return new SwfColorTransformRGB {
+					RMul   = 1,
+					GMul   = 1,
+					BMul   = 1,
+					HasMul = false,
+					RAdd   = 0,
+					GAdd   = 0,
+					BAdd   = 0,
+					HasAdd = false};
+			}
+		}
+
 		public static SwfColorTransformRGB Read(SwfStreamReader reader) {
-			SwfColorTransformRGB transform;
+			var transform = SwfColorTransformRGB.Identity;
 			var has_add = reader.ReadBit();
 			var has_mul = reader.ReadBit();
 			var bits    = reader.ReadUnsignedBits(4);
@@ -317,25 +345,21 @@ namespace FlashTools.Internal {
 				transform.GMul   = (short)reader.ReadSignedBits(bits);
 				transform.BMul   = (short)reader.ReadSignedBits(bits);
 				transform.HasMul = true;
-			} else {
-				transform.RMul   = 1;
-				transform.GMul   = 1;
-				transform.BMul   = 1;
-				transform.HasMul = false;
 			}
 			if ( has_add ) {
 				transform.RAdd   = (short)reader.ReadSignedBits(bits);
 				transform.GAdd   = (short)reader.ReadSignedBits(bits);
 				transform.BAdd   = (short)reader.ReadSignedBits(bits);
 				transform.HasAdd = true;
-			} else {
-				transform.RAdd   = 0;
-				transform.GAdd   = 0;
-				transform.BAdd   = 0;
-				transform.HasAdd = false;
 			}
 			reader.AlignToByte();
 			return transform;
+		}
+
+		public override string ToString() {
+			return string.Format(
+				"RMul: {0}, GMul: {1}, BMul: {2}, HasMul: {3}, RAdd: {4}, GAdd: {5}, BAdd: {6}, HasAdd: {7}",
+				RMul, GMul, GMul, HasMul, RAdd, GAdd, BAdd, HasAdd);
 		}
 	}
 
@@ -350,8 +374,25 @@ namespace FlashTools.Internal {
 		public short BAdd;
 		public short AAdd;
 		public bool  HasAdd;
+
+		public static SwfColorTransformRGBA Identity {
+			get {
+				return new SwfColorTransformRGBA {
+					RMul   = 1,
+					GMul   = 1,
+					BMul   = 1,
+					AMul   = 1,
+					HasMul = false,
+					RAdd   = 0,
+					GAdd   = 0,
+					BAdd   = 0,
+					AAdd   = 0,
+					HasAdd = false};
+			}
+		}
+
 		public static SwfColorTransformRGBA Read(SwfStreamReader reader) {
-			SwfColorTransformRGBA transform;
+			var transform = SwfColorTransformRGBA.Identity;
 			var has_add = reader.ReadBit();
 			var has_mul = reader.ReadBit();
 			var bits    = reader.ReadUnsignedBits(4);
@@ -361,12 +402,6 @@ namespace FlashTools.Internal {
 				transform.BMul   = (short)reader.ReadSignedBits(bits);
 				transform.AMul   = (short)reader.ReadSignedBits(bits);
 				transform.HasMul = true;
-			} else {
-				transform.RMul   = 1;
-				transform.GMul   = 1;
-				transform.BMul   = 1;
-				transform.AMul   = 1;
-				transform.HasMul = false;
 			}
 			if ( has_add ) {
 				transform.RAdd   = (short)reader.ReadSignedBits(bits);
@@ -374,15 +409,15 @@ namespace FlashTools.Internal {
 				transform.BAdd   = (short)reader.ReadSignedBits(bits);
 				transform.AAdd   = (short)reader.ReadSignedBits(bits);
 				transform.HasAdd = true;
-			} else {
-				transform.RAdd   = 0;
-				transform.GAdd   = 0;
-				transform.BAdd   = 0;
-				transform.AAdd   = 0;
-				transform.HasAdd = false;
 			}
 			reader.AlignToByte();
 			return transform;
+		}
+
+		public override string ToString() {
+			return string.Format(
+				"RMul: {0}, GMul: {1}, BMul: {2}, AMul: {3}, HasMul: {4}, RAdd: {5}, GAdd: {6}, BAdd: {7}, AAdd: {8}, HasAdd: {9}",
+				RMul, GMul, GMul, AMul, HasMul, RAdd, GAdd, BAdd, AAdd, HasAdd);
 		}
 	}
 
