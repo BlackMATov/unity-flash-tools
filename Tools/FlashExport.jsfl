@@ -161,7 +161,7 @@
 	ftd.prepare_bitmaps = function (document) {
 		ft.type_assert(document, Document);
 		ft.array_foreach(document.library.items, function(item) {
-			ft.trace_fmt("-Item: {0}", item.name);
+			//ft.trace_fmt("-Item: {0}", item.name);
 			if ( item.itemType == "bitmap" ) {
 				item.compressionType = "lossless";
 			}
@@ -204,7 +204,7 @@
 	(function () {
 		ft.clear_output();
 		ft.array_foreach(fl.documents, function (document) {
-			ft.trace_fmt("Doc: {0}", document.name);
+			//ft.trace_fmt("Doc: {0}", document.name);
 			ftd.prepare_folders(document);
 			ftd.prepare_bitmaps(document);
 			ftd.export_swf(document);

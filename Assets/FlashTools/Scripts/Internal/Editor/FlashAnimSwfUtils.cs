@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.IO;
 using System.Text;
+using System.Collections.Generic;
+using FlashTools.Internal.SwfTags;
 
 namespace FlashTools.Internal {
 	class SwfStreamReader {
@@ -25,6 +27,10 @@ namespace FlashTools.Internal {
 
 		public SwfStreamReader(string path) {
 			_reader = new BinaryReader(File.OpenRead(path));
+		}
+
+		public SwfStreamReader(byte[] data) {
+			_reader = new BinaryReader(new MemoryStream(data));
 		}
 
 		public SwfStreamReader(Stream stream) {
@@ -160,9 +166,9 @@ namespace FlashTools.Internal {
 			header.Format     = new string(reader.Reader.ReadChars(3));
 			header.Version    = reader.Reader.ReadByte();
 			header.FileLength = reader.Reader.ReadUInt32();
-			header.FrameSize  = SwfRect.Read(reader);
-			header.FrameRate  = reader.ReadFixedPoint8();
-			header.FrameCount = reader.Reader.ReadUInt16();
+			//header.FrameSize  = SwfRect.Read(reader);
+			//header.FrameRate  = reader.ReadFixedPoint8();
+			//header.FrameCount = reader.Reader.ReadUInt16();
 			return header;
 		}
 
@@ -170,30 +176,6 @@ namespace FlashTools.Internal {
 			return string.Format(
 				"Format: {0}, Version: {1}, FileLength: {2}, FrameSize: {3}, FrameRate: {4}, FrameCount: {5}",
 				Format, Version, FileLength, FrameSize, FrameRate, FrameCount);
-		}
-	}
-
-	struct SceneOffsetData {
-		public uint   Offset;
-		public string Name;
-
-		public static SceneOffsetData Read(SwfStreamReader reader) {
-			var data    = new SceneOffsetData();
-			data.Offset = reader.ReadEncodedU32();
-			data.Name   = reader.ReadString();
-			return data;
-		}
-	}
-
-	struct FrameLabelData {
-		public uint   Number;
-		public string Label;
-
-		public static FrameLabelData Read(SwfStreamReader reader) {
-			var data    = new FrameLabelData();
-			data.Number = reader.ReadEncodedU32();
-			data.Label  = reader.ReadString();
-			return data;
 		}
 	}
 
@@ -236,6 +218,16 @@ namespace FlashTools.Internal {
 			return string.Format(
 				"R: {0}, G: {1}, B: {2}, A: {3}",
 				Red, Green, Blue, Alpha);
+		}
+	}
+
+	struct SwfShapesWithStyle {
+		public static SwfShapesWithStyle Read(SwfStreamReader reader) {
+			return new SwfShapesWithStyle();
+		}
+
+		public override string ToString() {
+			return "";
 		}
 	}
 
@@ -430,6 +422,23 @@ namespace FlashTools.Internal {
 	struct SwfSurfaceFilters {
 		public static SwfSurfaceFilters Read(SwfStreamReader reader) {
 			throw new UnityException("implme!");
+		}
+	}
+
+	struct SwfControlTags {
+		public List<SwfTagBase> Tags;
+		public static SwfControlTags Read(SwfStreamReader reader) {
+			var control_tags = new SwfControlTags();
+			control_tags.Tags = new List<SwfTagBase>();
+			while ( true ) {
+				var tag_data = SwfTagData.Read(reader);
+				var tag = SwfTagBase.Create(tag_data);
+				control_tags.Tags.Add(tag);
+				if ( tag.TagType == SwfTagType.End ) {
+					break;
+				}
+			}
+			return control_tags;
 		}
 	}
 }
