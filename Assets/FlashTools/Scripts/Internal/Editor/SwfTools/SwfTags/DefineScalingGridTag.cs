@@ -1,4 +1,6 @@
-﻿namespace FlashTools.Internal.SwfTools.SwfTags {
+﻿using FlashTools.Internal.SwfTools.SwfTypes;
+
+namespace FlashTools.Internal.SwfTools.SwfTags {
 	class DefineScalingGridTag : SwfTagBase {
 		public ushort  CharacterId;
 		public SwfRect Splitter;

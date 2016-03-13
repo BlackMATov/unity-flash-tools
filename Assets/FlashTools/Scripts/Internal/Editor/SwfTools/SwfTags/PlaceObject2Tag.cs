@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools.SwfTags {
 	class PlaceObject2Tag : SwfTagBase {
@@ -28,25 +29,25 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			sb.Append("PlaceObject2Tag. ");
 			sb.AppendFormat("Move: {0} Depth: {1}", Move, Depth);
 			if ( HasCharacter ) {
-				sb.AppendFormat(" CharacterId: {0}", CharacterId);
+				sb.AppendFormat(", CharacterId: {0}", CharacterId);
 			}
 			if ( HasMatrix ) {
-				sb.AppendFormat(" Matrix: {0}", Matrix);
+				sb.AppendFormat(", Matrix: {0}", Matrix);
 			}
 			if ( HasColorTransform ) {
-				sb.AppendFormat(" ColorTransform: {0}", ColorTransform);
+				sb.AppendFormat(", ColorTransform: {0}", ColorTransform);
 			}
 			if ( HasRatio ) {
-				sb.AppendFormat(" Ratio: {0}", Ratio);
+				sb.AppendFormat(", Ratio: {0}", Ratio);
 			}
 			if ( HasName ) {
-				sb.AppendFormat(" Name: {0}", Name);
+				sb.AppendFormat(", Name: {0}", Name);
 			}
 			if ( HasClipDepth ) {
-				sb.AppendFormat(" ClipDepth: {0}", ClipDepth);
+				sb.AppendFormat(", ClipDepth: {0}", ClipDepth);
 			}
 			if ( HasClipActions ) {
-				sb.AppendFormat(" ClipActions: {0}", HasClipActions);
+				sb.AppendFormat(", ClipActions: {0}", HasClipActions);
 			}
 			return sb.ToString();
 		}

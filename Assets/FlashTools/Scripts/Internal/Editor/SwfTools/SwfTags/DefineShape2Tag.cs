@@ -1,4 +1,6 @@
-﻿namespace FlashTools.Internal.SwfTools.SwfTags {
+﻿using FlashTools.Internal.SwfTools.SwfTypes;
+
+namespace FlashTools.Internal.SwfTools.SwfTags {
 	class DefineShape2Tag : SwfTagBase {
 		public ushort             ShapeId;
 		public SwfRect            ShapeBounds;

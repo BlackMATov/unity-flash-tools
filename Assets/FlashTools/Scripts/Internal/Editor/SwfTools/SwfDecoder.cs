@@ -2,6 +2,7 @@
 using System.IO;
 using System.Collections.Generic;
 using FlashTools.Internal.SwfTools.SwfTags;
+using FlashTools.Internal.SwfTools.SwfTypes;
 using Ionic.Zlib;
 
 namespace FlashTools.Internal.SwfTools {

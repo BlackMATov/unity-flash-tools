@@ -29,11 +29,6 @@ namespace FlashTools.Internal.SwfTools {
 		//
 		// ---------------------------------------------------------------------
 
-		public SwfStreamReader(string path) {
-			var file_stream = File.OpenRead(path);
-			_binaryReader = new BinaryReader(file_stream);
-		}
-
 		public SwfStreamReader(byte[] data) {
 			var memory_stream = new MemoryStream(data);
 			_binaryReader = new BinaryReader(memory_stream);
@@ -41,11 +36,6 @@ namespace FlashTools.Internal.SwfTools {
 
 		public SwfStreamReader(Stream stream) {
 			_binaryReader = new BinaryReader(stream);
-		}
-
-		public SwfStreamReader SeekToBegin() {
-			_binaryReader.BaseStream.Position = 0;
-			return this;
 		}
 
 		public bool IsEOF {
@@ -157,25 +147,21 @@ namespace FlashTools.Internal.SwfTools {
 			if ( (bt & 0x80) == 0 ) {
 				return val;
 			}
-
 			bt = ReadByte();
 			val |= (bt & 0x7fu) << 7;
 			if ( (bt & 0x80) == 0 ) {
 				return val;
 			}
-
 			bt = ReadByte();
 			val |= (bt & 0x7fu) << 14;
 			if ( (bt & 0x80) == 0 ) {
 				return val;
 			}
-
 			bt = ReadByte();
 			val |= (bt & 0x7fu) << 21;
 			if ( (bt & 0x80) == 0 ) {
 				return val;
 			}
-
 			bt = ReadByte();
 			val |= (bt & 0x7fu) << 28;
 			return val;

@@ -50,7 +50,6 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimFtaPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimSwfPostprocessor.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfDataTypes.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfDecoder.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfStreamReader.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineBitsLossless2Tag.cs" />
@@ -75,6 +74,19 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\ShowFrameTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\SwfTagBase.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\UnknownTag.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfBlendMode.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfClipActions.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfColorTransformRGB.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfColorTransformRGBA.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfControlTags.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfLongHeaderType.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfMatrix.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfRGB.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfRGBA.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfRect.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfShapesWithStyle.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfShortHeader.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfSurfaceFilters.cs" />
      <None Include="Assets\FlashTools\Shaders\FlashAnim.shader" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
