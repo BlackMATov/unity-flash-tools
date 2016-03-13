@@ -1,4 +1,4 @@
-﻿namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	class EndTag : SwfTagBase {
 		public override SwfTagType TagType {
 			get { return SwfTagType.End; }

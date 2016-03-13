@@ -1,4 +1,4 @@
-﻿namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	class DefineBitsLosslessTag : SwfTagBase {
 		public ushort CharacterId;
 		public byte   BitmapFormat;
@@ -20,12 +20,12 @@
 
 		public static DefineBitsLosslessTag Create(SwfStreamReader reader) {
 			var tag          = new DefineBitsLosslessTag();
-			tag.CharacterId  = reader.Reader.ReadUInt16();
-			tag.BitmapFormat = reader.Reader.ReadByte();
-			tag.BitmapWidth  = reader.Reader.ReadUInt16();
-			tag.BitmapHeight = reader.Reader.ReadUInt16();
+			tag.CharacterId  = reader.ReadUInt16();
+			tag.BitmapFormat = reader.ReadByte();
+			tag.BitmapWidth  = reader.ReadUInt16();
+			tag.BitmapHeight = reader.ReadUInt16();
 			if ( tag.BitmapFormat == 3 ) {
-				tag.BitmapColorTableSize = reader.Reader.ReadByte();
+				tag.BitmapColorTableSize = reader.ReadByte();
 			}
 			tag.ZlibBitmapData = reader.ReadRest();
 			return tag;

@@ -1,4 +1,4 @@
-﻿namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	class PlaceObjectTag : SwfTagBase {
 		public ushort               CharacterId;
 		public ushort               Depth;
@@ -18,8 +18,8 @@
 
 		public static PlaceObjectTag Create(SwfStreamReader reader) {
 			var tag         = new PlaceObjectTag();
-			tag.CharacterId = reader.Reader.ReadUInt16();
-			tag.Depth       = reader.Reader.ReadUInt16();
+			tag.CharacterId = reader.ReadUInt16();
+			tag.Depth       = reader.ReadUInt16();
 			tag.Matrix      = SwfMatrix.Read(reader);
 			if ( !reader.IsEOF ) {
 				tag.ColorTransform = SwfColorTransformRGB.Read(reader);

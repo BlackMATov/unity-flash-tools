@@ -1,4 +1,4 @@
-﻿namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	class DefineScalingGridTag : SwfTagBase {
 		public ushort  CharacterId;
 		public SwfRect Splitter;
@@ -16,7 +16,7 @@
 
 		public static DefineScalingGridTag Create(SwfStreamReader reader) {
 			var tag         = new DefineScalingGridTag();
-			tag.CharacterId = reader.Reader.ReadUInt16();
+			tag.CharacterId = reader.ReadUInt16();
 			tag.Splitter    = SwfRect.Read(reader);
 			return tag;
 		}

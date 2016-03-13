@@ -1,4 +1,4 @@
-﻿namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	class RemoveObject2Tag : SwfTagBase {
 		public ushort Depth;
 
@@ -15,7 +15,7 @@
 
 		public static RemoveObject2Tag Create(SwfStreamReader reader) {
 			var tag   = new RemoveObject2Tag();
-			tag.Depth = reader.Reader.ReadUInt16();
+			tag.Depth = reader.ReadUInt16();
 			return tag;
 		}
 	}

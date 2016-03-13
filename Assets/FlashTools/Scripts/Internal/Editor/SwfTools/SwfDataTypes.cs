@@ -1,140 +1,9 @@
 ﻿using UnityEngine;
 using System.IO;
-using System.Text;
 using System.Collections.Generic;
-using FlashTools.Internal.SwfTags;
+using FlashTools.Internal.SwfTools.SwfTags;
 
-namespace FlashTools.Internal {
-	class SwfStreamReader {
-		struct BitContext {
-			public byte CachedByte;
-			public byte BitIndex;
-		}
-		BitContext   _bitContext;
-		BinaryReader _reader;
-
-		long Length {
-			get { return _reader.BaseStream.Length; }
-		}
-
-		long Position {
-			get { return _reader.BaseStream.Position; }
-		}
-
-		long BytesLeft {
-			get { return Length - Position; }
-		}
-
-		public SwfStreamReader(string path) {
-			_reader = new BinaryReader(File.OpenRead(path));
-		}
-
-		public SwfStreamReader(byte[] data) {
-			_reader = new BinaryReader(new MemoryStream(data));
-		}
-
-		public SwfStreamReader(Stream stream) {
-			_reader = new BinaryReader(stream);
-		}
-
-		public BinaryReader Reader {
-			get { return _reader; }
-		}
-
-		public bool ReadBit() {
-			var bitIndex = _bitContext.BitIndex & 0x07;
-			if ( bitIndex == 0 ) {
-				_bitContext.CachedByte = Reader.ReadByte();
-			}
-			++_bitContext.BitIndex;
-			return ((_bitContext.CachedByte << bitIndex) & 0x80) != 0;
-		}
-
-		public int ReadSignedBits(uint count) {
-			if ( count == 0 ) {
-				return 0;
-			}
-			bool sign = ReadBit();
-			var res = sign ? uint.MaxValue : 0;
-			--count;
-			for ( var i = 0; i < count; ++i ) {
-				var bit = ReadBit();
-				res = (res << 1 | (bit ? 1u : 0u));
-			}
-			return (int)res;
-		}
-
-		public uint ReadUnsignedBits(uint count) {
-			if ( count == 0 ) {
-				return 0;
-			}
-			uint res = 0;
-			for ( var i = 0; i < count; ++i ) {
-				var bit = ReadBit();
-				res = (res << 1 | (bit ? 1u : 0u));
-			}
-			return res;
-		}
-
-		public void AlignToByte() {
-			_bitContext.BitIndex   = 0;
-			_bitContext.CachedByte = 0;
-		}
-
-		public string ReadString() {
-			var data_stream = new MemoryStream();
-			byte bt = 1;
-			while ( bt > 0 ) {
-				bt = _reader.ReadByte();
-				if ( bt > 0 ) {
-					data_stream.WriteByte(bt);
-				}
-			}
-			return Encoding.UTF8.GetString(data_stream.ToArray());
-		}
-
-		public float ReadFixedPoint8() {
-			return Reader.ReadInt16() / 256.0f;
-		}
-
-		public float ReadFixedPoint16(uint bits) {
-			var value = ReadSignedBits(bits);
-			return value / 65536.0f;
-		}
-
-		public uint ReadEncodedU32() {
-			AlignToByte();
-			uint val = 0;
-			var bt = _reader.ReadByte();
-			val |= bt & 0x7fu;
-			if ((bt & 0x80) == 0) return val;
-
-			bt = _reader.ReadByte();
-			val |= (bt & 0x7fu) << 7;
-			if ((bt & 0x80) == 0) return val;
-
-			bt = _reader.ReadByte();
-			val |= (bt & 0x7fu) << 14;
-			if ((bt & 0x80) == 0) return val;
-
-			bt = _reader.ReadByte();
-			val |= (bt & 0x7fu) << 21;
-			if ((bt & 0x80) == 0) return val;
-
-			bt = _reader.ReadByte();
-			val |= (bt & 0x7fu) << 28;
-			return val;
-		}
-
-		public byte[] ReadRest() {
-			return Reader.ReadBytes((int)BytesLeft);
-		}
-
-		public bool IsEOF {
-			get { return Position == Length; }
-		}
-	}
-
+namespace FlashTools.Internal.SwfTools {
 	enum SwfBlendMode : byte {
 		Normal = 0,
 		Normal1 = 1,
@@ -153,71 +22,103 @@ namespace FlashTools.Internal {
 		Hardlight = 14
 	}
 
-	struct SwfHeader {
-		public string  Format;
-		public byte    Version;
-		public uint    FileLength;
-		public SwfRect FrameSize;
-		public float   FrameRate;
-		public ushort  FrameCount;
+	struct SwfShortHeader {
+		public string Format;
+		public byte   Version;
+		public uint   FileLength;
 
-		public static SwfHeader Read(SwfStreamReader reader) {
-			var header        = new SwfHeader();
-			header.Format     = new string(reader.Reader.ReadChars(3));
-			header.Version    = reader.Reader.ReadByte();
-			header.FileLength = reader.Reader.ReadUInt32();
-			//header.FrameSize  = SwfRect.Read(reader);
-			//header.FrameRate  = reader.ReadFixedPoint8();
-			//header.FrameCount = reader.Reader.ReadUInt16();
+		public static SwfShortHeader Read(SwfStreamReader reader) {
+			var header        = new SwfShortHeader();
+			header.Format     = new string(reader.ReadChars(3));
+			header.Version    = reader.ReadByte();
+			header.FileLength = reader.ReadUInt32();
+			return header;
+		}
+
+		public void Write(Stream stream) {
+			if ( Format == null || Format.Length != 3 ) {
+				throw new UnityException("Incorrect SwfShortHeader Format");
+			}
+			stream.WriteByte((byte)Format[0]);
+			stream.WriteByte((byte)Format[1]);
+			stream.WriteByte((byte)Format[2]);
+			stream.WriteByte(Version);
+			stream.WriteByte((byte)((FileLength >>  0) & 0xff));
+			stream.WriteByte((byte)((FileLength >>  8) & 0xff));
+			stream.WriteByte((byte)((FileLength >> 16) & 0xff));
+			stream.WriteByte((byte)((FileLength >> 24) & 0xff));
+		}
+
+		public override string ToString() {
+			return string.Format(
+				"Format: {0}, Version: {1}, FileLength: {2}",
+				Format, Version, FileLength);
+		}
+	}
+
+	struct SwfLongHeader {
+		public SwfShortHeader ShortHeader;
+		public SwfRect        FrameSize;
+		public float          FrameRate;
+		public ushort         FrameCount;
+
+		public static SwfLongHeader Read(SwfStreamReader reader) {
+			var header         = new SwfLongHeader();
+			header.ShortHeader = SwfShortHeader.Read(reader);
+			header.FrameSize   = SwfRect.Read(reader);
+			header.FrameRate   = reader.ReadFixedPoint8();
+			header.FrameCount  = reader.ReadUInt16();
 			return header;
 		}
 
 		public override string ToString() {
 			return string.Format(
-				"Format: {0}, Version: {1}, FileLength: {2}, FrameSize: {3}, FrameRate: {4}, FrameCount: {5}",
-				Format, Version, FileLength, FrameSize, FrameRate, FrameCount);
+				"Format: {0}, Version: {1}, FileLength: {2}, " +
+				"FrameSize: {3}, FrameRate: {4}, FrameCount: {5}",
+				ShortHeader.Format, ShortHeader.Version, ShortHeader.FileLength,
+				FrameSize, FrameRate, FrameCount);
 		}
 	}
 
 	struct SwfRGB {
-		public byte Red;
-		public byte Green;
-		public byte Blue;
+		public byte R;
+		public byte G;
+		public byte B;
 
 		public static SwfRGB Read(SwfStreamReader reader) {
-			var rgb   = new SwfRGB();
-			rgb.Red   = reader.Reader.ReadByte();
-			rgb.Green = reader.Reader.ReadByte();
-			rgb.Blue  = reader.Reader.ReadByte();
+			var rgb = new SwfRGB();
+			rgb.R   = reader.ReadByte();
+			rgb.G   = reader.ReadByte();
+			rgb.B   = reader.ReadByte();
 			return rgb;
 		}
 
 		public override string ToString() {
 			return string.Format(
 				"R: {0}, G: {1}, B: {2}",
-				Red, Green, Blue);
+				R, G, B);
 		}
 	}
 
 	struct SwfRGBA {
-		public byte Red;
-		public byte Green;
-		public byte Blue;
-		public byte Alpha;
+		public byte R;
+		public byte G;
+		public byte B;
+		public byte A;
 
 		public static SwfRGBA Read(SwfStreamReader reader) {
-			var rgba   = new SwfRGBA();
-			rgba.Red   = reader.Reader.ReadByte();
-			rgba.Green = reader.Reader.ReadByte();
-			rgba.Blue  = reader.Reader.ReadByte();
-			rgba.Alpha = reader.Reader.ReadByte();
+			var rgba = new SwfRGBA();
+			rgba.R   = reader.ReadByte();
+			rgba.G   = reader.ReadByte();
+			rgba.B   = reader.ReadByte();
+			rgba.A   = reader.ReadByte();
 			return rgba;
 		}
 
 		public override string ToString() {
 			return string.Format(
 				"R: {0}, G: {1}, B: {2}, A: {3}",
-				Red, Green, Blue, Alpha);
+				R, G, B, A);
 		}
 	}
 
@@ -431,8 +332,7 @@ namespace FlashTools.Internal {
 			var control_tags = new SwfControlTags();
 			control_tags.Tags = new List<SwfTagBase>();
 			while ( true ) {
-				var tag_data = SwfTagData.Read(reader);
-				var tag = SwfTagBase.Create(tag_data);
+				var tag = SwfTagBase.Read(reader);
 				control_tags.Tags.Add(tag);
 				if ( tag.TagType == SwfTagType.End ) {
 					break;

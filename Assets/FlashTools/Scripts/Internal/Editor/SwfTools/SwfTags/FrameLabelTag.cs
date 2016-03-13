@@ -1,4 +1,4 @@
-﻿namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	class FrameLabelTag : SwfTagBase {
 		public string Name;
 		public byte   AnchorFlag;
@@ -18,7 +18,7 @@
 			var tag = new FrameLabelTag();
 			tag.Name = reader.ReadString();
 			if ( !reader.IsEOF ) {
-				tag.AnchorFlag = reader.Reader.ReadByte();
+				tag.AnchorFlag = reader.ReadByte();
 			}
 			return tag;
 		}

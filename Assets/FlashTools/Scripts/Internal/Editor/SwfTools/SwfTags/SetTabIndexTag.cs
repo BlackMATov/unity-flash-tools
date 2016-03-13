@@ -1,4 +1,4 @@
-﻿namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	class SetTabIndexTag : SwfTagBase {
 		public ushort Depth;
 		public ushort TabIndex;
@@ -16,8 +16,8 @@
 
 		public static SetTabIndexTag Create(SwfStreamReader reader) {
 			var tag      = new SetTabIndexTag();
-			tag.Depth    = reader.Reader.ReadUInt16();
-			tag.TabIndex = reader.Reader.ReadUInt16();
+			tag.Depth    = reader.ReadUInt16();
+			tag.TabIndex = reader.ReadUInt16();
 			return tag;
 		}
 	}

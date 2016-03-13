@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FlashTools.Internal.SwfTags {
+namespace FlashTools.Internal.SwfTools.SwfTags {
 	class DefineSceneAndFrameLabelDataTag : SwfTagBase {
 		public struct SceneOffsetData {
 			public uint   Offset;

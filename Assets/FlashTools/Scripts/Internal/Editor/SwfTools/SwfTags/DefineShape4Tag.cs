@@ -1,4 +1,4 @@
-﻿namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	class DefineShape4Tag : SwfTagBase {
 		public ushort             ShapeId;
 		public SwfRect            ShapeBounds;
@@ -18,10 +18,10 @@
 
 		public static DefineShape4Tag Create(SwfStreamReader reader) {
 			var tag         = new DefineShape4Tag();
-			tag.ShapeId     = reader.Reader.ReadUInt16();
+			tag.ShapeId     = reader.ReadUInt16();
 			tag.ShapeBounds = SwfRect.Read(reader);
 			tag.EdgeBounds  = SwfRect.Read(reader);
-			reader.Reader.ReadByte(); // Skip flags
+			reader.ReadByte(); // Skip flags
 			tag.Shapes      = SwfShapesWithStyle.Read(reader);
 			return tag;
 		}

@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	enum SwfTagType {
 		// -----------------------------
 		// Display list
@@ -134,23 +132,26 @@ namespace FlashTools.Internal.SwfTags {
 		Unknown
 	}
 
-	struct SwfTagData {
-		public int    TagId;
-		public byte[] TagData;
+	abstract class SwfTagBase {
+		struct SwfTagData {
+			public int    TagId;
+			public byte[] TagData;
+		}
 
-		public static SwfTagData Read(SwfStreamReader reader) {
-			var type_and_size = reader.Reader.ReadUInt16();
+		public abstract SwfTagType TagType { get; }
+
+		public static SwfTagBase Read(SwfStreamReader reader) {
+			var type_and_size = reader.ReadUInt16();
 			var tag_id        = type_and_size >> 6;
 			var short_size    = type_and_size & 0x3f;
-			var size          = short_size < 0x3f ? short_size : reader.Reader.ReadInt32();
-			var tag_data      = reader.Reader.ReadBytes(size);
-			return new SwfTagData{TagId = tag_id, TagData = tag_data};
+			var size          = short_size < 0x3f ? short_size : reader.ReadInt32();
+			var tag_data      = reader.ReadBytes(size);
+			return Create(new SwfTagData{
+				TagId   = tag_id,
+				TagData = tag_data});
 		}
-	}
 
-	abstract class SwfTagBase {
-		public abstract SwfTagType TagType { get; }
-		public static SwfTagBase Create(SwfTagData tag_data) {
+		static SwfTagBase Create(SwfTagData tag_data) {
 			var reader = new SwfStreamReader(tag_data.TagData);
 			switch ( tag_data.TagId ) {
 			case (int)SwfTagType.PlaceObject:                  return PlaceObjectTag.Create(reader);

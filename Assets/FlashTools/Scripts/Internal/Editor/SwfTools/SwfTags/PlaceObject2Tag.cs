@@ -1,7 +1,7 @@
 ﻿using System.Text;
 
-namespace FlashTools.Internal.SwfTags {
-	class PlaceObject3Tag : SwfTagBase {
+namespace FlashTools.Internal.SwfTools.SwfTags {
+	class PlaceObject2Tag : SwfTagBase {
 		public bool                  HasClipActions;
 		public bool                  HasClipDepth;
 		public bool                  HasName;
@@ -10,35 +10,22 @@ namespace FlashTools.Internal.SwfTags {
 		public bool                  HasMatrix;
 		public bool                  HasCharacter;
 		public bool                  Move;
-		public bool                  OpaqueBackground;
-		public bool                  HasVisible;
-		public bool                  HasImage;
-		public bool                  HasClassName;
-		public bool                  HasCacheAsBitmap;
-		public bool                  HasBlendMode;
-		public bool                  HasFilterList;
 		public ushort                Depth;
-		public string                ClassName;
 		public ushort                CharacterId;
 		public SwfMatrix             Matrix;
 		public SwfColorTransformRGBA ColorTransform;
 		public ushort                Ratio;
 		public string                Name;
 		public ushort                ClipDepth;
-		public SwfSurfaceFilters     SurfaceFilters;
-		public SwfBlendMode          BlendMode;
-		public byte                  BitmapCache;
-		public byte                  Visible;
-		public SwfRGBA               BackgroundColor;
 		public SwfClipActions        ClipActions;
 
 		public override SwfTagType TagType {
-			get { return SwfTagType.PlaceObject3; }
+			get { return SwfTagType.PlaceObject2; }
 		}
 
 		public override string ToString() {
 			var sb = new StringBuilder(1024);
-			sb.Append("PlaceObject3Tag. ");
+			sb.Append("PlaceObject2Tag. ");
 			sb.AppendFormat("Move: {0} Depth: {1}", Move, Depth);
 			if ( HasCharacter ) {
 				sb.AppendFormat(" CharacterId: {0}", CharacterId);
@@ -64,8 +51,8 @@ namespace FlashTools.Internal.SwfTags {
 			return sb.ToString();
 		}
 
-		public static PlaceObject3Tag Create(SwfStreamReader reader) {
-			var tag               = new PlaceObject3Tag();
+		public static PlaceObject2Tag Create(SwfStreamReader reader) {
+			var tag               = new PlaceObject2Tag();
 			tag.HasClipActions    = reader.ReadBit();
 			tag.HasClipDepth      = reader.ReadBit();
 			tag.HasName           = reader.ReadBit();
@@ -74,20 +61,9 @@ namespace FlashTools.Internal.SwfTags {
 			tag.HasMatrix         = reader.ReadBit();
 			tag.HasCharacter      = reader.ReadBit();
 			tag.Move              = reader.ReadBit();
-			reader.ReadBit(); // reserved
-			tag.OpaqueBackground  = reader.ReadBit();
-			tag.HasVisible        = reader.ReadBit();
-			tag.HasImage          = reader.ReadBit();
-			tag.HasClassName      = reader.ReadBit();
-			tag.HasCacheAsBitmap  = reader.ReadBit();
-			tag.HasBlendMode      = reader.ReadBit();
-			tag.HasFilterList     = reader.ReadBit();
-			tag.Depth             = reader.Reader.ReadUInt16();
-			if ( tag.HasCharacter || (tag.HasImage && tag.HasCharacter) ) {
-				tag.ClassName = reader.ReadString();
-			}
+			tag.Depth             = reader.ReadUInt16();
 			if ( tag.HasCharacter ) {
-				tag.CharacterId = reader.Reader.ReadUInt16();
+				tag.CharacterId = reader.ReadUInt16();
 			}
 			if ( tag.HasMatrix ) {
 				tag.Matrix = SwfMatrix.Read(reader);
@@ -96,26 +72,13 @@ namespace FlashTools.Internal.SwfTags {
 				tag.ColorTransform = SwfColorTransformRGBA.Read(reader);
 			}
 			if ( tag.HasRatio ) {
-				tag.Ratio = reader.Reader.ReadUInt16();
+				tag.Ratio = reader.ReadUInt16();
 			}
 			if ( tag.HasName ) {
 				tag.Name = reader.ReadString();
 			}
 			if ( tag.HasClipDepth ) {
-				tag.ClipDepth = reader.Reader.ReadUInt16();
-			}
-			if ( tag.HasFilterList ) {
-				tag.SurfaceFilters = SwfSurfaceFilters.Read(reader);
-			}
-			if ( tag.HasBlendMode ) {
-				tag.BlendMode = (SwfBlendMode)reader.Reader.ReadByte();
-			}
-			if ( tag.HasCacheAsBitmap ) {
-				tag.BitmapCache = reader.Reader.ReadByte();
-			}
-			if ( tag.HasVisible ) {
-				tag.Visible         = reader.Reader.ReadByte();
-				tag.BackgroundColor = SwfRGBA.Read(reader);
+				tag.ClipDepth = reader.ReadUInt16();
 			}
 			if ( tag.HasClipActions ) {
 				tag.ClipActions = SwfClipActions.Read(reader);

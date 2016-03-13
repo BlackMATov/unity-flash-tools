@@ -1,4 +1,4 @@
-﻿namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	class SetBackgroundColorTag : SwfTagBase {
 		public SwfRGB BackgroundColor;
 

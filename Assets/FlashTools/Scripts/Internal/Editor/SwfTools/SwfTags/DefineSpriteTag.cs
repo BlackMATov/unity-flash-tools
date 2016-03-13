@@ -1,4 +1,4 @@
-﻿namespace FlashTools.Internal.SwfTags {
+﻿namespace FlashTools.Internal.SwfTools.SwfTags {
 	class DefineSpriteTag : SwfTagBase {
 		public ushort         SpriteId;
 		public ushort         FrameCount;
@@ -17,8 +17,8 @@
 
 		public static DefineSpriteTag Create(SwfStreamReader reader) {
 			var tag         = new DefineSpriteTag();
-			tag.SpriteId    = reader.Reader.ReadUInt16();
-			tag.FrameCount  = reader.Reader.ReadUInt16();
+			tag.SpriteId    = reader.ReadUInt16();
+			tag.FrameCount  = reader.ReadUInt16();
 			tag.ControlTags = SwfControlTags.Read(reader);
 			return tag;
 		}
