@@ -26,10 +26,10 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			stream.WriteByte((byte)Format[1]);
 			stream.WriteByte((byte)Format[2]);
 			stream.WriteByte(Version);
-			stream.WriteByte((byte)((FileLength >>  0) & 0xff));
-			stream.WriteByte((byte)((FileLength >>  8) & 0xff));
-			stream.WriteByte((byte)((FileLength >> 16) & 0xff));
-			stream.WriteByte((byte)((FileLength >> 24) & 0xff));
+			stream.WriteByte((byte)((FileLength >>  0) & 0xFF));
+			stream.WriteByte((byte)((FileLength >>  8) & 0xFF));
+			stream.WriteByte((byte)((FileLength >> 16) & 0xFF));
+			stream.WriteByte((byte)((FileLength >> 24) & 0xFF));
 		}
 
 		public override string ToString() {

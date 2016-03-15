@@ -18,18 +18,18 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			Overlay,
 			Hardlight
 		}
-		public Mode Type;
+		public Mode Value;
 
 		public static SwfBlendMode Read(SwfStreamReader reader) {
 			var mode_id = reader.ReadByte();
 			var mode    = ModeFromByte(mode_id);
-			return new SwfBlendMode{Type = mode};
+			return new SwfBlendMode{Value = mode};
 		}
 
 		public override string ToString() {
 			return string.Format(
-				"SwfBlendMode. Type: {0}",
-				Type.ToString());
+				"SwfBlendMode. Mode: {0}",
+				Value);
 		}
 
 		static Mode ModeFromByte(byte mode_id) {

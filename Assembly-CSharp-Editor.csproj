@@ -79,6 +79,7 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfColorTransformRGB.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfColorTransformRGBA.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfControlTags.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfFillStyleType.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfLongHeaderType.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfMatrix.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfRGB.cs" />

@@ -19,5 +19,12 @@
 				"SwfRGBA. R: {0}, G: {1}, B: {2}, A: {3}",
 				R, G, B, A);
 		}
+
+		public SwfRGB ToRGB() {
+			return new SwfRGB{
+				R = R,
+				G = G,
+				B = B};
+		}
 	}
 }

@@ -52,12 +52,12 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public bool ReadBit() {
-			var bitIndex = _bitContext.BitIndex & 0x07;
-			if ( bitIndex == 0 ) {
+			var bit_index = _bitContext.BitIndex & 0x07;
+			if ( bit_index == 0 ) {
 				_bitContext.CachedByte = ReadByte();
 			}
 			++_bitContext.BitIndex;
-			return ((_bitContext.CachedByte << bitIndex) & 0x80) != 0;
+			return ((_bitContext.CachedByte << bit_index) & 0x80) != 0;
 		}
 
 		public byte ReadByte() {
@@ -140,30 +140,29 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public uint ReadEncodedU32() {
-			AlignToByte();
 			uint val = 0;
 			var bt = ReadByte();
-			val |= bt & 0x7fu;
+			val |= bt & 0x7Fu;
 			if ( (bt & 0x80) == 0 ) {
 				return val;
 			}
 			bt = ReadByte();
-			val |= (bt & 0x7fu) << 7;
+			val |= (bt & 0x7Fu) << 7;
 			if ( (bt & 0x80) == 0 ) {
 				return val;
 			}
 			bt = ReadByte();
-			val |= (bt & 0x7fu) << 14;
+			val |= (bt & 0x7Fu) << 14;
 			if ( (bt & 0x80) == 0 ) {
 				return val;
 			}
 			bt = ReadByte();
-			val |= (bt & 0x7fu) << 21;
+			val |= (bt & 0x7Fu) << 21;
 			if ( (bt & 0x80) == 0 ) {
 				return val;
 			}
 			bt = ReadByte();
-			val |= (bt & 0x7fu) << 28;
+			val |= (bt & 0x7Fu) << 28;
 			return val;
 		}
 	}

@@ -21,7 +21,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			var tag         = new DefineShape3Tag();
 			tag.ShapeId     = reader.ReadUInt16();
 			tag.ShapeBounds = SwfRect.Read(reader);
-			tag.Shapes      = SwfShapesWithStyle.Read(reader);
+			tag.Shapes      = SwfShapesWithStyle.Read(reader, SwfShapesWithStyle.ShapeStyleType.Shape3);
 			return tag;
 		}
 	}

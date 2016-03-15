@@ -17,5 +17,13 @@
 				"SwfRGB. R: {0}, G: {1}, B: {2}",
 				R, G, B);
 		}
+
+		public SwfRGBA ToRGBA(byte alpha) {
+			return new SwfRGBA{
+				R = R,
+				G = G,
+				B = B,
+				A = alpha};
+		}
 	}
 }

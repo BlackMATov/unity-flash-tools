@@ -23,8 +23,8 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			tag.ShapeId     = reader.ReadUInt16();
 			tag.ShapeBounds = SwfRect.Read(reader);
 			tag.EdgeBounds  = SwfRect.Read(reader);
-			reader.ReadByte(); // Skip flags
-			tag.Shapes      = SwfShapesWithStyle.Read(reader);
+			reader.ReadByte(); // Flags
+			tag.Shapes      = SwfShapesWithStyle.Read(reader, SwfShapesWithStyle.ShapeStyleType.Shape4);
 			return tag;
 		}
 	}
