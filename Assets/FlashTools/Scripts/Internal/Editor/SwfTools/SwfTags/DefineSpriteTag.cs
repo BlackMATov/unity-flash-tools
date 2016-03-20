@@ -1,7 +1,7 @@
 ﻿using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools.SwfTags {
-	class DefineSpriteTag : SwfTagBase {
+	public class DefineSpriteTag : SwfTagBase {
 		public ushort         SpriteId;
 		public ushort         FrameCount;
 		public SwfControlTags ControlTags;
@@ -10,11 +10,15 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			get { return SwfTagType.DefineSprite; }
 		}
 
+		public override TResult AcceptVistor<TArg, TResult>(SwfTagVisitor<TArg, TResult> visitor, TArg arg) {
+			return visitor.Visit(this, arg);
+		}
+
 		public override string ToString() {
 			return string.Format(
 				"DefineSpriteTag. " +
 				"SpriteId: {0}, FrameCount: {1}, ControlTags: {2}",
-				SpriteId, FrameCount, ControlTags.Tags);
+				SpriteId, FrameCount, ControlTags.Tags.Count);
 		}
 
 		public static DefineSpriteTag Create(SwfStreamReader reader) {

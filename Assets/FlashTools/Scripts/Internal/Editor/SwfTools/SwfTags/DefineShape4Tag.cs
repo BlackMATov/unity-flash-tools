@@ -1,7 +1,7 @@
 ﻿using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools.SwfTags {
-	class DefineShape4Tag : SwfTagBase {
+	public class DefineShape4Tag : SwfTagBase {
 		public ushort             ShapeId;
 		public SwfRect            ShapeBounds;
 		public SwfRect            EdgeBounds;
@@ -9,6 +9,10 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 
 		public override SwfTagType TagType {
 			get { return SwfTagType.DefineShape4; }
+		}
+
+		public override TResult AcceptVistor<TArg, TResult>(SwfTagVisitor<TArg, TResult> visitor, TArg arg) {
+			return visitor.Visit(this, arg);
 		}
 
 		public override string ToString() {

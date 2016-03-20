@@ -2,7 +2,7 @@
 using FlashTools.Internal.SwfTools.SwfTags;
 
 namespace FlashTools.Internal.SwfTools.SwfTypes {
-	struct SwfControlTags {
+	public struct SwfControlTags {
 		public List<SwfTagBase> Tags;
 
 		public static SwfControlTags Read(SwfStreamReader reader) {
@@ -10,10 +10,10 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			control_tags.Tags = new List<SwfTagBase>();
 			while ( true ) {
 				var tag = SwfTagBase.Read(reader);
-				control_tags.Tags.Add(tag);
 				if ( tag.TagType == SwfTagType.End ) {
 					break;
 				}
+				control_tags.Tags.Add(tag);
 			}
 			return control_tags;
 		}

@@ -1,5 +1,5 @@
 ﻿namespace FlashTools.Internal.SwfTools.SwfTypes {
-	struct SwfSurfaceFilters {
+	public struct SwfSurfaceFilters {
 		public static SwfSurfaceFilters Read(SwfStreamReader reader) {
 			//TODO: IMPLME
 			return new SwfSurfaceFilters();

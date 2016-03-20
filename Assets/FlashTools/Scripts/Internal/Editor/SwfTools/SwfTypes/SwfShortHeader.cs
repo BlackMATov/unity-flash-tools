@@ -3,7 +3,7 @@ using System.IO;
 using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools.SwfTypes {
-	struct SwfShortHeader {
+	public struct SwfShortHeader {
 		public string Format;
 		public byte   Version;
 		public uint   FileLength;

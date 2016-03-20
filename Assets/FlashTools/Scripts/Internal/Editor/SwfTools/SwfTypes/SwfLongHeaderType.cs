@@ -1,5 +1,5 @@
 ﻿namespace FlashTools.Internal.SwfTools.SwfTypes {
-	struct SwfLongHeader {
+	public struct SwfLongHeader {
 		public SwfShortHeader ShortHeader;
 		public SwfRect        FrameSize;
 		public float          FrameRate;

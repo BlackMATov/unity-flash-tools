@@ -1,10 +1,14 @@
 ﻿namespace FlashTools.Internal.SwfTools.SwfTags {
-	class RemoveObjectTag : SwfTagBase {
+	public class RemoveObjectTag : SwfTagBase {
 		public ushort CharacterId;
 		public ushort Depth;
 
 		public override SwfTagType TagType {
 			get { return SwfTagType.RemoveObject; }
+		}
+
+		public override TResult AcceptVistor<TArg, TResult>(SwfTagVisitor<TArg, TResult> visitor, TArg arg) {
+			return visitor.Visit(this, arg);
 		}
 
 		public override string ToString() {

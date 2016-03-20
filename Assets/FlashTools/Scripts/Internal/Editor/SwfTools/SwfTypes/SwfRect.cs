@@ -1,5 +1,5 @@
 ﻿namespace FlashTools.Internal.SwfTools.SwfTypes {
-	struct SwfRect {
+	public struct SwfRect {
 		public float XMin;
 		public float XMax;
 		public float YMin;

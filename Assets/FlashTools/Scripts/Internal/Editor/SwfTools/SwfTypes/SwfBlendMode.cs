@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace FlashTools.Internal.SwfTools.SwfTypes {
-	struct SwfBlendMode {
+	public struct SwfBlendMode {
 		public enum Mode {
 			Normal,
 			Layer,

@@ -2,39 +2,43 @@
 using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools.SwfTags {
-	class PlaceObject3Tag : SwfTagBase {
-		public bool                  HasClipActions;
-		public bool                  HasClipDepth;
-		public bool                  HasName;
-		public bool                  HasRatio;
-		public bool                  HasColorTransform;
-		public bool                  HasMatrix;
-		public bool                  HasCharacter;
-		public bool                  Move;
-		public bool                  OpaqueBackground;
-		public bool                  HasVisible;
-		public bool                  HasImage;
-		public bool                  HasClassName;
-		public bool                  HasCacheAsBitmap;
-		public bool                  HasBlendMode;
-		public bool                  HasFilterList;
-		public ushort                Depth;
-		public string                ClassName;
-		public ushort                CharacterId;
-		public SwfMatrix             Matrix;
-		public SwfColorTransformRGBA ColorTransform;
-		public ushort                Ratio;
-		public string                Name;
-		public ushort                ClipDepth;
-		public SwfSurfaceFilters     SurfaceFilters;
-		public SwfBlendMode          BlendMode;
-		public byte                  BitmapCache;
-		public byte                  Visible;
-		public SwfRGBA               BackgroundColor;
-		public SwfClipActions        ClipActions;
+	public class PlaceObject3Tag : SwfTagBase {
+		public bool              HasClipActions;
+		public bool              HasClipDepth;
+		public bool              HasName;
+		public bool              HasRatio;
+		public bool              HasColorTransform;
+		public bool              HasMatrix;
+		public bool              HasCharacter;
+		public bool              Move;
+		public bool              OpaqueBackground;
+		public bool              HasVisible;
+		public bool              HasImage;
+		public bool              HasClassName;
+		public bool              HasCacheAsBitmap;
+		public bool              HasBlendMode;
+		public bool              HasFilterList;
+		public ushort            Depth;
+		public string            ClassName;
+		public ushort            CharacterId;
+		public SwfMatrix         Matrix;
+		public SwfColorTransform ColorTransform;
+		public ushort            Ratio;
+		public string            Name;
+		public ushort            ClipDepth;
+		public SwfSurfaceFilters SurfaceFilters;
+		public SwfBlendMode      BlendMode;
+		public byte              BitmapCache;
+		public byte              Visible;
+		public SwfColor          BackgroundColor;
+		public SwfClipActions    ClipActions;
 
 		public override SwfTagType TagType {
 			get { return SwfTagType.PlaceObject3; }
+		}
+
+		public override TResult AcceptVistor<TArg, TResult>(SwfTagVisitor<TArg, TResult> visitor, TArg arg) {
+			return visitor.Visit(this, arg);
 		}
 
 		public override string ToString() {
@@ -94,7 +98,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 				tag.Matrix = SwfMatrix.Read(reader);
 			}
 			if ( tag.HasColorTransform ) {
-				tag.ColorTransform = SwfColorTransformRGBA.Read(reader);
+				tag.ColorTransform = SwfColorTransform.Read(reader, true);
 			}
 			if ( tag.HasRatio ) {
 				tag.Ratio = reader.ReadUInt16();
@@ -116,7 +120,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			}
 			if ( tag.HasVisible ) {
 				tag.Visible         = reader.ReadByte();
-				tag.BackgroundColor = SwfRGBA.Read(reader);
+				tag.BackgroundColor = SwfColor.Read(reader, true);
 			}
 			if ( tag.HasClipActions ) {
 				tag.ClipActions = SwfClipActions.Read(reader);

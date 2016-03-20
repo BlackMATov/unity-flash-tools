@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 namespace FlashTools.Internal.SwfTools.SwfTypes {
-	struct SwfFillStyleType {
+	public struct SwfFillStyleType {
 		public enum Type {
 			SolidColor,
 			LinearGradient,
@@ -24,6 +24,27 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			return string.Format(
 				"SwfFillStyleType. Type: {0}",
 				Value);
+		}
+
+		public bool IsSolidType {
+			get { return Value == Type.SolidColor; }
+		}
+
+		public bool IsBitmapType {
+			get { return
+				Value == Type.RepeatingBitmap ||
+				Value == Type.ClippedBitmap ||
+				Value == Type.NonSmoothedRepeatingBitmap ||
+				Value == Type.NonSmoothedClippedBitmap;
+			}
+		}
+
+		public bool IsGradientType {
+			get { return
+				Value == Type.LinearGradient ||
+				Value == Type.RadialGradient ||
+				Value == Type.FocalGradient;
+			}
 		}
 
 		static Type TypeFromByte(byte type_id) {

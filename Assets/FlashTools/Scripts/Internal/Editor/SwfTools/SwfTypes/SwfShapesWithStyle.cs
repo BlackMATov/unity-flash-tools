@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace FlashTools.Internal.SwfTools.SwfTypes {
-	struct SwfShapesWithStyle {
+	public struct SwfShapesWithStyle {
 		public enum ShapeStyleType {
 			Shape,
 			Shape2,
@@ -87,45 +87,25 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		static FillStyle ReadFillStyle(SwfStreamReader reader, bool with_alpha) {
 			var fill_style  = new FillStyle();
 			fill_style.Type = SwfFillStyleType.Read(reader);
-			switch ( fill_style.Type.Value ) {
-			case SwfFillStyleType.Type.SolidColor:
-				if ( with_alpha ) {
-					SwfRGBA.Read(reader);
-				} else {
-					SwfRGB.Read(reader);
-				} // Color
-				break;
+			if ( fill_style.Type.IsSolidType ) {
+				SwfColor.Read(reader, with_alpha);
 			}
-			switch ( fill_style.Type.Value ) {
-			case SwfFillStyleType.Type.LinearGradient:
-			case SwfFillStyleType.Type.RadialGradient:
-			case SwfFillStyleType.Type.FocalGradient:
+			if ( fill_style.Type.IsGradientType ) {
 				SwfMatrix.Read(reader); // GradientMatrix
-				break;
+				switch ( fill_style.Type.Value ) {
+				case SwfFillStyleType.Type.LinearGradient:
+				case SwfFillStyleType.Type.RadialGradient:
+					SkipGradient(reader, with_alpha); // Gradient
+					break;
+				case SwfFillStyleType.Type.FocalGradient:
+					SkipFocalGradient(reader, with_alpha); // FocalGradient
+					break;
+				}
 			}
-			switch ( fill_style.Type.Value ) {
-			case SwfFillStyleType.Type.LinearGradient:
-			case SwfFillStyleType.Type.RadialGradient:
-				SkipGradient(reader, with_alpha); // Gradient
-				break;
-			case SwfFillStyleType.Type.FocalGradient:
-				SkipFocalGradient(reader, with_alpha); // FocalGradient
-				break;
-			}
-			switch ( fill_style.Type.Value ) {
-			case SwfFillStyleType.Type.RepeatingBitmap:
-			case SwfFillStyleType.Type.ClippedBitmap:
-			case SwfFillStyleType.Type.NonSmoothedRepeatingBitmap:
-			case SwfFillStyleType.Type.NonSmoothedClippedBitmap:
+			if ( fill_style.Type.IsBitmapType ) {
 				fill_style.BitmapId     = reader.ReadUInt16();
 				fill_style.BitmapMatrix = SwfMatrix.Read(reader);
-				break;
-			default:
-				fill_style.BitmapId     = 0;
-				fill_style.BitmapMatrix = SwfMatrix.Identity;
-				break;
 			}
-			Debug.LogErrorFormat("ReadFillStyle: {0}", fill_style);
 			return fill_style;
 		}
 
@@ -139,11 +119,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			var count = reader.ReadUnsignedBits(4);
 			for ( var i = 0; i < count; ++i ) {
 				reader.ReadByte(); // Ratio
-				if ( with_alpha ) {
-					SwfRGBA.Read(reader);
-				} else {
-					SwfRGB.Read(reader);
-				} // Color
+				SwfColor.Read(reader, with_alpha);
 			}
 		}
 
@@ -157,11 +133,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			var count = reader.ReadUnsignedBits(4);
 			for ( var i = 0; i < count; ++i ) {
 				reader.ReadByte(); // Ratio
-				if ( with_alpha ) {
-					SwfRGBA.Read(reader);
-				} else {
-					SwfRGB.Read(reader);
-				} // Color
+				SwfColor.Read(reader, with_alpha);
 			}
 			reader.ReadFixedPoint8(); // FocalPoint
 		}
@@ -194,11 +166,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 
 		static void SkipLineStyle(SwfStreamReader reader, bool with_alpha) {
 			reader.ReadUInt16(); // Width
-			if ( with_alpha ) {
-				SwfRGBA.Read(reader);
-			} else {
-				SwfRGB.Read(reader);
-			} // Color
+			SwfColor.Read(reader, with_alpha);
 		}
 
 		static void SkipLine2Style(SwfStreamReader reader) {
@@ -218,7 +186,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			if ( has_fill_flag ) {
 				ReadFillStyle(reader, true); // FillStyle
 			} else {
-				SwfRGBA.Read(reader); // Color
+				SwfColor.Read(reader, true);
 			}
 		}
 
@@ -227,13 +195,6 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		// ShapeRecords
 		//
 		// ------------------------------------------------------------------------
-
-		public enum ShapeRecordType {
-			EndRecord,
-			StyleChangeRecord,
-			StraightEdge,
-			CurvedEdgeRecord
-		}
 
 		static void SkipShapeRecords(
 			SwfStreamReader reader,

@@ -1,9 +1,10 @@
 ﻿using System.IO;
 using System.Text;
 using System.Collections.Generic;
+using Ionic.Zlib;
 
 namespace FlashTools.Internal.SwfTools {
-	class SwfStreamReader {
+	public class SwfStreamReader {
 		struct BitContext {
 			public byte CachedByte;
 			public byte BitIndex;
@@ -164,6 +165,14 @@ namespace FlashTools.Internal.SwfTools {
 			bt = ReadByte();
 			val |= (bt & 0x7Fu) << 28;
 			return val;
+		}
+
+		static public MemoryStream DecompressZBytes(byte[] compressed_bytes) {
+			var target     = new MemoryStream();
+			var zip_stream = new ZlibStream(target, CompressionMode.Decompress);
+			zip_stream.Write(compressed_bytes, 0, compressed_bytes.Length);
+			target.Position = 0;
+			return target;
 		}
 	}
 }

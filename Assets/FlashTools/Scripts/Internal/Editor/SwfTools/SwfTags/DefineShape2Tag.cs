@@ -1,13 +1,17 @@
 ﻿using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools.SwfTags {
-	class DefineShape2Tag : SwfTagBase {
+	public class DefineShape2Tag : SwfTagBase {
 		public ushort             ShapeId;
 		public SwfRect            ShapeBounds;
 		public SwfShapesWithStyle Shapes;
 
 		public override SwfTagType TagType {
 			get { return SwfTagType.DefineShape2; }
+		}
+
+		public override TResult AcceptVistor<TArg, TResult>(SwfTagVisitor<TArg, TResult> visitor, TArg arg) {
+			return visitor.Visit(this, arg);
 		}
 
 		public override string ToString() {

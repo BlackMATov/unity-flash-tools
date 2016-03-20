@@ -1,5 +1,5 @@
 ﻿namespace FlashTools.Internal.SwfTools.SwfTags {
-	class DefineBitsLosslessTag : SwfTagBase {
+	public class DefineBitsLosslessTag : SwfTagBase {
 		public ushort CharacterId;
 		public byte   BitmapFormat;
 		public ushort BitmapWidth;
@@ -9,6 +9,10 @@
 
 		public override SwfTagType TagType {
 			get { return SwfTagType.DefineBitsLossless; }
+		}
+
+		public override TResult AcceptVistor<TArg, TResult>(SwfTagVisitor<TArg, TResult> visitor, TArg arg) {
+			return visitor.Visit(this, arg);
 		}
 
 		public override string ToString() {

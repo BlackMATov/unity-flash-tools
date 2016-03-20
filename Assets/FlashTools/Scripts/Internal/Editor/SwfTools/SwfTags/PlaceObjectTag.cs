@@ -1,14 +1,18 @@
 ﻿using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools.SwfTags {
-	class PlaceObjectTag : SwfTagBase {
-		public ushort               CharacterId;
-		public ushort               Depth;
-		public SwfMatrix            Matrix;
-		public SwfColorTransformRGB ColorTransform;
+	public class PlaceObjectTag : SwfTagBase {
+		public ushort            CharacterId;
+		public ushort            Depth;
+		public SwfMatrix         Matrix;
+		public SwfColorTransform ColorTransform;
 
 		public override SwfTagType TagType {
 			get { return SwfTagType.PlaceObject; }
+		}
+
+		public override TResult AcceptVistor<TArg, TResult>(SwfTagVisitor<TArg, TResult> visitor, TArg arg) {
+			return visitor.Visit(this, arg);
 		}
 
 		public override string ToString() {
@@ -23,8 +27,10 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			tag.CharacterId = reader.ReadUInt16();
 			tag.Depth       = reader.ReadUInt16();
 			tag.Matrix      = SwfMatrix.Read(reader);
-			if ( !reader.IsEOF ) {
-				tag.ColorTransform = SwfColorTransformRGB.Read(reader);
+			if ( reader.IsEOF ) {
+				tag.ColorTransform = SwfColorTransform.Identity;
+			} else {
+				tag.ColorTransform = SwfColorTransform.Read(reader, false);
 			}
 			return tag;
 		}

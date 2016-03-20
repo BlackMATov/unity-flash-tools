@@ -3,10 +3,9 @@ using System.IO;
 using System.Collections.Generic;
 using FlashTools.Internal.SwfTools.SwfTags;
 using FlashTools.Internal.SwfTools.SwfTypes;
-using Ionic.Zlib;
 
 namespace FlashTools.Internal.SwfTools {
-	class SwfDecoder {
+	public class SwfDecoder {
 		public SwfShortHeader   OriginalHeader;
 		public SwfLongHeader    UncompressedHeader;
 		public List<SwfTagBase> Tags = new List<SwfTagBase>();
@@ -24,13 +23,14 @@ namespace FlashTools.Internal.SwfTools {
 			case "FWS":
 				return new MemoryStream(raw_swf_data);
 			case "CWS":
-				var rest_stream      = DecompressZBytes(raw_reader.ReadRest());
+				var rest_stream = SwfStreamReader.DecompressZBytes(
+					raw_reader.ReadRest());
 				var new_short_header = new SwfShortHeader{
 					Format     = "FWS",
 					Version    = OriginalHeader.Version,
 					FileLength = OriginalHeader.FileLength
 				};
-				var uncompressed_stream = new MemoryStream((int)OriginalHeader.FileLength);
+				var uncompressed_stream = new MemoryStream();
 				new_short_header.Write(uncompressed_stream);
 				rest_stream.WriteTo(uncompressed_stream);
 				uncompressed_stream.Position = 0;
@@ -44,16 +44,12 @@ namespace FlashTools.Internal.SwfTools {
 		void DecodeSwf(SwfStreamReader reader) {
 			UncompressedHeader = SwfLongHeader.Read(reader);
 			while ( !reader.IsEOF ) {
-				Tags.Add(SwfTagBase.Read(reader));
+				var tag = SwfTagBase.Read(reader);
+				if ( tag.TagType == SwfTagType.End ) {
+					break;
+				}
+				Tags.Add(tag);
 			}
-		}
-
-		static public MemoryStream DecompressZBytes(byte[] compressed_bytes) {
-			var target     = new MemoryStream();
-			var zip_stream = new ZlibStream(target, CompressionMode.Decompress);
-			zip_stream.Write(compressed_bytes, 0, compressed_bytes.Length);
-			target.Position = 0;
-			return target;
 		}
 	}
 }

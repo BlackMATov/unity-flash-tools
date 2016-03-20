@@ -1,5 +1,5 @@
 ﻿namespace FlashTools.Internal.SwfTools.SwfTags {
-	enum SwfTagType {
+	public enum SwfTagType {
 		// -----------------------------
 		// Display list
 		// -----------------------------
@@ -24,11 +24,11 @@
 		//EnableDebugger = 58,
 		//EnableDebugger2 = 64,
 		//ScriptLimits = 65,
-		SetTabIndex = 66,
+		//SetTabIndex = 66,
 		//ImportAssets2 = 71,
 		//SymbolClass = 76,
 		//Metadata = 77,
-		DefineScalingGrid = 78,
+		//DefineScalingGrid = 78,
 		DefineSceneAndFrameLabelData = 86,
 
 		// -----------------------------
@@ -132,13 +132,15 @@
 		Unknown
 	}
 
-	abstract class SwfTagBase {
+	public abstract class SwfTagBase {
 		struct SwfTagData {
 			public int    TagId;
 			public byte[] TagData;
 		}
 
 		public abstract SwfTagType TagType { get; }
+		public abstract TResult AcceptVistor<TArg, TResult>(
+			SwfTagVisitor<TArg, TResult> visitor, TArg arg);
 
 		public static SwfTagBase Read(SwfStreamReader reader) {
 			var type_and_size = reader.ReadUInt16();
@@ -163,8 +165,6 @@
 			case (int)SwfTagType.SetBackgroundColor:           return SetBackgroundColorTag.Create(reader);
 			case (int)SwfTagType.FrameLabel:                   return FrameLabelTag.Create(reader);
 			case (int)SwfTagType.End:                          return EndTag.Create(reader);
-			case (int)SwfTagType.SetTabIndex:                  return SetTabIndexTag.Create(reader);
-			case (int)SwfTagType.DefineScalingGrid:            return DefineScalingGridTag.Create(reader);
 			case (int)SwfTagType.DefineSceneAndFrameLabelData: return DefineSceneAndFrameLabelDataTag.Create(reader);
 			case (int)SwfTagType.DefineShape:                  return DefineShapeTag.Create(reader);
 			case (int)SwfTagType.DefineShape2:                 return DefineShape2Tag.Create(reader);

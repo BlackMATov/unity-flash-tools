@@ -1,11 +1,15 @@
 ﻿using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools.SwfTags {
-	class SetBackgroundColorTag : SwfTagBase {
-		public SwfRGB BackgroundColor;
+	public class SetBackgroundColorTag : SwfTagBase {
+		public SwfColor BackgroundColor;
 
 		public override SwfTagType TagType {
 			get { return SwfTagType.SetBackgroundColor; }
+		}
+
+		public override TResult AcceptVistor<TArg, TResult>(SwfTagVisitor<TArg, TResult> visitor, TArg arg) {
+			return visitor.Visit(this, arg);
 		}
 
 		public override string ToString() {
@@ -17,7 +21,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 
 		public static SetBackgroundColorTag Create(SwfStreamReader reader) {
 			var tag             = new SetBackgroundColorTag();
-			tag.BackgroundColor = SwfRGB.Read(reader);
+			tag.BackgroundColor = SwfColor.Read(reader, false);
 			return tag;
 		}
 	}

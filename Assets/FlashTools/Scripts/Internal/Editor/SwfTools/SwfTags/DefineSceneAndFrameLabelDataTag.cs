@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 namespace FlashTools.Internal.SwfTools.SwfTags {
-	class DefineSceneAndFrameLabelDataTag : SwfTagBase {
+	public class DefineSceneAndFrameLabelDataTag : SwfTagBase {
 		public struct SceneOffsetData {
 			public uint   Offset;
 			public string Name;
@@ -17,6 +17,10 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 
 		public override SwfTagType TagType {
 			get { return SwfTagType.DefineSceneAndFrameLabelData; }
+		}
+
+		public override TResult AcceptVistor<TArg, TResult>(SwfTagVisitor<TArg, TResult> visitor, TArg arg) {
+			return visitor.Visit(this, arg);
 		}
 
 		public override string ToString() {
