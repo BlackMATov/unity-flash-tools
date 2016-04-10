@@ -9,8 +9,20 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		public float TranslateX;
 		public float TranslateY;
 
+		public static SwfMatrix identity {
+			get {
+				return new SwfMatrix {
+					ScaleX      = 1,
+					ScaleY      = 1,
+					RotateSkew0 = 0,
+					RotateSkew1 = 0,
+					TranslateX  = 0,
+					TranslateY  = 0};
+			}
+		}
+
 		public static SwfMatrix Read(SwfStreamReader reader) {
-			var matrix = SwfMatrix.Identity;
+			var matrix = SwfMatrix.identity;
 			var has_scale = reader.ReadBit();
 			if ( has_scale ) {
 				var bits      = (byte)reader.ReadUnsignedBits(5);
@@ -56,18 +68,6 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			mat.m03 = TranslateX;
 			mat.m13 = TranslateY;
 			return mat;
-		}
-
-		public static SwfMatrix Identity {
-			get {
-				return new SwfMatrix {
-					ScaleX      = 1,
-					ScaleY      = 1,
-					RotateSkew0 = 0,
-					RotateSkew1 = 0,
-					TranslateX  = 0,
-					TranslateY  = 0};
-			}
 		}
 	}
 }

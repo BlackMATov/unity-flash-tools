@@ -14,6 +14,14 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 		public Type Value;
 
+		public static SwfFillStyleType identity {
+			get {
+				return new SwfFillStyleType {
+					Value = Type.SolidColor
+				};
+			}
+		}
+
 		public static SwfFillStyleType Read(SwfStreamReader reader) {
 			var type_id = reader.ReadByte();
 			var type    = TypeFromByte(type_id);

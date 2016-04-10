@@ -70,7 +70,7 @@ namespace FlashTools.Internal.SwfTools {
 	}
 
 	public class SwfLibrarySpriteDefine : SwfLibraryDefine {
-		public SwfControlTags ControlTags = new SwfControlTags();
+		public SwfControlTags ControlTags = SwfControlTags.identity;
 		public override SwfLibraryDefineType Type {
 			get { return SwfLibraryDefineType.Sprite; }
 		}

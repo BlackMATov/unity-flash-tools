@@ -5,9 +5,16 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 	public struct SwfControlTags {
 		public List<SwfTagBase> Tags;
 
+		public static SwfControlTags identity {
+			get {
+				return new SwfControlTags {
+					Tags = new List<SwfTagBase>()
+				};
+			}
+		}
+
 		public static SwfControlTags Read(SwfStreamReader reader) {
-			var control_tags = new SwfControlTags();
-			control_tags.Tags = new List<SwfTagBase>();
+			var control_tags = SwfControlTags.identity;
 			while ( true ) {
 				var tag = SwfTagBase.Read(reader);
 				if ( tag.TagType == SwfTagType.End ) {

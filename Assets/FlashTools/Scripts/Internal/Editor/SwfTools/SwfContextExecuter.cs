@@ -49,8 +49,8 @@ namespace FlashTools.Internal.SwfTools {
 				if ( new_inst != null ) {
 					new_inst.Id             = tag.CharacterId;
 					new_inst.Depth          = tag.Depth;
-					new_inst.Matrix         = tag.HasMatrix         ? tag.Matrix         : SwfMatrix.Identity;
-					new_inst.ColorTransform = tag.HasColorTransform ? tag.ColorTransform : SwfColorTransform.Identity;
+					new_inst.Matrix         = tag.HasMatrix         ? tag.Matrix         : SwfMatrix.identity;
+					new_inst.ColorTransform = tag.HasColorTransform ? tag.ColorTransform : SwfColorTransform.identity;
 					dl.Insts.Add(new_inst.Depth, new_inst);
 				}
 			} else if ( tag.Move && !tag.HasCharacter ) { // move character

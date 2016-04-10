@@ -20,6 +20,14 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 		public Mode Value;
 
+		public static SwfBlendMode identity {
+			get {
+				return new SwfBlendMode {
+					Value = Mode.Normal
+				};
+			}
+		}
+
 		public static SwfBlendMode Read(SwfStreamReader reader) {
 			var mode_id = reader.ReadByte();
 			var mode    = ModeFromByte(mode_id);
@@ -34,7 +42,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 
 		static Mode ModeFromByte(byte mode_id) {
 			switch ( mode_id ) {
-			case  0:
+			case  0: // Mode.Normal too
 			case  1: return Mode.Normal;
 			case  2: return Mode.Layer;
 			case  3: return Mode.Multiply;

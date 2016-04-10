@@ -88,43 +88,59 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			tag.HasBlendMode      = reader.ReadBit();
 			tag.HasFilterList     = reader.ReadBit();
 			tag.Depth             = reader.ReadUInt16();
-			if ( tag.HasCharacter || (tag.HasImage && tag.HasCharacter) ) {
-				tag.ClassName = reader.ReadString();
-			}
-			if ( tag.HasCharacter ) {
-				tag.CharacterId = reader.ReadUInt16();
-			}
-			if ( tag.HasMatrix ) {
-				tag.Matrix = SwfMatrix.Read(reader);
-			}
-			if ( tag.HasColorTransform ) {
-				tag.ColorTransform = SwfColorTransform.Read(reader, true);
-			}
-			if ( tag.HasRatio ) {
-				tag.Ratio = reader.ReadUInt16();
-			}
-			if ( tag.HasName ) {
-				tag.Name = reader.ReadString();
-			}
-			if ( tag.HasClipDepth ) {
-				tag.ClipDepth = reader.ReadUInt16();
-			}
-			if ( tag.HasFilterList ) {
-				tag.SurfaceFilters = SwfSurfaceFilters.Read(reader);
-			}
-			if ( tag.HasBlendMode ) {
-				tag.BlendMode = SwfBlendMode.Read(reader);
-			}
-			if ( tag.HasCacheAsBitmap ) {
-				tag.BitmapCache = reader.ReadByte();
-			}
-			if ( tag.HasVisible ) {
-				tag.Visible         = reader.ReadByte();
-				tag.BackgroundColor = SwfColor.Read(reader, true);
-			}
-			if ( tag.HasClipActions ) {
-				tag.ClipActions = SwfClipActions.Read(reader);
-			}
+
+			tag.ClassName         = (tag.HasCharacter || (tag.HasImage && tag.HasCharacter))
+				? reader.ReadString()
+				: string.Empty;
+
+			tag.CharacterId       = tag.HasCharacter
+				? reader.ReadUInt16()
+				: (ushort)0;
+
+			tag.Matrix            = tag.HasMatrix
+				? SwfMatrix.Read(reader)
+				: SwfMatrix.identity;
+
+			tag.ColorTransform    = tag.HasColorTransform
+				? SwfColorTransform.Read(reader, true)
+				: SwfColorTransform.identity;
+
+			tag.Ratio             = tag.HasRatio
+				? reader.ReadUInt16()
+				: (ushort)0;
+
+			tag.Name              = tag.HasName
+				? reader.ReadString()
+				: string.Empty;
+
+			tag.ClipDepth         = tag.HasClipDepth
+				? reader.ReadUInt16()
+				: (ushort)0;
+
+			tag.SurfaceFilters    = tag.HasFilterList
+				? SwfSurfaceFilters.Read(reader)
+				: SwfSurfaceFilters.identity;
+
+			tag.BlendMode         = tag.HasBlendMode
+				? SwfBlendMode.Read(reader)
+				: SwfBlendMode.identity;
+
+			tag.BitmapCache       = tag.HasCacheAsBitmap
+				? reader.ReadByte()
+				: (byte)0;
+
+			tag.Visible           = tag.HasVisible
+				? reader.ReadByte()
+				: (byte)1;
+
+			tag.BackgroundColor   = tag.HasVisible
+				? SwfColor.Read(reader, true)
+				: SwfColor.identity;
+
+			tag.ClipActions       = tag.HasClipActions
+				? SwfClipActions.Read(reader)
+				: SwfClipActions.identity;
+
 			return tag;
 		}
 	}

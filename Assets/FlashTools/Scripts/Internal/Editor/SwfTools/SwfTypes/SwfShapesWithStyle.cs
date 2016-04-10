@@ -24,8 +24,16 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 
 		public List<FillStyle> FillStyles;
 
+		public static SwfShapesWithStyle identity {
+			get {
+				return new SwfShapesWithStyle {
+					FillStyles = new List<FillStyle>()
+				};
+			}
+		}
+
 		public static SwfShapesWithStyle Read(SwfStreamReader reader, ShapeStyleType style_type) {
-			var shapes = new SwfShapesWithStyle();
+			var shapes = SwfShapesWithStyle.identity;
 			switch ( style_type ) {
 			case ShapeStyleType.Shape:
 				shapes.FillStyles = ReadFillStyles(reader, false, false);

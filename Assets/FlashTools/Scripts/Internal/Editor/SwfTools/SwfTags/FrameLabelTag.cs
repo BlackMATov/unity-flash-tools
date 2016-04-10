@@ -19,11 +19,9 @@
 		}
 
 		public static FrameLabelTag Create(SwfStreamReader reader) {
-			var tag = new FrameLabelTag();
-			tag.Name = reader.ReadString();
-			if ( !reader.IsEOF ) {
-				tag.AnchorFlag = reader.ReadByte();
-			}
+			var tag        = new FrameLabelTag();
+			tag.Name       = reader.ReadString();
+			tag.AnchorFlag = reader.IsEOF ? (byte)0 : reader.ReadByte();
 			return tag;
 		}
 	}

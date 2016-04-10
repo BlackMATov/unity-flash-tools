@@ -5,6 +5,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 		public ushort             ShapeId;
 		public SwfRect            ShapeBounds;
 		public SwfRect            EdgeBounds;
+		public byte               Flags;
 		public SwfShapesWithStyle Shapes;
 
 		public override SwfTagType TagType {
@@ -18,8 +19,8 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 		public override string ToString() {
 			return string.Format(
 				"DefineShape4Tag. " +
-				"ShapeId: {0}, ShapeBounds: {1}, EdgeBounds: {2}, Shapes: {3}",
-				ShapeId, ShapeBounds, EdgeBounds, Shapes);
+				"ShapeId: {0}, ShapeBounds: {1}, EdgeBounds: {2}, Flags: {3}, Shapes: {4}",
+				ShapeId, ShapeBounds, EdgeBounds, Flags, Shapes);
 		}
 
 		public static DefineShape4Tag Create(SwfStreamReader reader) {
@@ -27,7 +28,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			tag.ShapeId     = reader.ReadUInt16();
 			tag.ShapeBounds = SwfRect.Read(reader);
 			tag.EdgeBounds  = SwfRect.Read(reader);
-			reader.ReadByte(); // Flags
+			tag.Flags       = reader.ReadByte();
 			tag.Shapes      = SwfShapesWithStyle.Read(reader, SwfShapesWithStyle.ShapeStyleType.Shape4);
 			return tag;
 		}

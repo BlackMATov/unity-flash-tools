@@ -13,8 +13,24 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		public short AAdd;
 		public bool  HasAdd;
 
+		public static SwfColorTransform identity {
+			get {
+				return new SwfColorTransform {
+					RMul   = byte.MaxValue,
+					GMul   = byte.MaxValue,
+					BMul   = byte.MaxValue,
+					AMul   = byte.MaxValue,
+					HasMul = false,
+					RAdd   = 0,
+					GAdd   = 0,
+					BAdd   = 0,
+					AAdd   = 0,
+					HasAdd = false};
+			}
+		}
+
 		public static SwfColorTransform Read(SwfStreamReader reader, bool with_alpha) {
-			var transform    = SwfColorTransform.Identity;
+			var transform    = SwfColorTransform.identity;
 			transform.HasAdd = reader.ReadBit();
 			transform.HasMul = reader.ReadBit();
 			var bits         = reader.ReadUnsignedBits(4);
@@ -60,22 +76,6 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 					AMul / 255.0f);
 			}
 			return trans;
-		}
-
-		public static SwfColorTransform Identity {
-			get {
-				return new SwfColorTransform {
-					RMul   = byte.MaxValue,
-					GMul   = byte.MaxValue,
-					BMul   = byte.MaxValue,
-					AMul   = byte.MaxValue,
-					HasMul = false,
-					RAdd   = 0,
-					GAdd   = 0,
-					BAdd   = 0,
-					AAdd   = 0,
-					HasAdd = false};
-			}
 		}
 	}
 }

@@ -23,15 +23,13 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 		}
 
 		public static PlaceObjectTag Create(SwfStreamReader reader) {
-			var tag         = new PlaceObjectTag();
-			tag.CharacterId = reader.ReadUInt16();
-			tag.Depth       = reader.ReadUInt16();
-			tag.Matrix      = SwfMatrix.Read(reader);
-			if ( reader.IsEOF ) {
-				tag.ColorTransform = SwfColorTransform.Identity;
-			} else {
-				tag.ColorTransform = SwfColorTransform.Read(reader, false);
-			}
+			var tag            = new PlaceObjectTag();
+			tag.CharacterId    = reader.ReadUInt16();
+			tag.Depth          = reader.ReadUInt16();
+			tag.Matrix         = SwfMatrix.Read(reader);
+			tag.ColorTransform = reader.IsEOF
+				? SwfColorTransform.identity
+				: SwfColorTransform.Read(reader, false);
 			return tag;
 		}
 	}

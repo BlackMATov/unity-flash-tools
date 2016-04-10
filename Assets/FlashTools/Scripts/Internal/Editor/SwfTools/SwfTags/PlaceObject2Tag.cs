@@ -51,7 +51,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 				sb.AppendFormat(", ClipDepth: {0}", ClipDepth);
 			}
 			if ( HasClipActions ) {
-				sb.AppendFormat(", ClipActions: {0}", HasClipActions);
+				sb.AppendFormat(", ClipActions: {0}", ClipActions);
 			}
 			return sb.ToString();
 		}
@@ -67,27 +67,35 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			tag.HasCharacter      = reader.ReadBit();
 			tag.Move              = reader.ReadBit();
 			tag.Depth             = reader.ReadUInt16();
-			if ( tag.HasCharacter ) {
-				tag.CharacterId = reader.ReadUInt16();
-			}
-			if ( tag.HasMatrix ) {
-				tag.Matrix = SwfMatrix.Read(reader);
-			}
-			if ( tag.HasColorTransform ) {
-				tag.ColorTransform = SwfColorTransform.Read(reader, true);
-			}
-			if ( tag.HasRatio ) {
-				tag.Ratio = reader.ReadUInt16();
-			}
-			if ( tag.HasName ) {
-				tag.Name = reader.ReadString();
-			}
-			if ( tag.HasClipDepth ) {
-				tag.ClipDepth = reader.ReadUInt16();
-			}
-			if ( tag.HasClipActions ) {
-				tag.ClipActions = SwfClipActions.Read(reader);
-			}
+
+			tag.CharacterId       = tag.HasCharacter
+				? reader.ReadUInt16()
+				: (ushort)0;
+
+			tag.Matrix            = tag.HasMatrix
+				? SwfMatrix.Read(reader)
+				: SwfMatrix.identity;
+
+			tag.ColorTransform    = tag.HasColorTransform
+				? SwfColorTransform.Read(reader, true)
+				: SwfColorTransform.identity;
+
+			tag.Ratio             = tag.HasRatio
+				? reader.ReadUInt16()
+				: (ushort)0;
+
+			tag.Name              = tag.HasName
+				? reader.ReadString()
+				: string.Empty;
+
+			tag.ClipDepth         = tag.HasClipDepth
+				? reader.ReadUInt16()
+				: (ushort)0;
+
+			tag.ClipActions       = tag.HasClipActions
+				? SwfClipActions.Read(reader)
+				: SwfClipActions.identity;
+
 			return tag;
 		}
 	}

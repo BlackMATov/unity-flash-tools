@@ -7,8 +7,18 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		public byte B;
 		public byte A;
 
+		public static SwfColor identity {
+			get {
+				return new SwfColor {
+					R = 1,
+					G = 1,
+					B = 1,
+					A = 1};
+			}
+		}
+
 		public static SwfColor Read(SwfStreamReader reader, bool with_alpha) {
-			var color = new SwfColor();
+			var color = SwfColor.identity;
 			color.R   = reader.ReadByte();
 			color.G   = reader.ReadByte();
 			color.B   = reader.ReadByte();

@@ -80,7 +80,7 @@ namespace FlashTools.Internal {
 						for ( var i = 0; i < shape_def.Bitmaps.Length; ++i ) {
 							var bitmap_id     = shape_def.Bitmaps[i];
 							var bitmap_matrix = i < shape_def.Matrices.Length
-								? shape_def.Matrices[i] : SwfMatrix.Identity;
+								? shape_def.Matrices[i] : SwfMatrix.identity;
 							var bitmap_def = ctx.Library.FindDefine<SwfLibraryBitmapDefine>(bitmap_id);
 							if ( bitmap_def != null ) {
 								frame.Insts.Add(new SwfAnimationInstData{
