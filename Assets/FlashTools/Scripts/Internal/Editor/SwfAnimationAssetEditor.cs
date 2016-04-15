@@ -15,8 +15,10 @@ namespace FlashTools.Internal {
 					AssetDatabase.GetAssetPath(asset.Atlas));
 				asset.Atlas = null;
 			}
+			var swf_asset_path = Path.ChangeExtension(
+				AssetDatabase.GetAssetPath(asset), "swf");
 			AssetDatabase.ImportAsset(
-				AssetDatabase.GetAssetPath(asset),
+				swf_asset_path,
 				ImportAssetOptions.ForceUncompressedImport);
 		}
 

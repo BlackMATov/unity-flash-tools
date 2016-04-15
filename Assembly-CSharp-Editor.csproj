@@ -56,7 +56,6 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfContext.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfContextExecuter.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfDecoder.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfDisplayList.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfStreamReader.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineBitsLossless2Tag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineBitsLosslessTag.cs" />

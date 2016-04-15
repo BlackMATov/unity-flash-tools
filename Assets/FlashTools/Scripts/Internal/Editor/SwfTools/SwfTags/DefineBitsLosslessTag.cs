@@ -1,4 +1,6 @@
-﻿namespace FlashTools.Internal.SwfTools.SwfTags {
+﻿using UnityEngine;
+
+namespace FlashTools.Internal.SwfTools.SwfTags {
 	public class DefineBitsLosslessTag : SwfTagBase {
 		public ushort CharacterId;
 		public byte   BitmapFormat;
@@ -33,6 +35,26 @@
 			}
 			tag.ZlibBitmapData = reader.ReadRest();
 			return tag;
+		}
+
+		public byte[] ToARGB32() {
+			var result = new byte[BitmapWidth * BitmapHeight * 4];
+			var swf_reader = new SwfStreamReader(
+				SwfStreamReader.DecompressZBytes(ZlibBitmapData));
+			if ( BitmapFormat == 5 ) {
+				for ( var i = 0; i < BitmapWidth * BitmapHeight; ++i ) {
+					var pix24 = swf_reader.ReadUInt32();
+					result[i * 4 + 0] = 255;
+					result[i * 4 + 1] = (byte)((pix24 >>  8) & 0xFF);
+					result[i * 4 + 2] = (byte)((pix24 >> 16) & 0xFF);
+					result[i * 4 + 3] = (byte)((pix24 >> 24) & 0xFF);
+				}
+			} else {
+				//TODO: implme
+				throw new UnityException(string.Format(
+					"Unsupported DefineBitsLosslessTag Format: {0}", BitmapFormat));
+			}
+			return result;
 		}
 	}
 }

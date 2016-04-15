@@ -1,4 +1,6 @@
-﻿namespace FlashTools.Internal.SwfTools.SwfTypes {
+﻿using UnityEngine;
+
+namespace FlashTools.Internal.SwfTools.SwfTypes {
 	public struct SwfRect {
 		public float XMin;
 		public float XMax;
@@ -21,6 +23,10 @@
 				"SwfRect. " +
 				"XMin: {0}, XMax: {1}, YMin: {2}, YMax: {3}",
 				XMin, XMax, YMin, YMax);
+		}
+
+		public Rect ToUnityRect() {
+			return Rect.MinMaxRect(XMin, YMin, XMax, YMax);
 		}
 	}
 }

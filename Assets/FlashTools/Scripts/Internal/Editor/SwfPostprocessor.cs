@@ -23,51 +23,61 @@ namespace FlashTools.Internal {
 		}
 
 		static void SwfAssetProcess(string swf_asset) {
-			var swf_animation_data = LoadDataFromSwfFile(swf_asset);
-			if ( swf_animation_data != null ) {
-				var new_asset_path = Path.ChangeExtension(swf_asset, ".asset");
-				var new_asset = AssetDatabase.LoadAssetAtPath<SwfAnimationAsset>(new_asset_path);
-				if ( !new_asset ) {
-					new_asset = ScriptableObject.CreateInstance<SwfAnimationAsset>();
-					AssetDatabase.CreateAsset(new_asset, new_asset_path);
-				}
-				new_asset.Data = swf_animation_data;
+			var new_asset_path = Path.ChangeExtension(swf_asset, ".asset");
+			var new_asset = AssetDatabase.LoadAssetAtPath<SwfAnimationAsset>(new_asset_path);
+			if ( !new_asset ) {
+				new_asset = ScriptableObject.CreateInstance<SwfAnimationAsset>();
+				AssetDatabase.CreateAsset(new_asset, new_asset_path);
+			}
+			if ( LoadDataFromSwfFile(swf_asset, new_asset) ) {
 				EditorUtility.SetDirty(new_asset);
 				AssetDatabase.SaveAssets();
+			} else {
+				AssetDatabase.DeleteAsset(new_asset_path);
 			}
 		}
 
-		static SwfAnimationData LoadDataFromSwfFile(string swf_asset) {
+		static bool LoadDataFromSwfFile(string swf_asset, SwfAnimationAsset asset) {
 			try {
-				var decoder = new SwfDecoder(swf_asset);
-				return new SwfAnimationData{
-					FrameRate  = decoder.UncompressedHeader.FrameRate,
-					Frames     = LoadFramesFromSwfDecoder(decoder)};
+				asset.Data = LoadAnimationDataFromSwfDecoder(
+					swf_asset,
+					asset,
+					new SwfDecoder(swf_asset));
+				return true;
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat("Parsing swf error: {0}", e.Message);
-				return null;
+				return false;
 			}
 		}
 
-		static List<SwfAnimationFrameData> LoadFramesFromSwfDecoder(SwfDecoder decoder) {
-			var frames   = new List<SwfAnimationFrameData>();
+		static SwfAnimationData LoadAnimationDataFromSwfDecoder(
+			string swf_asset, SwfAnimationAsset asset, SwfDecoder decoder)
+		{
+			var animation_data = new SwfAnimationData{
+				FrameRate = decoder.UncompressedHeader.FrameRate
+			};
 			var context  = new SwfContext();
 			var executer = new SwfContextExecuter(context, 0);
 			while ( executer.NextFrame(decoder.Tags, context.DisplayList) ) {
-				var frame = new SwfAnimationFrameData();
-				frame.Name = context.DisplayList.FrameName;
-				AddDisplayListToFrame(
-					context,
-					context.DisplayList,
-					Matrix4x4.identity,
-					SwfAnimationColorTransform.identity,
-					frame);
-				frames.Add(frame);
+				animation_data.Frames.Add(
+					LoadAnimationFrameFromContext(context));
 			}
-			return frames;
+			animation_data.Bitmaps = LoadBitmapsFromContext(swf_asset, asset, context);
+			return animation_data;
 		}
 
-		static void AddDisplayListToFrame(
+		static SwfAnimationFrameData LoadAnimationFrameFromContext(SwfContext context) {
+			var frame = new SwfAnimationFrameData();
+			frame.Name = context.DisplayList.FrameName;
+			return AddDisplayListToFrame(
+				context,
+				context.DisplayList,
+				Matrix4x4.identity,
+				SwfAnimationColorTransform.identity,
+				frame);
+		}
+
+		static SwfAnimationFrameData AddDisplayListToFrame(
 			SwfContext ctx, SwfDisplayList dl,
 			Matrix4x4 parent_matrix, SwfAnimationColorTransform parent_color_transform,
 			SwfAnimationFrameData frame)
@@ -108,31 +118,54 @@ namespace FlashTools.Internal {
 						"Unsupported SwfDisplayInstType: {0}", inst.Type));
 				}
 			}
+			return frame;
 		}
 
-		/*
-		static void SwfBitmapsToAtlas(string swf_asset, List<SwfTagBase> tags) {
-			var defines = tags
-				.Where(p => p.TagType == SwfTagType.DefineBitsLossless2)
-				.Select(p => p as DefineBitsLossless2Tag)
-				.Where(p => p.BitmapFormat == 5);
-			var textures = new List<Texture2D>();
-			foreach ( var define in defines ) {
-				var data = Decompress(define.ZlibBitmapData);
-				var texture = new Texture2D(
-					define.BitmapWidth, define.BitmapHeight,
-					TextureFormat.ARGB32, false);
-				texture.LoadRawTextureData(data);
-				textures.Add(texture);
-			}
-			var atlas       = new Texture2D(0, 0);
-			var atlas_path  = Path.ChangeExtension(swf_asset, ".png");
-			atlas.PackTextures(textures.ToArray(), 1, 1024);
-			File.WriteAllBytes(atlas_path, atlas.EncodeToPNG());
+		static List<SwfAnimationBitmapData> LoadBitmapsFromContext(
+			string swf_asset, SwfAnimationAsset asset, SwfContext context)
+		{
+			var bitmap_defines = context.Library.Defines
+				.Where  (p => p.Value.Type == SwfLibraryDefineType.Bitmap)
+				.Select (p => new KeyValuePair<int, SwfLibraryBitmapDefine>(p.Key, p.Value as SwfLibraryBitmapDefine))
+				.ToArray();
+
+			var textures = bitmap_defines
+				.Select(p => LoadTextureFromBitmapDefine(p.Value));
+
+			var atlas = new Texture2D(0, 0);
+			var atlas_rects = atlas.PackTextures(
+				textures.ToArray(), asset.AtlasPadding, asset.MaxAtlasSize);
+			File.WriteAllBytes(
+				GetAtlasPath(swf_asset),
+				atlas.EncodeToPNG());
 			GameObject.DestroyImmediate(atlas, true);
 			AssetDatabase.ImportAsset(
-				atlas_path,
+				GetAtlasPath(swf_asset),
 				ImportAssetOptions.ForceUncompressedImport);
-		}*/
+
+			var bitmaps = new List<SwfAnimationBitmapData>();
+			for ( var i = 0; i < bitmap_defines.Length; ++i ) {
+				var bitmap_define = bitmap_defines[i];
+				var bitmap_data = new SwfAnimationBitmapData{
+					Id         = bitmap_define.Key,
+					RealSize   = new Vector2(bitmap_define.Value.Width, bitmap_define.Value.Height),
+					SourceRect = atlas_rects[i]
+				};
+				bitmaps.Add(bitmap_data);
+			}
+			return bitmaps;
+		}
+
+		static Texture2D LoadTextureFromBitmapDefine(SwfLibraryBitmapDefine bitmap) {
+			var texture = new Texture2D(
+				bitmap.Width, bitmap.Height,
+				TextureFormat.ARGB32, false);
+			texture.LoadRawTextureData(bitmap.ARGB32);
+			return texture;
+		}
+
+		static string GetAtlasPath(string swf_asset) {
+			return Path.ChangeExtension(swf_asset, ".png");
+		}
 	}
 }

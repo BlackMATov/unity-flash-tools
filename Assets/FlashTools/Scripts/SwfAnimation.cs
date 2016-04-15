@@ -6,7 +6,7 @@ namespace FlashTools {
 	public class SwfAnimation : MonoBehaviour {
 		public SwfAnimationAsset Asset = null;
 
-		int _current_frame  = 0;
+		int _current_frame = 0;
 
 		public int frameCount {
 			get { return Asset ? Asset.Data.Frames.Count : 0; }

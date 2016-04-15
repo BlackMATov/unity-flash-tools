@@ -28,6 +28,23 @@ namespace FlashTools.Internal.SwfTools {
 
 		public SwfDisplayList Visit(PlaceObjectTag tag, SwfDisplayList dl) {
 			Debug.Log(tag);
+			var is_shape  =
+				MainContex.Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId);
+			var is_sprite =
+				MainContex.Library.HasDefine<SwfLibrarySpriteDefine>(tag.CharacterId);
+			SwfDisplayInst new_inst = null;
+			if ( is_shape ) {
+				new_inst = new SwfDisplayShapeInst();
+			} else if ( is_sprite ) {
+				new_inst = new SwfDisplaySpriteInst();
+			}
+			if ( new_inst != null ) {
+				new_inst.Id             = tag.CharacterId;
+				new_inst.Depth          = tag.Depth;
+				new_inst.Matrix         = tag.Matrix;
+				new_inst.ColorTransform = tag.ColorTransform;
+				dl.Insts.Add(new_inst.Depth, new_inst);
+			}
 			return dl;
 		}
 
@@ -39,7 +56,11 @@ namespace FlashTools.Internal.SwfTools {
 			var is_sprite = tag.HasCharacter
 				? MainContex.Library.HasDefine<SwfLibrarySpriteDefine>(tag.CharacterId)
 				: false;
-			if ( !tag.Move && tag.HasCharacter ) { // new character
+			if ( tag.HasCharacter ) {
+				if ( tag.Move ) { // replace character
+					dl.Insts.Remove(tag.Depth);
+				}
+				// new character
 				SwfDisplayInst new_inst = null;
 				if ( is_shape ) {
 					new_inst = new SwfDisplayShapeInst();
@@ -53,8 +74,16 @@ namespace FlashTools.Internal.SwfTools {
 					new_inst.ColorTransform = tag.HasColorTransform ? tag.ColorTransform : SwfColorTransform.identity;
 					dl.Insts.Add(new_inst.Depth, new_inst);
 				}
-			} else if ( tag.Move && !tag.HasCharacter ) { // move character
-			} else if ( tag.Move &&  tag.HasCharacter ) { // replace character
+			} else if ( tag.Move ) { // move character
+				SwfDisplayInst inst;
+				if ( dl.Insts.TryGetValue(tag.Depth, out inst) ) {
+					if ( tag.HasMatrix ) {
+						inst.Matrix = tag.Matrix;
+					}
+					if ( tag.HasColorTransform ) {
+						inst.ColorTransform = tag.ColorTransform;
+					}
+				}
 			}
 			return dl;
 		}
@@ -139,13 +168,21 @@ namespace FlashTools.Internal.SwfTools {
 
 		public SwfDisplayList Visit(DefineBitsLosslessTag tag, SwfDisplayList dl) {
 			Debug.LogWarning(tag);
-			AddZlibBitmapToLibrary(tag.CharacterId);
+			AddBitmapToLibrary(
+				tag.CharacterId,
+				tag.BitmapWidth,
+				tag.BitmapHeight,
+				tag.ToARGB32());
 			return dl;
 		}
 
 		public SwfDisplayList Visit(DefineBitsLossless2Tag tag, SwfDisplayList dl) {
 			Debug.LogWarning(tag);
-			AddZlibBitmapToLibrary(tag.CharacterId);
+			AddBitmapToLibrary(
+				tag.CharacterId,
+				tag.BitmapWidth,
+				tag.BitmapHeight,
+				tag.ToARGB32());
 			return dl;
 		}
 
@@ -181,9 +218,12 @@ namespace FlashTools.Internal.SwfTools {
 			MainContex.Library.Defines.Add(define_id, define);
 		}
 
-		void AddZlibBitmapToLibrary(ushort define_id) {
-			//TODO: IMPLME
-			var define = new SwfLibraryBitmapDefine{};
+		void AddBitmapToLibrary(ushort define_id, int width, int height, byte[] argb32) {
+			var define = new SwfLibraryBitmapDefine{
+				Width  = width,
+				Height = height,
+				ARGB32 = argb32
+			};
 			MainContex.Library.Defines.Add(define_id, define);
 		}
 	}

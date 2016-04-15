@@ -38,37 +38,37 @@ namespace FlashTools {
 
 	[System.Serializable]
 	public class SwfAnimationInstData {
-		public ushort                     Bitmap         = 0;
-		public Matrix4x4                  Matrix         = Matrix4x4.identity;
-		public SwfAnimationColorTransform ColorTransform = SwfAnimationColorTransform.identity;
+		public ushort                       Bitmap         = 0;
+		public Matrix4x4                    Matrix         = Matrix4x4.identity;
+		public SwfAnimationColorTransform   ColorTransform = SwfAnimationColorTransform.identity;
 	}
 
 	[System.Serializable]
 	public class SwfAnimationFrameData {
-		public string                     Name  = string.Empty;
-		public List<SwfAnimationInstData> Insts = new List<SwfAnimationInstData>();
+		public string                       Name           = string.Empty;
+		public List<SwfAnimationInstData>   Insts          = new List<SwfAnimationInstData>();
 	}
 
 	[System.Serializable]
 	public class SwfAnimationBitmapData {
-		public int     Id         = 0;
-		public Vector2 RealSize   = Vector2.zero;
-		public Rect    SourceRect = new Rect();
+		public int                          Id             = 0;
+		public Vector2                      RealSize       = Vector2.zero;
+		public Rect                         SourceRect     = new Rect();
 	}
 
 	[System.Serializable]
 	public class SwfAnimationData {
-		public float                        FrameRate = 0.0f;
-		public List<SwfAnimationFrameData>  Frames    = new List<SwfAnimationFrameData>();
-		public List<SwfAnimationBitmapData> Bitmaps   = new List<SwfAnimationBitmapData>();
+		public float                        FrameRate      = 0.0f;
+		public List<SwfAnimationFrameData>  Frames         = new List<SwfAnimationFrameData>();
+		public List<SwfAnimationBitmapData> Bitmaps        = new List<SwfAnimationBitmapData>();
 	}
 
 	public class SwfAnimationAsset : ScriptableObject {
 		//[HideInInspector]
-		public SwfAnimationData Data          = new SwfAnimationData();
-		public Texture2D        Atlas         = null;
-		public int              MaxAtlasSize  = 1024;
-		public int              AtlasPadding  = 1;
-		public int              PixelsPerUnit = 100;
+		public SwfAnimationData             Data           = new SwfAnimationData();
+		public Texture2D                    Atlas          = null;
+		public int                          MaxAtlasSize   = 1024;
+		public int                          AtlasPadding   = 1;
+		public int                          PixelsPerUnit  = 100;
 	}
 }

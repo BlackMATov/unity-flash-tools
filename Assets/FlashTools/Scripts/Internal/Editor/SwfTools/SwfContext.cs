@@ -3,6 +3,8 @@ using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools {
 
+	using LibraryDefines = SortedDictionary<ushort, SwfLibraryDefine>;
+
 	//
 	// SwfDisplayList
 	//
@@ -64,6 +66,9 @@ namespace FlashTools.Internal.SwfTools {
 	}
 
 	public class SwfLibraryBitmapDefine : SwfLibraryDefine {
+		public int    Width  = 0;
+		public int    Height = 0;
+		public byte[] ARGB32 = new byte[0];
 		public override SwfLibraryDefineType Type {
 			get { return SwfLibraryDefineType.Bitmap; }
 		}
@@ -77,15 +82,10 @@ namespace FlashTools.Internal.SwfTools {
 	}
 
 	public class SwfLibrary {
-		public SortedDictionary<ushort, SwfLibraryDefine> Defines =
-			new SortedDictionary<ushort, SwfLibraryDefine>();
+		public LibraryDefines Defines = new LibraryDefines();
 
 		public bool HasDefine<T>(ushort define_id) where T : SwfLibraryDefine {
-			SwfLibraryDefine def;
-			if ( Defines.TryGetValue(define_id, out def) ) {
-				return (def as T) != null;
-			}
-			return false;
+			return FindDefine<SwfLibraryDefine>(define_id) != null;
 		}
 
 		public T FindDefine<T>(ushort define_id) where T : SwfLibraryDefine {
