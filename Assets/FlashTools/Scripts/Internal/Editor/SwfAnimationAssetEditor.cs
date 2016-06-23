@@ -22,6 +22,24 @@ namespace FlashTools.Internal {
 				ImportAssetOptions.ForceUncompressedImport);
 		}
 
+		void CreateAnimationPrefab() {
+		}
+
+		void CreateAnimationOnScene() {
+			if ( _asset ) {
+				var anim_go = new GameObject("SwfAnimation");
+				var mesh_renderer = anim_go.AddComponent<MeshRenderer>();
+				mesh_renderer.sharedMaterial = null;
+				mesh_renderer.useLightProbes = false;
+				mesh_renderer.receiveShadows = false;
+				mesh_renderer.shadowCastingMode = ShadowCastingMode.Off;
+				mesh_renderer.reflectionProbeUsage = ReflectionProbeUsage.Off;
+				anim_go.AddComponent<MeshFilter>().sharedMesh = null;
+				anim_go.AddComponent<SwfAnimation>().Asset = _asset;
+				Undo.RegisterCreatedObjectUndo(anim_go, "Create SwfAnimation");
+			}
+		}
+
 		// ------------------------------------------------------------------------
 		//
 		// Messages
@@ -39,8 +57,10 @@ namespace FlashTools.Internal {
 			}
 			GUILayout.BeginHorizontal();
 			if ( GUILayout.Button("Create animation prefab") ) {
+				CreateAnimationPrefab();
 			}
 			if ( GUILayout.Button("Create animation on scene") ) {
+				CreateAnimationOnScene();
 			}
 			GUILayout.EndHorizontal();
 		}

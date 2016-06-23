@@ -82,7 +82,7 @@ namespace FlashTools.Internal {
 			Matrix4x4 parent_matrix, SwfAnimationColorTransform parent_color_transform,
 			SwfAnimationFrameData frame)
 		{
-			foreach ( var inst in dl.Insts.Values ) {
+			foreach ( var inst in dl.Instances.Values ) {
 				switch ( inst.Type ) {
 				case SwfDisplayInstType.Shape:
 					var shape_def = ctx.Library.FindDefine<SwfLibraryShapeDefine>(inst.Id);
@@ -93,7 +93,7 @@ namespace FlashTools.Internal {
 								? shape_def.Matrices[i] : SwfMatrix.identity;
 							var bitmap_def = ctx.Library.FindDefine<SwfLibraryBitmapDefine>(bitmap_id);
 							if ( bitmap_def != null ) {
-								frame.Insts.Add(new SwfAnimationInstData{
+								frame.Instances.Add(new SwfAnimationInstanceData{
 									Bitmap         = bitmap_id,
 									Matrix         = parent_matrix * inst.Matrix.ToUnityMatrix() * bitmap_matrix.ToUnityMatrix(),
 									ColorTransform = parent_color_transform * inst.ColorTransform.ToAnimationColorTransform()});

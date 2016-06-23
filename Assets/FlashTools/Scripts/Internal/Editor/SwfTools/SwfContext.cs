@@ -3,45 +3,8 @@ using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools {
 
-	using LibraryDefines = SortedDictionary<ushort, SwfLibraryDefine>;
-
-	//
-	// SwfDisplayList
-	//
-
-	public enum SwfDisplayInstType {
-		Shape,
-		Sprite
-	}
-
-	public abstract class SwfDisplayInst {
-		public abstract SwfDisplayInstType Type { get; }
-
-		public ushort            Id;
-		public ushort            Depth;
-		public SwfMatrix         Matrix;
-		public SwfColorTransform ColorTransform;
-	}
-
-	public class SwfDisplayShapeInst : SwfDisplayInst {
-		public override SwfDisplayInstType Type {
-			get { return SwfDisplayInstType.Shape; }
-		}
-	}
-
-	public class SwfDisplaySpriteInst : SwfDisplayInst {
-		public int            CurrentTag  = 0;
-		public SwfDisplayList DisplayList = new SwfDisplayList();
-		public override SwfDisplayInstType Type {
-			get { return SwfDisplayInstType.Sprite; }
-		}
-	}
-
-	public class SwfDisplayList {
-		public string FrameName = string.Empty;
-		public SortedDictionary<ushort, SwfDisplayInst> Insts =
-			new SortedDictionary<ushort, SwfDisplayInst>();
-	}
+	using LibraryDefines   = SortedDictionary<ushort, SwfLibraryDefine>;
+	using DisplayInstances = SortedDictionary<ushort, SwfDisplayInstance>;
 
 	//
 	// SwfLibrary
@@ -85,7 +48,7 @@ namespace FlashTools.Internal.SwfTools {
 		public LibraryDefines Defines = new LibraryDefines();
 
 		public bool HasDefine<T>(ushort define_id) where T : SwfLibraryDefine {
-			return FindDefine<SwfLibraryDefine>(define_id) != null;
+			return FindDefine<T>(define_id) != null;
 		}
 
 		public T FindDefine<T>(ushort define_id) where T : SwfLibraryDefine {
@@ -95,6 +58,43 @@ namespace FlashTools.Internal.SwfTools {
 			}
 			return null;
 		}
+	}
+
+	//
+	// SwfDisplayList
+	//
+
+	public enum SwfDisplayInstType {
+		Shape,
+		Sprite
+	}
+
+	public abstract class SwfDisplayInstance {
+		public abstract SwfDisplayInstType Type { get; }
+
+		public ushort            Id;
+		public ushort            Depth;
+		public SwfMatrix         Matrix;
+		public SwfColorTransform ColorTransform;
+	}
+
+	public class SwfDisplayShapeInst : SwfDisplayInstance {
+		public override SwfDisplayInstType Type {
+			get { return SwfDisplayInstType.Shape; }
+		}
+	}
+
+	public class SwfDisplaySpriteInst : SwfDisplayInstance {
+		public int            CurrentTag  = 0;
+		public SwfDisplayList DisplayList = new SwfDisplayList();
+		public override SwfDisplayInstType Type {
+			get { return SwfDisplayInstType.Sprite; }
+		}
+	}
+
+	public class SwfDisplayList {
+		public string           FrameName = string.Empty;
+		public DisplayInstances Instances = new DisplayInstances();
 	}
 
 	//

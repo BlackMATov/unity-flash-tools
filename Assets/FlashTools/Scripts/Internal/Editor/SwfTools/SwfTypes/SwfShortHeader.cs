@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using System.IO;
-using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools.SwfTypes {
 	public struct SwfShortHeader {

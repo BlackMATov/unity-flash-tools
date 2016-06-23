@@ -2,16 +2,15 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench>
     <Files>
-      <File FileName="Assets/FlashTools/Scripts/FlashAnim.cs" Line="1" Column="1" />
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimAssetPostprocessor.cs" Line="1" Column="1" />
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/FlashAnimFtaPostprocessor.cs" Line="1" Column="1" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/SwfTools/SwfContextExecuter.cs" Line="1" Column="1" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/SwfPostprocessor.cs" Line="1" Column="1" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/SwfTools/SwfTypes/SwfMatrix.cs" Line="1" Column="1" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/SwfTools/SwfContext.cs" Line="1" Column="1" />
+      <File FileName="Assets/FlashTools/Scripts/FlashAnim.cs" Line="1" Column="1" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Scripts/FlashAnim.cs" line="86" column="1" />
-      <Breakpoint file="/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Scripts/FlashAnim.cs" line="82" column="33" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

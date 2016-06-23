@@ -32,7 +32,7 @@ namespace FlashTools.Internal.SwfTools {
 				MainContex.Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId);
 			var is_sprite =
 				MainContex.Library.HasDefine<SwfLibrarySpriteDefine>(tag.CharacterId);
-			SwfDisplayInst new_inst = null;
+			SwfDisplayInstance new_inst = null;
 			if ( is_shape ) {
 				new_inst = new SwfDisplayShapeInst();
 			} else if ( is_sprite ) {
@@ -43,7 +43,7 @@ namespace FlashTools.Internal.SwfTools {
 				new_inst.Depth          = tag.Depth;
 				new_inst.Matrix         = tag.Matrix;
 				new_inst.ColorTransform = tag.ColorTransform;
-				dl.Insts.Add(new_inst.Depth, new_inst);
+				dl.Instances.Add(new_inst.Depth, new_inst);
 			}
 			return dl;
 		}
@@ -58,10 +58,10 @@ namespace FlashTools.Internal.SwfTools {
 				: false;
 			if ( tag.HasCharacter ) {
 				if ( tag.Move ) { // replace character
-					dl.Insts.Remove(tag.Depth);
+					dl.Instances.Remove(tag.Depth);
 				}
 				// new character
-				SwfDisplayInst new_inst = null;
+				SwfDisplayInstance new_inst = null;
 				if ( is_shape ) {
 					new_inst = new SwfDisplayShapeInst();
 				} else if ( is_sprite ) {
@@ -72,11 +72,11 @@ namespace FlashTools.Internal.SwfTools {
 					new_inst.Depth          = tag.Depth;
 					new_inst.Matrix         = tag.HasMatrix         ? tag.Matrix         : SwfMatrix.identity;
 					new_inst.ColorTransform = tag.HasColorTransform ? tag.ColorTransform : SwfColorTransform.identity;
-					dl.Insts.Add(new_inst.Depth, new_inst);
+					dl.Instances.Add(new_inst.Depth, new_inst);
 				}
 			} else if ( tag.Move ) { // move character
-				SwfDisplayInst inst;
-				if ( dl.Insts.TryGetValue(tag.Depth, out inst) ) {
+				SwfDisplayInstance inst;
+				if ( dl.Instances.TryGetValue(tag.Depth, out inst) ) {
 					if ( tag.HasMatrix ) {
 						inst.Matrix = tag.Matrix;
 					}
@@ -95,19 +95,19 @@ namespace FlashTools.Internal.SwfTools {
 
 		public SwfDisplayList Visit(RemoveObjectTag tag, SwfDisplayList dl) {
 			Debug.Log(tag);
-			dl.Insts.Remove(tag.Depth);
+			dl.Instances.Remove(tag.Depth);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(RemoveObject2Tag tag, SwfDisplayList dl) {
 			Debug.Log(tag);
-			dl.Insts.Remove(tag.Depth);
+			dl.Instances.Remove(tag.Depth);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(ShowFrameTag tag, SwfDisplayList dl) {
 			Debug.LogError(tag);
-			var sprites = dl.Insts.Values
+			var sprites = dl.Instances.Values
 				.Where (p => p.Type == SwfDisplayInstType.Sprite)
 				.Select(p => p as SwfDisplaySpriteInst);
 			foreach ( var sprite in sprites ) {
