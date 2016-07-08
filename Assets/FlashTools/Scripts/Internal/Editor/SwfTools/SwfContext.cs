@@ -64,13 +64,13 @@ namespace FlashTools.Internal.SwfTools {
 	// SwfDisplayList
 	//
 
-	public enum SwfDisplayInstType {
+	public enum SwfDisplayInstanceType {
 		Shape,
 		Sprite
 	}
 
 	public abstract class SwfDisplayInstance {
-		public abstract SwfDisplayInstType Type { get; }
+		public abstract SwfDisplayInstanceType Type { get; }
 
 		public ushort            Id;
 		public ushort            Depth;
@@ -78,17 +78,17 @@ namespace FlashTools.Internal.SwfTools {
 		public SwfColorTransform ColorTransform;
 	}
 
-	public class SwfDisplayShapeInst : SwfDisplayInstance {
-		public override SwfDisplayInstType Type {
-			get { return SwfDisplayInstType.Shape; }
+	public class SwfDisplayShapeInstance : SwfDisplayInstance {
+		public override SwfDisplayInstanceType Type {
+			get { return SwfDisplayInstanceType.Shape; }
 		}
 	}
 
-	public class SwfDisplaySpriteInst : SwfDisplayInstance {
+	public class SwfDisplaySpriteInstance : SwfDisplayInstance {
 		public int            CurrentTag  = 0;
 		public SwfDisplayList DisplayList = new SwfDisplayList();
-		public override SwfDisplayInstType Type {
-			get { return SwfDisplayInstType.Sprite; }
+		public override SwfDisplayInstanceType Type {
+			get { return SwfDisplayInstanceType.Sprite; }
 		}
 	}
 

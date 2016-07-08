@@ -34,9 +34,9 @@ namespace FlashTools.Internal.SwfTools {
 				MainContex.Library.HasDefine<SwfLibrarySpriteDefine>(tag.CharacterId);
 			SwfDisplayInstance new_inst = null;
 			if ( is_shape ) {
-				new_inst = new SwfDisplayShapeInst();
+				new_inst = new SwfDisplayShapeInstance();
 			} else if ( is_sprite ) {
-				new_inst = new SwfDisplaySpriteInst();
+				new_inst = new SwfDisplaySpriteInstance();
 			}
 			if ( new_inst != null ) {
 				new_inst.Id             = tag.CharacterId;
@@ -63,9 +63,9 @@ namespace FlashTools.Internal.SwfTools {
 				// new character
 				SwfDisplayInstance new_inst = null;
 				if ( is_shape ) {
-					new_inst = new SwfDisplayShapeInst();
+					new_inst = new SwfDisplayShapeInstance();
 				} else if ( is_sprite ) {
-					new_inst = new SwfDisplaySpriteInst();
+					new_inst = new SwfDisplaySpriteInstance();
 				}
 				if ( new_inst != null ) {
 					new_inst.Id             = tag.CharacterId;
@@ -108,8 +108,8 @@ namespace FlashTools.Internal.SwfTools {
 		public SwfDisplayList Visit(ShowFrameTag tag, SwfDisplayList dl) {
 			Debug.LogError(tag);
 			var sprites = dl.Instances.Values
-				.Where (p => p.Type == SwfDisplayInstType.Sprite)
-				.Select(p => p as SwfDisplaySpriteInst);
+				.Where (p => p.Type == SwfDisplayInstanceType.Sprite)
+				.Select(p => p as SwfDisplaySpriteInstance);
 			foreach ( var sprite in sprites ) {
 				var sprite_def = MainContex.Library.FindDefine<SwfLibrarySpriteDefine>(sprite.Id);
 				if ( sprite_def != null ) {

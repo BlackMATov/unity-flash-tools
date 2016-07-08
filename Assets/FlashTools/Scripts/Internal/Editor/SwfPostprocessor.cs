@@ -84,7 +84,7 @@ namespace FlashTools.Internal {
 		{
 			foreach ( var inst in dl.Instances.Values ) {
 				switch ( inst.Type ) {
-				case SwfDisplayInstType.Shape:
+				case SwfDisplayInstanceType.Shape:
 					var shape_def = ctx.Library.FindDefine<SwfLibraryShapeDefine>(inst.Id);
 					if ( shape_def != null ) {
 						for ( var i = 0; i < shape_def.Bitmaps.Length; ++i ) {
@@ -101,10 +101,10 @@ namespace FlashTools.Internal {
 						}
 					}
 					break;
-				case SwfDisplayInstType.Sprite:
+				case SwfDisplayInstanceType.Sprite:
 					var sprite_def = ctx.Library.FindDefine<SwfLibrarySpriteDefine>(inst.Id);
 					if ( sprite_def != null ) {
-						var sprite_inst = inst as SwfDisplaySpriteInst;
+						var sprite_inst = inst as SwfDisplaySpriteInstance;
 						AddDisplayListToFrame(
 							ctx,
 							sprite_inst.DisplayList,
