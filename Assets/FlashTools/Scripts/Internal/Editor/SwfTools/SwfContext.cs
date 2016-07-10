@@ -23,6 +23,7 @@ namespace FlashTools.Internal.SwfTools {
 	public class SwfLibraryShapeDefine : SwfLibraryDefine {
 		public ushort[]    Bitmaps  = new ushort[0];
 		public SwfMatrix[] Matrices = new SwfMatrix[0];
+
 		public override SwfLibraryDefineType Type {
 			get { return SwfLibraryDefineType.Shape; }
 		}
@@ -32,6 +33,7 @@ namespace FlashTools.Internal.SwfTools {
 		public int    Width  = 0;
 		public int    Height = 0;
 		public byte[] ARGB32 = new byte[0];
+
 		public override SwfLibraryDefineType Type {
 			get { return SwfLibraryDefineType.Bitmap; }
 		}
@@ -39,6 +41,7 @@ namespace FlashTools.Internal.SwfTools {
 
 	public class SwfLibrarySpriteDefine : SwfLibraryDefine {
 		public SwfControlTags ControlTags = SwfControlTags.identity;
+
 		public override SwfLibraryDefineType Type {
 			get { return SwfLibraryDefineType.Sprite; }
 		}
@@ -87,8 +90,14 @@ namespace FlashTools.Internal.SwfTools {
 	public class SwfDisplaySpriteInstance : SwfDisplayInstance {
 		public int            CurrentTag  = 0;
 		public SwfDisplayList DisplayList = new SwfDisplayList();
+
 		public override SwfDisplayInstanceType Type {
 			get { return SwfDisplayInstanceType.Sprite; }
+		}
+
+		public void ResetTag() {
+			CurrentTag  = 0;
+			DisplayList = new SwfDisplayList();
 		}
 	}
 

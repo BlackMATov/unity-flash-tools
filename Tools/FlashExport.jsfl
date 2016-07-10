@@ -204,10 +204,11 @@
 	(function () {
 		ft.clear_output();
 		ft.array_foreach(fl.documents, function (document) {
-			//ft.trace_fmt("Doc: {0}", document.name);
+			ft.trace_fmt("Doc: {0}", document.name);
 			ftd.prepare_folders(document);
 			ftd.prepare_bitmaps(document);
 			ftd.export_swf(document);
+			fl.revertDocument(document);
 		});
 	})();
 })();
