@@ -73,7 +73,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 				: (ushort)0;
 
 			tag.Matrix            = tag.HasMatrix
-				? SwfMatrix.Read(reader)
+				? SwfMatrix.Read(reader, false)
 				: SwfMatrix.identity;
 
 			tag.ColorTransform    = tag.HasColorTransform

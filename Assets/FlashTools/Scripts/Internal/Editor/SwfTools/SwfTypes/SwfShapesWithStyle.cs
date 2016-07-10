@@ -99,7 +99,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				SwfColor.Read(reader, with_alpha);
 			}
 			if ( fill_style.Type.IsGradientType ) {
-				SwfMatrix.Read(reader); // GradientMatrix
+				SwfMatrix.Read(reader, true); // GradientMatrix
 				switch ( fill_style.Type.Value ) {
 				case SwfFillStyleType.Type.LinearGradient:
 				case SwfFillStyleType.Type.RadialGradient:
@@ -112,7 +112,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			}
 			if ( fill_style.Type.IsBitmapType ) {
 				fill_style.BitmapId     = reader.ReadUInt16();
-				fill_style.BitmapMatrix = SwfMatrix.Read(reader);
+				fill_style.BitmapMatrix = SwfMatrix.Read(reader, true);
 			}
 			return fill_style;
 		}

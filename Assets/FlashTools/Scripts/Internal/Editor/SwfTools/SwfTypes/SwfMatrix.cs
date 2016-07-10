@@ -21,13 +21,13 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			}
 		}
 
-		public static SwfMatrix Read(SwfStreamReader reader) {
+		public static SwfMatrix Read(SwfStreamReader reader, bool fill_style) {
 			var matrix = SwfMatrix.identity;
 			var has_scale = reader.ReadBit();
 			if ( has_scale ) {
 				var bits      = (byte)reader.ReadUnsignedBits(5);
-				matrix.ScaleX = reader.ReadFixedPoint16(bits) / 20.0f;
-				matrix.ScaleY = reader.ReadFixedPoint16(bits) / 20.0f;
+				matrix.ScaleX = reader.ReadFixedPoint16(bits) * (fill_style ? 1.0f / 20.0f : 1.0f);
+				matrix.ScaleY = reader.ReadFixedPoint16(bits) * (fill_style ? 1.0f / 20.0f : 1.0f);
 			} else {
 				matrix.ScaleX =
 				matrix.ScaleY = 1.0f;
@@ -35,8 +35,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			var has_rotate = reader.ReadBit();
 			if ( has_rotate ) {
 				var bits           = (byte)reader.ReadUnsignedBits(5);
-				matrix.RotateSkew0 = reader.ReadFixedPoint16(bits) / 20.0f;
-				matrix.RotateSkew1 = reader.ReadFixedPoint16(bits) / 20.0f;
+				matrix.RotateSkew0 = reader.ReadFixedPoint16(bits);
+				matrix.RotateSkew1 = reader.ReadFixedPoint16(bits);
 			} else {
 				matrix.RotateSkew0 =
 				matrix.RotateSkew1 = 0.0f;
