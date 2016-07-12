@@ -77,6 +77,7 @@ namespace FlashTools.Internal.SwfTools {
 
 		public ushort            Id;
 		public ushort            Depth;
+		public bool              Visible;
 		public SwfMatrix         Matrix;
 		public SwfColorTransform ColorTransform;
 	}

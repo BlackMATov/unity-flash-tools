@@ -28,8 +28,8 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 		public ushort            ClipDepth;
 		public SwfSurfaceFilters SurfaceFilters;
 		public SwfBlendMode      BlendMode;
-		public byte              BitmapCache;
-		public byte              Visible;
+		public bool              BitmapCache;
+		public bool              Visible;
 		public SwfColor          BackgroundColor;
 		public SwfClipActions    ClipActions;
 
@@ -126,12 +126,12 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 				: SwfBlendMode.identity;
 
 			tag.BitmapCache       = tag.HasCacheAsBitmap
-				? reader.ReadByte()
-				: (byte)0;
+				? (0 != reader.ReadByte())
+				: false;
 
 			tag.Visible           = tag.HasVisible
-				? reader.ReadByte()
-				: (byte)1;
+				? (0 != reader.ReadByte())
+				: true;
 
 			tag.BackgroundColor   = tag.HasVisible && !reader.IsEOF
 				? SwfColor.Read(reader, true)
