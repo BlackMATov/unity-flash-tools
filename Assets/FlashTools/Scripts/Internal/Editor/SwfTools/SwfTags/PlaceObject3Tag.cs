@@ -89,7 +89,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			tag.HasFilterList     = reader.ReadBit();
 			tag.Depth             = reader.ReadUInt16();
 
-			tag.ClassName         = (tag.HasCharacter || (tag.HasImage && tag.HasCharacter))
+			tag.ClassName         = (tag.HasClassName || (tag.HasImage && tag.HasCharacter))
 				? reader.ReadString()
 				: string.Empty;
 
@@ -133,11 +133,11 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 				? reader.ReadByte()
 				: (byte)1;
 
-			tag.BackgroundColor   = tag.HasVisible
+			tag.BackgroundColor   = tag.HasVisible && !reader.IsEOF
 				? SwfColor.Read(reader, true)
 				: SwfColor.identity;
 
-			tag.ClipActions       = tag.HasClipActions
+			tag.ClipActions       = tag.HasClipActions && !reader.IsEOF
 				? SwfClipActions.Read(reader)
 				: SwfClipActions.identity;
 

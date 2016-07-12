@@ -121,10 +121,10 @@ namespace FlashTools {
 						_triangles.Add(_vertices.Count - 4 + 2);
 
 						var source_rect = bitmap.SourceRect;
-						_uvs.Add(new Vector2(source_rect.xMin, source_rect.yMax));
-						_uvs.Add(new Vector2(source_rect.xMax, source_rect.yMax));
-						_uvs.Add(new Vector2(source_rect.xMax, source_rect.yMin));
 						_uvs.Add(new Vector2(source_rect.xMin, source_rect.yMin));
+						_uvs.Add(new Vector2(source_rect.xMax, source_rect.yMin));
+						_uvs.Add(new Vector2(source_rect.xMax, source_rect.yMax));
+						_uvs.Add(new Vector2(source_rect.xMin, source_rect.yMax));
 
 						_mulcolors.Add(inst.ColorTransform.Mul);
 						_mulcolors.Add(inst.ColorTransform.Mul);
