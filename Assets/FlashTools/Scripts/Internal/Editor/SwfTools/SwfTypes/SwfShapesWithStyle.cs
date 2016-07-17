@@ -37,27 +37,23 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			switch ( style_type ) {
 			case ShapeStyleType.Shape:
 				shapes.FillStyles = ReadFillStyles(reader, false, false);
-				//SkipLineStyles(reader, false, false, false);
-				//SkipShapeRecords(reader, false, false, false);
-				//reader.AlignToByte();
+				SkipLineStyles(reader, false, false, false);
+				SkipShapeRecords(reader, false, false, false);
 				break;
 			case ShapeStyleType.Shape2:
 				shapes.FillStyles = ReadFillStyles(reader, true, false);
-				//SkipLineStyles(reader, true, false, false);
-				//SkipShapeRecords(reader, true, false, false);
-				//reader.AlignToByte();
+				SkipLineStyles(reader, true, false, false);
+				SkipShapeRecords(reader, true, false, false);
 				break;
 			case ShapeStyleType.Shape3:
 				shapes.FillStyles = ReadFillStyles(reader, true, true);
-				//SkipLineStyles(reader, true, true, false);
-				//SkipShapeRecords(reader, true, true, false);
-				//reader.AlignToByte();
+				SkipLineStyles(reader, true, true, false);
+				SkipShapeRecords(reader, true, true, false);
 				break;
 			case ShapeStyleType.Shape4:
 				shapes.FillStyles = ReadFillStyles(reader, true, true);
-				//SkipLineStyles(reader, true, true, true);
-				//SkipShapeRecords(reader, true, true, true);
-				//reader.AlignToByte();
+				SkipLineStyles(reader, true, true, true);
+				SkipShapeRecords(reader, true, true, true);
 				break;
 			default:
 				throw new UnityException(string.Format(

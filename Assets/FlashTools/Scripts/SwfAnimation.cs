@@ -93,8 +93,8 @@ namespace FlashTools {
 				foreach ( var inst in frame.Instances ) {
 					var bitmap = FindBitmap(inst.Bitmap);
 					if ( bitmap != null ) {
-						var width  = bitmap.RealSize.x;
-						var height = bitmap.RealSize.y;
+						var width  = bitmap.RealSize.x / 20.0f;
+						var height = bitmap.RealSize.y / 20.0f;
 
 						var v0 = new Vector3(     0,       0, current_z);
 						var v1 = new Vector3( width,       0, current_z);
