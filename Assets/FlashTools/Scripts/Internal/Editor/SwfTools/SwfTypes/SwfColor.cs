@@ -40,7 +40,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				A / 255.0f);
 		}
 
-		public Color ToUnityColor32() {
+		public Color32 ToUnityColor32() {
 			return new Color32(
 				R,
 				G,

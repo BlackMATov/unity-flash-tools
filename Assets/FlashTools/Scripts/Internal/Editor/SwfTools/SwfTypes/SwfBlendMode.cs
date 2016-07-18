@@ -58,8 +58,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			case 13: return Mode.Overlay;
 			case 14: return Mode.Hardlight;
 			default:
-				Debug.LogWarningFormat("Incorrect BlendMode Id: {0}", mode_id);
-				return Mode.Normal;
+				throw new UnityException(string.Format(
+					"Incorrect blend mode id: {0}", mode_id));
 			}
 		}
 	}

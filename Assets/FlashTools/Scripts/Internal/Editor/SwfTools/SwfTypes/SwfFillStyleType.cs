@@ -66,8 +66,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			case 0x42: return Type.NonSmoothedRepeatingBitmap;
 			case 0x43: return Type.NonSmoothedClippedBitmap;
 			default:
-				Debug.LogWarningFormat("Incorrect FillStyleType Id: {0}", type_id);
-				return Type.SolidColor;
+				throw new UnityException(string.Format(
+					"Incorrect fill stype type id: {0}", type_id));
 			}
 		}
 	}

@@ -1,4 +1,6 @@
-﻿namespace FlashTools.Internal.SwfTools.SwfTypes {
+﻿using UnityEngine;
+
+namespace FlashTools.Internal.SwfTools.SwfTypes {
 	public struct SwfSurfaceFilters {
 		public static SwfSurfaceFilters identity {
 			get {
@@ -8,7 +10,7 @@
 
 		public static SwfSurfaceFilters Read(SwfStreamReader reader) {
 			//TODO: IMPLME
-			return SwfSurfaceFilters.identity;
+			throw new UnityException("Surface filters is unsupported");
 		}
 
 		public override string ToString() {

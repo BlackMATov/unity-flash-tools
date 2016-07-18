@@ -50,9 +50,9 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 					result[i * 4 + 3] = (byte)((pix24 >> 24) & 0xFF);
 				}
 			} else {
-				//TODO: implme
+				//TODO: IMPLME
 				throw new UnityException(string.Format(
-					"Unsupported DefineBitsLosslessTag Format: {0}", BitmapFormat));
+					"Unsupported DefineBitsLossless Format: {0}", BitmapFormat));
 			}
 			return result;
 		}

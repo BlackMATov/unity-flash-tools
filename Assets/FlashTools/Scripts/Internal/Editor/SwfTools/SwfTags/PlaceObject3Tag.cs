@@ -129,7 +129,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 				? (0 != reader.ReadByte())
 				: false;
 
-			tag.Visible           = tag.HasVisible
+			tag.Visible           = tag.HasVisible && !reader.IsEOF
 				? (0 != reader.ReadByte())
 				: true;
 

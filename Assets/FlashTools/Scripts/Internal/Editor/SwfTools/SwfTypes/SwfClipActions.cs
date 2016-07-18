@@ -1,4 +1,6 @@
-﻿namespace FlashTools.Internal.SwfTools.SwfTypes {
+﻿using UnityEngine;
+
+namespace FlashTools.Internal.SwfTools.SwfTypes {
 	public struct SwfClipActions {
 		public static SwfClipActions identity {
 			get {
@@ -8,7 +10,7 @@
 
 		public static SwfClipActions Read(SwfStreamReader reader) {
 			//TODO: IMPLME
-			return SwfClipActions.identity;
+			throw new UnityException("Clip actions is unsupported");
 		}
 
 		public override string ToString() {
