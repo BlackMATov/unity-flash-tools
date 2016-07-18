@@ -41,6 +41,7 @@ namespace FlashTools.Internal.SwfTools {
 			if ( new_inst != null ) {
 				new_inst.Id             = tag.CharacterId;
 				new_inst.Depth          = tag.Depth;
+				new_inst.ClipDepth      = 0;
 				new_inst.Visible        = true;
 				new_inst.Matrix         = tag.Matrix;
 				new_inst.ColorTransform = tag.ColorTransform;
@@ -74,14 +75,18 @@ namespace FlashTools.Internal.SwfTools {
 				if ( new_inst != null ) {
 					new_inst.Id             = tag.CharacterId;
 					new_inst.Depth          = tag.Depth;
+					new_inst.ClipDepth      = tag.HasClipDepth      ? tag.ClipDepth      : (old_inst != null ? old_inst.ClipDepth      : (ushort)0);
 					new_inst.Visible        = true;
-					new_inst.Matrix         = tag.HasMatrix         ? tag.Matrix         : (old_inst != null ? old_inst.Matrix         : SwfMatrix.identity        );
+					new_inst.Matrix         = tag.HasMatrix         ? tag.Matrix         : (old_inst != null ? old_inst.Matrix         : SwfMatrix.identity);
 					new_inst.ColorTransform = tag.HasColorTransform ? tag.ColorTransform : (old_inst != null ? old_inst.ColorTransform : SwfColorTransform.identity);
 					dl.Instances.Add(new_inst.Depth, new_inst);
 				}
 			} else if ( tag.Move ) { // move character
 				SwfDisplayInstance inst;
 				if ( dl.Instances.TryGetValue(tag.Depth, out inst) ) {
+					if ( tag.HasClipDepth ) {
+						inst.ClipDepth = tag.ClipDepth;
+					}
 					if ( tag.HasMatrix ) {
 						inst.Matrix = tag.Matrix;
 					}
@@ -118,14 +123,18 @@ namespace FlashTools.Internal.SwfTools {
 				if ( new_inst != null ) {
 					new_inst.Id             = tag.CharacterId;
 					new_inst.Depth          = tag.Depth;
-					new_inst.Visible        = tag.HasVisible        ? tag.Visible        : (old_inst != null ? old_inst.Visible        : true                      );
-					new_inst.Matrix         = tag.HasMatrix         ? tag.Matrix         : (old_inst != null ? old_inst.Matrix         : SwfMatrix.identity        );
+					new_inst.ClipDepth      = tag.HasClipDepth      ? tag.ClipDepth      : (old_inst != null ? old_inst.ClipDepth      : (ushort)0);
+					new_inst.Visible        = tag.HasVisible        ? tag.Visible        : (old_inst != null ? old_inst.Visible        : true);
+					new_inst.Matrix         = tag.HasMatrix         ? tag.Matrix         : (old_inst != null ? old_inst.Matrix         : SwfMatrix.identity);
 					new_inst.ColorTransform = tag.HasColorTransform ? tag.ColorTransform : (old_inst != null ? old_inst.ColorTransform : SwfColorTransform.identity);
 					dl.Instances.Add(new_inst.Depth, new_inst);
 				}
 			} else if ( tag.Move ) { // move character
 				SwfDisplayInstance inst;
 				if ( dl.Instances.TryGetValue(tag.Depth, out inst) ) {
+					if ( tag.HasClipDepth ) {
+						inst.ClipDepth = tag.ClipDepth;
+					}
 					if ( tag.HasVisible ) {
 						inst.Visible = tag.Visible;
 					}

@@ -220,6 +220,7 @@ if (!Function.prototype.bind) {
 	
 	ftdoc.export_swf = function (document) {
 		ft.type_assert(document, Document);
+		ft.trace_fmt("Export swf: {0}", document.name);
 		document.exportSWF(ftdoc.get_swf_export_path(document));
 	};
 	

@@ -82,7 +82,7 @@ namespace FlashTools.Internal {
 			Matrix4x4 parent_matrix, SwfAnimationColorTransform parent_color_transform,
 			SwfAnimationFrameData frame)
 		{
-			foreach ( var inst in dl.Instances.Values.Where(p => p.Visible) ) {
+			foreach ( var inst in dl.Instances.Values.Where(p => p.Visible && p.ClipDepth == 0) ) {
 				switch ( inst.Type ) {
 				case SwfDisplayInstanceType.Shape:
 					var shape_def = ctx.Library.FindDefine<SwfLibraryShapeDefine>(inst.Id);
