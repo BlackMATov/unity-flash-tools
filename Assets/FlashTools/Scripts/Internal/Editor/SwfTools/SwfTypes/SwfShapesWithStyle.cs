@@ -37,27 +37,23 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			switch ( style_type ) {
 			case ShapeStyleType.Shape:
 				shapes.FillStyles = ReadFillStyles(reader, false, false);
-				//TODO: IMPLME
-				//SkipLineStyles(reader, false, false, false);
-				//SkipShapeRecords(reader, false, false, false);
+				SkipLineStyles(reader, false, false, false);
+				ReadShapeRecords(reader, shapes.FillStyles, false, false, false);
 				break;
 			case ShapeStyleType.Shape2:
 				shapes.FillStyles = ReadFillStyles(reader, true, false);
-				//TODO: IMPLME
-				//SkipLineStyles(reader, true, false, false);
-				//SkipShapeRecords(reader, true, false, false);
+				SkipLineStyles(reader, true, false, false);
+				ReadShapeRecords(reader, shapes.FillStyles, true, false, false);
 				break;
 			case ShapeStyleType.Shape3:
 				shapes.FillStyles = ReadFillStyles(reader, true, true);
-				//TODO: IMPLME
-				//SkipLineStyles(reader, true, true, false);
-				//SkipShapeRecords(reader, true, true, false);
+				SkipLineStyles(reader, true, true, false);
+				ReadShapeRecords(reader, shapes.FillStyles, true, true, false);
 				break;
 			case ShapeStyleType.Shape4:
 				shapes.FillStyles = ReadFillStyles(reader, true, true);
-				//TODO: IMPLME
-				//SkipLineStyles(reader, true, true, true);
-				//SkipShapeRecords(reader, true, true, true);
+				SkipLineStyles(reader, true, true, true);
+				ReadShapeRecords(reader, shapes.FillStyles, true, true, true);
 				break;
 			default:
 				throw new UnityException(string.Format(
@@ -208,22 +204,22 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		//
 		// ------------------------------------------------------------------------
 
-		static void SkipShapeRecords(
-			SwfStreamReader reader,
+		static void ReadShapeRecords(
+			SwfStreamReader reader, List<FillStyle> fill_styles,
 			bool allow_big_array, bool with_alpha, bool line2_type)
 		{
 			var fill_style_bits = reader.ReadUnsignedBits(4);
 			var line_style_bits = reader.ReadUnsignedBits(4);
-			while ( !SkipShapeRecord(
-				reader, ref fill_style_bits, ref line_style_bits,
+			while ( !ReadShapeRecord(
+				reader, fill_styles, ref fill_style_bits, ref line_style_bits,
 				allow_big_array, with_alpha, line2_type) )
 			{
 				continue;
 			}
 		}
 
-		static bool SkipShapeRecord(
-			SwfStreamReader reader,
+		static bool ReadShapeRecord(
+			SwfStreamReader reader, List<FillStyle> fill_styles,
 			ref uint fill_style_bits, ref uint line_style_bits,
 			bool allow_big_array, bool with_alpha, bool line2_type)
 		{
@@ -263,7 +259,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 						reader.ReadUnsignedBits(line_style_bits); // line_style
 					}
 					if ( state_new_styles ) {
-						ReadFillStyles(reader, allow_big_array, with_alpha);
+						reader.AlignToByte();
+						fill_styles.AddRange(ReadFillStyles(reader, allow_big_array, with_alpha));
 						SkipLineStyles(reader, allow_big_array, with_alpha, line2_type);
 						fill_style_bits = reader.ReadUnsignedBits(4);
 						line_style_bits = reader.ReadUnsignedBits(4);
@@ -276,7 +273,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		static void SkipStraigtEdgeShapeRecord(SwfStreamReader reader) {
 			var num_bits          = reader.ReadUnsignedBits(4) + 2;
 			var general_line_flag = reader.ReadBit();
-			var vert_line_flag    = general_line_flag ? false : reader.ReadBit();
+			var vert_line_flag = general_line_flag ? false : reader.ReadBit();
 			if ( general_line_flag || !vert_line_flag ) {
 				reader.ReadSignedBits(num_bits); // delta_x
 			}
