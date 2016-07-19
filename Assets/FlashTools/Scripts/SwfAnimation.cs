@@ -37,6 +37,7 @@ namespace FlashTools {
 			if ( Asset && Asset.Atlas ) {
 				var material = new Material(Shader.Find("FlashTools/FlashAnim"));
 				material.SetTexture("_MainTex", Asset.Atlas);
+				material.SetInt("_StencilID", 0);
 				GetComponent<MeshRenderer>().sharedMaterial = material;
 			}
 		}
@@ -87,8 +88,6 @@ namespace FlashTools {
 				_mulcolors.Clear();
 				_addcolors.Clear();
 
-				var current_z = 0.0f;
-
 				var frame = Asset.Data.Frames[currentFrame];
 				foreach ( var inst in frame.Instances ) {
 					var bitmap = FindBitmap(inst.Bitmap);
@@ -96,11 +95,10 @@ namespace FlashTools {
 						var width  = bitmap.RealSize.x / 20.0f;
 						var height = bitmap.RealSize.y / 20.0f;
 
-						var v0 = new Vector3(     0,       0, current_z);
-						var v1 = new Vector3( width,       0, current_z);
-						var v2 = new Vector3( width,  height, current_z);
-						var v3 = new Vector3(     0,  height, current_z);
-						current_z -= 20f;
+						var v0 = new Vector3(     0,       0, 0);
+						var v1 = new Vector3( width,       0, 0);
+						var v2 = new Vector3( width,  height, 0);
+						var v3 = new Vector3(     0,  height, 0);
 
 						var matrix =
 							Matrix4x4.Scale(new Vector3(

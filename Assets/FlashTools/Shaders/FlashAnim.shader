@@ -1,28 +1,33 @@
 Shader "FlashTools/FlashAnim" {
 	Properties {
-		[PerRendererData] _MainTex  ("Sprite Texture", 2D   ) = "white" {}
-		[MaterialToggle]  PixelSnap ("Pixel snap"    , Float) = 0
+		[PerRendererData] _MainTex   ("Main Texture", 2D ) = "white" {}
+		[PerRendererData] _StencilID ("Stencil ID"  , Int) = 0
 	}
 
 	SubShader {
 		Tags {
-			"Queue"             = "Transparent" 
-			"IgnoreProjector"   = "True" 
-			"RenderType"        = "Transparent" 
+			"Queue"             = "Transparent+1"
+			"IgnoreProjector"   = "True"
+			"RenderType"        = "Transparent"
 			"PreviewType"       = "Plane"
 			"CanUseSpriteAtlas" = "True"
 		}
 
-		Cull     Off
+		Cull Off
 		Lighting Off
-		ZWrite   Off
-		Blend    One OneMinusSrcAlpha
+		ZWrite Off
+		Blend One OneMinusSrcAlpha
 
 		Pass {
+			Stencil {
+				Ref [_StencilID]
+				Comp Equal
+				Pass Keep
+				Fail Keep
+			}
 		CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#pragma multi_compile _ PIXELSNAP_ON
 			#include "UnityCG.cginc"
 			
 			struct appdata_t {
@@ -45,9 +50,6 @@ Shader "FlashTools/FlashAnim" {
 				OUT.uv       = IN.uv;
 				OUT.mulcolor = IN.mulcolor;
 				OUT.addcolor = IN.addcolor;
-			#ifdef PIXELSNAP_ON
-				OUT.vertex   = UnityPixelSnap(OUT.vertex);
-			#endif
 				return OUT;
 			}
 
