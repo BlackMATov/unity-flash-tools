@@ -247,10 +247,9 @@ namespace FlashTools.Internal.SwfTools {
 
 		public SwfDisplayList Visit(DefineSpriteTag tag, SwfDisplayList dl) {
 			Debug.LogWarning(tag);
-			var define = new SwfLibrarySpriteDefine{
-				ControlTags = tag.ControlTags
-			};
-			MainContex.Library.Defines.Add(tag.SpriteId, define);
+			AddSpriteToLibrary(
+				tag.SpriteId,
+				tag.ControlTags);
 			return dl;
 		}
 
@@ -282,6 +281,13 @@ namespace FlashTools.Internal.SwfTools {
 				Width  = width,
 				Height = height,
 				ARGB32 = argb32
+			};
+			MainContex.Library.Defines.Add(define_id, define);
+		}
+
+		void AddSpriteToLibrary(ushort define_id, SwfControlTags control_tags) {
+			var define = new SwfLibrarySpriteDefine{
+				ControlTags = control_tags
 			};
 			MainContex.Library.Defines.Add(define_id, define);
 		}

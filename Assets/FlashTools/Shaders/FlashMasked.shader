@@ -1,7 +1,7 @@
 Shader "FlashTools/FlashMasked" {
 	Properties {
 		[PerRendererData] _MainTex   ("Main Texture", 2D ) = "white" {}
-		_StencilID ("Stencil ID"  , Int) = 0
+		[PerRendererData] _StencilID ("Stencil ID"  , Int) = 0
 	}
 
 	SubShader {

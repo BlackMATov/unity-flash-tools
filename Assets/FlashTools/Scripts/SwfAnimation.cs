@@ -102,9 +102,6 @@ namespace FlashTools {
 				_addcolors.Clear();
 				_groups.Clear();
 
-				var last_group_id   = 0;
-				var last_clip_depth = 0;
-
 				var frame = Asset.Data.Frames[currentFrame];
 				foreach ( var inst in frame.Instances ) {
 					var bitmap = FindBitmap(inst.Bitmap);
@@ -195,72 +192,6 @@ namespace FlashTools {
 						_groups[_groups.Count - 1].Triangles.Add(_vertices.Count - 4 + 0);
 						_groups[_groups.Count - 1].Triangles.Add(_vertices.Count - 4 + 3);
 						_groups[_groups.Count - 1].Triangles.Add(_vertices.Count - 4 + 2);
-
-						/*
-						if ( inst.ClipDepth != 0 ) {
-							++last_group_id;
-							last_clip_depth = inst.ClipDepth;
-
-							var gr = new Group();
-							gr.Type = GroupType.Mask;
-							gr.Triangles = new List<int>();
-							_groups.Add(gr);
-
-							//_triangles.Add(new List<int>());
-							//var material = new Material(Shader.Find("FlashTools/FlashMask"));
-							//material.SetTexture("_MainTex", Asset.Atlas);
-							//material.SetInt("_StencilID", last_group_id);
-							//materials.Add(material);
-						} else if ( inst.Depth < last_clip_depth ) {
-							if ( _groups.Count == 0 || _groups[_groups.Count - 1].Type != GroupType.Masked ) {
-								var gr = new Group();
-								gr.Type = GroupType.Masked;
-								gr.Triangles = new List<int>();
-								_groups.Add(gr);
-							}
-						} else if ( (inst.Depth >= last_clip_depth && last_clip_depth > 0) || _groups.Count == 0 ) {
-							var gr = new Group();
-							gr.Type = GroupType.Group;
-							gr.Triangles = new List<int>();
-							_groups.Add(gr);
-						}*/
-
-						/*
-						if ( inst.ClipDepth != 0 ) {
-							_triangles.Add(new List<int>());
-							++last_group_id;
-							last_clip_depth = inst.ClipDepth;
-							var material = new Material(Shader.Find("FlashTools/FlashMask"));
-							material.SetTexture("_MainTex", Asset.Atlas);
-							material.SetInt("_StencilID", last_group_id);
-							materials.Add(material);
-						} else if ( inst.Depth < last_clip_depth ) {
-							var material = new Material(Shader.Find("FlashTools/FlashMasked"));
-							material.SetTexture("_MainTex", Asset.Atlas);
-							material.SetInt("_StencilID", last_group_id);
-							materials.Add(material);
-						} else if ( (inst.Depth >= last_clip_depth && last_clip_depth > 0) || materials.Count == 0 ) {
-							_triangles.Add(new List<int>());
-							++last_group_id;
-							last_clip_depth = 0;
-							var material = new Material(Shader.Find("FlashTools/FlashAnim"));
-							material.SetTexture("_MainTex", Asset.Atlas);
-							material.SetInt("_StencilID", 0);
-							materials.Add(material);
-						}*/
-
-						/*
-						_triangles[_triangles.Count - 1].Add(_vertices.Count - 4 + 2);
-						_triangles[_triangles.Count - 1].Add(_vertices.Count - 4 + 1);
-						_triangles[_triangles.Count - 1].Add(_vertices.Count - 4 + 0);
-						_triangles[_triangles.Count - 1].Add(_vertices.Count - 4 + 0);
-						_triangles[_triangles.Count - 1].Add(_vertices.Count - 4 + 3);
-						_triangles[_triangles.Count - 1].Add(_vertices.Count - 4 + 2);*/
-
-						/*
-						if ( inst.ClipDepth != 0 ) {
-							_triangles.Add(new List<int>());
-						}*/
 					}
 				}
 

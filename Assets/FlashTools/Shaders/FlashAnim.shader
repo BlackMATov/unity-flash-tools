@@ -1,7 +1,6 @@
 Shader "FlashTools/FlashAnim" {
 	Properties {
-		[PerRendererData] _MainTex   ("Main Texture", 2D ) = "white" {}
-		_StencilID ("Stencil ID"  , Int) = 0
+		[PerRendererData] _MainTex ("Main Texture", 2D) = "white" {}
 	}
 
 	SubShader {
@@ -19,10 +18,6 @@ Shader "FlashTools/FlashAnim" {
 		Blend One OneMinusSrcAlpha
 
 		Pass {
-			Stencil {
-				Ref  [_StencilID]
-				Comp always
-			}
 		CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
