@@ -270,7 +270,7 @@ namespace FlashTools.Internal.SwfTools {
 		void AddShapesToLibrary(ushort define_id, SwfShapesWithStyle shapes) {
 			var bitmap_styles = shapes.FillStyles.Where(p => p.Type.IsBitmapType);
 			var define = new SwfLibraryShapeDefine{
-				Bitmaps  = bitmap_styles.Select(p => p.BitmapId).ToArray(),
+				Bitmaps  = bitmap_styles.Select(p => p.BitmapId    ).ToArray(),
 				Matrices = bitmap_styles.Select(p => p.BitmapMatrix).ToArray()
 			};
 			MainContex.Library.Defines.Add(define_id, define);

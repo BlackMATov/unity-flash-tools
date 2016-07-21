@@ -80,23 +80,28 @@ namespace FlashTools.Internal {
 		}
 
 		static SwfAnimationFrameData AddDisplayListToFrame(
-			SwfContext ctx, SwfDisplayList dl,
-			ushort parent_depth, ushort parent_clip_depth, Matrix4x4 parent_matrix, SwfAnimationColorTransform parent_color_transform,
-			SwfAnimationFrameData frame)
+			SwfContext                 ctx,
+			SwfDisplayList             dl,
+			ushort                     parent_depth,
+			ushort                     parent_clip_depth,
+			Matrix4x4                  parent_matrix,
+			SwfAnimationColorTransform parent_color_transform,
+			SwfAnimationFrameData      frame)
 		{
-			foreach ( var inst in dl.Instances.Values.Where(p => p.Visible) ) {
+			var instances = dl.Instances.Values
+				.Where(p => p.Visible);
+			foreach ( var inst in instances ) {
 				switch ( inst.Type ) {
 				case SwfDisplayInstanceType.Shape:
 					var shape_def = ctx.Library.FindDefine<SwfLibraryShapeDefine>(inst.Id);
 					if ( shape_def != null ) {
 						for ( var i = 0; i < shape_def.Bitmaps.Length; ++i ) {
 							var bitmap_id     = shape_def.Bitmaps[i];
-							var bitmap_matrix = i < shape_def.Matrices.Length
-								? shape_def.Matrices[i] : SwfMatrix.identity;
-							var bitmap_def = ctx.Library.FindDefine<SwfLibraryBitmapDefine>(bitmap_id);
+							var bitmap_matrix = i < shape_def.Matrices.Length ? shape_def.Matrices[i] : SwfMatrix.identity;
+							var bitmap_def    = ctx.Library.FindDefine<SwfLibraryBitmapDefine>(bitmap_id);
 							if ( bitmap_def != null ) {
 								frame.Instances.Add(new SwfAnimationInstanceData{
-									Depth          = (ushort)(parent_depth + inst.Depth - 1),
+									Depth          = (ushort)(parent_depth + inst.Depth),
 									ClipDepth      = (ushort)(parent_clip_depth != 0 ? parent_clip_depth : inst.ClipDepth),
 									Bitmap         = bitmap_id,
 									Matrix         = parent_matrix * inst.Matrix.ToUnityMatrix() * bitmap_matrix.ToUnityMatrix(),
@@ -112,7 +117,7 @@ namespace FlashTools.Internal {
 						AddDisplayListToFrame(
 							ctx,
 							sprite_inst.DisplayList,
-							(ushort)(parent_depth + sprite_inst.Depth),
+							(ushort)(parent_depth + sprite_inst.Depth - 1),
 							(ushort)(parent_clip_depth != 0 ? parent_clip_depth : sprite_inst.ClipDepth),
 							parent_matrix * sprite_inst.Matrix.ToUnityMatrix(),
 							parent_color_transform * sprite_inst.ColorTransform.ToAnimationColorTransform(),
@@ -121,7 +126,7 @@ namespace FlashTools.Internal {
 					break;
 				default:
 					throw new UnityException(string.Format(
-						"Unsupported SwfDisplayInstType: {0}", inst.Type));
+						"Unsupported SwfDisplayInstanceType: {0}", inst.Type));
 				}
 			}
 			return frame;
