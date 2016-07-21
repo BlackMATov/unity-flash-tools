@@ -1,4 +1,4 @@
-Shader "FlashTools/FlashAnim" {
+Shader "FlashTools/FlashMasked" {
 	Properties {
 		[PerRendererData] _MainTex   ("Main Texture", 2D ) = "white" {}
 		_StencilID ("Stencil ID"  , Int) = 0
@@ -21,7 +21,7 @@ Shader "FlashTools/FlashAnim" {
 		Pass {
 			Stencil {
 				Ref  [_StencilID]
-				Comp always
+				Comp equal
 			}
 		CGPROGRAM
 			#pragma vertex vert

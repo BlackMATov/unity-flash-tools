@@ -72,6 +72,8 @@ namespace FlashTools.Internal {
 			return AddDisplayListToFrame(
 				context,
 				context.DisplayList,
+				0,
+				0,
 				Matrix4x4.identity,
 				SwfAnimationColorTransform.identity,
 				frame);
@@ -79,10 +81,10 @@ namespace FlashTools.Internal {
 
 		static SwfAnimationFrameData AddDisplayListToFrame(
 			SwfContext ctx, SwfDisplayList dl,
-			Matrix4x4 parent_matrix, SwfAnimationColorTransform parent_color_transform,
+			ushort parent_depth, ushort parent_clip_depth, Matrix4x4 parent_matrix, SwfAnimationColorTransform parent_color_transform,
 			SwfAnimationFrameData frame)
 		{
-			foreach ( var inst in dl.Instances.Values.Where(p => p.Visible && p.ClipDepth == 0) ) {
+			foreach ( var inst in dl.Instances.Values.Where(p => p.Visible) ) {
 				switch ( inst.Type ) {
 				case SwfDisplayInstanceType.Shape:
 					var shape_def = ctx.Library.FindDefine<SwfLibraryShapeDefine>(inst.Id);
@@ -94,6 +96,8 @@ namespace FlashTools.Internal {
 							var bitmap_def = ctx.Library.FindDefine<SwfLibraryBitmapDefine>(bitmap_id);
 							if ( bitmap_def != null ) {
 								frame.Instances.Add(new SwfAnimationInstanceData{
+									Depth          = (ushort)(parent_depth + inst.Depth - 1),
+									ClipDepth      = (ushort)(parent_clip_depth != 0 ? parent_clip_depth : inst.ClipDepth),
 									Bitmap         = bitmap_id,
 									Matrix         = parent_matrix * inst.Matrix.ToUnityMatrix() * bitmap_matrix.ToUnityMatrix(),
 									ColorTransform = parent_color_transform * inst.ColorTransform.ToAnimationColorTransform()});
@@ -108,6 +112,8 @@ namespace FlashTools.Internal {
 						AddDisplayListToFrame(
 							ctx,
 							sprite_inst.DisplayList,
+							(ushort)(parent_depth + sprite_inst.Depth),
+							(ushort)(parent_clip_depth != 0 ? parent_clip_depth : sprite_inst.ClipDepth),
 							parent_matrix * sprite_inst.Matrix.ToUnityMatrix(),
 							parent_color_transform * sprite_inst.ColorTransform.ToAnimationColorTransform(),
 							frame);

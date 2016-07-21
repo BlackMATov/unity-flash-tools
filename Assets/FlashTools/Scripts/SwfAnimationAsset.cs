@@ -38,6 +38,8 @@ namespace FlashTools {
 
 	[System.Serializable]
 	public class SwfAnimationInstanceData {
+		public ushort                         Depth          = 0;
+		public ushort                         ClipDepth      = 0;
 		public ushort                         Bitmap         = 0;
 		public Matrix4x4                      Matrix         = Matrix4x4.identity;
 		public SwfAnimationColorTransform     ColorTransform = SwfAnimationColorTransform.identity;

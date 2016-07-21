@@ -90,6 +90,7 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfShapesWithStyle.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfShortHeader.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfSurfaceFilters.cs" />
+     <None Include="Assets\FlashTools\Shaders\FlashMasked.shader" />
      <None Include="Assets\FlashTools\Shaders\FlashAnim.shader" />
      <None Include="Assets\FlashTools\Shaders\FlashMask.shader" />
  <Reference Include="UnityEditor.Advertisements">

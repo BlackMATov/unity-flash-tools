@@ -1,7 +1,7 @@
 Shader "FlashTools/FlashMask" {
 	Properties {
 		[PerRendererData] _MainTex   ("Main Texture", 2D ) = "white" {}
-		[PerRendererData] _StencilID ("Stencil ID"  , Int) = 0
+		_StencilID ("Stencil ID"  , Int) = 0
 	}
 
 	SubShader {
@@ -21,7 +21,7 @@ Shader "FlashTools/FlashMask" {
 
 		Pass {
 			Stencil {
-				Ref [_StencilID]
+				Ref   [_StencilID]
 				Comp always
 				Pass replace
 			}
@@ -54,7 +54,6 @@ Shader "FlashTools/FlashMask" {
 				if ( c.a < 0.01 ) {
 					discard;
 				}
-				c.rgb *= c.a;
 				return c;
 			}
 		ENDCG

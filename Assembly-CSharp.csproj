@@ -49,6 +49,7 @@
      <Compile Include="Assets\FlashTools\Scripts\FlashAnimAsset.cs" />
      <Compile Include="Assets\FlashTools\Scripts\SwfAnimation.cs" />
      <Compile Include="Assets\FlashTools\Scripts\SwfAnimationAsset.cs" />
+     <None Include="Assets\FlashTools\Shaders\FlashMasked.shader" />
      <None Include="Assets\FlashTools\Shaders\FlashAnim.shader" />
      <None Include="Assets\FlashTools\Shaders\FlashMask.shader" />
  <Reference Include="UnityEngine.UI">

@@ -208,10 +208,13 @@ namespace FlashTools {
 					//Debug.LogFormat("Cur frame: {0}", _current_frame);
 				}
 			} else {
+			#if UNITY_EDITOR
 				OnValidate();
+			#endif
 			}
 		}
 
+	#if UNITY_EDITOR
 		void OnValidate() {
 			if ( Asset ) {
 				_lastAssetPath = AssetDatabase.GetAssetPath(Asset);
@@ -222,6 +225,7 @@ namespace FlashTools {
 				}
 			}
 		}
+	#endif
 
 		void OnRenderObject() {
 			if ( Asset ) {
