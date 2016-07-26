@@ -97,7 +97,7 @@ namespace FlashTools.Internal.SwfTools {
 			get { return SwfDisplayInstanceType.Sprite; }
 		}
 
-		public void ResetTag() {
+		public void Reset() {
 			CurrentTag  = 0;
 			DisplayList = new SwfDisplayList();
 		}

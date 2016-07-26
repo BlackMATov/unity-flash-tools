@@ -170,7 +170,7 @@ namespace FlashTools.Internal.SwfTools {
 				var sprite_def = MainContex.Library.FindDefine<SwfLibrarySpriteDefine>(sprite.Id);
 				if ( sprite_def != null ) {
 					if ( sprite.CurrentTag >= sprite_def.ControlTags.Tags.Count ) {
-						sprite.ResetTag();
+						sprite.Reset();
 					}
 					var sprite_executer = new SwfContextExecuter(MainContex, sprite.CurrentTag);
 					sprite_executer.NextFrame(sprite_def.ControlTags.Tags, sprite.DisplayList);

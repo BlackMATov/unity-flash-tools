@@ -157,7 +157,7 @@ namespace FlashTools {
 							} else {
 								var last_group = _groups[_groups.Count - 1];
 								if ( last_group.Type == GroupType.Mask ) {
-									if ( inst.Depth < last_group.ClipDepth ) {
+									if ( inst.Depth <= last_group.ClipDepth ) {
 										var gr = new Group();
 										gr.Type = GroupType.Masked;
 										gr.Triangles = new List<int>();
@@ -171,7 +171,7 @@ namespace FlashTools {
 										_groups.Add(gr);
 									}
 								} else if ( last_group.Type == GroupType.Masked ) {
-									if ( inst.Depth < last_group.ClipDepth ) {
+									if ( inst.Depth <= last_group.ClipDepth ) {
 										// nothing
 									} else {
 										var gr = new Group();

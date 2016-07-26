@@ -100,9 +100,15 @@ namespace FlashTools.Internal {
 							var bitmap_matrix = i < shape_def.Matrices.Length ? shape_def.Matrices[i] : SwfMatrix.identity;
 							var bitmap_def    = ctx.Library.FindDefine<SwfLibraryBitmapDefine>(bitmap_id);
 							if ( bitmap_def != null ) {
+								var global_depth      = (parent_depth + inst.Depth);
+								var local_clip_depth  = (parent_clip_depth != 0 ? parent_clip_depth : inst.ClipDepth);
+								var global_clip_depth = (parent_clip_depth != 0 ? parent_clip_depth : (local_clip_depth != 0 ? (global_depth + local_clip_depth - 1) : 0));
+
+								Debug.LogFormat("--- Depth: {0}, ClipDepth: {1}", global_depth, global_clip_depth);
+
 								frame.Instances.Add(new SwfAnimationInstanceData{
-									Depth          = (ushort)(parent_depth + inst.Depth),
-									ClipDepth      = (ushort)(parent_clip_depth != 0 ? parent_clip_depth : inst.ClipDepth),
+									Depth          = (ushort)global_depth,
+									ClipDepth      = (ushort)global_clip_depth,
 									Bitmap         = bitmap_id,
 									Matrix         = parent_matrix * inst.Matrix.ToUnityMatrix() * bitmap_matrix.ToUnityMatrix(),
 									ColorTransform = parent_color_transform * inst.ColorTransform.ToAnimationColorTransform()});
