@@ -1,4 +1,4 @@
-Shader "FlashTools/FlashMask" {
+Shader "FlashTools/FlashMaskReset" {
 	Properties {
 		[PerRendererData] _MainTex ("Main Texture", 2D) = "white" {}
 	}
@@ -22,7 +22,7 @@ Shader "FlashTools/FlashMask" {
 			Stencil {
 				Ref  0
 				Comp always
-				Pass IncrSat
+				Pass DecrSat
 			}
 		CGPROGRAM
 			#pragma vertex vert

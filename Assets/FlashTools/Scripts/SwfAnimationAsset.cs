@@ -36,9 +36,16 @@ namespace FlashTools {
 		}
 	}
 
+	public enum SwfAnimationInstanceType {
+		Mask,
+		Group,
+		Masked,
+		MaskReset
+	}
+
 	[System.Serializable]
 	public class SwfAnimationInstanceData {
-		public ushort                         Depth          = 0;
+		public SwfAnimationInstanceType       Type           = SwfAnimationInstanceType.Group;
 		public ushort                         ClipDepth      = 0;
 		public ushort                         Bitmap         = 0;
 		public Matrix4x4                      Matrix         = Matrix4x4.identity;

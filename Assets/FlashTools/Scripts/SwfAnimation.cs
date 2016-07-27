@@ -24,15 +24,14 @@ namespace FlashTools {
 
 		enum GroupType {
 			Mask,
-			Masked,
-			Group
+			Group,
+			MaskReset
 		}
 
 		class Group {
-			public GroupType Type;
-			public List<int> Triangles;
-			public int       ClipDepth;
-			public Material  Material;
+			public SwfAnimationInstanceType Type;
+			public List<int>                Triangles;
+			public Material                 Material;
 		}
 
 		List<Group> _groups = new List<Group>();
@@ -141,6 +140,35 @@ namespace FlashTools {
 						_addcolors.Add(inst.ColorTransform.Add);
 						_addcolors.Add(inst.ColorTransform.Add);
 
+						if ( _groups.Count == 0 || _groups[_groups.Count - 1].Type != inst.Type) {
+							var gr = new Group();
+							gr.Type = inst.Type;
+							gr.Triangles = new List<int>();
+							_groups.Add(gr);
+						}
+
+						/*
+						if ( inst.MaskGroup != 0 ) {
+							if ( _groups.Count == 0 || _groups[_groups.Count - 1].MaskGroup != inst.MaskGroup ) {
+								var gr = new Group();
+								gr.Type = GroupType.Mask;
+								gr.MaskGroup = inst.MaskGroup;
+								gr.Triangles = new List<int>();
+								_groups.Add(gr);
+							} else {
+								// batching mask group
+							}
+						} else {
+							if ( _groups.Count == 0 ) {
+								var gr = new Group();
+								gr.Type = GroupType.Group;
+								gr.MaskGroup = 0;
+								gr.Triangles = new List<int>();
+								_groups.Add(gr);
+							}
+						}*/
+
+						/*
 						if ( inst.ClipDepth != 0 ) {
 							var gr = new Group();
 							gr.Type = GroupType.Mask;
@@ -184,7 +212,7 @@ namespace FlashTools {
 									// nothing
 								}
 							}
-						}
+						}*/
 
 						_groups[_groups.Count - 1].Triangles.Add(_vertices.Count - 4 + 2);
 						_groups[_groups.Count - 1].Triangles.Add(_vertices.Count - 4 + 1);
@@ -199,20 +227,21 @@ namespace FlashTools {
 				for ( var i = 0; i < full_groups.Length; ++i )  {
 					var gr = full_groups[i];
 					switch ( gr.Type ) {
-					case GroupType.Mask:
+					case SwfAnimationInstanceType.Mask:
 						gr.Material = new Material(Shader.Find("FlashTools/FlashMask"));
 						gr.Material.SetTexture("_MainTex", Asset.Atlas);
-						gr.Material.SetInt("_StencilID", i+1);
 						break;
-					case GroupType.Masked:
-						gr.Material = new Material(Shader.Find("FlashTools/FlashMasked"));
-						gr.Material.SetTexture("_MainTex", Asset.Atlas);
-						gr.Material.SetInt("_StencilID", i);
-						break;
-					case GroupType.Group:
+					case SwfAnimationInstanceType.Group:
 						gr.Material = new Material(Shader.Find("FlashTools/FlashAnim"));
 						gr.Material.SetTexture("_MainTex", Asset.Atlas);
-						gr.Material.SetInt("_StencilID", 0);
+						break;
+					case SwfAnimationInstanceType.Masked:
+						gr.Material = new Material(Shader.Find("FlashTools/FlashMasked"));
+						gr.Material.SetTexture("_MainTex", Asset.Atlas);
+						break;
+					case SwfAnimationInstanceType.MaskReset:
+						gr.Material = new Material(Shader.Find("FlashTools/FlashMaskReset"));
+						gr.Material.SetTexture("_MainTex", Asset.Atlas);
 						break;
 					}
 				}

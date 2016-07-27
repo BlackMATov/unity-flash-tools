@@ -72,27 +72,49 @@ namespace FlashTools.Internal {
 			return AddDisplayListToFrame(
 				context,
 				context.DisplayList,
+				false,
 				0,
-				0,
+				null,
 				Matrix4x4.identity,
 				SwfAnimationColorTransform.identity,
 				frame);
 		}
 
 		static SwfAnimationFrameData AddDisplayListToFrame(
-			SwfContext                 ctx,
-			SwfDisplayList             dl,
-			ushort                     parent_depth,
-			ushort                     parent_clip_depth,
-			Matrix4x4                  parent_matrix,
-			SwfAnimationColorTransform parent_color_transform,
-			SwfAnimationFrameData      frame)
+			SwfContext                     ctx,
+			SwfDisplayList                 dl,
+			bool                           parent_masked,
+			ushort                         parent_mask,
+			List<SwfAnimationInstanceData> parent_masks,
+			Matrix4x4                      parent_matrix,
+			SwfAnimationColorTransform     parent_color_transform,
+			SwfAnimationFrameData          frame)
 		{
+			var masks = new List<SwfAnimationInstanceData>();
+
 			var instances = dl.Instances.Values
 				.Where(p => p.Visible);
 			foreach ( var inst in instances ) {
+
+				foreach ( var mask in masks ) {
+					if ( mask.ClipDepth < inst.Depth ) {
+						frame.Instances.Add(new SwfAnimationInstanceData{
+							Type           = SwfAnimationInstanceType.MaskReset,
+							ClipDepth      = 0,
+							Bitmap         = mask.Bitmap,
+							Matrix         = mask.Matrix,
+							ColorTransform = mask.ColorTransform
+						});
+					}
+				}
+				masks.RemoveAll(p => p.ClipDepth < inst.Depth);
+
 				switch ( inst.Type ) {
 				case SwfDisplayInstanceType.Shape:
+					Debug.LogFormat(
+						"--- Bitmap --- Depth: {0}, ClipDepth: {1}, Mask: {2}",
+						inst.Depth, inst.ClipDepth, inst.ClipDepth > 0);
+
 					var shape_def = ctx.Library.FindDefine<SwfLibraryShapeDefine>(inst.Id);
 					if ( shape_def != null ) {
 						for ( var i = 0; i < shape_def.Bitmaps.Length; ++i ) {
@@ -100,31 +122,36 @@ namespace FlashTools.Internal {
 							var bitmap_matrix = i < shape_def.Matrices.Length ? shape_def.Matrices[i] : SwfMatrix.identity;
 							var bitmap_def    = ctx.Library.FindDefine<SwfLibraryBitmapDefine>(bitmap_id);
 							if ( bitmap_def != null ) {
-								var global_depth      = (parent_depth + inst.Depth);
-								var local_clip_depth  = (parent_clip_depth != 0 ? parent_clip_depth : inst.ClipDepth);
-								var global_clip_depth = (parent_clip_depth != 0 ? parent_clip_depth : (local_clip_depth != 0 ? (global_depth + local_clip_depth - 1) : 0));
-
-								Debug.LogFormat("--- Depth: {0}, ClipDepth: {1}", global_depth, global_clip_depth);
-
 								frame.Instances.Add(new SwfAnimationInstanceData{
-									Depth          = (ushort)global_depth,
-									ClipDepth      = (ushort)global_clip_depth,
+									Type           = (parent_mask > 0 || inst.ClipDepth > 0) ? SwfAnimationInstanceType.Mask : (parent_masked || masks.Count > 0 ? SwfAnimationInstanceType.Masked : SwfAnimationInstanceType.Group),
+									ClipDepth      = (ushort)(parent_mask > 0 ? parent_mask : (inst.ClipDepth > 0 ? inst.ClipDepth : (ushort)0)),
 									Bitmap         = bitmap_id,
 									Matrix         = parent_matrix * inst.Matrix.ToUnityMatrix() * bitmap_matrix.ToUnityMatrix(),
 									ColorTransform = parent_color_transform * inst.ColorTransform.ToAnimationColorTransform()});
+
+								if ( parent_mask > 0 ) {
+									parent_masks.Add(frame.Instances[frame.Instances.Count - 1]);
+								} else if ( inst.ClipDepth > 0 ) {
+									masks.Add(frame.Instances[frame.Instances.Count - 1]);
+								}
 							}
 						}
 					}
 					break;
 				case SwfDisplayInstanceType.Sprite:
+					Debug.LogFormat(
+						"--- Sprite --- Depth: {0}, ClipDepth: {1}, Mask: {2}",
+						inst.Depth, inst.ClipDepth, inst.ClipDepth > 0);
+
 					var sprite_def = ctx.Library.FindDefine<SwfLibrarySpriteDefine>(inst.Id);
 					if ( sprite_def != null ) {
 						var sprite_inst = inst as SwfDisplaySpriteInstance;
 						AddDisplayListToFrame(
 							ctx,
 							sprite_inst.DisplayList,
-							(ushort)(parent_depth + sprite_inst.Depth - 1),
-							(ushort)(parent_clip_depth != 0 ? parent_clip_depth : sprite_inst.ClipDepth),
+							parent_masked ? parent_masked : (masks.Count > 0),
+							(ushort)(parent_mask > 0 ? parent_mask : (inst.ClipDepth > 0 ? inst.ClipDepth : (ushort)0)),
+							parent_mask > 0 ? parent_masks : (inst.ClipDepth > 0 ? masks : null),
 							parent_matrix * sprite_inst.Matrix.ToUnityMatrix(),
 							parent_color_transform * sprite_inst.ColorTransform.ToAnimationColorTransform(),
 							frame);
@@ -135,6 +162,16 @@ namespace FlashTools.Internal {
 						"Unsupported SwfDisplayInstanceType: {0}", inst.Type));
 				}
 			}
+			foreach ( var mask in masks ) {
+				frame.Instances.Add(new SwfAnimationInstanceData{
+					Type           = SwfAnimationInstanceType.MaskReset,
+					ClipDepth      = 0,
+					Bitmap         = mask.Bitmap,
+					Matrix         = mask.Matrix,
+					ColorTransform = mask.ColorTransform
+				});
+			}
+			masks.Clear();
 			return frame;
 		}
 

@@ -336,7 +336,7 @@ if (!Function.prototype.bind) {
 		fttim.remove_empty_layers(timeline);
 		if ( timeline.layers.length > 0 && timeline.frameCount > 1 ) {
 			timeline.selectAllFrames();
-			timeline.convertToKeyframes();
+			//timeline.convertToKeyframes();
 		}
 		ft.array_reverse_foreach(timeline.layers, function(layer, index) {
 			timeline.setSelectedLayers(index);
