@@ -86,10 +86,10 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfShapesWithStyle.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfShortHeader.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfSurfaceFilters.cs" />
-     <None Include="Assets\FlashTools\Shaders\FlashMaskReset.shader" />
-     <None Include="Assets\FlashTools\Shaders\FlashAnim.shader" />
-     <None Include="Assets\FlashTools\Shaders\FlashMask.shader" />
-     <None Include="Assets\FlashTools\Shaders\FlashMasked.shader" />
+     <None Include="Assets\FlashTools\Resources\Shaders\SwfDecrMask.shader" />
+     <None Include="Assets\FlashTools\Resources\Shaders\SwfSimple.shader" />
+     <None Include="Assets\FlashTools\Resources\Shaders\SwfIncrMask.shader" />
+     <None Include="Assets\FlashTools\Resources\Shaders\SwfMasked.shader" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>
