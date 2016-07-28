@@ -72,7 +72,7 @@ namespace FlashTools.Internal {
 			return AddDisplayListToFrame(
 				context,
 				context.DisplayList,
-				false,
+				0,
 				0,
 				null,
 				Matrix4x4.identity,
@@ -83,7 +83,7 @@ namespace FlashTools.Internal {
 		static SwfAnimationFrameData AddDisplayListToFrame(
 			SwfContext                     ctx,
 			SwfDisplayList                 dl,
-			bool                           parent_masked,
+			ushort                         parent_masked,
 			ushort                         parent_mask,
 			List<SwfAnimationInstanceData> parent_masks,
 			Matrix4x4                      parent_matrix,
@@ -123,8 +123,8 @@ namespace FlashTools.Internal {
 							var bitmap_def    = ctx.Library.FindDefine<SwfLibraryBitmapDefine>(bitmap_id);
 							if ( bitmap_def != null ) {
 								frame.Instances.Add(new SwfAnimationInstanceData{
-									Type           = (parent_mask > 0 || inst.ClipDepth > 0) ? SwfAnimationInstanceType.Mask : (parent_masked || masks.Count > 0 ? SwfAnimationInstanceType.Masked : SwfAnimationInstanceType.Group),
-									ClipDepth      = (ushort)(parent_mask > 0 ? parent_mask : (inst.ClipDepth > 0 ? inst.ClipDepth : (ushort)0)),
+									Type           = (parent_mask > 0 || inst.ClipDepth > 0) ? SwfAnimationInstanceType.Mask : (parent_masked > 0 || masks.Count > 0 ? SwfAnimationInstanceType.Masked : SwfAnimationInstanceType.Group),
+									ClipDepth      = (ushort)(parent_mask > 0 ? parent_mask : (inst.ClipDepth > 0 ? inst.ClipDepth : (parent_masked + masks.Count))),
 									Bitmap         = bitmap_id,
 									Matrix         = parent_matrix * inst.Matrix.ToUnityMatrix() * bitmap_matrix.ToUnityMatrix(),
 									ColorTransform = parent_color_transform * inst.ColorTransform.ToAnimationColorTransform()});
@@ -149,7 +149,7 @@ namespace FlashTools.Internal {
 						AddDisplayListToFrame(
 							ctx,
 							sprite_inst.DisplayList,
-							parent_masked ? parent_masked : (masks.Count > 0),
+							(ushort)(parent_masked + masks.Count),
 							(ushort)(parent_mask > 0 ? parent_mask : (inst.ClipDepth > 0 ? inst.ClipDepth : (ushort)0)),
 							parent_mask > 0 ? parent_masks : (inst.ClipDepth > 0 ? masks : null),
 							parent_matrix * sprite_inst.Matrix.ToUnityMatrix(),

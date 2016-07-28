@@ -1,6 +1,7 @@
 Shader "FlashTools/FlashMasked" {
 	Properties {
-		[PerRendererData] _MainTex ("Main Texture", 2D) = "white" {}
+		[PerRendererData] _MainTex   ("Main Texture", 2D ) = "white" {}
+		[PerRendererData] _StencilID ("Stencil ID"  , Int) = 0
 	}
 
 	SubShader {
@@ -19,8 +20,8 @@ Shader "FlashTools/FlashMasked" {
 
 		Pass {
 			Stencil {
-				Ref  0
-				Comp Less
+				Ref  [_StencilID]
+				Comp Equal
 			}
 		CGPROGRAM
 			#pragma vertex vert

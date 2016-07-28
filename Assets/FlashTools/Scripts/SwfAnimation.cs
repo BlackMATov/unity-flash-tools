@@ -30,6 +30,7 @@ namespace FlashTools {
 
 		class Group {
 			public SwfAnimationInstanceType Type;
+			public int                      ClipDepth;
 			public List<int>                Triangles;
 			public Material                 Material;
 		}
@@ -140,9 +141,10 @@ namespace FlashTools {
 						_addcolors.Add(inst.ColorTransform.Add);
 						_addcolors.Add(inst.ColorTransform.Add);
 
-						if ( _groups.Count == 0 || _groups[_groups.Count - 1].Type != inst.Type) {
+						if ( _groups.Count == 0 || _groups[_groups.Count - 1].Type != inst.Type || _groups[_groups.Count - 1].ClipDepth != inst.ClipDepth) {
 							var gr = new Group();
 							gr.Type = inst.Type;
+							gr.ClipDepth = inst.ClipDepth;
 							gr.Triangles = new List<int>();
 							_groups.Add(gr);
 						}
@@ -238,6 +240,7 @@ namespace FlashTools {
 					case SwfAnimationInstanceType.Masked:
 						gr.Material = new Material(Shader.Find("FlashTools/FlashMasked"));
 						gr.Material.SetTexture("_MainTex", Asset.Atlas);
+						gr.Material.SetInt("_StencilID", gr.ClipDepth);
 						break;
 					case SwfAnimationInstanceType.MaskReset:
 						gr.Material = new Material(Shader.Find("FlashTools/FlashMaskReset"));
