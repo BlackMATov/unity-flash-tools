@@ -45,10 +45,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimAssetEditor.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimAssetPostprocessor.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimEditor.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\FlashAnimFtaPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationAssetEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationAssetPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationEditor.cs" />

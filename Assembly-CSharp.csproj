@@ -45,8 +45,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\FlashTools\Scripts\FlashAnim.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\FlashAnimAsset.cs" />
      <Compile Include="Assets\FlashTools\Scripts\SwfAnimation.cs" />
      <Compile Include="Assets\FlashTools\Scripts\SwfAnimationAsset.cs" />
      <None Include="Assets\FlashTools\Shaders\FlashMaskReset.shader" />
