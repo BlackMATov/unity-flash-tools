@@ -93,6 +93,14 @@ namespace FlashTools.Internal.SwfTools {
 			return _binaryReader.ReadUInt32();
 		}
 
+		public float ReadFloat32() {
+			return _binaryReader.ReadSingle();
+		}
+
+		public double ReadDouble64() {
+			return _binaryReader.ReadDouble();
+		}
+
 		public int ReadSignedBits(uint count) {
 			if ( count == 0 ) {
 				return 0;

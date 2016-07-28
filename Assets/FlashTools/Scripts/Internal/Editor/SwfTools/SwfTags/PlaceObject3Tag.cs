@@ -63,8 +63,20 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			if ( HasClipDepth ) {
 				sb.AppendFormat(", ClipDepth: {0}", ClipDepth);
 			}
+			if ( HasFilterList ) {
+				sb.AppendFormat(", SurfaceFilters: {0}", SurfaceFilters);
+			}
+			if ( HasBlendMode ) {
+				sb.AppendFormat(", BlendMode: {0}", BlendMode);
+			}
+			if ( HasCacheAsBitmap ) {
+				sb.AppendFormat(", BitmapCache: {0}", BitmapCache);
+			}
+			if ( HasVisible ) {
+				sb.AppendFormat(", Visible: {0}", Visible);
+			}
 			if ( HasClipActions ) {
-				sb.AppendFormat(", ClipActions: {0}", HasClipActions);
+				sb.AppendFormat(", ClipActions: {0}", ClipActions);
 			}
 			return sb.ToString();
 		}
