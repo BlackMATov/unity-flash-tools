@@ -17,16 +17,10 @@ namespace FlashTools {
 		float  _frame_timer     = 0.0f;
 		string _last_asset_path = string.Empty;
 
-		List<Vector2>   _uvs           = new List<Vector2>();
-		List<Color>     _mulcolors     = new List<Color>();
-		List<Vector4>   _addcolors     = new List<Vector4>();
-		List<Vector3>   _vertices      = new List<Vector3>();
-
-		enum GroupType {
-			Mask,
-			Group,
-			MaskReset
-		}
+		List<Vector2>   _uvs       = new List<Vector2>();
+		List<Color>     _mulcolors = new List<Color>();
+		List<Vector4>   _addcolors = new List<Vector4>();
+		List<Vector3>   _vertices  = new List<Vector3>();
 
 		class Group {
 			public SwfAnimationInstanceType Type;
@@ -149,73 +143,6 @@ namespace FlashTools {
 							_groups.Add(gr);
 						}
 
-						/*
-						if ( inst.MaskGroup != 0 ) {
-							if ( _groups.Count == 0 || _groups[_groups.Count - 1].MaskGroup != inst.MaskGroup ) {
-								var gr = new Group();
-								gr.Type = GroupType.Mask;
-								gr.MaskGroup = inst.MaskGroup;
-								gr.Triangles = new List<int>();
-								_groups.Add(gr);
-							} else {
-								// batching mask group
-							}
-						} else {
-							if ( _groups.Count == 0 ) {
-								var gr = new Group();
-								gr.Type = GroupType.Group;
-								gr.MaskGroup = 0;
-								gr.Triangles = new List<int>();
-								_groups.Add(gr);
-							}
-						}*/
-
-						/*
-						if ( inst.ClipDepth != 0 ) {
-							var gr = new Group();
-							gr.Type = GroupType.Mask;
-							gr.Triangles = new List<int>();
-							gr.ClipDepth = inst.ClipDepth;
-							_groups.Add(gr);
-						} else {
-							if ( _groups.Count == 0 ) {
-								var gr = new Group();
-								gr.Type = GroupType.Group;
-								gr.Triangles = new List<int>();
-								gr.ClipDepth = 0;
-								_groups.Add(gr);
-							} else {
-								var last_group = _groups[_groups.Count - 1];
-								if ( last_group.Type == GroupType.Mask ) {
-									if ( inst.Depth <= last_group.ClipDepth ) {
-										var gr = new Group();
-										gr.Type = GroupType.Masked;
-										gr.Triangles = new List<int>();
-										gr.ClipDepth = last_group.ClipDepth;
-										_groups.Add(gr);
-									} else {
-										var gr = new Group();
-										gr.Type = GroupType.Group;
-										gr.Triangles = new List<int>();
-										gr.ClipDepth = 0;
-										_groups.Add(gr);
-									}
-								} else if ( last_group.Type == GroupType.Masked ) {
-									if ( inst.Depth <= last_group.ClipDepth ) {
-										// nothing
-									} else {
-										var gr = new Group();
-										gr.Type = GroupType.Group;
-										gr.Triangles = new List<int>();
-										gr.ClipDepth = 0;
-										_groups.Add(gr);
-									}
-								} else if ( last_group.Type == GroupType.Group ) {
-									// nothing
-								}
-							}
-						}*/
-
 						_groups[_groups.Count - 1].Triangles.Add(_vertices.Count - 4 + 2);
 						_groups[_groups.Count - 1].Triangles.Add(_vertices.Count - 4 + 1);
 						_groups[_groups.Count - 1].Triangles.Add(_vertices.Count - 4 + 0);
@@ -230,20 +157,20 @@ namespace FlashTools {
 					var gr = full_groups[i];
 					switch ( gr.Type ) {
 					case SwfAnimationInstanceType.Mask:
-						gr.Material = new Material(Shader.Find("FlashTools/FlashMask"));
+						gr.Material = new Material(Shader.Find("FlashTools/SwfIncrMask"));
 						gr.Material.SetTexture("_MainTex", Asset.Atlas);
 						break;
 					case SwfAnimationInstanceType.Group:
-						gr.Material = new Material(Shader.Find("FlashTools/FlashAnim"));
+						gr.Material = new Material(Shader.Find("FlashTools/SwfSimple"));
 						gr.Material.SetTexture("_MainTex", Asset.Atlas);
 						break;
 					case SwfAnimationInstanceType.Masked:
-						gr.Material = new Material(Shader.Find("FlashTools/FlashMasked"));
+						gr.Material = new Material(Shader.Find("FlashTools/SwfMasked"));
 						gr.Material.SetTexture("_MainTex", Asset.Atlas);
 						gr.Material.SetInt("_StencilID", gr.ClipDepth);
 						break;
 					case SwfAnimationInstanceType.MaskReset:
-						gr.Material = new Material(Shader.Find("FlashTools/FlashMaskReset"));
+						gr.Material = new Material(Shader.Find("FlashTools/SwfDecrMask"));
 						gr.Material.SetTexture("_MainTex", Asset.Atlas);
 						break;
 					}

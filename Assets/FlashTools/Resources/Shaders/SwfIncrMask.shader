@@ -1,4 +1,4 @@
-Shader "FlashTools/FlashMaskReset" {
+Shader "FlashTools/SwfIncrMask" {
 	Properties {
 		[PerRendererData] _MainTex ("Main Texture", 2D) = "white" {}
 	}
@@ -13,16 +13,16 @@ Shader "FlashTools/FlashMaskReset" {
 		}
 
 		ColorMask 0
-		Cull Off
-		Lighting Off
-		ZWrite Off
-		Blend One OneMinusSrcAlpha
+		Cull      Off
+		Lighting  Off
+		ZWrite    Off
+		Blend     One OneMinusSrcAlpha
 
 		Pass {
 			Stencil {
 				Ref  0
 				Comp always
-				Pass DecrSat
+				Pass IncrSat
 			}
 		CGPROGRAM
 			#pragma vertex vert
@@ -47,9 +47,20 @@ Shader "FlashTools/FlashMaskReset" {
 			}
 
 			sampler2D _MainTex;
+			sampler2D _AlphaTex;
+			float     _AlphaSplitEnabled;
+
+			fixed4 SampleSpriteTexture(float2 uv) {
+				fixed4 color = tex2D(_MainTex, uv);
+			#if UNITY_TEXTURE_ALPHASPLIT_ALLOWED
+				if (_AlphaSplitEnabled)
+					color.a = tex2D(_AlphaTex, uv).r;
+			#endif //UNITY_TEXTURE_ALPHASPLIT_ALLOWED
+				return color;
+			}
 
 			fixed4 frag(v2f IN) : SV_Target {
-				fixed4 c = tex2D(_MainTex, IN.uv);
+				fixed4 c = SampleSpriteTexture(IN.uv);
 				if ( c.a < 0.01 ) {
 					discard;
 				}

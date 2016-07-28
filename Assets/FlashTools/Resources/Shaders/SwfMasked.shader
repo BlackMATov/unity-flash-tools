@@ -1,6 +1,7 @@
-Shader "FlashTools/FlashAnim" {
+Shader "FlashTools/SwfMasked" {
 	Properties {
-		[PerRendererData] _MainTex ("Main Texture", 2D) = "white" {}
+		[PerRendererData] _MainTex   ("Main Texture", 2D ) = "white" {}
+		[PerRendererData] _StencilID ("Stencil ID"  , Int) = 0
 	}
 
 	SubShader {
@@ -12,12 +13,16 @@ Shader "FlashTools/FlashAnim" {
 			"CanUseSpriteAtlas" = "True"
 		}
 
-		Cull Off
+		Cull     Off
 		Lighting Off
-		ZWrite Off
-		Blend One OneMinusSrcAlpha
+		ZWrite   Off
+		Blend    One OneMinusSrcAlpha
 
 		Pass {
+			Stencil {
+				Ref  [_StencilID]
+				Comp Equal
+			}
 		CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
