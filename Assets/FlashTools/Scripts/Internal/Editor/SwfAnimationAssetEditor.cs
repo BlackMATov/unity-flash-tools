@@ -23,11 +23,12 @@ namespace FlashTools.Internal {
 		}
 
 		void CreateAnimationPrefab() {
+			//TODO: IMPLME
 		}
 
 		void CreateAnimationOnScene() {
 			if ( _asset ) {
-				var anim_go = new GameObject("SwfAnimation");
+				var anim_go = new GameObject(_asset.name);
 				var mesh_renderer = anim_go.AddComponent<MeshRenderer>();
 				mesh_renderer.sharedMaterial = null;
 				mesh_renderer.useLightProbes = false;
