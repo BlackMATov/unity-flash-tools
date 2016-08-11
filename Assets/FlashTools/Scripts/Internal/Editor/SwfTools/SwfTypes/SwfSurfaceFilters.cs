@@ -34,6 +34,14 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			public override FilterType Type {
 				get { return FilterType.Glow; }
 			}
+			public SwfColor GlowColor;
+			public float    BlurX;
+			public float    BlurY;
+			public float    Strength;
+			public bool     InnerGlow;
+			public bool     Knockout;
+			public bool     CompositeSource;
+			public uint     Passes;
 		}
 
 		public class BevelFilter : Filter {
@@ -131,9 +139,15 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		static Filter ReadConcreteFilter(GlowFilter filter, SwfStreamReader reader) {
-			//TODO: IMPLME
-			throw new UnityException(string.Format(
-				"Unsupported surface filter type: {0}", filter.Type));
+			filter.GlowColor       = SwfColor.Read(reader, true);
+			filter.BlurX           = reader.ReadFixedPoint_16_16();
+			filter.BlurY           = reader.ReadFixedPoint_16_16();
+			filter.Strength        = reader.ReadFixedPoint_8_8();
+			filter.InnerGlow       = reader.ReadBit();
+			filter.Knockout        = reader.ReadBit();
+			filter.CompositeSource = reader.ReadBit();
+			filter.Passes          = reader.ReadUnsignedBits(5);
+			return filter;
 		}
 
 		static Filter ReadConcreteFilter(BevelFilter filter, SwfStreamReader reader) {

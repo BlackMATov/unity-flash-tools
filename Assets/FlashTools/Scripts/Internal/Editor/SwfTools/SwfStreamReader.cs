@@ -139,8 +139,14 @@ namespace FlashTools.Internal.SwfTools {
 			return Encoding.UTF8.GetString(bytes.ToArray());
 		}
 
-		public float ReadFixedPoint8() {
-			return ReadInt16() / 256.0f;
+		public float ReadFixedPoint_8_8() {
+			var value = ReadInt16();
+			return value / 256.0f;
+		}
+
+		public float ReadFixedPoint_16_16() {
+			var value = ReadInt32();
+			return value / 65536.0f;
 		}
 
 		public float ReadFixedPoint16(uint bits) {

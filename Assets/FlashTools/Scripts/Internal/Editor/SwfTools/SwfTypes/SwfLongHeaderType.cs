@@ -9,7 +9,7 @@
 			var header         = new SwfLongHeader();
 			header.ShortHeader = SwfShortHeader.Read(reader);
 			header.FrameSize   = SwfRect.Read(reader);
-			header.FrameRate   = reader.ReadFixedPoint8();
+			header.FrameRate   = reader.ReadFixedPoint_8_8();
 			header.FrameCount  = reader.ReadUInt16();
 			return header;
 		}

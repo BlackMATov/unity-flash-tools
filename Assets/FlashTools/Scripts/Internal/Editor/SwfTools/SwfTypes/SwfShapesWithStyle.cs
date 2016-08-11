@@ -143,7 +143,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				reader.ReadByte(); // Ratio
 				SwfColor.Read(reader, with_alpha);
 			}
-			reader.ReadFixedPoint8(); // FocalPoint
+			reader.ReadFixedPoint_8_8(); // FocalPoint
 		}
 
 		// ------------------------------------------------------------------------
@@ -189,7 +189,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			reader.ReadBit();             // NoClose
 			reader.ReadUnsignedBits(2);   // EndCapStyle
 			if ( join_style == 2 ) {
-				reader.ReadFixedPoint8(); // MiterLimitFactor
+				reader.ReadFixedPoint_8_8(); // MiterLimitFactor
 			}
 			if ( has_fill_flag ) {
 				ReadFillStyle(reader, true); // FillStyle
