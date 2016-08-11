@@ -183,9 +183,10 @@ namespace FlashTools.Internal {
 			var textures = bitmap_defines
 				.Select(p => LoadTextureFromBitmapDefine(p.Value));
 
-			var atlas = new Texture2D(0, 0);
+			var atlas = new Texture2D(0, 0, TextureFormat.ARGB32, false);
 			var atlas_rects = atlas.PackTextures(
 				textures.ToArray(), asset.AtlasPadding, asset.MaxAtlasSize);
+
 			File.WriteAllBytes(
 				GetAtlasPath(swf_asset),
 				atlas.EncodeToPNG());
@@ -212,7 +213,23 @@ namespace FlashTools.Internal {
 				bitmap.Width, bitmap.Height,
 				TextureFormat.ARGB32, false);
 			texture.LoadRawTextureData(bitmap.ARGB32);
+			RevertTexturePremultipliedAlpha(texture);
 			return texture;
+		}
+
+		static void RevertTexturePremultipliedAlpha(Texture2D texture) {
+			for (int y = 0; y < texture.height; ++y) {
+				for (int x = 0; x < texture.width; ++x) {
+					var c = texture.GetPixel(x, y);
+					if ( c.a > 0 ) {
+						c.r /= c.a;
+						c.g /= c.a;
+						c.b /= c.a;
+					}
+					texture.SetPixel(x, y, c);
+				}
+			}
+			texture.Apply();
 		}
 
 		static string GetAtlasPath(string swf_asset) {
