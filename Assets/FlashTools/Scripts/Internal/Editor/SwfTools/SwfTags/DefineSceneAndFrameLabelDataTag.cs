@@ -12,8 +12,8 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			public string Label;
 		}
 
-		public List<SceneOffsetData> Scenes = new List<SceneOffsetData>();
-		public List<FrameLabelData>  Frames = new List<FrameLabelData>();
+		public List<SceneOffsetData> Scenes;
+		public List<FrameLabelData>  Frames;
 
 		public override SwfTagType TagType {
 			get { return SwfTagType.DefineSceneAndFrameLabelData; }
@@ -31,22 +31,25 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 		}
 
 		public static DefineSceneAndFrameLabelDataTag Create(SwfStreamReader reader) {
-			var tag = new DefineSceneAndFrameLabelDataTag();
-			tag.Scenes.Capacity = (int)reader.ReadEncodedU32();
-			for ( var i = 0; i < tag.Scenes.Capacity; ++i ) {
-				tag.Scenes.Add(new SceneOffsetData{
+			var scene_count = (int)reader.ReadEncodedU32();
+			var scenes = new List<SceneOffsetData>(scene_count);
+			for ( var i = 0; i < scenes.Capacity; ++i ) {
+				scenes.Add(new SceneOffsetData{
 					Offset = reader.ReadEncodedU32(),
 					Name   = reader.ReadString()
 				});
 			}
-			tag.Frames.Capacity = (int)reader.ReadEncodedU32();
-			for ( var i = 0; i < tag.Frames.Capacity; ++i ) {
-				tag.Frames.Add(new FrameLabelData{
+			var frame_count = (int)reader.ReadEncodedU32();
+			var frames = new List<FrameLabelData>(frame_count);
+			for ( var i = 0; i < frames.Capacity; ++i ) {
+				frames.Add(new FrameLabelData{
 					Number = reader.ReadEncodedU32(),
 					Label  = reader.ReadString()
 				});
 			}
-			return tag;
+			return new DefineSceneAndFrameLabelDataTag{
+				Scenes = scenes,
+				Frames = frames};
 		}
 	}
 }

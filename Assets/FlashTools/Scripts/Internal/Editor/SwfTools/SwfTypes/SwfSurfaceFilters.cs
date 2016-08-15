@@ -143,12 +143,12 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		public static SwfSurfaceFilters Read(SwfStreamReader reader) {
-			var surface_filters = SwfSurfaceFilters.identity;
-			byte count = reader.ReadByte();
-			for ( var i = 0; i < count; ++i ) {
-				surface_filters.Filters.Add(ReadFilter(reader));
+			var count = reader.ReadByte();
+			var filters = new List<Filter>(count);
+			for ( var i = 0; i < filters.Capacity; ++i ) {
+				filters.Add(ReadFilter(reader));
 			}
-			return surface_filters;
+			return new SwfSurfaceFilters{Filters = filters};
 		}
 
 		public override string ToString() {
