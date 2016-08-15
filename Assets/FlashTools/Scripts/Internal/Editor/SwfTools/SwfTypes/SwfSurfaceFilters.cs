@@ -22,56 +22,114 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			public override FilterType Type {
 				get { return FilterType.DropShadow; }
 			}
+			public SwfColor   DropShadowColor;
+			public float      BlurX;
+			public float      BlurY;
+			public float      Angle;
+			public float      Distance;
+			public float      Strength;
+			public bool       InnerShadow;
+			public bool       Knockout;
+			public bool       CompositeSource;
+			public uint       Passes;
 		}
 
 		public class BlurFilter : Filter {
 			public override FilterType Type {
 				get { return FilterType.Blur; }
 			}
+			public float      BlurX;
+			public float      BlurY;
+			public uint       Passes;
 		}
 
 		public class GlowFilter : Filter {
 			public override FilterType Type {
 				get { return FilterType.Glow; }
 			}
-			public SwfColor GlowColor;
-			public float    BlurX;
-			public float    BlurY;
-			public float    Strength;
-			public bool     InnerGlow;
-			public bool     Knockout;
-			public bool     CompositeSource;
-			public uint     Passes;
+			public SwfColor   GlowColor;
+			public float      BlurX;
+			public float      BlurY;
+			public float      Strength;
+			public bool       InnerGlow;
+			public bool       Knockout;
+			public bool       CompositeSource;
+			public uint       Passes;
 		}
 
 		public class BevelFilter : Filter {
 			public override FilterType Type {
 				get { return FilterType.Bevel; }
 			}
+			public SwfColor   ShadowColor;
+			public SwfColor   HighlightColor;
+			public float      BlurX;
+			public float      BlurY;
+			public float      Angle;
+			public float      Distance;
+			public float      Strength;
+			public bool       InnerShadow;
+			public bool       Knockout;
+			public bool       CompositeSource;
+			public bool       OnTop;
+			public uint       Passes;
 		}
 
 		public class GradientGlowFilter : Filter {
 			public override FilterType Type {
 				get { return FilterType.GradientGlow; }
 			}
+			public SwfColor[] GradientColors;
+			public byte[]     GradientRatio;
+			public float      BlurX;
+			public float      BlurY;
+			public float      Angle;
+			public float      Distance;
+			public float      Strength;
+			public bool       InnerShadow;
+			public bool       Knockout;
+			public bool       CompositeSource;
+			public bool       OnTop;
+			public uint       Passes;
 		}
 
 		public class ConvolutionFilter : Filter {
 			public override FilterType Type {
 				get { return FilterType.Convolution; }
 			}
+			public byte       MatrixX;
+			public byte       MatrixY;
+			public float      Divisor;
+			public float      Bias;
+			public float[]    Matrix;
+			public SwfColor   DefaultColor;
+			public bool       Clamp;
+			public bool       PreserveAlpha;
 		}
 
 		public class ColorMatrixFilter : Filter {
 			public override FilterType Type {
 				get { return FilterType.ColorMatrix; }
 			}
+			public float[]    Matrix;
 		}
 
 		public class GradientBevelFilter : Filter {
 			public override FilterType Type {
 				get { return FilterType.GradientBevel; }
 			}
+			public SwfColor[] GradientColors;
+			public byte[]     GradientRatio;
+			public float      BlurX;
+			public float      BlurY;
+			public float      Angle;
+			public float      Distance;
+			public float      Strength;
+			public bool       InnerShadow;
+			public bool       Knockout;
+			public bool       CompositeSource;
+			public bool       OnTop;
+			public uint       Passes;
 		}
 
 		public List<Filter> Filters;
@@ -127,15 +185,25 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		static Filter ReadConcreteFilter(DropShadowFilter filter, SwfStreamReader reader) {
-			//TODO: IMPLME
-			throw new UnityException(string.Format(
-				"Unsupported surface filter type: {0}", filter.Type));
+			filter.DropShadowColor = SwfColor.Read(reader, true);
+			filter.BlurX           = reader.ReadFixedPoint_16_16();
+			filter.BlurY           = reader.ReadFixedPoint_16_16();
+			filter.Angle           = reader.ReadFixedPoint_16_16();
+			filter.Distance        = reader.ReadFixedPoint_16_16();
+			filter.Strength        = reader.ReadFixedPoint_8_8();
+			filter.InnerShadow     = reader.ReadBit();
+			filter.Knockout        = reader.ReadBit();
+			filter.CompositeSource = reader.ReadBit();
+			filter.Passes          = reader.ReadUnsignedBits(5);
+			return filter;
 		}
 
 		static Filter ReadConcreteFilter(BlurFilter filter, SwfStreamReader reader) {
-			//TODO: IMPLME
-			throw new UnityException(string.Format(
-				"Unsupported surface filter type: {0}", filter.Type));
+			filter.BlurX           = reader.ReadFixedPoint_16_16();
+			filter.BlurY           = reader.ReadFixedPoint_16_16();
+			filter.Passes          = reader.ReadUnsignedBits(5);
+			reader.ReadUnsignedBits(3); // reserved
+			return filter;
 		}
 
 		static Filter ReadConcreteFilter(GlowFilter filter, SwfStreamReader reader) {
@@ -151,33 +219,89 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		static Filter ReadConcreteFilter(BevelFilter filter, SwfStreamReader reader) {
-			//TODO: IMPLME
-			throw new UnityException(string.Format(
-				"Unsupported surface filter type: {0}", filter.Type));
+			filter.ShadowColor     = SwfColor.Read(reader, true);
+			filter.HighlightColor  = SwfColor.Read(reader, true);
+			filter.BlurX           = reader.ReadFixedPoint_16_16();
+			filter.BlurY           = reader.ReadFixedPoint_16_16();
+			filter.Angle           = reader.ReadFixedPoint_16_16();
+			filter.Distance        = reader.ReadFixedPoint_16_16();
+			filter.Strength        = reader.ReadFixedPoint_8_8();
+			filter.InnerShadow     = reader.ReadBit();
+			filter.Knockout        = reader.ReadBit();
+			filter.CompositeSource = reader.ReadBit();
+			filter.OnTop           = reader.ReadBit();
+			filter.Passes          = reader.ReadUnsignedBits(4);
+			return filter;
 		}
 
 		static Filter ReadConcreteFilter(GradientGlowFilter filter, SwfStreamReader reader) {
-			//TODO: IMPLME
-			throw new UnityException(string.Format(
-				"Unsupported surface filter type: {0}", filter.Type));
+			var num_colors         = reader.ReadByte();
+			filter.GradientColors  = new SwfColor[num_colors];
+			for ( var i = 0; i < num_colors; ++i ) {
+				filter.GradientColors[i] = SwfColor.Read(reader, true);
+			}
+			filter.GradientRatio   = new byte[num_colors];
+			for ( var i = 0; i < num_colors; ++i ) {
+				filter.GradientRatio[i] = reader.ReadByte();
+			}
+			filter.BlurX           = reader.ReadFixedPoint_16_16();
+			filter.BlurY           = reader.ReadFixedPoint_16_16();
+			filter.Angle           = reader.ReadFixedPoint_16_16();
+			filter.Distance        = reader.ReadFixedPoint_16_16();
+			filter.Strength        = reader.ReadFixedPoint_8_8();
+			filter.InnerShadow     = reader.ReadBit();
+			filter.Knockout        = reader.ReadBit();
+			filter.CompositeSource = reader.ReadBit();
+			filter.OnTop           = reader.ReadBit();
+			filter.Passes          = reader.ReadUnsignedBits(4);
+			return filter;
 		}
 
 		static Filter ReadConcreteFilter(ConvolutionFilter filter, SwfStreamReader reader) {
-			//TODO: IMPLME
-			throw new UnityException(string.Format(
-				"Unsupported surface filter type: {0}", filter.Type));
+			filter.MatrixX         = reader.ReadByte();
+			filter.MatrixY         = reader.ReadByte();
+			filter.Divisor         = reader.ReadFloat32();
+			filter.Bias            = reader.ReadFloat32();
+			filter.Matrix          = new float[filter.MatrixX * filter.MatrixY];
+			for ( var i = 0; i < filter.Matrix.Length; ++i ) {
+				filter.Matrix[i] = reader.ReadFloat32();
+			}
+			filter.DefaultColor    = SwfColor.Read(reader, true);
+			reader.ReadUnsignedBits(6); // reserved
+			filter.Clamp           = reader.ReadBit();
+			filter.PreserveAlpha   = reader.ReadBit();
+			return filter;
 		}
 
 		static Filter ReadConcreteFilter(ColorMatrixFilter filter, SwfStreamReader reader) {
-			//TODO: IMPLME
-			throw new UnityException(string.Format(
-				"Unsupported surface filter type: {0}", filter.Type));
+			filter.Matrix          = new float[20];
+			for ( var i = 0; i < filter.Matrix.Length; ++i ) {
+				filter.Matrix[i] = reader.ReadFloat32();
+			}
+			return filter;
 		}
 
 		static Filter ReadConcreteFilter(GradientBevelFilter filter, SwfStreamReader reader) {
-			//TODO: IMPLME
-			throw new UnityException(string.Format(
-				"Unsupported surface filter type: {0}", filter.Type));
+			var num_colors         = reader.ReadByte();
+			filter.GradientColors  = new SwfColor[num_colors];
+			for ( var i = 0; i < num_colors; ++i ) {
+				filter.GradientColors[i] = SwfColor.Read(reader, true);
+			}
+			filter.GradientRatio   = new byte[num_colors];
+			for ( var i = 0; i < num_colors; ++i ) {
+				filter.GradientRatio[i] = reader.ReadByte();
+			}
+			filter.BlurX           = reader.ReadFixedPoint_16_16();
+			filter.BlurY           = reader.ReadFixedPoint_16_16();
+			filter.Angle           = reader.ReadFixedPoint_16_16();
+			filter.Distance        = reader.ReadFixedPoint_16_16();
+			filter.Strength        = reader.ReadFixedPoint_8_8();
+			filter.InnerShadow     = reader.ReadBit();
+			filter.Knockout        = reader.ReadBit();
+			filter.CompositeSource = reader.ReadBit();
+			filter.OnTop           = reader.ReadBit();
+			filter.Passes          = reader.ReadUnsignedBits(4);
+			return filter;
 		}
 	}
 }
