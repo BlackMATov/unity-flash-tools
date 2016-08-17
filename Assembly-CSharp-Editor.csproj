@@ -61,7 +61,6 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineShape4Tag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineShapeTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineSpriteTag.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DoABCTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\EndTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\FileAttributesTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\FrameLabelTag.cs" />
@@ -74,9 +73,7 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\ShowFrameTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\SwfTagBase.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\SwfTagVisitor.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\SymbolClassTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\UnknownTag.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfABCFile.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfBlendMode.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfClipActions.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfColor.cs" />
