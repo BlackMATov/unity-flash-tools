@@ -66,7 +66,9 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public byte[] ReadBytes(int count) {
-			return _binaryReader.ReadBytes(count);
+			return count <= 0
+				? new byte[0]
+				: _binaryReader.ReadBytes(count);
 		}
 
 		public char ReadChar() {
@@ -74,7 +76,9 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public char[] ReadChars(int count) {
-			return _binaryReader.ReadChars(count);
+			return count <= 0
+				? new char[0]
+				: _binaryReader.ReadChars(count);
 		}
 
 		public short ReadInt16() {

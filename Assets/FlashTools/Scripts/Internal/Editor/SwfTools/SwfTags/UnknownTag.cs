@@ -12,7 +12,9 @@
 
 		public override string ToString() {
 			return string.Format(
-				"TagId: {0}", TagId);
+				"UnknownTag. " +
+				"TagId: {0}",
+				TagId);
 		}
 
 		public static UnknownTag Create(int tag_id) {

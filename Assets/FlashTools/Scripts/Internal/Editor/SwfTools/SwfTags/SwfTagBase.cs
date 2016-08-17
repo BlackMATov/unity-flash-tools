@@ -26,7 +26,7 @@
 		//ScriptLimits = 65,
 		//SetTabIndex = 66,
 		//ImportAssets2 = 71,
-		//SymbolClass = 76,
+		SymbolClass = 76,
 		//Metadata = 77,
 		//DefineScalingGrid = 78,
 		DefineSceneAndFrameLabelData = 86,
@@ -37,7 +37,7 @@
 
 		//DoAction = 12,
 		//DoInitAction = 59,
-		//DoABC = 82,
+		DoABC = 82,
 
 		// -----------------------------
 		// Shape
@@ -165,7 +165,9 @@
 			case (int)SwfTagType.SetBackgroundColor:           return SetBackgroundColorTag.Create(reader);
 			case (int)SwfTagType.FrameLabel:                   return FrameLabelTag.Create(reader);
 			case (int)SwfTagType.End:                          return EndTag.Create(reader);
+			case (int)SwfTagType.SymbolClass:                  return SymbolClassTag.Create(reader);
 			case (int)SwfTagType.DefineSceneAndFrameLabelData: return DefineSceneAndFrameLabelDataTag.Create(reader);
+			case (int)SwfTagType.DoABC:                        return DoABCTag.Create(reader);
 			case (int)SwfTagType.DefineShape:                  return DefineShapeTag.Create(reader);
 			case (int)SwfTagType.DefineShape2:                 return DefineShape2Tag.Create(reader);
 			case (int)SwfTagType.DefineShape3:                 return DefineShape3Tag.Create(reader);

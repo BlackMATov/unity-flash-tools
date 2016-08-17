@@ -320,20 +320,8 @@ if (!Function.prototype.bind) {
 
 	var fttim = {};
 	
-	fttim.remove_empty_layers = function(timeline) {
-		ft.type_assert(timeline, Timeline);
-		var layers = timeline.layers;
-		for ( var i = layers.length - 1; i >= 0; --i ) {
-			if (ftlay.is_empty(layers[i])) {
-				timeline.deleteLayer(i);
-				layers = timeline.layers;
-			}
-		}
-	};
-	
 	fttim.prepare_keyframes = function(timeline) {
 		ft.type_assert(timeline, Timeline);
-		fttim.remove_empty_layers(timeline);
 		if ( timeline.layers.length > 0 && timeline.frameCount > 1 ) {
 			timeline.selectAllFrames();
 			//timeline.convertToKeyframes();
@@ -377,23 +365,6 @@ if (!Function.prototype.bind) {
 				frame.convertToFrameByFrameAnimation();
 			}.bind(this));
 		}.bind(this));
-	};
-	
-	ftlay.is_empty = function(layer) {
-		if ( !layer.visible ) {
-			return true;
-		}
-		if ( layer.layerType == "guide" || layer.layerType == "mask" || layer.layerType == "folder" ) {
-			return false;
-		}
-		var frames = layer.frames;
-		for ( var i = 0; i < frames.length; ++i ) {
-			var frame = frames[i];
-			if ( frame.elements.length != 0 ) {
-				return false;
-			}
-		}
-		return true;
 	};
 	
 	ftlay.convert_shapes = function(layer, timeline, document) {

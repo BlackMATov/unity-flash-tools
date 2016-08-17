@@ -196,8 +196,18 @@ namespace FlashTools.Internal.SwfTools {
 			return dl;
 		}
 
+		public SwfDisplayList Visit(SymbolClassTag tag, SwfDisplayList dl) {
+			Debug.Log(tag);
+			return dl;
+		}
+
 		public SwfDisplayList Visit(DefineSceneAndFrameLabelDataTag tag, SwfDisplayList dl) {
-			Debug.LogWarning(tag);
+			Debug.Log(tag);
+			return dl;
+		}
+
+		public SwfDisplayList Visit(DoABCTag tag, SwfDisplayList dl) {
+			Debug.Log(tag);
 			return dl;
 		}
 
