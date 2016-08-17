@@ -2,18 +2,18 @@
 using System;
 using System.Collections.Generic;
 
-namespace FlashTools.Internal.SwfTools.SwfAvm2 {
-	public class SwfAbcFile {
+namespace FlashTools.Internal.SwfTools.SwfTypes {
+	public class SwfABCFile {
 		public AbcFileInfo Info;
 
-		public static SwfAbcFile Read(SwfStreamReader reader) {
-			return new SwfAbcFile{
+		public static SwfABCFile Read(SwfStreamReader reader) {
+			return new SwfABCFile{
 				Info = ParseAbcFileInfo(reader)};
 		}
 
 		// ------------------------------------------------------------------------
 		//
-		// Data
+		// Info
 		//
 		// ------------------------------------------------------------------------
 
@@ -199,7 +199,7 @@ namespace FlashTools.Internal.SwfTools.SwfAvm2 {
 			public uint                LocalCount;
 			public uint                InitScopeDepth;
 			public uint                MaxScopeDepth;
-			public byte[]              Code;
+			public byte[]              AbcCodeBytes;
 			public List<ExceptionInfo> Exceptions;
 			public List<TraitInfo>     Traits;
 		}
@@ -239,6 +239,13 @@ namespace FlashTools.Internal.SwfTools.SwfAvm2 {
 
 			abc_file_info.MinorVersion = reader.ReadUInt16();
 			abc_file_info.MajorVersion = reader.ReadUInt16();
+
+			if ( abc_file_info.MinorVersion != 16 || abc_file_info.MajorVersion != 46 ) {
+				throw new UnityException(string.Format(
+					"Incorrect SwfAbcFile version: {0}.{1}",
+					abc_file_info.MajorVersion,
+					abc_file_info.MinorVersion));
+			}
 
 			abc_file_info.ConstantPool = ParseConstantPoolInfo(reader);
 
@@ -756,7 +763,7 @@ namespace FlashTools.Internal.SwfTools.SwfAvm2 {
 			info.LocalCount     = reader.ReadEncodedU32();
 			info.InitScopeDepth = reader.ReadEncodedU32();
 			info.MaxScopeDepth  = reader.ReadEncodedU32();
-			info.Code           = reader.ReadBytes((int)reader.ReadEncodedU32());
+			info.AbcCodeBytes   = reader.ReadBytes((int)reader.ReadEncodedU32());
 			info.Exceptions     = ParseExceptionsInfo(reader);
 			info.Traits         = ParseTraitsInfo(reader);
 			return info;

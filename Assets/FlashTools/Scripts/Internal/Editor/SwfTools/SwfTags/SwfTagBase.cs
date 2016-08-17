@@ -37,7 +37,7 @@
 
 		//DoAction = 12,
 		//DoInitAction = 59,
-		DoAbc = 82,
+		DoABC = 82,
 
 		// -----------------------------
 		// Shape
@@ -167,7 +167,7 @@
 			case (int)SwfTagType.End:                          return EndTag.Create(reader);
 			case (int)SwfTagType.SymbolClass:                  return SymbolClassTag.Create(reader);
 			case (int)SwfTagType.DefineSceneAndFrameLabelData: return DefineSceneAndFrameLabelDataTag.Create(reader);
-			case (int)SwfTagType.DoAbc:                        return DoAbcTag.Create(reader);
+			case (int)SwfTagType.DoABC:                        return DoABCTag.Create(reader);
 			case (int)SwfTagType.DefineShape:                  return DefineShapeTag.Create(reader);
 			case (int)SwfTagType.DefineShape2:                 return DefineShape2Tag.Create(reader);
 			case (int)SwfTagType.DefineShape3:                 return DefineShape3Tag.Create(reader);
