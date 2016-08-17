@@ -206,7 +206,7 @@ namespace FlashTools.Internal.SwfTools {
 			return dl;
 		}
 
-		public SwfDisplayList Visit(DoABCTag tag, SwfDisplayList dl) {
+		public SwfDisplayList Visit(DoAbcTag tag, SwfDisplayList dl) {
 			Debug.Log(tag);
 			return dl;
 		}

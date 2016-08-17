@@ -11,7 +11,7 @@
 		TResult Visit(EndTag                          tag, TArg arg);
 		TResult Visit(SymbolClassTag                  tag, TArg arg);
 		TResult Visit(DefineSceneAndFrameLabelDataTag tag, TArg arg);
-		TResult Visit(DoABCTag                        tag, TArg arg);
+		TResult Visit(DoAbcTag                        tag, TArg arg);
 		TResult Visit(DefineShapeTag                  tag, TArg arg);
 		TResult Visit(DefineShape2Tag                 tag, TArg arg);
 		TResult Visit(DefineShape3Tag                 tag, TArg arg);

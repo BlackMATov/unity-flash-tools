@@ -49,6 +49,8 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationAssetPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfPostprocessor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfAvm2\SwfAbcCode.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfAvm2\SwfAbcFile.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfContext.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfContextExecuter.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfDecoder.cs" />
@@ -61,7 +63,7 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineShape4Tag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineShapeTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineSpriteTag.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DoABCTag.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DoAbcTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\EndTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\FileAttributesTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\FrameLabelTag.cs" />
