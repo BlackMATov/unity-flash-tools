@@ -20,9 +20,11 @@ namespace FlashTools.Internal.SwfTools {
 				var tag = tags[CurrentTag++];
 				tag.AcceptVistor(this, dl);
 				if ( tag.TagType == SwfTagType.ShowFrame ) {
+					ChildrenNextFrameLooped(dl);
 					return true;
 				}
 			}
+			ChildrenNextFrameLooped(dl);
 			return false;
 		}
 
@@ -163,20 +165,6 @@ namespace FlashTools.Internal.SwfTools {
 
 		public SwfDisplayList Visit(ShowFrameTag tag, SwfDisplayList dl) {
 			Debug.LogError(tag);
-			var sprites = dl.Instances.Values
-				.Where (p => p.Type == SwfDisplayInstanceType.Sprite)
-				.Select(p => p as SwfDisplaySpriteInstance);
-			foreach ( var sprite in sprites ) {
-				var sprite_def = MainContex.Library.FindDefine<SwfLibrarySpriteDefine>(sprite.Id);
-				if ( sprite_def != null ) {
-					if ( sprite.CurrentTag >= sprite_def.ControlTags.Tags.Count ) {
-						sprite.Reset();
-					}
-					var sprite_executer = new SwfContextExecuter(MainContex, sprite.CurrentTag);
-					sprite_executer.NextFrame(sprite_def.ControlTags.Tags, sprite.DisplayList);
-					sprite.CurrentTag = sprite_executer.CurrentTag;
-				}
-			}
 			return dl;
 		}
 
@@ -290,6 +278,39 @@ namespace FlashTools.Internal.SwfTools {
 				ControlTags = control_tags
 			};
 			MainContex.Library.Defines.Add(define_id, define);
+		}
+
+		bool IsSpriteTimelineEnd(SwfDisplaySpriteInstance sprite) {
+			var sprite_def = MainContex.Library.FindDefine<SwfLibrarySpriteDefine>(sprite.Id);
+			if ( sprite_def != null && sprite.CurrentTag < sprite_def.ControlTags.Tags.Count ) {
+				return false;
+			}
+			var children = sprite.DisplayList.Instances.Values
+				.Where (p => p.Type == SwfDisplayInstanceType.Sprite)
+				.Select(p => p as SwfDisplaySpriteInstance);
+			foreach ( var child in children ) {
+				if ( !IsSpriteTimelineEnd(child) ) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		void ChildrenNextFrameLooped(SwfDisplayList dl) {
+			var sprites = dl.Instances.Values
+				.Where (p => p.Type == SwfDisplayInstanceType.Sprite)
+				.Select(p => p as SwfDisplaySpriteInstance);
+			foreach ( var sprite in sprites ) {
+				var sprite_def = MainContex.Library.FindDefine<SwfLibrarySpriteDefine>(sprite.Id);
+				if ( sprite_def != null ) {
+					if ( IsSpriteTimelineEnd(sprite) ) {
+						sprite.Reset();
+					}
+					var sprite_executer = new SwfContextExecuter(MainContex, sprite.CurrentTag);
+					sprite_executer.NextFrame(sprite_def.ControlTags.Tags, sprite.DisplayList);
+					sprite.CurrentTag = sprite_executer.CurrentTag;
+				}
+			}
 		}
 	}
 }
