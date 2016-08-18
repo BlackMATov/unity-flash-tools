@@ -4,12 +4,12 @@
 		// Display list
 		// -----------------------------
 
-		PlaceObject   = 4,
-		PlaceObject2  = 26,
-		PlaceObject3  = 70,
-		RemoveObject  = 5,
+		PlaceObject = 4,
+		PlaceObject2 = 26,
+		PlaceObject3 = 70,
+		RemoveObject = 5,
 		RemoveObject2 = 28,
-		ShowFrame     = 1,
+		ShowFrame = 1,
 
 		// -----------------------------
 		// Control
@@ -24,11 +24,11 @@
 		//EnableDebugger = 58,
 		//EnableDebugger2 = 64,
 		//ScriptLimits = 65,
-		//SetTabIndex = 66,
+		SetTabIndex = 66, // Unsupported
 		//ImportAssets2 = 71,
 		//SymbolClass = 76,
 		//Metadata = 77,
-		//DefineScalingGrid = 78,
+		DefineScalingGrid = 78, // Unsupported
 		DefineSceneAndFrameLabelData = 86,
 
 		// -----------------------------
@@ -114,8 +114,8 @@
 		// Video
 		// -----------------------------
 
-		//DefineVideoStream = 60,
-		//VideoFrame = 61,
+		DefineVideoStream = 60, // Unsupported
+		VideoFrame        = 61, // Unsupported
 
 		// -----------------------------
 		// Metadata
@@ -156,23 +156,30 @@
 		static SwfTagBase Create(SwfTagData tag_data) {
 			var reader = new SwfStreamReader(tag_data.TagData);
 			switch ( tag_data.TagId ) {
+			// Display list
 			case (int)SwfTagType.PlaceObject:                  return PlaceObjectTag.Create(reader);
 			case (int)SwfTagType.PlaceObject2:                 return PlaceObject2Tag.Create(reader);
 			case (int)SwfTagType.PlaceObject3:                 return PlaceObject3Tag.Create(reader);
 			case (int)SwfTagType.RemoveObject:                 return RemoveObjectTag.Create(reader);
 			case (int)SwfTagType.RemoveObject2:                return RemoveObject2Tag.Create(reader);
 			case (int)SwfTagType.ShowFrame:                    return ShowFrameTag.Create(reader);
+			// Control
 			case (int)SwfTagType.SetBackgroundColor:           return SetBackgroundColorTag.Create(reader);
 			case (int)SwfTagType.FrameLabel:                   return FrameLabelTag.Create(reader);
 			case (int)SwfTagType.End:                          return EndTag.Create(reader);
+			case (int)SwfTagType.SetTabIndex:                  return UnsupportedTag.Create(SwfTagType.SetTabIndex);
+			case (int)SwfTagType.DefineScalingGrid:            return UnsupportedTag.Create(SwfTagType.DefineScalingGrid);
 			case (int)SwfTagType.DefineSceneAndFrameLabelData: return DefineSceneAndFrameLabelDataTag.Create(reader);
+			// Actions
 			case (int)SwfTagType.DoAction:                     return UnsupportedTag.Create(SwfTagType.DoAction);
 			case (int)SwfTagType.DoInitAction:                 return UnsupportedTag.Create(SwfTagType.DoInitAction);
 			case (int)SwfTagType.DoABC:                        return UnsupportedTag.Create(SwfTagType.DoABC);
+			// Shape
 			case (int)SwfTagType.DefineShape:                  return DefineShapeTag.Create(reader);
 			case (int)SwfTagType.DefineShape2:                 return DefineShape2Tag.Create(reader);
 			case (int)SwfTagType.DefineShape3:                 return DefineShape3Tag.Create(reader);
 			case (int)SwfTagType.DefineShape4:                 return DefineShape4Tag.Create(reader);
+			// Bitmaps
 			case (int)SwfTagType.DefineBits:                   return UnsupportedTag.Create(SwfTagType.DefineBits);
 			case (int)SwfTagType.JPEGTables:                   return UnsupportedTag.Create(SwfTagType.JPEGTables);
 			case (int)SwfTagType.DefineBitsJPEG2:              return UnsupportedTag.Create(SwfTagType.DefineBitsJPEG2);
@@ -180,9 +187,15 @@
 			case (int)SwfTagType.DefineBitsLossless:           return DefineBitsLosslessTag.Create(reader);
 			case (int)SwfTagType.DefineBitsLossless2:          return DefineBitsLossless2Tag.Create(reader);
 			case (int)SwfTagType.DefineBitsJPEG4:              return UnsupportedTag.Create(SwfTagType.DefineBitsJPEG4);
+			// Shape Morphing
 			case (int)SwfTagType.DefineMorphShape:             return UnsupportedTag.Create(SwfTagType.DefineMorphShape);
 			case (int)SwfTagType.DefineMorphShape2:            return UnsupportedTag.Create(SwfTagType.DefineMorphShape2);
+			// Sprites and Movie Clips
 			case (int)SwfTagType.DefineSprite:                 return DefineSpriteTag.Create(reader);
+			// Video
+			case (int)SwfTagType.DefineVideoStream:            return UnsupportedTag.Create(SwfTagType.DefineVideoStream);
+			case (int)SwfTagType.VideoFrame:                   return UnsupportedTag.Create(SwfTagType.VideoFrame);
+			// Metadata
 			case (int)SwfTagType.FileAttributes:               return FileAttributesTag.Create(reader);
 			default:                                           return UnknownTag.Create(tag_data.TagId);
 			}
