@@ -22,16 +22,15 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 
 		public static SwfBlendMode identity {
 			get {
-				return new SwfBlendMode {
-					Value = Mode.Normal
-				};
+				return new SwfBlendMode{
+					Value = Mode.Normal};
 			}
 		}
 
 		public static SwfBlendMode Read(SwfStreamReader reader) {
 			var mode_id = reader.ReadByte();
-			var mode    = ModeFromByte(mode_id);
-			return new SwfBlendMode{Value = mode};
+			return new SwfBlendMode{
+				Value = ModeFromByte(mode_id)};
 		}
 
 		public override string ToString() {

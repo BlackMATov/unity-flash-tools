@@ -26,9 +26,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 
 		public static SwfShapesWithStyle identity {
 			get {
-				return new SwfShapesWithStyle {
-					FillStyles = new List<FillStyle>()
-				};
+				return new SwfShapesWithStyle{
+					FillStyles = new List<FillStyle>()};
 			}
 		}
 

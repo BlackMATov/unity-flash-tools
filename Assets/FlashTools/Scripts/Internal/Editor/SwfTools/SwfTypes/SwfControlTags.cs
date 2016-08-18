@@ -8,8 +8,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		public static SwfControlTags identity {
 			get {
 				return new SwfControlTags {
-					Tags = new List<SwfTagBase>()
-				};
+					Tags = new List<SwfTagBase>()};
 			}
 		}
 

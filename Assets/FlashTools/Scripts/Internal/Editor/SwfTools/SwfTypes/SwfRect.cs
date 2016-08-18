@@ -7,15 +7,28 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		public float YMin;
 		public float YMax;
 
+		public static SwfRect identity {
+			get {
+				return new SwfRect{
+					XMin = 0,
+					XMax = 0,
+					YMin = 0,
+					YMax = 0};
+			}
+		}
+
 		public static SwfRect Read(SwfStreamReader reader) {
-			var rect  = new SwfRect();
-			var bits  = reader.ReadUnsignedBits(5);
-			rect.XMin = reader.ReadSignedBits(bits) / 20.0f;
-			rect.XMax = reader.ReadSignedBits(bits) / 20.0f;
-			rect.YMin = reader.ReadSignedBits(bits) / 20.0f;
-			rect.YMax = reader.ReadSignedBits(bits) / 20.0f;
+			var bits = reader.ReadUnsignedBits(5);
+			var xmin = reader.ReadSignedBits(bits) / 20.0f;
+			var xmax = reader.ReadSignedBits(bits) / 20.0f;
+			var ymin = reader.ReadSignedBits(bits) / 20.0f;
+			var ymax = reader.ReadSignedBits(bits) / 20.0f;
 			reader.AlignToByte();
-			return rect;
+			return new SwfRect{
+				XMin = xmin,
+				XMax = xmax,
+				YMin = ymin,
+				YMax = ymax};
 		}
 
 		public override string ToString() {

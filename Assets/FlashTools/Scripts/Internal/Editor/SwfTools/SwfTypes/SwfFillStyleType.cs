@@ -16,16 +16,15 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 
 		public static SwfFillStyleType identity {
 			get {
-				return new SwfFillStyleType {
-					Value = Type.SolidColor
-				};
+				return new SwfFillStyleType{
+					Value = Type.SolidColor};
 			}
 		}
 
 		public static SwfFillStyleType Read(SwfStreamReader reader) {
 			var type_id = reader.ReadByte();
-			var type    = TypeFromByte(type_id);
-			return new SwfFillStyleType{Value = type};
+			return new SwfFillStyleType{
+				Value = TypeFromByte(type_id)};
 		}
 
 		public override string ToString() {

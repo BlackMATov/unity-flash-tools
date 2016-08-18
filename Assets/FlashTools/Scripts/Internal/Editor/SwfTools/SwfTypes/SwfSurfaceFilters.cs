@@ -3,24 +3,23 @@ using System.Collections.Generic;
 
 namespace FlashTools.Internal.SwfTools.SwfTypes {
 	public struct SwfSurfaceFilters {
-		public enum FilterType {
-			DropShadow,
-			Blur,
-			Glow,
-			Bevel,
-			GradientGlow,
-			Convolution,
-			ColorMatrix,
-			GradientBevel
-		}
-
 		public abstract class Filter {
-			public abstract FilterType Type { get; }
+			public enum Types {
+				DropShadow,
+				Blur,
+				Glow,
+				Bevel,
+				GradientGlow,
+				Convolution,
+				ColorMatrix,
+				GradientBevel
+			}
+			public abstract Types Type { get; }
 		}
 
 		public class DropShadowFilter : Filter {
-			public override FilterType Type {
-				get { return FilterType.DropShadow; }
+			public override Types Type {
+				get { return Types.DropShadow; }
 			}
 			public SwfColor   DropShadowColor;
 			public float      BlurX;
@@ -35,8 +34,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		public class BlurFilter : Filter {
-			public override FilterType Type {
-				get { return FilterType.Blur; }
+			public override Types Type {
+				get { return Types.Blur; }
 			}
 			public float      BlurX;
 			public float      BlurY;
@@ -44,8 +43,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		public class GlowFilter : Filter {
-			public override FilterType Type {
-				get { return FilterType.Glow; }
+			public override Types Type {
+				get { return Types.Glow; }
 			}
 			public SwfColor   GlowColor;
 			public float      BlurX;
@@ -58,8 +57,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		public class BevelFilter : Filter {
-			public override FilterType Type {
-				get { return FilterType.Bevel; }
+			public override Types Type {
+				get { return Types.Bevel; }
 			}
 			public SwfColor   ShadowColor;
 			public SwfColor   HighlightColor;
@@ -76,8 +75,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		public class GradientGlowFilter : Filter {
-			public override FilterType Type {
-				get { return FilterType.GradientGlow; }
+			public override Types Type {
+				get { return Types.GradientGlow; }
 			}
 			public SwfColor[] GradientColors;
 			public byte[]     GradientRatio;
@@ -94,8 +93,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		public class ConvolutionFilter : Filter {
-			public override FilterType Type {
-				get { return FilterType.Convolution; }
+			public override Types Type {
+				get { return Types.Convolution; }
 			}
 			public byte       MatrixX;
 			public byte       MatrixY;
@@ -108,15 +107,15 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		public class ColorMatrixFilter : Filter {
-			public override FilterType Type {
-				get { return FilterType.ColorMatrix; }
+			public override Types Type {
+				get { return Types.ColorMatrix; }
 			}
 			public float[]    Matrix;
 		}
 
 		public class GradientBevelFilter : Filter {
-			public override FilterType Type {
-				get { return FilterType.GradientBevel; }
+			public override Types Type {
+				get { return Types.GradientBevel; }
 			}
 			public SwfColor[] GradientColors;
 			public byte[]     GradientRatio;
@@ -137,18 +136,17 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		public static SwfSurfaceFilters identity {
 			get {
 				return new SwfSurfaceFilters{
-					Filters = new List<Filter>()
-				};
+					Filters = new List<Filter>()};
 			}
 		}
 
 		public static SwfSurfaceFilters Read(SwfStreamReader reader) {
-			var count = reader.ReadByte();
-			var filters = new List<Filter>(count);
+			var filters = new List<Filter>(reader.ReadByte());
 			for ( var i = 0; i < filters.Capacity; ++i ) {
 				filters.Add(ReadFilter(reader));
 			}
-			return new SwfSurfaceFilters{Filters = filters};
+			return new SwfSurfaceFilters{
+				Filters = filters};
 		}
 
 		public override string ToString() {
