@@ -18,6 +18,7 @@ namespace FlashTools.Internal.SwfTools {
 			dl.FrameName = string.Empty;
 			while ( CurrentTag < tags.Count ) {
 				var tag = tags[CurrentTag++];
+				Debug.Log(tag);
 				tag.AcceptVistor(this, dl);
 				if ( tag.TagType == SwfTagType.ShowFrame ) {
 					ChildrenNextFrameLooped(dl);
@@ -29,7 +30,6 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(PlaceObjectTag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			var is_shape  =
 				MainContex.Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId);
 			var is_sprite =
@@ -53,7 +53,6 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(PlaceObject2Tag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			var is_shape  = tag.HasCharacter
 				? MainContex.Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId)
 				: false;
@@ -101,7 +100,6 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(PlaceObject3Tag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			var is_shape  = tag.HasCharacter
 				? MainContex.Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId)
 				: false;
@@ -152,69 +150,57 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(RemoveObjectTag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			dl.Instances.Remove(tag.Depth);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(RemoveObject2Tag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			dl.Instances.Remove(tag.Depth);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(ShowFrameTag tag, SwfDisplayList dl) {
-			Debug.LogError(tag);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(SetBackgroundColorTag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(FrameLabelTag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			dl.FrameName = tag.Name;
 			return dl;
 		}
 
 		public SwfDisplayList Visit(EndTag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(DefineSceneAndFrameLabelDataTag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(DefineShapeTag tag, SwfDisplayList dl) {
-			Debug.LogWarning(tag);
 			AddShapesToLibrary(tag.ShapeId, tag.Shapes);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(DefineShape2Tag tag, SwfDisplayList dl) {
-			Debug.LogWarning(tag);
 			AddShapesToLibrary(tag.ShapeId, tag.Shapes);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(DefineShape3Tag tag, SwfDisplayList dl) {
-			Debug.LogWarning(tag);
 			AddShapesToLibrary(tag.ShapeId, tag.Shapes);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(DefineShape4Tag tag, SwfDisplayList dl) {
-			Debug.LogWarning(tag);
 			AddShapesToLibrary(tag.ShapeId, tag.Shapes);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(DefineBitsLosslessTag tag, SwfDisplayList dl) {
-			Debug.LogWarning(tag);
 			AddBitmapToLibrary(
 				tag.CharacterId,
 				tag.BitmapWidth,
@@ -224,7 +210,6 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(DefineBitsLossless2Tag tag, SwfDisplayList dl) {
-			Debug.LogWarning(tag);
 			AddBitmapToLibrary(
 				tag.CharacterId,
 				tag.BitmapWidth,
@@ -234,7 +219,6 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(DefineSpriteTag tag, SwfDisplayList dl) {
-			Debug.LogWarning(tag);
 			AddSpriteToLibrary(
 				tag.SpriteId,
 				tag.ControlTags);
@@ -242,12 +226,10 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(FileAttributesTag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(UnknownTag tag, SwfDisplayList dl) {
-			Debug.Log(tag);
 			return dl;
 		}
 
