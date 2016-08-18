@@ -74,6 +74,7 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\SwfTagBase.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\SwfTagVisitor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\UnknownTag.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\UnsupportedTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfBlendMode.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfClipActions.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfColor.cs" />

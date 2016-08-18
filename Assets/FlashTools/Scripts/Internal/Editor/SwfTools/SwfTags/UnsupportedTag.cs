@@ -1,13 +1,9 @@
 ﻿namespace FlashTools.Internal.SwfTools.SwfTags {
-	public class UnknownTag : SwfTagBase {
-		public int _tagId;
-
-		public int TagId {
-			get { return _tagId; }
-		}
+	public class UnsupportedTag : SwfTagBase {
+		SwfTagType _tagType;
 
 		public override SwfTagType TagType {
-			get { return SwfTagType.Unknown; }
+			get { return _tagType; }
 		}
 
 		public override TResult AcceptVistor<TArg, TResult>(SwfTagVisitor<TArg, TResult> visitor, TArg arg) {
@@ -16,14 +12,13 @@
 
 		public override string ToString() {
 			return string.Format(
-				"UnknownTag. " +
-				"TagId: {0}",
-				TagId);
+				"{0}. Unsupported tag!",
+				TagType);
 		}
 
-		public static UnknownTag Create(int tag_id) {
-			return new UnknownTag{
-				_tagId = tag_id};
+		public static UnsupportedTag Create(SwfTagType tag_type) {
+			return new UnsupportedTag{
+				_tagType = tag_type};
 		}
 	}
 }

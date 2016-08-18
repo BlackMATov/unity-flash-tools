@@ -18,7 +18,7 @@ namespace FlashTools.Internal.SwfTools {
 			dl.FrameName = string.Empty;
 			while ( CurrentTag < tags.Count ) {
 				var tag = tags[CurrentTag++];
-				Debug.Log(tag);
+				TagToDebugLog(tag);
 				tag.AcceptVistor(this, dl);
 				if ( tag.TagType == SwfTagType.ShowFrame ) {
 					ChildrenNextFrameLooped(dl);
@@ -233,6 +233,10 @@ namespace FlashTools.Internal.SwfTools {
 			return dl;
 		}
 
+		public SwfDisplayList Visit(UnsupportedTag tag, SwfDisplayList dl) {
+			return dl;
+		}
+
 		//
 		//
 		//
@@ -292,6 +296,16 @@ namespace FlashTools.Internal.SwfTools {
 					sprite_executer.NextFrame(sprite_def.ControlTags.Tags, sprite.DisplayList);
 					sprite.CurrentTag = sprite_executer.CurrentTag;
 				}
+			}
+		}
+
+		void TagToDebugLog(SwfTagBase tag) {
+			if ( tag is UnsupportedTag ) {
+				Debug.LogError(tag);
+			} else if ( tag is UnknownTag ) {
+				Debug.LogWarning(tag);
+			} else {
+				Debug.Log(tag);
 			}
 		}
 	}

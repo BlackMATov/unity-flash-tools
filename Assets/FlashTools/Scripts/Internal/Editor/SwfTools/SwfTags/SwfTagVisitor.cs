@@ -19,5 +19,6 @@
 		TResult Visit(DefineSpriteTag                 tag, TArg arg);
 		TResult Visit(FileAttributesTag               tag, TArg arg);
 		TResult Visit(UnknownTag                      tag, TArg arg);
+		TResult Visit(UnsupportedTag                  tag, TArg arg);
 	}
 }
