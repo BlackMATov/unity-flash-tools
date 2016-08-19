@@ -31,7 +31,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			tag.BitmapWidth  = reader.ReadUInt16();
 			tag.BitmapHeight = reader.ReadUInt16();
 			if ( tag.BitmapFormat == 3 ) {
-				tag.BitmapColorTableSize = reader.ReadByte();
+				tag.BitmapColorTableSize = reader.ReadByte() + 1;
 			}
 			tag.ZlibBitmapData = reader.ReadRest();
 			return tag;
