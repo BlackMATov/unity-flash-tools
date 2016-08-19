@@ -81,10 +81,6 @@ namespace FlashTools.Internal {
 			return new Vector2((int)method_args[0], (int)method_args[1]);
 		}
 
-		static string GetSwfPath(string asset_path) {
-			return Path.ChangeExtension(asset_path, ".swf");
-		}
-
 		static string GetAtlasPath(string asset_path) {
 			return Path.ChangeExtension(asset_path, ".png");
 		}

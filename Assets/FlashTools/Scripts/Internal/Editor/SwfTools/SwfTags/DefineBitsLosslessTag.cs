@@ -6,7 +6,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 		public byte   BitmapFormat;
 		public ushort BitmapWidth;
 		public ushort BitmapHeight;
-		public byte   BitmapColorTableSize;
+		public ushort BitmapColorTableSize;
 		public byte[] ZlibBitmapData;
 
 		public override SwfTagType TagType {
@@ -31,7 +31,7 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			tag.BitmapWidth  = reader.ReadUInt16();
 			tag.BitmapHeight = reader.ReadUInt16();
 			if ( tag.BitmapFormat == 3 ) {
-				tag.BitmapColorTableSize = reader.ReadByte() + 1;
+				tag.BitmapColorTableSize = (ushort)(reader.ReadByte() + 1);
 			}
 			tag.ZlibBitmapData = reader.ReadRest();
 			return tag;
