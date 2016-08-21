@@ -4,7 +4,6 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	public class SwfAnimationAssetPostprocessor : AssetPostprocessor {
@@ -39,32 +38,31 @@ namespace FlashTools.Internal {
 		}
 
 		static void ConfigureAtlas(string asset_path, SwfAnimationAsset asset) {
-			var meta_data      = new List<SpriteMetaData>();
 			var atlas_importer = GetBitmapsAtlasImporter(asset_path);
 			var atlas_size     = GetSizeFromTextureImporter(atlas_importer);
-			var unique_bitmaps = asset.Data.Bitmaps;
-			foreach ( var bitmap_data in unique_bitmaps ) {
-				var meta_elem = new SpriteMetaData();
-				meta_elem.name = bitmap_data.Id.ToString();
-				meta_elem.rect = new Rect(
-					bitmap_data.SourceRect.xMin   * atlas_size.x,
-					bitmap_data.SourceRect.yMin   * atlas_size.y,
-					bitmap_data.SourceRect.width  * atlas_size.x,
-					bitmap_data.SourceRect.height * atlas_size.y);
-				meta_data.Add(meta_elem);
-				atlas_importer.spritesheet         = meta_data.ToArray();
-				atlas_importer.textureType         = TextureImporterType.Sprite;
-				atlas_importer.spriteImportMode    = SpriteImportMode.Multiple;
-				atlas_importer.spritePixelsPerUnit = asset.PixelsPerUnit;
-				AssetDatabase.ImportAsset(
-					GetAtlasPath(asset_path),
-					ImportAssetOptions.ForceUncompressedImport);
-			}
+			atlas_importer.spritesheet = asset.Data.Bitmaps
+				.Select(bitmap => new SpriteMetaData{
+					name = bitmap.Id.ToString(),
+					rect = new Rect(
+						bitmap.SourceRect.xMin   * atlas_size.x,
+						bitmap.SourceRect.yMin   * atlas_size.y,
+						bitmap.SourceRect.width  * atlas_size.x,
+						bitmap.SourceRect.height * atlas_size.y)})
+				.ToArray();
+			atlas_importer.textureType         = TextureImporterType.Sprite;
+			atlas_importer.spriteImportMode    = SpriteImportMode.Multiple;
+			atlas_importer.spritePixelsPerUnit = asset.OverriddenSettings.PixelsPerUnit;
+			atlas_importer.mipmapEnabled       = asset.OverriddenSettings.GenerateMipMaps;
+			atlas_importer.filterMode          = asset.OverriddenSettings.AtlasFilterMode;
+			atlas_importer.textureFormat       = asset.OverriddenSettings.AtlasImporterFormat;
+			AssetDatabase.ImportAsset(
+				GetAtlasPath(asset_path),
+				ImportAssetOptions.ForceUpdate);
 		}
 
 		static TextureImporter GetBitmapsAtlasImporter(string asset_path) {
 			var atlas_path = GetAtlasPath(asset_path);
-			var importer   = AssetImporter.GetAtPath(atlas_path) as TextureImporter;
+			var importer = AssetImporter.GetAtPath(atlas_path) as TextureImporter;
 			if ( !importer ) {
 				throw new UnityException(string.Format(
 					"atlas texture importer not found ({0})",

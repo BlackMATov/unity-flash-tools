@@ -110,9 +110,9 @@ namespace FlashTools {
 
 						var matrix =
 							Matrix4x4.Scale(new Vector3(
-								 1.0f / Asset.PixelsPerUnit,
-								-1.0f / Asset.PixelsPerUnit,
-								 1.0f / Asset.PixelsPerUnit)) * inst.Matrix;
+								 1.0f / Asset.OverriddenSettings.PixelsPerUnit,
+								-1.0f / Asset.OverriddenSettings.PixelsPerUnit,
+								 1.0f / Asset.OverriddenSettings.PixelsPerUnit)) * inst.Matrix;
 
 						_vertices.Add(matrix.MultiplyPoint3x4(v0));
 						_vertices.Add(matrix.MultiplyPoint3x4(v1));

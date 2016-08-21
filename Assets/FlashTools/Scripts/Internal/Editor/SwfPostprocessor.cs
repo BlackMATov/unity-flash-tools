@@ -181,11 +181,14 @@ namespace FlashTools.Internal {
 				.ToArray();
 
 			var textures = bitmap_defines
-				.Select(p => LoadTextureFromBitmapDefine(p.Value));
+				.Select (p => LoadTextureFromBitmapDefine(p.Value))
+				.ToArray();
 
 			var atlas = new Texture2D(0, 0, TextureFormat.ARGB32, false);
 			var atlas_rects = atlas.PackTextures(
-				textures.ToArray(), asset.AtlasPadding, asset.MaxAtlasSize);
+				textures,
+				asset.OverriddenSettings.AtlasPadding,
+				asset.OverriddenSettings.MaxAtlasSize);
 
 			File.WriteAllBytes(
 				GetAtlasPath(swf_asset),
@@ -193,7 +196,7 @@ namespace FlashTools.Internal {
 			GameObject.DestroyImmediate(atlas, true);
 			AssetDatabase.ImportAsset(
 				GetAtlasPath(swf_asset),
-				ImportAssetOptions.ForceUncompressedImport);
+				ImportAssetOptions.ForceUpdate);
 
 			var bitmaps = new List<SwfAnimationBitmapData>();
 			for ( var i = 0; i < bitmap_defines.Length; ++i ) {
