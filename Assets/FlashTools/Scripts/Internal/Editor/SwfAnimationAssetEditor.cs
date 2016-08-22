@@ -22,9 +22,16 @@ namespace FlashTools.Internal {
 
 		void ApplyOverriddenSettings() {
 			if ( _asset ) {
-				_asset.Settings = _asset.Overridden;
+				if ( File.Exists(GetSwfPath()) ) {
+					_asset.Settings = _asset.Overridden;
+					ReconvertAnimation();
+				} else {
+					Debug.LogErrorFormat(
+						"Swf source for animation not found: '{0}'",
+						GetSwfPath());
+					RevertOverriddenSettings();
+				}
 			}
-			ReconvertAnimation();
 		}
 
 		void ReconvertAnimation() {
@@ -76,7 +83,7 @@ namespace FlashTools.Internal {
 						prefab,
 						ReplacePrefabOptions.ConnectToPrefab);
 				}
-				DestroyImmediate(anim_go);
+				GameObject.DestroyImmediate(anim_go, true);
 			}
 		}
 

@@ -12,19 +12,21 @@ namespace FlashTools {
 			public int                   MaxAtlasSize;
 			public int                   AtlasPadding;
 			public int                   PixelsPerUnit;
-			public bool                  AtlasPowerOfTwo;
 			public bool                  GenerateMipMaps;
+			public bool                  AtlasPowerOfTwo;
+			public bool                  AtlasForceSquare; //TODO: implme
 			public FilterMode            AtlasFilterMode;
 			public TextureImporterFormat AtlasImporterFormat;
 
 			public bool Equal(Settings other) {
 				return
-					MaxAtlasSize        == other.MaxAtlasSize    &&
-					AtlasPadding        == other.AtlasPadding    &&
-					PixelsPerUnit       == other.PixelsPerUnit   &&
-					AtlasPowerOfTwo     == other.AtlasPowerOfTwo &&
-					GenerateMipMaps     == other.GenerateMipMaps &&
-					AtlasFilterMode     == other.AtlasFilterMode &&
+					MaxAtlasSize        == other.MaxAtlasSize     &&
+					AtlasPadding        == other.AtlasPadding     &&
+					PixelsPerUnit       == other.PixelsPerUnit    &&
+					GenerateMipMaps     == other.GenerateMipMaps  &&
+					AtlasPowerOfTwo     == other.AtlasPowerOfTwo  &&
+					AtlasForceSquare    == other.AtlasForceSquare &&
+					AtlasFilterMode     == other.AtlasFilterMode  &&
 					AtlasImporterFormat == other.AtlasImporterFormat;
 			}
 
@@ -34,8 +36,9 @@ namespace FlashTools {
 						MaxAtlasSize        = 1024,
 						AtlasPadding        = 1,
 						PixelsPerUnit       = 100,
-						AtlasPowerOfTwo     = false,
 						GenerateMipMaps     = true,
+						AtlasPowerOfTwo     = true,
+						AtlasForceSquare    = false,
 						AtlasFilterMode     = FilterMode.Bilinear,
 						AtlasImporterFormat = TextureImporterFormat.AutomaticTruecolor};
 				}

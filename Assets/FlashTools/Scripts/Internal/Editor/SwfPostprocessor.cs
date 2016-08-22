@@ -184,11 +184,41 @@ namespace FlashTools.Internal {
 				.Select (p => LoadTextureFromBitmapDefine(p.Value))
 				.ToArray();
 
-			var atlas = new Texture2D(0, 0, TextureFormat.ARGB32, false);
+			var atlas_padding  = Mathf.Max(0, asset.Settings.AtlasPadding);
+			var max_atlas_size = (asset.Settings.AtlasPowerOfTwo && !Mathf.IsPowerOfTwo(asset.Settings.MaxAtlasSize))
+				? Mathf.NextPowerOfTwo(asset.Settings.MaxAtlasSize)
+				: asset.Settings.MaxAtlasSize;
+
+			var atlas = new Texture2D(0, 0);
 			var atlas_rects = atlas.PackTextures(
 				textures,
-				asset.Settings.AtlasPadding,
-				asset.Settings.MaxAtlasSize);
+				atlas_padding,
+				Mathf.Max(32, max_atlas_size));
+
+			if ( asset.Settings.AtlasForceSquare && atlas.width != atlas.height ) {
+				var atlas_size   = Mathf.Max(atlas.width, atlas.height);
+				var new_atlas    = new Texture2D(atlas_size, atlas_size, TextureFormat.ARGB32, false);
+				for ( var i = 0; i < atlas_rects.Length; ++i ) {
+					var new_position = atlas_rects[i].position;
+					new_position.x *= (float)(atlas.width )/atlas_size;
+					new_position.y *= (float)(atlas.height)/atlas_size;
+
+					var new_size = atlas_rects[i].size;
+					new_size.x *= (float)(atlas.width )/atlas_size;
+					new_size.y *= (float)(atlas.height)/atlas_size;
+
+					atlas_rects[i] = new Rect(new_position, new_size);
+				}
+				var empty_pixels = new Color32[atlas_size * atlas_size];
+				for ( var i = 0; i < atlas_size * atlas_size; ++i ) {
+					empty_pixels[i] = new Color(1,1,1,0);
+				}
+				new_atlas.SetPixels32(empty_pixels);
+				new_atlas.SetPixels32(0, 0, atlas.width, atlas.height, atlas.GetPixels32());
+				new_atlas.Apply();
+				GameObject.DestroyImmediate(atlas, true);
+				atlas = new_atlas;
+			}
 
 			File.WriteAllBytes(
 				GetAtlasPath(swf_asset),

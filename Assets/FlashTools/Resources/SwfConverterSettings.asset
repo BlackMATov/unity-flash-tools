@@ -15,7 +15,8 @@ MonoBehaviour:
     MaxAtlasSize: 1024
     AtlasPadding: 1
     PixelsPerUnit: 100
-    AtlasPowerOfTwo: 0
     GenerateMipMaps: 1
+    AtlasPowerOfTwo: 1
+    AtlasForceSquare: 0
     AtlasFilterMode: 1
     AtlasImporterFormat: -3
