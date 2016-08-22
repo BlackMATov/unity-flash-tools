@@ -1,27 +1,54 @@
 ﻿using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEditor;
-using System;
 using System.IO;
 
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfAnimationAsset))]
 	public class SwfAnimationAssetEditor : Editor {
-		SwfAnimationAsset _asset = null;
+		SwfAnimationAsset _asset           = null;
+		bool              _settingsFoldout = false;
 
-		void Reconvert() {
+		void OverriddenSettingsToDefault() {
+			if ( _asset ) {
+				_asset.Overridden = SwfConverterSettings.GetDefaultSettings();
+			}
+		}
+
+		void RevertOverriddenSettings() {
+			if ( _asset ) {
+				_asset.Overridden = _asset.Settings;
+			}
+		}
+
+		void ApplyOverriddenSettings() {
+			if ( _asset ) {
+				_asset.Settings = _asset.Overridden;
+			}
+			ReconvertAnimation();
+		}
+
+		void ReconvertAnimation() {
 			if ( _asset && _asset.Atlas ) {
 				AssetDatabase.DeleteAsset(
 					AssetDatabase.GetAssetPath(_asset.Atlas));
 				_asset.Atlas = null;
 			}
-			if ( !_asset.OverrideSettings ) {
-				_asset.OverriddenSettings =
-					SwfConverterSettings.LoadOrCreate().DefaultSettings;
-			}
 			AssetDatabase.ImportAsset(
 				GetSwfPath(),
 				ImportAssetOptions.ForceUpdate);
+		}
+
+		void ShowUnappliedDialog() {
+			var title =
+				"Unapplied swf animation settings";
+			var message = string.Format(
+				"Unapplied swf animation settings for '{0}'",
+				GetAssetPath());
+			if ( EditorUtility.DisplayDialog(title, message, "Apply", "Revert") ) {
+				ApplyOverriddenSettings();
+			} else {
+				RevertOverriddenSettings();
+			}
 		}
 
 		GameObject CreateAnimationGO() {
@@ -37,17 +64,19 @@ namespace FlashTools.Internal {
 
 		void CreateAnimationPrefab() {
 			var anim_go = CreateAnimationGO();
-			var prefab_path = GetPrefabPath();
-			if ( anim_go && !string.IsNullOrEmpty(prefab_path) ) {
-				var prefab = AssetDatabase.LoadMainAssetAtPath(prefab_path);
-				if ( !prefab ) {
-					prefab = PrefabUtility.CreateEmptyPrefab(prefab_path);
+			if ( anim_go ) {
+				var prefab_path = GetPrefabPath();
+				if ( !string.IsNullOrEmpty(prefab_path) ) {
+					var prefab = AssetDatabase.LoadMainAssetAtPath(prefab_path);
+					if ( !prefab ) {
+						prefab = PrefabUtility.CreateEmptyPrefab(prefab_path);
+					}
+					PrefabUtility.ReplacePrefab(
+						anim_go,
+						prefab,
+						ReplacePrefabOptions.ConnectToPrefab);
 				}
-				PrefabUtility.ReplacePrefab(
-					anim_go,
-					prefab,
-					ReplacePrefabOptions.ConnectToPrefab);
-				Undo.RegisterCreatedObjectUndo(anim_go, "Create SwfAnimation");
+				DestroyImmediate(anim_go);
 			}
 		}
 
@@ -78,10 +107,41 @@ namespace FlashTools.Internal {
 				: Path.ChangeExtension(asset_path, ".prefab");
 		}
 
-		void DrawGUIControls() {
-			if ( GUILayout.Button("Reconvert") ) {
-				Reconvert();
+		void DrawGUISettings() {
+			GUI.enabled = false;
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("Atlas"));
+			GUI.enabled = true;
+			_settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "Settings");
+			if ( _settingsFoldout ) {
+				var it = serializedObject.FindProperty("Overridden");
+				while ( it.NextVisible(true) ) {
+					EditorGUILayout.PropertyField(it);
+				}
+				DrawGUISettingsControls();
 			}
+		}
+
+		void DrawGUISettingsControls() {
+			GUILayout.BeginHorizontal();
+			{
+				GUI.enabled = !_asset.Overridden.Equal(SwfConverterSettings.GetDefaultSettings());
+				if ( GUILayout.Button("Default") ) {
+					OverriddenSettingsToDefault();
+				}
+				GUI.enabled = !_asset.Overridden.Equal(_asset.Settings);
+				if ( GUILayout.Button("Revert") ) {
+					RevertOverriddenSettings();
+				}
+				GUI.enabled = !_asset.Overridden.Equal(_asset.Settings);
+				if ( GUILayout.Button("Apply") ) {
+					ApplyOverriddenSettings();
+				}
+				GUI.enabled = true;
+			}
+			GUILayout.EndHorizontal();
+		}
+
+		void DrawGUIAnimation() {
 			GUILayout.BeginHorizontal();
 			{
 				if ( GUILayout.Button("Create animation prefab") ) {
@@ -94,24 +154,6 @@ namespace FlashTools.Internal {
 			GUILayout.EndHorizontal();
 		}
 
-		void DrawGUIProperties() {
-			serializedObject.Update();
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("Atlas"));
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("OverrideSettings"));
-			if ( _asset.OverrideSettings ) {
-				EditorGUILayout.PropertyField(
-					serializedObject.FindProperty("OverriddenSettings"), true);
-			} else {
-				GUI.enabled = false;
-				var so = new SerializedObject(SwfConverterSettings.LoadOrCreate());
-				EditorGUILayout.PropertyField(so.FindProperty("DefaultSettings"), true);
-				GUI.enabled = true;
-			}
-			if ( GUI.changed ) {
-				serializedObject.ApplyModifiedProperties();
-			}
-		}
-
 		// ------------------------------------------------------------------------
 		//
 		// Messages
@@ -119,12 +161,23 @@ namespace FlashTools.Internal {
 		// ------------------------------------------------------------------------
 
 		void OnEnable() {
-			_asset = target as SwfAnimationAsset;
+			_asset           = target as SwfAnimationAsset;
+			_settingsFoldout = _asset && !_asset.Settings.Equal(SwfConverterSettings.GetDefaultSettings());
+		}
+
+		void OnDisable() {
+			if ( _asset && !_asset.Settings.Equal(_asset.Overridden) ) {
+				ShowUnappliedDialog();
+			}
 		}
 
 		public override void OnInspectorGUI() {
-			DrawGUIProperties();
-			DrawGUIControls();
+			serializedObject.Update();
+			DrawGUISettings();
+			DrawGUIAnimation();
+			if ( GUI.changed ) {
+				serializedObject.ApplyModifiedProperties();
+			}
 		}
 	}
 }

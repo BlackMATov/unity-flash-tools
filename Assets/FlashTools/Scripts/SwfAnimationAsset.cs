@@ -41,45 +41,45 @@ namespace FlashTools {
 
 	[System.Serializable]
 	public class SwfAnimationInstanceData {
-		public SwfAnimationInstanceType       Type               = SwfAnimationInstanceType.Group;
-		public ushort                         ClipDepth          = 0;
-		public ushort                         Bitmap             = 0;
-		public Matrix4x4                      Matrix             = Matrix4x4.identity;
-		public SwfAnimationColorTransform     ColorTransform     = SwfAnimationColorTransform.identity;
+		public SwfAnimationInstanceType       Type           = SwfAnimationInstanceType.Group;
+		public ushort                         ClipDepth      = 0;
+		public ushort                         Bitmap         = 0;
+		public Matrix4x4                      Matrix         = Matrix4x4.identity;
+		public SwfAnimationColorTransform     ColorTransform = SwfAnimationColorTransform.identity;
 	}
 
 	[System.Serializable]
 	public class SwfAnimationFrameData {
-		public string                         Name               = string.Empty;
-		public List<SwfAnimationInstanceData> Instances          = new List<SwfAnimationInstanceData>();
+		public string                         Name           = string.Empty;
+		public List<SwfAnimationInstanceData> Instances      = new List<SwfAnimationInstanceData>();
 	}
 
 	[System.Serializable]
 	public class SwfAnimationBitmapData {
-		public int                            Id                 = 0;
-		public Vector2                        RealSize           = Vector2.zero;
-		public Rect                           SourceRect         = new Rect();
+		public int                            Id             = 0;
+		public Vector2                        RealSize       = Vector2.zero;
+		public Rect                           SourceRect     = new Rect();
 	}
 
 	[System.Serializable]
 	public class SwfAnimationData {
-		public float                          FrameRate          = 0.0f;
-		public List<SwfAnimationFrameData>    Frames             = new List<SwfAnimationFrameData>();
-		public List<SwfAnimationBitmapData>   Bitmaps            = new List<SwfAnimationBitmapData>();
+		public float                          FrameRate      = 0.0f;
+		public List<SwfAnimationFrameData>    Frames         = new List<SwfAnimationFrameData>();
+		public List<SwfAnimationBitmapData>   Bitmaps        = new List<SwfAnimationBitmapData>();
 	}
 
 	public class SwfAnimationAsset : ScriptableObject {
-		public SwfAnimationData               Data               = new SwfAnimationData();
-		public Texture2D                      Atlas              = null;
-		public bool                           OverrideSettings   = false;
-		public SwfConverterSettings.Settings  OverriddenSettings = new SwfConverterSettings.Settings();
+		public SwfAnimationData               Data;
+		public Texture2D                      Atlas;
+		public SwfConverterSettings.Settings  Settings;
+		public SwfConverterSettings.Settings  Overridden;
 
 	#if UNITY_EDITOR
 		void Reset() {
-			Data               = new SwfAnimationData();
-			Atlas              = null;
-			OverrideSettings   = false;
-			OverriddenSettings = SwfConverterSettings.LoadOrCreate().DefaultSettings;
+			Data       = new SwfAnimationData();
+			Atlas      = null;
+			Settings   = SwfConverterSettings.GetDefaultSettings();
+			Overridden = SwfConverterSettings.GetDefaultSettings();
 		}
 	#endif
 	}

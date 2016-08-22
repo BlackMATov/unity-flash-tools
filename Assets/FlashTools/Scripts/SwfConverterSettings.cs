@@ -17,24 +17,38 @@ namespace FlashTools {
 			public FilterMode            AtlasFilterMode;
 			public TextureImporterFormat AtlasImporterFormat;
 
-			public void Reset() {
-				MaxAtlasSize        = 1024;
-				AtlasPadding        = 1;
-				PixelsPerUnit       = 100;
-				AtlasPowerOfTwo     = false;
-				GenerateMipMaps     = true;
-				AtlasFilterMode     = FilterMode.Bilinear;
-				AtlasImporterFormat = TextureImporterFormat.AutomaticTruecolor;
+			public bool Equal(Settings other) {
+				return
+					MaxAtlasSize        == other.MaxAtlasSize    &&
+					AtlasPadding        == other.AtlasPadding    &&
+					PixelsPerUnit       == other.PixelsPerUnit   &&
+					AtlasPowerOfTwo     == other.AtlasPowerOfTwo &&
+					GenerateMipMaps     == other.GenerateMipMaps &&
+					AtlasFilterMode     == other.AtlasFilterMode &&
+					AtlasImporterFormat == other.AtlasImporterFormat;
+			}
+
+			public static Settings identity {
+				get {
+					return new Settings{
+						MaxAtlasSize        = 1024,
+						AtlasPadding        = 1,
+						PixelsPerUnit       = 100,
+						AtlasPowerOfTwo     = false,
+						GenerateMipMaps     = true,
+						AtlasFilterMode     = FilterMode.Bilinear,
+						AtlasImporterFormat = TextureImporterFormat.AutomaticTruecolor};
+				}
 			}
 		}
 		public Settings DefaultSettings;
 
 	#if UNITY_EDITOR
 		void Reset() {
-			DefaultSettings.Reset();
+			DefaultSettings = Settings.identity;
 		}
 
-		public static SwfConverterSettings LoadOrCreate() {
+		public static SwfConverterSettings.Settings GetDefaultSettings() {
 			var settings_path = GetSettingsPath();
 			var settings = AssetDatabase.LoadAssetAtPath<SwfConverterSettings>(settings_path);
 			if ( !settings ) {
@@ -43,7 +57,7 @@ namespace FlashTools {
 				AssetDatabase.CreateAsset(settings, settings_path);
 				AssetDatabase.SaveAssets();
 			}
-			return settings;
+			return settings.DefaultSettings;
 		}
 
 		static void CreateAssetDatabaseFolders(string path) {

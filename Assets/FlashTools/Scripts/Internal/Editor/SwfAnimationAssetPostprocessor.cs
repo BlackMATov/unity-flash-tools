@@ -51,10 +51,10 @@ namespace FlashTools.Internal {
 				.ToArray();
 			atlas_importer.textureType         = TextureImporterType.Sprite;
 			atlas_importer.spriteImportMode    = SpriteImportMode.Multiple;
-			atlas_importer.spritePixelsPerUnit = asset.OverriddenSettings.PixelsPerUnit;
-			atlas_importer.mipmapEnabled       = asset.OverriddenSettings.GenerateMipMaps;
-			atlas_importer.filterMode          = asset.OverriddenSettings.AtlasFilterMode;
-			atlas_importer.textureFormat       = asset.OverriddenSettings.AtlasImporterFormat;
+			atlas_importer.spritePixelsPerUnit = asset.Settings.PixelsPerUnit;
+			atlas_importer.mipmapEnabled       = asset.Settings.GenerateMipMaps;
+			atlas_importer.filterMode          = asset.Settings.AtlasFilterMode;
+			atlas_importer.textureFormat       = asset.Settings.AtlasImporterFormat;
 			AssetDatabase.ImportAsset(
 				GetAtlasPath(asset_path),
 				ImportAssetOptions.ForceUpdate);

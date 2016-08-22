@@ -187,8 +187,8 @@ namespace FlashTools.Internal {
 			var atlas = new Texture2D(0, 0, TextureFormat.ARGB32, false);
 			var atlas_rects = atlas.PackTextures(
 				textures,
-				asset.OverriddenSettings.AtlasPadding,
-				asset.OverriddenSettings.MaxAtlasSize);
+				asset.Settings.AtlasPadding,
+				asset.Settings.MaxAtlasSize);
 
 			File.WriteAllBytes(
 				GetAtlasPath(swf_asset),
