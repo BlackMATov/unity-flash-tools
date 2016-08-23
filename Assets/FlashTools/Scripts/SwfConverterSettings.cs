@@ -1,47 +1,60 @@
 ﻿using UnityEngine;
 
 #if UNITY_EDITOR
-using System.IO;
 using UnityEditor;
+using System.IO;
 #endif
 
 namespace FlashTools {
 	public class SwfConverterSettings : ScriptableObject {
+		public enum SwfAtlasFilter {
+			Point,
+			Bilinear,
+			Trilinear
+		}
+
+		public enum SwfAtlasFormat {
+			AutomaticCompressed,
+			Automatic16bit,
+			AutomaticTruecolor,
+			AutomaticCrunched
+		}
+
 		[System.Serializable]
 		public struct Settings {
-			public int                   MaxAtlasSize;
-			public int                   AtlasPadding;
-			public int                   PixelsPerUnit;
-			public bool                  GenerateMipMaps;
-			public bool                  AtlasPowerOfTwo;
-			public bool                  AtlasForceSquare; //TODO: implme
-			public FilterMode            AtlasFilterMode;
-			public TextureImporterFormat AtlasImporterFormat;
-
-			public bool Equal(Settings other) {
-				return
-					MaxAtlasSize        == other.MaxAtlasSize     &&
-					AtlasPadding        == other.AtlasPadding     &&
-					PixelsPerUnit       == other.PixelsPerUnit    &&
-					GenerateMipMaps     == other.GenerateMipMaps  &&
-					AtlasPowerOfTwo     == other.AtlasPowerOfTwo  &&
-					AtlasForceSquare    == other.AtlasForceSquare &&
-					AtlasFilterMode     == other.AtlasFilterMode  &&
-					AtlasImporterFormat == other.AtlasImporterFormat;
-			}
+			public int            MaxAtlasSize;
+			public int            AtlasPadding;
+			public int            PixelsPerUnit;
+			public bool           GenerateMipMaps;
+			public bool           AtlasPowerOfTwo;
+			public bool           AtlasForceSquare;
+			public SwfAtlasFilter AtlasTextureFilter;
+			public SwfAtlasFormat AtlasTextureFormat;
 
 			public static Settings identity {
 				get {
 					return new Settings{
-						MaxAtlasSize        = 1024,
-						AtlasPadding        = 1,
-						PixelsPerUnit       = 100,
-						GenerateMipMaps     = true,
-						AtlasPowerOfTwo     = true,
-						AtlasForceSquare    = false,
-						AtlasFilterMode     = FilterMode.Bilinear,
-						AtlasImporterFormat = TextureImporterFormat.AutomaticTruecolor};
+						MaxAtlasSize       = 1024,
+						AtlasPadding       = 1,
+						PixelsPerUnit      = 100,
+						GenerateMipMaps    = true,
+						AtlasPowerOfTwo    = true,
+						AtlasForceSquare   = false,
+						AtlasTextureFilter = SwfAtlasFilter.Bilinear,
+						AtlasTextureFormat = SwfAtlasFormat.AutomaticTruecolor};
 				}
+			}
+
+			public bool CheckEquals(Settings other) {
+				return
+					MaxAtlasSize       == other.MaxAtlasSize       &&
+					AtlasPadding       == other.AtlasPadding       &&
+					PixelsPerUnit      == other.PixelsPerUnit      &&
+					GenerateMipMaps    == other.GenerateMipMaps    &&
+					AtlasPowerOfTwo    == other.AtlasPowerOfTwo    &&
+					AtlasForceSquare   == other.AtlasForceSquare   &&
+					AtlasTextureFilter == other.AtlasTextureFilter &&
+					AtlasTextureFormat == other.AtlasTextureFormat;
 			}
 		}
 		public Settings DefaultSettings;
@@ -51,8 +64,8 @@ namespace FlashTools {
 			DefaultSettings = Settings.identity;
 		}
 
-		public static SwfConverterSettings.Settings GetDefaultSettings() {
-			var settings_path = GetSettingsPath();
+		public static Settings GetDefaultSettings() {
+			var settings_path = DefaultSettingsPath;
 			var settings = AssetDatabase.LoadAssetAtPath<SwfConverterSettings>(settings_path);
 			if ( !settings ) {
 				settings = ScriptableObject.CreateInstance<SwfConverterSettings>();
@@ -63,6 +76,12 @@ namespace FlashTools {
 			return settings.DefaultSettings;
 		}
 
+		static string DefaultSettingsPath {
+			get {
+				return "Assets/FlashTools/Resources/SwfConverterSettings.asset";
+			}
+		}
+
 		static void CreateAssetDatabaseFolders(string path) {
 			if ( !AssetDatabase.IsValidFolder(path) ) {
 				var parent = Path.GetDirectoryName(path);
@@ -71,10 +90,6 @@ namespace FlashTools {
 				}
 				AssetDatabase.CreateFolder(parent, Path.GetFileName(path));
 			}
-		}
-
-		static string GetSettingsPath() {
-			return "Assets/FlashTools/Resources/SwfConverterSettings.asset";
 		}
 	#endif
 	}

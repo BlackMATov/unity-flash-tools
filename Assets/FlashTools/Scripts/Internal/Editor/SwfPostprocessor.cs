@@ -12,8 +12,10 @@ using FlashTools.Internal.SwfTools.SwfTypes;
 namespace FlashTools.Internal {
 	public class SwfPostprocessor : AssetPostprocessor {
 		static void OnPostprocessAllAssets(
-			string[] imported_assets, string[] deleted_assets,
-			string[] moved_assets, string[] moved_from_asset_paths)
+			string[] imported_assets,
+			string[] deleted_assets,
+			string[] moved_assets,
+			string[] moved_from_asset_paths)
 		{
 			var swf_asset_paths = imported_assets
 				.Where(p => Path.GetExtension(p).ToLower().Equals(".swf"));
@@ -33,7 +35,7 @@ namespace FlashTools.Internal {
 				EditorUtility.SetDirty(new_asset);
 				AssetDatabase.SaveAssets();
 			} else {
-				AssetDatabase.DeleteAsset(new_asset_path);
+				DeleteSwfAnimationAsset(new_asset);
 			}
 		}
 
@@ -184,57 +186,18 @@ namespace FlashTools.Internal {
 				.Select (p => LoadTextureFromBitmapDefine(p.Value))
 				.ToArray();
 
-			var atlas_padding  = Mathf.Max(0, asset.Settings.AtlasPadding);
-			var max_atlas_size = (asset.Settings.AtlasPowerOfTwo && !Mathf.IsPowerOfTwo(asset.Settings.MaxAtlasSize))
-				? Mathf.NextPowerOfTwo(asset.Settings.MaxAtlasSize)
-				: asset.Settings.MaxAtlasSize;
-
-			var atlas = new Texture2D(0, 0);
-			var atlas_rects = atlas.PackTextures(
+			var rects = PackAndSaveBitmapsAtlas(
+				swf_asset,
 				textures,
-				atlas_padding,
-				Mathf.Max(32, max_atlas_size));
+				asset.Settings);
 
-			if ( asset.Settings.AtlasForceSquare && atlas.width != atlas.height ) {
-				var atlas_size   = Mathf.Max(atlas.width, atlas.height);
-				var new_atlas    = new Texture2D(atlas_size, atlas_size, TextureFormat.ARGB32, false);
-				for ( var i = 0; i < atlas_rects.Length; ++i ) {
-					var new_position = atlas_rects[i].position;
-					new_position.x *= (float)(atlas.width )/atlas_size;
-					new_position.y *= (float)(atlas.height)/atlas_size;
-
-					var new_size = atlas_rects[i].size;
-					new_size.x *= (float)(atlas.width )/atlas_size;
-					new_size.y *= (float)(atlas.height)/atlas_size;
-
-					atlas_rects[i] = new Rect(new_position, new_size);
-				}
-				var empty_pixels = new Color32[atlas_size * atlas_size];
-				for ( var i = 0; i < atlas_size * atlas_size; ++i ) {
-					empty_pixels[i] = new Color(1,1,1,0);
-				}
-				new_atlas.SetPixels32(empty_pixels);
-				new_atlas.SetPixels32(0, 0, atlas.width, atlas.height, atlas.GetPixels32());
-				new_atlas.Apply();
-				GameObject.DestroyImmediate(atlas, true);
-				atlas = new_atlas;
-			}
-
-			File.WriteAllBytes(
-				GetAtlasPath(swf_asset),
-				atlas.EncodeToPNG());
-			GameObject.DestroyImmediate(atlas, true);
-			AssetDatabase.ImportAsset(
-				GetAtlasPath(swf_asset),
-				ImportAssetOptions.ForceUpdate);
-
-			var bitmaps = new List<SwfAnimationBitmapData>();
+			var bitmaps = new List<SwfAnimationBitmapData>(bitmap_defines.Length);
 			for ( var i = 0; i < bitmap_defines.Length; ++i ) {
 				var bitmap_define = bitmap_defines[i];
 				var bitmap_data = new SwfAnimationBitmapData{
 					Id         = bitmap_define.Key,
 					RealSize   = new Vector2(bitmap_define.Value.Width, bitmap_define.Value.Height),
-					SourceRect = atlas_rects[i]
+					SourceRect = rects[i]
 				};
 				bitmaps.Add(bitmap_data);
 			}
@@ -251,8 +214,8 @@ namespace FlashTools.Internal {
 		}
 
 		static void RevertTexturePremultipliedAlpha(Texture2D texture) {
-			for (int y = 0; y < texture.height; ++y) {
-				for (int x = 0; x < texture.width; ++x) {
+			for ( int y = 0; y < texture.height; ++y ) {
+				for ( int x = 0; x < texture.width; ++x ) {
 					var c = texture.GetPixel(x, y);
 					if ( c.a > 0 ) {
 						c.r /= c.a;
@@ -265,8 +228,77 @@ namespace FlashTools.Internal {
 			texture.Apply();
 		}
 
+		struct BitmapsAtlasInfo {
+			public Texture2D Atlas;
+			public Rect[]    Rects;
+		}
+
 		static string GetAtlasPath(string swf_asset) {
 			return Path.ChangeExtension(swf_asset, ".png");
+		}
+
+		static Rect[] PackAndSaveBitmapsAtlas(
+			string                        swf_asset,
+			Texture2D[]                   textures,
+			SwfConverterSettings.Settings settings)
+		{
+			var atlas_info = PackBitmapsAtlas(textures, settings);
+			File.WriteAllBytes(
+				GetAtlasPath(swf_asset),
+				atlas_info.Atlas.EncodeToPNG());
+			GameObject.DestroyImmediate(atlas_info.Atlas, true);
+			AssetDatabase.ImportAsset(
+				GetAtlasPath(swf_asset),
+				ImportAssetOptions.ForceUpdate);
+			return atlas_info.Rects;
+		}
+
+		static BitmapsAtlasInfo PackBitmapsAtlas(
+			Texture2D[]                   textures,
+			SwfConverterSettings.Settings settings)
+		{
+			var atlas_padding  = Mathf.Max(0,  settings.AtlasPadding);
+			var max_atlas_size = Mathf.Max(32, settings.AtlasPowerOfTwo
+				? Mathf.ClosestPowerOfTwo(settings.MaxAtlasSize)
+				: settings.MaxAtlasSize);
+			var atlas = new Texture2D(0, 0);
+			var rects = atlas.PackTextures(textures, atlas_padding, max_atlas_size);
+			return settings.AtlasForceSquare && atlas.width != atlas.height
+				? BitmapsAtlasToSquare(atlas, rects)
+				: new BitmapsAtlasInfo{Atlas = atlas, Rects = rects};
+		}
+
+		static BitmapsAtlasInfo BitmapsAtlasToSquare(Texture2D atlas, Rect[] rects) {
+			var atlas_size  = Mathf.Max(atlas.width, atlas.height);
+			var atlas_scale = new Vector2(atlas.width, atlas.height) / atlas_size;
+			var new_atlas   = new Texture2D(atlas_size, atlas_size, TextureFormat.ARGB32, false);
+			for ( var i = 0; i < rects.Length; ++i ) {
+				var new_position = rects[i].position;
+				new_position.Scale(atlas_scale);
+				var new_size = rects[i].size;
+				new_size.Scale(atlas_scale);
+				rects[i] = new Rect(new_position, new_size);
+			}
+			var fill_pixels = new Color32[atlas_size * atlas_size];
+			for ( var i = 0; i < atlas_size * atlas_size; ++i ) {
+				fill_pixels[i] = new Color(1,1,1,0);
+			}
+			new_atlas.SetPixels32(fill_pixels);
+			new_atlas.SetPixels32(0, 0, atlas.width, atlas.height, atlas.GetPixels32());
+			new_atlas.Apply();
+			GameObject.DestroyImmediate(atlas, true);
+			return new BitmapsAtlasInfo{Atlas = new_atlas, Rects = rects};
+		}
+
+		static void DeleteSwfAnimationAsset(SwfAnimationAsset asset) {
+			if ( asset ) {
+				if ( asset.Atlas ) {
+					AssetDatabase.DeleteAsset(
+						AssetDatabase.GetAssetPath(asset.Atlas));
+				}
+				AssetDatabase.DeleteAsset(
+					AssetDatabase.GetAssetPath(asset));
+			}
 		}
 	}
 }

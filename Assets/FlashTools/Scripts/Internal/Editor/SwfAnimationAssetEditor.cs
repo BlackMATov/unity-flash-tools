@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
+using System.Linq;
 
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfAnimationAsset))]
@@ -122,7 +123,17 @@ namespace FlashTools.Internal {
 			if ( _settingsFoldout ) {
 				var it = serializedObject.FindProperty("Overridden");
 				while ( it.NextVisible(true) ) {
-					EditorGUILayout.PropertyField(it);
+					if ( it.name == "MaxAtlasSize" && _asset.Overridden.AtlasPowerOfTwo ) {
+						if ( !Mathf.IsPowerOfTwo(it.intValue) ) {
+							it.intValue = Mathf.ClosestPowerOfTwo(it.intValue);
+							serializedObject.ApplyModifiedProperties();
+						}
+						var values = new int[] {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
+						var names = values.Select(p => new GUIContent(p.ToString())).ToArray();
+						EditorGUILayout.IntPopup(it, names, values);
+					} else {
+						EditorGUILayout.PropertyField(it);
+					}
 				}
 				DrawGUISettingsControls();
 			}
@@ -131,15 +142,16 @@ namespace FlashTools.Internal {
 		void DrawGUISettingsControls() {
 			GUILayout.BeginHorizontal();
 			{
-				GUI.enabled = !_asset.Overridden.Equal(SwfConverterSettings.GetDefaultSettings());
+				var default_settings = SwfConverterSettings.GetDefaultSettings();
+				GUI.enabled = !_asset.Overridden.CheckEquals(default_settings);
 				if ( GUILayout.Button("Default") ) {
 					OverriddenSettingsToDefault();
 				}
-				GUI.enabled = !_asset.Overridden.Equal(_asset.Settings);
+				GUI.enabled = !_asset.Overridden.CheckEquals(_asset.Settings);
 				if ( GUILayout.Button("Revert") ) {
 					RevertOverriddenSettings();
 				}
-				GUI.enabled = !_asset.Overridden.Equal(_asset.Settings);
+				GUI.enabled = !_asset.Overridden.CheckEquals(_asset.Settings);
 				if ( GUILayout.Button("Apply") ) {
 					ApplyOverriddenSettings();
 				}
@@ -169,11 +181,12 @@ namespace FlashTools.Internal {
 
 		void OnEnable() {
 			_asset           = target as SwfAnimationAsset;
-			_settingsFoldout = _asset && !_asset.Settings.Equal(SwfConverterSettings.GetDefaultSettings());
+			_settingsFoldout = _asset && !_asset.Settings.CheckEquals(
+				SwfConverterSettings.GetDefaultSettings());
 		}
 
 		void OnDisable() {
-			if ( _asset && !_asset.Settings.Equal(_asset.Overridden) ) {
+			if ( _asset && !_asset.Settings.CheckEquals(_asset.Overridden) ) {
 				ShowUnappliedDialog();
 			}
 		}

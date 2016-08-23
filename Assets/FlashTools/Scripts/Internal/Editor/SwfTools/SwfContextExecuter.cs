@@ -18,7 +18,7 @@ namespace FlashTools.Internal.SwfTools {
 			dl.FrameName = string.Empty;
 			while ( CurrentTag < tags.Count ) {
 				var tag = tags[CurrentTag++];
-				TagToDebugLog(tag);
+				//TagToDebugLog(tag);
 				tag.AcceptVistor(this, dl);
 				if ( tag.TagType == SwfTagType.ShowFrame ) {
 					ChildrenNextFrameLooped(dl);

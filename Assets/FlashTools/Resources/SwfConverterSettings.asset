@@ -18,5 +18,5 @@ MonoBehaviour:
     GenerateMipMaps: 1
     AtlasPowerOfTwo: 1
     AtlasForceSquare: 0
-    AtlasFilterMode: 1
-    AtlasImporterFormat: -3
+    AtlasTextureFilter: 1
+    AtlasTextureFormat: 2

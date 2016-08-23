@@ -71,8 +71,10 @@ namespace FlashTools {
 	public class SwfAnimationAsset : ScriptableObject {
 		public SwfAnimationData               Data;
 		public Texture2D                      Atlas;
+	#if UNITY_EDITOR
 		public SwfConverterSettings.Settings  Settings;
 		public SwfConverterSettings.Settings  Overridden;
+	#endif
 
 	#if UNITY_EDITOR
 		void Reset() {

@@ -8,8 +8,10 @@ using System.Reflection;
 namespace FlashTools.Internal {
 	public class SwfAnimationAssetPostprocessor : AssetPostprocessor {
 		static void OnPostprocessAllAssets(
-			string[] imported_assets, string[] deleted_assets,
-			string[] moved_assets, string[] moved_from_asset_paths)
+			string[] imported_assets,
+			string[] deleted_assets,
+			string[] moved_assets,
+			string[] moved_from_asset_paths)
 		{
 			var asset_paths = imported_assets
 				.Where(p => Path.GetExtension(p).ToLower().Equals(".asset"));
@@ -23,9 +25,9 @@ namespace FlashTools.Internal {
 
 		static void AssetProcess(string asset_path, SwfAnimationAsset asset) {
 			try {
-				var new_asset = AssetDatabase.LoadAssetAtPath<Texture2D>(GetAtlasPath(asset_path));
-				if ( new_asset != asset.Atlas ) {
-					asset.Atlas = new_asset;
+				var atlas_asset = LoadAtlasAsset(asset_path);
+				if ( atlas_asset != asset.Atlas ) {
+					asset.Atlas = atlas_asset;
 					ConfigureAtlas(asset_path, asset);
 					EditorUtility.SetDirty(asset);
 					AssetDatabase.SaveAssets();
@@ -37,38 +39,47 @@ namespace FlashTools.Internal {
 			}
 		}
 
+		static Texture2D LoadAtlasAsset(string asset_path) {
+			return AssetDatabase.LoadAssetAtPath<Texture2D>(
+				GetAtlasPath(asset_path));
+		}
+
+		static string GetAtlasPath(string asset_path) {
+			return Path.ChangeExtension(asset_path, ".png");
+		}
+
 		static void ConfigureAtlas(string asset_path, SwfAnimationAsset asset) {
-			var atlas_importer = GetBitmapsAtlasImporter(asset_path);
-			var atlas_size     = GetSizeFromTextureImporter(atlas_importer);
+			var atlas_importer      = GetBitmapsAtlasImporter(asset_path);
+			var atlas_importer_size = GetSizeFromTextureImporter(atlas_importer);
 			atlas_importer.spritesheet = asset.Data.Bitmaps
 				.Select(bitmap => new SpriteMetaData{
 					name = bitmap.Id.ToString(),
 					rect = new Rect(
-						bitmap.SourceRect.xMin   * atlas_size.x,
-						bitmap.SourceRect.yMin   * atlas_size.y,
-						bitmap.SourceRect.width  * atlas_size.x,
-						bitmap.SourceRect.height * atlas_size.y)})
+						bitmap.SourceRect.xMin   * atlas_importer_size.x,
+						bitmap.SourceRect.yMin   * atlas_importer_size.y,
+						bitmap.SourceRect.width  * atlas_importer_size.x,
+						bitmap.SourceRect.height * atlas_importer_size.y)})
 				.ToArray();
 			atlas_importer.textureType         = TextureImporterType.Sprite;
 			atlas_importer.spriteImportMode    = SpriteImportMode.Multiple;
 			atlas_importer.spritePixelsPerUnit = asset.Settings.PixelsPerUnit;
 			atlas_importer.mipmapEnabled       = asset.Settings.GenerateMipMaps;
-			atlas_importer.filterMode          = asset.Settings.AtlasFilterMode;
-			atlas_importer.textureFormat       = asset.Settings.AtlasImporterFormat;
+			atlas_importer.filterMode          = SwfAtlasFilterToImporterFilter(asset.Settings.AtlasTextureFilter);
+			atlas_importer.textureFormat       = SwfAtlasFormatToImporterFormat(asset.Settings.AtlasTextureFormat);
 			AssetDatabase.ImportAsset(
 				GetAtlasPath(asset_path),
 				ImportAssetOptions.ForceUpdate);
 		}
 
 		static TextureImporter GetBitmapsAtlasImporter(string asset_path) {
-			var atlas_path = GetAtlasPath(asset_path);
-			var importer = AssetImporter.GetAtPath(atlas_path) as TextureImporter;
-			if ( !importer ) {
+			var atlas_path     = GetAtlasPath(asset_path);
+			var atlas_importer = AssetImporter.GetAtPath(atlas_path) as TextureImporter;
+			if ( !atlas_importer ) {
 				throw new UnityException(string.Format(
 					"atlas texture importer not found ({0})",
 					atlas_path));
 			}
-			return importer;
+			return atlas_importer;
 		}
 
 		static Vector2 GetSizeFromTextureImporter(TextureImporter importer) {
@@ -79,8 +90,40 @@ namespace FlashTools.Internal {
 			return new Vector2((int)method_args[0], (int)method_args[1]);
 		}
 
-		static string GetAtlasPath(string asset_path) {
-			return Path.ChangeExtension(asset_path, ".png");
+		static FilterMode SwfAtlasFilterToImporterFilter(
+			SwfConverterSettings.SwfAtlasFilter filter)
+		{
+			switch ( filter ) {
+			case SwfConverterSettings.SwfAtlasFilter.Point:
+				return FilterMode.Point;
+			case SwfConverterSettings.SwfAtlasFilter.Bilinear:
+				return FilterMode.Bilinear;
+			case SwfConverterSettings.SwfAtlasFilter.Trilinear:
+				return FilterMode.Trilinear;
+			default:
+				throw new UnityException(string.Format(
+					"incorrect swf atlas filter ({0})",
+					filter));
+			}
+		}
+
+		static TextureImporterFormat SwfAtlasFormatToImporterFormat(
+			SwfConverterSettings.SwfAtlasFormat format)
+		{
+			switch ( format ) {
+			case SwfConverterSettings.SwfAtlasFormat.AutomaticCompressed:
+				return TextureImporterFormat.AutomaticCompressed;
+			case SwfConverterSettings.SwfAtlasFormat.Automatic16bit:
+				return TextureImporterFormat.Automatic16bit;
+			case SwfConverterSettings.SwfAtlasFormat.AutomaticTruecolor:
+				return TextureImporterFormat.AutomaticTruecolor;
+			case SwfConverterSettings.SwfAtlasFormat.AutomaticCrunched:
+				return TextureImporterFormat.AutomaticCrunched;
+			default:
+				throw new UnityException(string.Format(
+					"incorrect swf atlas format ({0})",
+					format));
+			}
 		}
 	}
 }
