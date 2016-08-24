@@ -5,7 +5,7 @@ using UnityEditor;
 using System.IO;
 #endif
 
-namespace FlashTools {
+namespace FlashTools.Internal {
 	public class SwfConverterSettings : ScriptableObject {
 		public enum SwfAtlasFilter {
 			Point,
@@ -22,6 +22,7 @@ namespace FlashTools {
 
 		[System.Serializable]
 		public struct Settings {
+			[SwfPowerOfTwoIfAttribute("AtlasPowerOfTwo", 32, 8192)]
 			public int            MaxAtlasSize;
 			public int            AtlasPadding;
 			public int            PixelsPerUnit;

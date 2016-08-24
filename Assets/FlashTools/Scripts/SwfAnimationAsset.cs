@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using FlashTools.Internal;
 
 namespace FlashTools {
 	[System.Serializable]

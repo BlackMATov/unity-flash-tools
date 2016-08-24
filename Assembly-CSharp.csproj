@@ -45,9 +45,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfConverterSettings.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfPowerOfTwoIfAttribute.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfSortingLayerAttribute.cs" />
      <Compile Include="Assets\FlashTools\Scripts\SwfAnimation.cs" />
      <Compile Include="Assets\FlashTools\Scripts\SwfAnimationAsset.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\SwfConverterSettings.cs" />
      <None Include="Assets\FlashTools\Resources\Shaders\SwfDecrMask.shader" />
      <None Include="Assets\FlashTools\Resources\Shaders\SwfSimple.shader" />
      <None Include="Assets\FlashTools\Resources\Shaders\SwfIncrMask.shader" />

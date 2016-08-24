@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using FlashTools.Internal;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -10,8 +11,12 @@ namespace FlashTools {
 	[ExecuteInEditMode]
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 	public class SwfAnimation : MonoBehaviour {
-		public SwfAnimationAsset Asset      = null;
-		public int               GroupCount = 0;
+		public SwfAnimationAsset Asset        = null;
+		public int               GroupCount   = 0;
+
+		public int               SortingOrder = 0;
+		[SwfSortingLayer]
+		public string            SortingLayer = "Default";
 
 		int    _current_frame   = 0;
 		float  _frame_timer     = 0.0f;
@@ -176,7 +181,10 @@ namespace FlashTools {
 					}
 				}
 
-				GetComponent<MeshRenderer>().sharedMaterials = full_groups.Select(p => p.Material).ToArray();
+				var mesh_renderer = GetComponent<MeshRenderer>();
+				mesh_renderer.sharedMaterials = full_groups.Select(p => p.Material).ToArray();
+				mesh_renderer.sortingOrder = SortingOrder;
+				mesh_renderer.sortingLayerName = SortingLayer;
 
 				var mesh_filter = GetComponent<MeshFilter>();
 				if ( mesh_filter ) {

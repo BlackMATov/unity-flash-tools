@@ -117,23 +117,14 @@ namespace FlashTools.Internal {
 
 		void DrawGUISettings() {
 			GUI.enabled = false;
+			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Script"));
 			EditorGUILayout.PropertyField(serializedObject.FindProperty("Atlas"));
 			GUI.enabled = true;
 			_settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "Settings");
 			if ( _settingsFoldout ) {
 				var it = serializedObject.FindProperty("Overridden");
 				while ( it.NextVisible(true) ) {
-					if ( it.name == "MaxAtlasSize" && _asset.Overridden.AtlasPowerOfTwo ) {
-						if ( !Mathf.IsPowerOfTwo(it.intValue) ) {
-							it.intValue = Mathf.ClosestPowerOfTwo(it.intValue);
-							serializedObject.ApplyModifiedProperties();
-						}
-						var values = new int[] {32, 64, 128, 256, 512, 1024, 2048, 4096, 8192};
-						var names = values.Select(p => new GUIContent(p.ToString())).ToArray();
-						EditorGUILayout.IntPopup(it, names, values);
-					} else {
-						EditorGUILayout.PropertyField(it);
-					}
+					EditorGUILayout.PropertyField(it);
 				}
 				DrawGUISettingsControls();
 			}
@@ -141,6 +132,7 @@ namespace FlashTools.Internal {
 
 		void DrawGUISettingsControls() {
 			GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
 			{
 				var default_settings = SwfConverterSettings.GetDefaultSettings();
 				GUI.enabled = !_asset.Overridden.CheckEquals(default_settings);

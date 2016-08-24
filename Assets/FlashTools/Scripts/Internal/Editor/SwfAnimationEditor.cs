@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
+using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfAnimation))]
@@ -12,6 +13,7 @@ namespace FlashTools.Internal {
 
 		public override void OnInspectorGUI() {
 			DrawDefaultInspector();
+
 			if ( _animation.Asset && _animation.frameCount > 1 ) {
 				var new_current_frame = EditorGUILayout.IntSlider(
 					"Frame", _animation.currentFrame,

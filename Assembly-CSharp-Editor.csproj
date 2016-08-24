@@ -48,6 +48,8 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationAssetEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationAssetPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationEditor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfEditorTools\SwfPowerOfTwoIfDrawer.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfEditorTools\SwfSortingLayerDrawer.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfContext.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfContextExecuter.cs" />
