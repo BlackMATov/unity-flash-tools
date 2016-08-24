@@ -59,19 +59,24 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		GameObject CreateAnimationGO() {
+		GameObject CreateAnimationGO(bool baked) {
 			if ( _asset ) {
 				var anim_go = new GameObject(_asset.name);
 				anim_go.AddComponent<MeshFilter>();
 				anim_go.AddComponent<MeshRenderer>();
-				anim_go.AddComponent<SwfAnimation>().Asset = _asset;
+				if ( baked ) {
+					anim_go.AddComponent<SwfBakedAnimation>().Asset = _asset;
+					anim_go.GetComponent<SwfBakedAnimation>().BakeFrameMeshes();
+				} else {
+					anim_go.AddComponent<SwfAnimation>().Asset = _asset;
+				}
 				return anim_go;
 			}
 			return null;
 		}
 
-		void CreateAnimationPrefab() {
-			var anim_go = CreateAnimationGO();
+		void CreateAnimationPrefab(bool baked) {
+			var anim_go = CreateAnimationGO(baked);
 			if ( anim_go ) {
 				var prefab_path = GetPrefabPath();
 				if ( !string.IsNullOrEmpty(prefab_path) ) {
@@ -88,8 +93,8 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		void CreateAnimationOnScene() {
-			var anim_go = CreateAnimationGO();
+		void CreateAnimationOnScene(bool baked) {
+			var anim_go = CreateAnimationGO(baked);
 			if ( anim_go ) {
 				Undo.RegisterCreatedObjectUndo(anim_go, "Create SwfAnimation");
 			}
@@ -119,18 +124,18 @@ namespace FlashTools.Internal {
 			GUI.enabled = false;
 			var script_prop = serializedObject.FindProperty("m_Script");
 			if ( script_prop != null ) {
-				EditorGUILayout.PropertyField(script_prop);
+				EditorGUILayout.PropertyField(script_prop, true);
 			}
 			var atlas_prop = serializedObject.FindProperty("Atlas");
 			if ( atlas_prop != null ) {
-				EditorGUILayout.PropertyField(atlas_prop);
+				EditorGUILayout.PropertyField(atlas_prop, true);
 			}
 			GUI.enabled = true;
 			_settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "Settings");
 			if ( _settingsFoldout ) {
 				var it = serializedObject.FindProperty("Overridden");
 				while ( it.NextVisible(true) ) {
-					EditorGUILayout.PropertyField(it);
+					EditorGUILayout.PropertyField(it, true);
 				}
 				DrawGUISettingsControls();
 			}
@@ -162,10 +167,20 @@ namespace FlashTools.Internal {
 			GUILayout.BeginHorizontal();
 			{
 				if ( GUILayout.Button("Create animation prefab") ) {
-					CreateAnimationPrefab();
+					CreateAnimationPrefab(false);
 				}
 				if ( GUILayout.Button("Create animation on scene") ) {
-					CreateAnimationOnScene();
+					CreateAnimationOnScene(false);
+				}
+			}
+			GUILayout.EndHorizontal();
+			GUILayout.BeginHorizontal();
+			{
+				if ( GUILayout.Button("Create baked animation prefab") ) {
+					CreateAnimationPrefab(true);
+				}
+				if ( GUILayout.Button("Create baked animation on scene") ) {
+					CreateAnimationOnScene(true);
 				}
 			}
 			GUILayout.EndHorizontal();
