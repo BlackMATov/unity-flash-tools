@@ -117,8 +117,14 @@ namespace FlashTools.Internal {
 
 		void DrawGUISettings() {
 			GUI.enabled = false;
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("m_Script"));
-			EditorGUILayout.PropertyField(serializedObject.FindProperty("Atlas"));
+			var script_prop = serializedObject.FindProperty("m_Script");
+			if ( script_prop != null ) {
+				EditorGUILayout.PropertyField(script_prop);
+			}
+			var atlas_prop = serializedObject.FindProperty("Atlas");
+			if ( atlas_prop != null ) {
+				EditorGUILayout.PropertyField(atlas_prop);
+			}
 			GUI.enabled = true;
 			_settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "Settings");
 			if ( _settingsFoldout ) {

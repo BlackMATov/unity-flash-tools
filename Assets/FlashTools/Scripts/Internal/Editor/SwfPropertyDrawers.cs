@@ -6,6 +6,23 @@ using System.Collections.Generic;
 namespace FlashTools.Internal.SwfEditorTools {
 
 	//
+	// SwfReadOnlyDrawer
+	//
+
+	[CustomPropertyDrawer(typeof(SwfReadOnlyAttribute))]
+	public class SwfReadOnlyDrawer : PropertyDrawer {
+
+		public override void OnGUI(
+			Rect position, SerializedProperty property, GUIContent label)
+		{
+			var last_gui_enabled = GUI.enabled;
+			GUI.enabled = false;
+			EditorGUI.PropertyField(position, property, label, true);
+			GUI.enabled = last_gui_enabled;
+		}
+	}
+
+	//
 	// SwfSortingLayerDrawer
 	//
 
@@ -57,14 +74,14 @@ namespace FlashTools.Internal.SwfEditorTools {
 			var all_sorting_layers = GetAllSortingLayers();
 			if ( property.propertyType == SerializedPropertyType.String ) {
 				ValidateProperty(property);
-				var old_sorting_layer   = property.stringValue;
+				var last_sorting_layer  = property.stringValue;
 				var sorting_layer_index = EditorGUI.Popup(
 					position,
 					label,
 					all_sorting_layers.FindIndex(p => p == property.stringValue),
 					all_sorting_layers.Select(p => new GUIContent(p)).ToArray());
 				property.stringValue = all_sorting_layers[sorting_layer_index];
-				if ( old_sorting_layer != property.stringValue ) {
+				if ( last_sorting_layer != property.stringValue ) {
 					property.serializedObject.ApplyModifiedProperties();
 				}
 			} else {
@@ -105,7 +122,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 
 		static void ValidateProperty(SerializedProperty property, bool need_pow2, int min_pow2, int max_pow2) {
 			if ( property.propertyType == SerializedPropertyType.Integer ) {
-				var old_value = property.intValue;
+				var last_value = property.intValue;
 				if ( need_pow2 && !Mathf.IsPowerOfTwo(property.intValue) ) {
 					property.intValue = Mathf.ClosestPowerOfTwo(property.intValue);
 				}
@@ -113,7 +130,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 					property.intValue,
 					GetPowerOfTwo(min_pow2),
 					GetPowerOfTwo(max_pow2));
-				if ( old_value != property.intValue ) {
+				if ( last_value != property.intValue ) {
 					property.serializedObject.ApplyModifiedProperties();
 				}
 			}
@@ -132,7 +149,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 					var vnames = values.Select(p => new GUIContent(p.ToString())).ToArray();
 					EditorGUI.IntPopup(position, property, vnames, values, label);
 				} else {
-					EditorGUI.PropertyField(position, property, label);
+					EditorGUI.PropertyField(position, property, label, true);
 				}
 			} else {
 				EditorGUI.LabelField(position, label.text, "Use SwfPowerOfTwoIf with integer attribute.");
