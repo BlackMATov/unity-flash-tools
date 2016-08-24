@@ -1,9 +1,10 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/Scripts/Internal/Editor/SwfAnimationAssetEditor.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/Scripts/Internal/Editor/SwfPropertyDrawers.cs">
     <Files>
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/SwfAnimationAssetEditor.cs" Line="128" Column="18" />
-      <File FileName="Assets/FlashTools/Scripts/SwfAnimationAsset.cs" Line="86" Column="2" NotebookId="1" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/SwfConverterSettings.cs" Line="24" Column="27" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/SwfPropertyDrawers.cs" Line="128" Column="42" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/SwfPropertyAttributes.cs" Line="17" Column="2" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
