@@ -22,7 +22,7 @@ namespace FlashTools.Internal {
 
 		[System.Serializable]
 		public struct Settings {
-			[SwfPowerOfTwoIfAttribute("AtlasPowerOfTwo", 32, 8192)]
+			[SwfPowerOfTwoIfAttribute(5, 13, "AtlasPowerOfTwo")]
 			public int            MaxAtlasSize;
 			public int            AtlasPadding;
 			public int            PixelsPerUnit;

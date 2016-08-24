@@ -38,9 +38,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: SortingDown
+    uniqueID: 811819031
+    locked: 0
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: jvjhv
-    uniqueID: 811819031
+  - name: SortingUp
+    uniqueID: 756447657
     locked: 0
