@@ -36,10 +36,6 @@ namespace FlashTools {
 		//
 		// ------------------------------------------------------------------------
 
-		static Material       SwfIncrMask;
-		static Material       SwfSimple;
-		static Material       SwfDecrMask;
-		static Shader         SwfMaskedShader;
 		MaterialPropertyBlock MatPropBlock;
 
 		class Frame {
@@ -73,8 +69,9 @@ namespace FlashTools {
 		}
 
 		public void BakeFrameMeshes() {
-			InitMaterials();
 			if ( Asset && Asset.Atlas && Asset.Data != null && Asset.Data.Frames.Count > 0 ) {
+				MatPropBlock = new MaterialPropertyBlock();
+				MatPropBlock.SetTexture("_MainTex", Asset.Atlas);
 				for ( var i = 0; i < Asset.Data.Frames.Count; ++i ) {
 					var frame = Asset.Data.Frames[i];
 					BakeFrameMesh(frame);
@@ -83,27 +80,8 @@ namespace FlashTools {
 			FixCurrentMesh();
 		}
 
-		void InitMaterials() {
-			if ( !SwfIncrMask ) {
-				Profiler.maxNumberOfSamplesPerFrame = -1;
-				SwfIncrMask = new Material(Shader.Find("FlashTools/SwfIncrMask"));
-			}
-			if ( !SwfSimple ) {
-				SwfSimple   = new Material(Shader.Find("FlashTools/SwfSimple"));
-			}
-			if ( !SwfDecrMask ) {
-				SwfDecrMask = new Material(Shader.Find("FlashTools/SwfDecrMask"));
-			}
-			if ( !SwfMaskedShader ) {
-				SwfMaskedShader = Shader.Find("FlashTools/SwfMasked");
-			}
-			if ( MatPropBlock == null ) {
-				MatPropBlock = new MaterialPropertyBlock();
-				MatPropBlock.SetTexture("_MainTex", Asset.Atlas);
-			}
-		}
-
 		void BakeFrameMesh(SwfAnimationFrameData frame) {
+			var swf_manager = SwfManager.Instance;
 			for ( var i = 0; i < frame.Instances.Count; ++i ) {
 				var inst   = frame.Instances[i];
 				var bitmap = inst != null ? FindBitmap(inst.Bitmap) : null;
@@ -168,17 +146,16 @@ namespace FlashTools {
 				var group = _groups[i];
 				switch ( group.Type ) {
 				case SwfAnimationInstanceType.Mask:
-					group.Material = SwfIncrMask;
+					group.Material = swf_manager.GetIncrMaskMaterial();
 					break;
 				case SwfAnimationInstanceType.Group:
-					group.Material = SwfSimple;
+					group.Material = swf_manager.GetSimpleMaterial();
 					break;
 				case SwfAnimationInstanceType.Masked:
-					group.Material = new Material(SwfMaskedShader);
-					group.Material.SetInt("_StencilID", group.ClipDepth);
+					group.Material = swf_manager.GetMaskedMaterial(group.ClipDepth);
 					break;
 				case SwfAnimationInstanceType.MaskReset:
-					group.Material = SwfDecrMask;
+					group.Material = swf_manager.GetDecrMaskMaterial();
 					break;
 				}
 			}
@@ -246,19 +223,39 @@ namespace FlashTools {
 			}
 		}
 
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
+		//
+		// Internal
+		//
+		// ---------------------------------------------------------------------
+
+		public void InternalUpdate() {
+			UpdateFrameTimer();
+		}
+
+		// ---------------------------------------------------------------------
 		//
 		// Messages
 		//
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 
 		void Awake() {
 			_meshFilter   = GetComponent<MeshFilter>();
 			_meshRenderer = GetComponent<MeshRenderer>();
 		}
 
-		void Update() {
-			UpdateFrameTimer();
+		void OnEnable() {
+			var swf_manager = SwfManager.Instance;
+			if ( swf_manager ) {
+				swf_manager.AddSwfBakedAnimation(this);
+			}
+		}
+
+		void OnDisable() {
+			var swf_manager = SwfManager.Instance;
+			if ( swf_manager ) {
+				swf_manager.RemoveSwfBakedAnimation(this);
+			}
 		}
 	}
 }
