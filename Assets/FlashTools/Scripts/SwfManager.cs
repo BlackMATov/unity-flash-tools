@@ -38,13 +38,15 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		static SwfManager _instance;
-		public static SwfManager Instance {
-			get {
-				if ( !_instance ) {
-					_instance = FindObjectOfType<SwfManager>();
+		public static SwfManager GetInstance(bool allow_create) {
+			if ( !_instance ) {
+				_instance = FindObjectOfType<SwfManager>();
+				if ( allow_create && !_instance ) {
+					var go = new GameObject("[SwfManager]");
+					_instance = go.AddComponent<SwfManager>();
 				}
-				return _instance;
 			}
+			return _instance;
 		}
 
 		// ---------------------------------------------------------------------

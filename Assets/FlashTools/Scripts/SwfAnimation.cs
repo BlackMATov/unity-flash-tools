@@ -81,7 +81,7 @@ namespace FlashTools {
 		}
 
 		void BakeFrameMesh(SwfAnimationFrameData frame) {
-			var swf_manager = SwfManager.Instance;
+			var swf_manager = SwfManager.GetInstance(true);
 			for ( var i = 0; i < frame.Instances.Count; ++i ) {
 				var inst   = frame.Instances[i];
 				var bitmap = inst != null ? FindBitmap(inst.Bitmap) : null;
@@ -245,14 +245,14 @@ namespace FlashTools {
 		}
 
 		void OnEnable() {
-			var swf_manager = SwfManager.Instance;
+			var swf_manager = SwfManager.GetInstance(true);
 			if ( swf_manager ) {
 				swf_manager.AddSwfAnimation(this);
 			}
 		}
 
 		void OnDisable() {
-			var swf_manager = SwfManager.Instance;
+			var swf_manager = SwfManager.GetInstance(false);
 			if ( swf_manager ) {
 				swf_manager.RemoveSwfAnimation(this);
 			}
