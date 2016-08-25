@@ -20,3 +20,17 @@ MonoBehaviour:
     AtlasForceSquare: 0
     AtlasTextureFilter: 1
     AtlasTextureFormat: 2
+  SimpleMaterial: {fileID: 2100000, guid: e92fbe00d5b6d4a3aa9355a4b23f107d, type: 2}
+  IncrMaskMaterial: {fileID: 2100000, guid: e62e8efca5cac42c9a323961b58d05d6, type: 2}
+  DecrMaskMaterial: {fileID: 2100000, guid: d63a68532164d470d887fd2603e79ffa, type: 2}
+  MaskedMaterials:
+  - {fileID: 2100000, guid: 3902e0561ba6046079e975f4b8340dbd, type: 2}
+  - {fileID: 2100000, guid: 362db403211244f70830b07296318936, type: 2}
+  - {fileID: 2100000, guid: 43234b460d10f41088cbd327c045074b, type: 2}
+  - {fileID: 2100000, guid: f9e8b8b157ffa4866812a11237c48758, type: 2}
+  - {fileID: 2100000, guid: 04597a59523be4b939c0a5dfd05b973e, type: 2}
+  - {fileID: 2100000, guid: 502586963b8c243d48808238fb1210ef, type: 2}
+  - {fileID: 2100000, guid: dfbc0da8152b047b58270d40b138b36c, type: 2}
+  - {fileID: 2100000, guid: efeaba40d10a4417eb27036131ba80b1, type: 2}
+  - {fileID: 2100000, guid: 0f131b0532a4e4feaba67826153a42b7, type: 2}
+  - {fileID: 2100000, guid: ccd8fc1b2c96543ff9dc43ed384704a2, type: 2}

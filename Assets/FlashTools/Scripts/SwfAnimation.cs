@@ -6,16 +6,16 @@ namespace FlashTools {
 	[ExecuteInEditMode]
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 	public class SwfAnimation : MonoBehaviour {
-		public SwfAnimationAsset Asset        = null;
+		public SwfAnimationAsset Asset         = null;
 		[SwfSortingLayer]
-		public string            SortingLayer = "Default";
-		public int               SortingOrder = 0;
+		public string            SortingLayer  = "Default";
+		public int               SortingOrder  = 0;
 
-		MeshFilter            _meshFilter   = null;
-		MeshRenderer          _meshRenderer = null;
+		bool                     _inited       = false;
+		MaterialPropertyBlock    _matPropBlock = null;
 
-		bool                  _inited       = false;
-		MaterialPropertyBlock _matPropBlock = null;
+		MeshFilter               _meshFilter   = null;
+		MeshRenderer             _meshRenderer = null;
 
 		int    _current_frame = 0;
 		float  _frame_timer   = 0.0f;
@@ -38,7 +38,8 @@ namespace FlashTools {
 		//
 		// ------------------------------------------------------------------------
 
-		public void InitStuff() {
+		public void InitWithAsset(SwfAnimationAsset asset) {
+			Asset = asset;
 			if ( Asset && !_inited ) {
 				_inited = true;
 				_matPropBlock = new MaterialPropertyBlock();
@@ -91,7 +92,7 @@ namespace FlashTools {
 		void Awake() {
 			_meshFilter   = GetComponent<MeshFilter>();
 			_meshRenderer = GetComponent<MeshRenderer>();
-			InitStuff();
+			InitWithAsset(Asset);
 		}
 
 		void OnEnable() {

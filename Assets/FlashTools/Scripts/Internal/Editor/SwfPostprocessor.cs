@@ -238,9 +238,9 @@ namespace FlashTools.Internal {
 		}
 
 		static Rect[] PackAndSaveBitmapsAtlas(
-			string                        swf_asset,
-			Texture2D[]                   textures,
-			SwfConverterSettings.Settings settings)
+			string      swf_asset,
+			Texture2D[] textures,
+			SwfSettings settings)
 		{
 			var atlas_info = PackBitmapsAtlas(textures, settings);
 			File.WriteAllBytes(
@@ -254,8 +254,8 @@ namespace FlashTools.Internal {
 		}
 
 		static BitmapsAtlasInfo PackBitmapsAtlas(
-			Texture2D[]                   textures,
-			SwfConverterSettings.Settings settings)
+			Texture2D[] textures,
+			SwfSettings settings)
 		{
 			var atlas_padding  = Mathf.Max(0,  settings.AtlasPadding);
 			var max_atlas_size = Mathf.Max(32, settings.AtlasPowerOfTwo

@@ -1,6 +1,24 @@
 ﻿using UnityEngine;
 
 namespace FlashTools.Internal {
+	public class SwfIntRangeAttribute : PropertyAttribute {
+		public int Min;
+		public int Max;
+		public SwfIntRangeAttribute(int min, int max) {
+			Min = min;
+			Max = max;
+		}
+	}
+
+	public class SwfFloatRangeAttribute : PropertyAttribute {
+		public float Min;
+		public float Max;
+		public SwfFloatRangeAttribute(float min, float max) {
+			Min = min;
+			Max = max;
+		}
+	}
+
 	public class SwfSortingLayerAttribute : PropertyAttribute {
 	}
 

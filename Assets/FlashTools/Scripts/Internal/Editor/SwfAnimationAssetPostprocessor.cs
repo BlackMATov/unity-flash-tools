@@ -100,14 +100,14 @@ namespace FlashTools.Internal {
 		}
 
 		static FilterMode SwfAtlasFilterToImporterFilter(
-			SwfConverterSettings.SwfAtlasFilter filter)
+			SwfSettings.AtlasFilter filter)
 		{
 			switch ( filter ) {
-			case SwfConverterSettings.SwfAtlasFilter.Point:
+			case SwfSettings.AtlasFilter.Point:
 				return FilterMode.Point;
-			case SwfConverterSettings.SwfAtlasFilter.Bilinear:
+			case SwfSettings.AtlasFilter.Bilinear:
 				return FilterMode.Bilinear;
-			case SwfConverterSettings.SwfAtlasFilter.Trilinear:
+			case SwfSettings.AtlasFilter.Trilinear:
 				return FilterMode.Trilinear;
 			default:
 				throw new UnityException(string.Format(
@@ -117,16 +117,16 @@ namespace FlashTools.Internal {
 		}
 
 		static TextureImporterFormat SwfAtlasFormatToImporterFormat(
-			SwfConverterSettings.SwfAtlasFormat format)
+			SwfSettings.AtlasFormat format)
 		{
 			switch ( format ) {
-			case SwfConverterSettings.SwfAtlasFormat.AutomaticCompressed:
+			case SwfSettings.AtlasFormat.AutomaticCompressed:
 				return TextureImporterFormat.AutomaticCompressed;
-			case SwfConverterSettings.SwfAtlasFormat.Automatic16bit:
+			case SwfSettings.AtlasFormat.Automatic16bit:
 				return TextureImporterFormat.Automatic16bit;
-			case SwfConverterSettings.SwfAtlasFormat.AutomaticTruecolor:
+			case SwfSettings.AtlasFormat.AutomaticTruecolor:
 				return TextureImporterFormat.AutomaticTruecolor;
-			case SwfConverterSettings.SwfAtlasFormat.AutomaticCrunched:
+			case SwfSettings.AtlasFormat.AutomaticCrunched:
 				return TextureImporterFormat.AutomaticCrunched;
 			default:
 				throw new UnityException(string.Format(
@@ -228,21 +228,21 @@ namespace FlashTools.Internal {
 				}
 			}
 
-			var swf_manager = SwfManager.GetInstance(true);
+			var default_converter = SwfConverterSettings.GetDefaultConverter();
 			for ( var i = 0; i < _groups.Count; ++i ) {
 				var group = _groups[i];
 				switch ( group.Type ) {
 				case SwfAnimationInstanceType.Mask:
-					group.Material = swf_manager.GetIncrMaskMaterial();
+					group.Material = default_converter.GetIncrMaskMaterial();
 					break;
 				case SwfAnimationInstanceType.Group:
-					group.Material = swf_manager.GetSimpleMaterial();
+					group.Material = default_converter.GetSimpleMaterial();
 					break;
 				case SwfAnimationInstanceType.Masked:
-					group.Material = swf_manager.GetMaskedMaterial(group.ClipDepth);
+					group.Material = default_converter.GetMaskedMaterial(group.ClipDepth);
 					break;
 				case SwfAnimationInstanceType.MaskReset:
-					group.Material = swf_manager.GetDecrMaskMaterial();
+					group.Material = default_converter.GetDecrMaskMaterial();
 					break;
 				}
 			}

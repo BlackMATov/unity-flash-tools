@@ -6,6 +6,54 @@ using System.Collections.Generic;
 namespace FlashTools.Internal.SwfEditorTools {
 
 	//
+	// SwfIntRange
+	//
+
+	[CustomPropertyDrawer(typeof(SwfIntRangeAttribute))]
+	public class SwfIntRangeDrawer : PropertyDrawer {
+		static void ValidateProperty(SerializedProperty property, int min, int max) {
+			if ( property.propertyType == SerializedPropertyType.Integer ) {
+				var clamp = Mathf.Clamp(property.intValue, min, max);
+				if ( clamp != property.intValue ) {
+					property.intValue = clamp;
+					property.serializedObject.ApplyModifiedProperties();
+				}
+			}
+		}
+		public override void OnGUI(
+			Rect position, SerializedProperty property, GUIContent label)
+		{
+			var attr = attribute as SwfIntRangeAttribute;
+			ValidateProperty(property, attr.Min, attr.Max);
+			EditorGUI.PropertyField(position, property, label, true);
+		}
+	}
+
+	//
+	// SwfFloatRange
+	//
+
+	[CustomPropertyDrawer(typeof(SwfFloatRangeAttribute))]
+	public class SwfFloatRangeDrawer : PropertyDrawer {
+		static void ValidateProperty(SerializedProperty property, float min, float max) {
+			if ( property.propertyType == SerializedPropertyType.Float ) {
+				var clamp = Mathf.Clamp(property.floatValue, min, max);
+				if ( clamp != property.floatValue ) {
+					property.floatValue = clamp;
+					property.serializedObject.ApplyModifiedProperties();
+				}
+			}
+		}
+		public override void OnGUI(
+			Rect position, SerializedProperty property, GUIContent label)
+		{
+			var attr = attribute as SwfFloatRangeAttribute;
+			ValidateProperty(property, attr.Min, attr.Max);
+			EditorGUI.PropertyField(position, property, label, true);
+		}
+	}
+
+	//
 	// SwfSortingLayerDrawer
 	//
 

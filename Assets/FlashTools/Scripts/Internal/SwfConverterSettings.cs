@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using System.Collections.Generic;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -7,65 +8,107 @@ using System.IO;
 
 namespace FlashTools.Internal {
 	public class SwfConverterSettings : ScriptableObject {
-		public enum SwfAtlasFilter {
-			Point,
-			Bilinear,
-			Trilinear
-		}
 
-		public enum SwfAtlasFormat {
-			AutomaticCompressed,
-			Automatic16bit,
-			AutomaticTruecolor,
-			AutomaticCrunched
-		}
+		// ---------------------------------------------------------------------
+		//
+		// Constants
+		//
+		// ---------------------------------------------------------------------
 
-		[System.Serializable]
-		public struct Settings {
-			[SwfPowerOfTwoIfAttribute(5, 13, "AtlasPowerOfTwo")]
-			public int            MaxAtlasSize;
-			public int            AtlasPadding;
-			public int            PixelsPerUnit;
-			public bool           GenerateMipMaps;
-			public bool           AtlasPowerOfTwo;
-			public bool           AtlasForceSquare;
-			public SwfAtlasFilter AtlasTextureFilter;
-			public SwfAtlasFormat AtlasTextureFormat;
+		const string DefaultBasePath     = "Assets/FlashTools/Resources/";
+		const string DefaultSettingsPath = DefaultBasePath + "SwfConverterSettings.asset";
+		const string SwfSimpleMatPath    = DefaultBasePath + "Materials/SwfSimpleMat.mat";
+		const string SwfIncrMaskMatPath  = DefaultBasePath + "Materials/SwfIncrMaskMat.mat";
+		const string SwfDecrMaskMatPath  = DefaultBasePath + "Materials/SwfDecrMaskMat.mat";
+		const string SwfMaskedMatPathFmt = DefaultBasePath + "Materials/SwfMaskedMat_{0}.mat";
 
-			public static Settings identity {
-				get {
-					return new Settings{
-						MaxAtlasSize       = 1024,
-						AtlasPadding       = 1,
-						PixelsPerUnit      = 100,
-						GenerateMipMaps    = true,
-						AtlasPowerOfTwo    = true,
-						AtlasForceSquare   = false,
-						AtlasTextureFilter = SwfAtlasFilter.Bilinear,
-						AtlasTextureFormat = SwfAtlasFormat.AutomaticTruecolor};
-				}
-			}
+		// ---------------------------------------------------------------------
+		//
+		// Properties
+		//
+		// ---------------------------------------------------------------------
 
-			public bool CheckEquals(Settings other) {
-				return
-					MaxAtlasSize       == other.MaxAtlasSize       &&
-					AtlasPadding       == other.AtlasPadding       &&
-					PixelsPerUnit      == other.PixelsPerUnit      &&
-					GenerateMipMaps    == other.GenerateMipMaps    &&
-					AtlasPowerOfTwo    == other.AtlasPowerOfTwo    &&
-					AtlasForceSquare   == other.AtlasForceSquare   &&
-					AtlasTextureFilter == other.AtlasTextureFilter &&
-					AtlasTextureFormat == other.AtlasTextureFormat;
-			}
-		}
-		public Settings DefaultSettings;
+		[Header("Settings")]
+		public SwfSettings    DefaultSettings;
+
+		[Header("Materials cache")]
+		public Material       SimpleMaterial;
+		public Material       IncrMaskMaterial;
+		public Material       DecrMaskMaterial;
+		public List<Material> MaskedMaterials;
 
 	#if UNITY_EDITOR
-		void Reset() {
-			DefaultSettings = Settings.identity;
+
+		// ---------------------------------------------------------------------
+		//
+		// Private
+		//
+		// ---------------------------------------------------------------------
+
+		void FillMaterialsCache() {
+			SimpleMaterial   = SafeLoadMaterial(SwfSimpleMatPath, true);
+			IncrMaskMaterial = SafeLoadMaterial(SwfIncrMaskMatPath, true);
+			DecrMaskMaterial = SafeLoadMaterial(SwfDecrMaskMatPath, true);
+			MaskedMaterials  = new List<Material>();
+			for ( var i = 0; i < int.MaxValue; ++i ) {
+				var mat = SafeLoadMaterial(string.Format(SwfMaskedMatPathFmt, i), false);
+				if ( mat ) {
+					MaskedMaterials.Add(mat);
+				} else {
+					break;
+				}
+			}
 		}
 
-		public static Settings GetDefaultSettings() {
+		Material SafeLoadMaterial(string path, bool exception) {
+			var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+			if ( !material && exception ) {
+				throw new UnityException(string.Format(
+					"SwfManager. Material not found: {0}",
+					path));
+			}
+			return material;
+		}
+
+		// ---------------------------------------------------------------------
+		//
+		// Functions
+		//
+		// ---------------------------------------------------------------------
+
+		public Material GetMaskedMaterial(int stencil_id) {
+			if ( stencil_id < 0 || stencil_id >= MaskedMaterials.Count ) {
+				throw new UnityException(string.Format(
+					"SwfConverterSettings. Unsupported stencil id: {0}",
+					stencil_id));
+			}
+			return MaskedMaterials[stencil_id];
+		}
+
+		public Material GetSimpleMaterial() {
+			return SimpleMaterial;
+		}
+
+		public Material GetIncrMaskMaterial() {
+			return IncrMaskMaterial;
+		}
+
+		public Material GetDecrMaskMaterial() {
+			return DecrMaskMaterial;
+		}
+
+		// ---------------------------------------------------------------------
+		//
+		// Messages
+		//
+		// ---------------------------------------------------------------------
+
+		void Reset() {
+			DefaultSettings = SwfSettings.identity;
+			FillMaterialsCache();
+		}
+
+		public static SwfConverterSettings GetDefaultConverter() {
 			var settings_path = DefaultSettingsPath;
 			var settings = AssetDatabase.LoadAssetAtPath<SwfConverterSettings>(settings_path);
 			if ( !settings ) {
@@ -74,13 +117,11 @@ namespace FlashTools.Internal {
 				AssetDatabase.CreateAsset(settings, settings_path);
 				AssetDatabase.SaveAssets();
 			}
-			return settings.DefaultSettings;
+			return settings;
 		}
 
-		static string DefaultSettingsPath {
-			get {
-				return "Assets/FlashTools/Resources/SwfConverterSettings.asset";
-			}
+		public static SwfSettings GetDefaultSettings() {
+			return GetDefaultConverter().DefaultSettings;
 		}
 
 		static void CreateAssetDatabaseFolders(string path) {
