@@ -59,24 +59,20 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		GameObject CreateAnimationGO(bool baked) {
+		GameObject CreateAnimationGO() {
 			if ( _asset ) {
 				var anim_go = new GameObject(_asset.name);
 				anim_go.AddComponent<MeshFilter>();
 				anim_go.AddComponent<MeshRenderer>();
-				if ( baked ) {
-					anim_go.AddComponent<SwfBakedAnimation>().Asset = _asset;
-					anim_go.GetComponent<SwfBakedAnimation>().BakeFrameMeshes();
-				} else {
-					anim_go.AddComponent<SwfAnimation>().Asset = _asset;
-				}
+				anim_go.AddComponent<SwfAnimation>().Asset = _asset;
+				anim_go.GetComponent<SwfAnimation>().BakeFrameMeshes();
 				return anim_go;
 			}
 			return null;
 		}
 
-		void CreateAnimationPrefab(bool baked) {
-			var anim_go = CreateAnimationGO(baked);
+		void CreateAnimationPrefab() {
+			var anim_go = CreateAnimationGO();
 			if ( anim_go ) {
 				var prefab_path = GetPrefabPath();
 				if ( !string.IsNullOrEmpty(prefab_path) ) {
@@ -93,8 +89,8 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		void CreateAnimationOnScene(bool baked) {
-			var anim_go = CreateAnimationGO(baked);
+		void CreateAnimationOnScene() {
+			var anim_go = CreateAnimationGO();
 			if ( anim_go ) {
 				Undo.RegisterCreatedObjectUndo(anim_go, "Create SwfAnimation");
 			}
@@ -167,20 +163,10 @@ namespace FlashTools.Internal {
 			GUILayout.BeginHorizontal();
 			{
 				if ( GUILayout.Button("Create animation prefab") ) {
-					CreateAnimationPrefab(false);
+					CreateAnimationPrefab();
 				}
 				if ( GUILayout.Button("Create animation on scene") ) {
-					CreateAnimationOnScene(false);
-				}
-			}
-			GUILayout.EndHorizontal();
-			GUILayout.BeginHorizontal();
-			{
-				if ( GUILayout.Button("Create baked animation prefab") ) {
-					CreateAnimationPrefab(true);
-				}
-				if ( GUILayout.Button("Create baked animation on scene") ) {
-					CreateAnimationOnScene(true);
+					CreateAnimationOnScene();
 				}
 			}
 			GUILayout.EndHorizontal();

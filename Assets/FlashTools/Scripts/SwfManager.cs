@@ -29,7 +29,7 @@ namespace FlashTools {
 		[SerializeField] [HideInInspector] Material       _incrMaskMaterial = null;
 		[SerializeField] [HideInInspector] Material       _decrMaskMaterial = null;
 
-		HashSet<SwfBakedAnimation> _bakedAnimations = new HashSet<SwfBakedAnimation>();
+		HashSet<SwfAnimation> _animations = new HashSet<SwfAnimation>();
 
 		// ---------------------------------------------------------------------
 		//
@@ -53,12 +53,12 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
-		public void AddSwfBakedAnimation(SwfBakedAnimation animation) {
-			_bakedAnimations.Add(animation);
+		public void AddSwfAnimation(SwfAnimation animation) {
+			_animations.Add(animation);
 		}
 
-		public void RemoveSwfBakedAnimation(SwfBakedAnimation animation) {
-			_bakedAnimations.Remove(animation);
+		public void RemoveSwfAnimation(SwfAnimation animation) {
+			_animations.Remove(animation);
 		}
 
 		// ---------------------------------------------------------------------
@@ -142,21 +142,21 @@ namespace FlashTools {
 		}
 
 		void OnEnable() {
-			var all_baked_animations = FindObjectsOfType<SwfBakedAnimation>();
-			for ( int i = 0, e = all_baked_animations.Length; i < e; ++i ) {
-				var baked_animation = all_baked_animations[i];
-				if ( baked_animation.enabled ) {
-					_bakedAnimations.Add(baked_animation);
+			var all_animations = FindObjectsOfType<SwfAnimation>();
+			for ( int i = 0, e = all_animations.Length; i < e; ++i ) {
+				var animation = all_animations[i];
+				if ( animation.enabled ) {
+					_animations.Add(animation);
 				}
 			}
 		}
 
 		void OnDisable() {
-			_bakedAnimations.Clear();
+			_animations.Clear();
 		}
 
 		void Update() {
-			var iter = _bakedAnimations.GetEnumerator();
+			var iter = _animations.GetEnumerator();
 			while ( iter.MoveNext() ) {
 				iter.Current.InternalUpdate();
 			}
