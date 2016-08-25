@@ -65,7 +65,7 @@ namespace FlashTools.Internal {
 				anim_go.AddComponent<MeshFilter>();
 				anim_go.AddComponent<MeshRenderer>();
 				anim_go.AddComponent<SwfAnimation>().Asset = _asset;
-				anim_go.GetComponent<SwfAnimation>().BakeFrameMeshes();
+				anim_go.GetComponent<SwfAnimation>().InitStuff(); //FIXME
 				return anim_go;
 			}
 			return null;
@@ -125,6 +125,10 @@ namespace FlashTools.Internal {
 			var atlas_prop = serializedObject.FindProperty("Atlas");
 			if ( atlas_prop != null ) {
 				EditorGUILayout.PropertyField(atlas_prop, true);
+			}
+			var baked_frames_prop = serializedObject.FindProperty("BakedFrames");
+			if ( baked_frames_prop != null && baked_frames_prop.isArray ) {
+				EditorGUILayout.IntField("Frame count", baked_frames_prop.arraySize);
 			}
 			GUI.enabled = true;
 			_settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "Settings");

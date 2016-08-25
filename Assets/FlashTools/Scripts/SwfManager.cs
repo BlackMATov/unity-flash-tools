@@ -1,21 +1,23 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using FlashTools.Internal;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace FlashTools {
 	[ExecuteInEditMode]
 	public class SwfManager : MonoBehaviour {
 		// ---------------------------------------------------------------------
 		//
-		// Consts
+		// Constants
 		//
 		// ---------------------------------------------------------------------
 
-		const int    SwfStencilIdCount     = 10;
-		const string SwfSimpleShaderPath   = "FlashTools/SwfSimple";
-		const string SwfMaskedShaderPath   = "FlashTools/SwfMasked";
-		const string SwfIncrMaskShaderPath = "FlashTools/SwfIncrMask";
-		const string SwfDecrMaskShaderPath = "FlashTools/SwfDecrMask";
+		const string SwfSimpleMatPath    = "Assets/FlashTools/Resources/Materials/SwfSimpleMat.mat";
+		const string SwfIncrMaskMatPath  = "Assets/FlashTools/Resources/Materials/SwfIncrMaskMat.mat";
+		const string SwfDecrMaskMatPath  = "Assets/FlashTools/Resources/Materials/SwfDecrMaskMat.mat";
+		const string SwfMaskedMatPathFmt = "Assets/FlashTools/Resources/Materials/SwfMaskedMat_{0}.mat";
 
 		// ---------------------------------------------------------------------
 		//
@@ -23,11 +25,10 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
-		[SerializeField] [HideInInspector] Shader         _maskedShader     = null;
-		[SerializeField] [HideInInspector] List<Material> _maskedMaterials  = null;
 		[SerializeField] [HideInInspector] Material       _simpleMaterial   = null;
 		[SerializeField] [HideInInspector] Material       _incrMaskMaterial = null;
 		[SerializeField] [HideInInspector] Material       _decrMaskMaterial = null;
+		[SerializeField] [HideInInspector] List<Material> _maskedMaterials  = null;
 
 		HashSet<SwfAnimation> _animations = new HashSet<SwfAnimation>();
 
@@ -70,6 +71,7 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		void FillMaterialsCache() {
+			/*
 			if ( !_maskedShader ) {
 				_maskedShader = SafeLoadShader(SwfMaskedShaderPath);
 			}
@@ -89,9 +91,48 @@ namespace FlashTools {
 			}
 			if ( !_decrMaskMaterial ) {
 				_decrMaskMaterial = new Material(SafeLoadShader(SwfDecrMaskShaderPath));
+			}*/
+
+			if ( !_simpleMaterial ) {
+				_simpleMaterial = SafeLoadMaterial(SwfSimpleMatPath, true);
+			}
+
+			if ( !_incrMaskMaterial ) {
+				_incrMaskMaterial = SafeLoadMaterial(SwfIncrMaskMatPath, true);
+			}
+
+			if ( !_decrMaskMaterial ) {
+				_decrMaskMaterial = SafeLoadMaterial(SwfDecrMaskMatPath, true);
+			}
+
+			if ( _maskedMaterials == null ) {
+				_maskedMaterials = new List<Material>();
+				for ( var i = 0; i < 100; ++i ) {
+					var mat = SafeLoadMaterial(string.Format(SwfMaskedMatPathFmt, i), false);
+					if ( mat ) {
+						_maskedMaterials.Add(mat);
+					} else {
+						break;
+					}
+				}
 			}
 		}
 
+		Material SafeLoadMaterial(string path, bool exception) {
+		#if UNITY_EDITOR
+			var material = AssetDatabase.LoadAssetAtPath<Material>(path);
+			if ( !material && exception ) {
+				throw new UnityException(string.Format(
+					"SwfManager. Material not found: {0}",
+					path));
+			}
+			return material;
+		#else
+			throw new UnityException("IMPLME!");
+		#endif
+		}
+
+		/*
 		Shader SafeLoadShader(string path) {
 			var shader = Shader.Find(path);
 			if ( !shader ) {
@@ -100,6 +141,27 @@ namespace FlashTools {
 					path));
 			}
 			return shader;
+		}*/
+
+		void GrabEnabledAnimations() {
+			var all_animations = FindObjectsOfType<SwfAnimation>();
+			for ( int i = 0, e = all_animations.Length; i < e; ++i ) {
+				var animation = all_animations[i];
+				if ( animation.enabled ) {
+					_animations.Add(animation);
+				}
+			}
+		}
+
+		void DropAnimations() {
+			_animations.Clear();
+		}
+
+		void UpdateAnimations() {
+			var iter = _animations.GetEnumerator();
+			while ( iter.MoveNext() ) {
+				iter.Current.InternalUpdate();
+			}
 		}
 
 		// ---------------------------------------------------------------------
@@ -109,27 +171,23 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		public Material GetMaskedMaterial(int stencil_id) {
-			if ( stencil_id < 0 || stencil_id >= SwfStencilIdCount ) {
+			if ( stencil_id < 0 || stencil_id >= _maskedMaterials.Count ) {
 				throw new UnityException(string.Format(
 					"SwfManager. Unsupported stencil id: {0}",
 					stencil_id));
 			}
-			FillMaterialsCache();
 			return _maskedMaterials[stencil_id];
 		}
 
 		public Material GetSimpleMaterial() {
-			FillMaterialsCache();
 			return _simpleMaterial;
 		}
 
 		public Material GetIncrMaskMaterial() {
-			FillMaterialsCache();
 			return _incrMaskMaterial;
 		}
 
 		public Material GetDecrMaskMaterial() {
-			FillMaterialsCache();
 			return _decrMaskMaterial;
 		}
 
@@ -144,24 +202,15 @@ namespace FlashTools {
 		}
 
 		void OnEnable() {
-			var all_animations = FindObjectsOfType<SwfAnimation>();
-			for ( int i = 0, e = all_animations.Length; i < e; ++i ) {
-				var animation = all_animations[i];
-				if ( animation.enabled ) {
-					_animations.Add(animation);
-				}
-			}
+			GrabEnabledAnimations();
 		}
 
 		void OnDisable() {
-			_animations.Clear();
+			DropAnimations();
 		}
 
 		void Update() {
-			var iter = _animations.GetEnumerator();
-			while ( iter.MoveNext() ) {
-				iter.Current.InternalUpdate();
-			}
+			UpdateAnimations();
 		}
 	}
 }
