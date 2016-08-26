@@ -148,6 +148,7 @@ namespace FlashTools.Internal {
 		}
 
 		static void ConfigureBakedFrames(string asset_path, SwfAnimationAsset asset) {
+			RemoveAllSubAssets(asset_path);
 			var baked_frames = new List<SwfAnimationAsset.Frame>();
 			if ( asset && asset.Atlas && asset.Data != null && asset.Data.Frames.Count > 0 ) {
 				for ( var i = 0; i < asset.Data.Frames.Count; ++i ) {
@@ -157,6 +158,16 @@ namespace FlashTools.Internal {
 				}
 			}
 			asset.Frames = baked_frames;
+		}
+
+		static void RemoveAllSubAssets(string asset_path) {
+			var assets = AssetDatabase.LoadAllAssetsAtPath(asset_path);
+			for ( var i = 0; i < assets.Length; ++i ) {
+				var asset = assets[i];
+				if ( !AssetDatabase.IsMainAsset(asset) ) {
+					GameObject.DestroyImmediate(asset, true);
+				}
+			}
 		}
 
 		static SwfAnimationAsset.Frame BakeFrameFromAnimationFrame(
@@ -272,9 +283,7 @@ namespace FlashTools.Internal {
 			mesh.SetColors(baked_mulcolors);
 			mesh.RecalculateNormals();
 
-			//TODO: add remove all old meshes
 			AssetDatabase.AddObjectToAsset(mesh, asset);
-
 			return new SwfAnimationAsset.Frame{
 				Mesh      = mesh,
 				Materials = baked_materials.ToArray()};
