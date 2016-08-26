@@ -71,23 +71,23 @@ namespace FlashTools {
 
 	public class SwfAnimationAsset : ScriptableObject {
 		[System.Serializable]
-		public class BakedFrame {
+		public class Frame {
 			public Mesh       Mesh;
 			public Material[] Materials;
 		}
 		public SwfAnimationData Data;
 		public Texture2D        Atlas;
-		public List<BakedFrame> BakedFrames;
+		public List<Frame>      Frames;
 		public SwfSettings      Settings;
 		public SwfSettings      Overridden;
 
 	#if UNITY_EDITOR
 		void Reset() {
-			Data        = new SwfAnimationData();
-			Atlas       = null;
-			BakedFrames = new List<BakedFrame>();
-			Settings    = SwfConverterSettings.GetDefaultSettings();
-			Overridden  = SwfConverterSettings.GetDefaultSettings();
+			Data       = new SwfAnimationData();
+			Atlas      = null;
+			Frames     = new List<Frame>();
+			Settings   = SwfConverterSettings.GetDefaultSettings();
+			Overridden = SwfConverterSettings.GetDefaultSettings();
 		}
 	#endif
 	}

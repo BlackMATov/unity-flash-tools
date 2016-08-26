@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 
 namespace FlashTools.Internal {
-	[CustomEditor(typeof(SwfAnimationAsset))]
+	[CustomEditor(typeof(SwfAnimationAsset)), CanEditMultipleObjects]
 	public class SwfAnimationAssetEditor : Editor {
 		SwfAnimationAsset _asset           = null;
 		bool              _settingsFoldout = false;
@@ -64,7 +64,10 @@ namespace FlashTools.Internal {
 				var anim_go = new GameObject(_asset.name);
 				anim_go.AddComponent<MeshFilter>();
 				anim_go.AddComponent<MeshRenderer>();
-				anim_go.AddComponent<SwfAnimation>().InitWithAsset(_asset);
+				anim_go.AddComponent<SwfAnimation>();
+				anim_go.AddComponent<SwfAnimationController>();
+
+				anim_go.GetComponent<SwfAnimation>().InitWithAsset(_asset);
 				return anim_go;
 			}
 			return null;
@@ -91,7 +94,7 @@ namespace FlashTools.Internal {
 		void CreateAnimationOnScene() {
 			var anim_go = CreateAnimationGO();
 			if ( anim_go ) {
-				Undo.RegisterCreatedObjectUndo(anim_go, "Create SwfAnimation");
+				Undo.RegisterCreatedObjectUndo(anim_go, "Instance SwfAnimation");
 			}
 		}
 
@@ -116,6 +119,7 @@ namespace FlashTools.Internal {
 		}
 
 		void DrawGUISettings() {
+			var last_gui_enabled = GUI.enabled;
 			GUI.enabled = false;
 			var script_prop = serializedObject.FindProperty("m_Script");
 			if ( script_prop != null ) {
@@ -125,11 +129,11 @@ namespace FlashTools.Internal {
 			if ( atlas_prop != null ) {
 				EditorGUILayout.PropertyField(atlas_prop, true);
 			}
-			var baked_frames_prop = serializedObject.FindProperty("BakedFrames");
-			if ( baked_frames_prop != null && baked_frames_prop.isArray ) {
-				EditorGUILayout.IntField("Frame count", baked_frames_prop.arraySize);
+			var frames_prop = serializedObject.FindProperty("Frames");
+			if ( frames_prop != null && frames_prop.isArray ) {
+				EditorGUILayout.IntField("Frame count", frames_prop.arraySize);
 			}
-			GUI.enabled = true;
+			GUI.enabled = last_gui_enabled;
 			_settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "Settings");
 			if ( _settingsFoldout ) {
 				var it = serializedObject.FindProperty("Overridden");
@@ -165,10 +169,10 @@ namespace FlashTools.Internal {
 		void DrawGUIAnimation() {
 			GUILayout.BeginHorizontal();
 			{
-				if ( GUILayout.Button("Create animation prefab") ) {
+				if ( GUILayout.Button("Create prefab") ) {
 					CreateAnimationPrefab();
 				}
-				if ( GUILayout.Button("Create animation on scene") ) {
+				if ( GUILayout.Button("Instance to scene") ) {
 					CreateAnimationOnScene();
 				}
 			}

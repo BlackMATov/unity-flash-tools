@@ -46,7 +46,7 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void FillMaterialsCache() {
-			SimpleMaterial   = SafeLoadMaterial(SwfSimpleMatPath, true);
+			SimpleMaterial   = SafeLoadMaterial(SwfSimpleMatPath,   true);
 			IncrMaskMaterial = SafeLoadMaterial(SwfIncrMaskMatPath, true);
 			DecrMaskMaterial = SafeLoadMaterial(SwfDecrMaskMatPath, true);
 			MaskedMaterials  = new List<Material>();
@@ -58,6 +58,8 @@ namespace FlashTools.Internal {
 					break;
 				}
 			}
+			EditorUtility.SetDirty(this);
+			AssetDatabase.SaveAssets();
 		}
 
 		Material SafeLoadMaterial(string path, bool exception) {
@@ -66,6 +68,9 @@ namespace FlashTools.Internal {
 				throw new UnityException(string.Format(
 					"SwfManager. Material not found: {0}",
 					path));
+			}
+			if ( material ) {
+				material.hideFlags = HideFlags.HideInInspector;
 			}
 			return material;
 		}

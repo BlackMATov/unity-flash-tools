@@ -54,6 +54,22 @@ namespace FlashTools.Internal.SwfEditorTools {
 	}
 
 	//
+	// SwfReadOnlyDrawer
+	//
+
+	[CustomPropertyDrawer(typeof(SwfReadOnlyAttribute))]
+	public class SwfReadOnlyDrawer : PropertyDrawer {
+		public override void OnGUI(
+			Rect position, SerializedProperty property, GUIContent label)
+		{
+			var last_gui_enabled = GUI.enabled;
+			GUI.enabled = false;
+			EditorGUI.PropertyField(position, property, label, true);
+			GUI.enabled = last_gui_enabled;
+		}
+	}
+
+	//
 	// SwfSortingLayerDrawer
 	//
 

@@ -3,74 +3,70 @@ using System.Collections.Generic;
 using FlashTools.Internal;
 
 namespace FlashTools {
-	[ExecuteInEditMode]
+	[ExecuteInEditMode, DisallowMultipleComponent]
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 	public class SwfAnimation : MonoBehaviour {
+		[SwfReadOnly]
 		public SwfAnimationAsset Asset         = null;
 		[SwfSortingLayer]
 		public string            SortingLayer  = "Default";
 		public int               SortingOrder  = 0;
 
-		bool                     _inited       = false;
-		MaterialPropertyBlock    _matPropBlock = null;
+		//
+		//
+		//
 
 		MeshFilter               _meshFilter   = null;
 		MeshRenderer             _meshRenderer = null;
+		MaterialPropertyBlock    _matPropBlock = null;
 
-		int    _current_frame = 0;
-		float  _frame_timer   = 0.0f;
+		//
+		//
+		//
+
+		int _currentFrame = 0;
+		public int currentFrame {
+			get { return _currentFrame; }
+			set {
+				_currentFrame = frameCount > 0
+					? Mathf.Clamp(value, 0, frameCount - 1)
+					: 0;
+				UpdateCurrentMesh();
+			}
+		}
 
 		public int frameCount {
-			get { return Asset ? Asset.Data.Frames.Count : 0; }
+			get {
+				return Asset ? Asset.Data.Frames.Count : 0;
+			}
 		}
 
-		public int currentFrame {
-			get { return _current_frame; }
-			set {
-				_current_frame = Mathf.Clamp(value, 0, frameCount - 1);
-				FixCurrentMesh();
+		public float frameRate {
+			get {
+				return Asset ? Asset.Data.FrameRate : 1.0f;
 			}
 		}
 
 		// ------------------------------------------------------------------------
 		//
-		// Stuff
+		// Private
 		//
 		// ------------------------------------------------------------------------
 
-		public void InitWithAsset(SwfAnimationAsset asset) {
-			Asset = asset;
-			if ( Asset && !_inited ) {
-				_inited = true;
-				_matPropBlock = new MaterialPropertyBlock();
-				_matPropBlock.SetTexture("_MainTex", Asset.Atlas);
-			}
-			FixCurrentMesh();
+		SwfAnimationAsset.Frame GetCurrentBakedFrame() {
+			var frames = Asset ? Asset.Frames : null;
+			return frames != null && frames.Count > 0
+				? frames[Mathf.Clamp(currentFrame, 0, frames.Count)]
+				: null;
 		}
 
-		void UpdateFrameTimer() {
-			if ( Asset ) {
-				_frame_timer += Asset.Data.FrameRate * Time.deltaTime;
-				while ( _frame_timer > 1.0f ) {
-					_frame_timer -= 1.0f;
-					++_current_frame;
-					if ( _current_frame > frameCount - 1 ) {
-						_current_frame = 0;
-					}
-					FixCurrentMesh();
-				}
-			}
-		}
-
-		void FixCurrentMesh() {
-			if ( Asset && Asset.BakedFrames.Count > 0 ) {
-				var frame = Asset.BakedFrames[Mathf.Clamp(currentFrame, 0, Asset.BakedFrames.Count)];
-				_meshFilter.sharedMesh         = frame.Mesh;
-				_meshRenderer.sharedMaterials  = frame.Materials;
-				_meshRenderer.sortingOrder     = SortingOrder;
-				_meshRenderer.sortingLayerName = SortingLayer;
-				_meshRenderer.SetPropertyBlock(_matPropBlock);
-			}
+		void UpdateCurrentMesh() {
+			var baked_frame = GetCurrentBakedFrame();
+			_meshFilter.sharedMesh         = baked_frame != null ? baked_frame.Mesh      : null;
+			_meshRenderer.sharedMaterials  = baked_frame != null ? baked_frame.Materials : new Material[0];
+			_meshRenderer.sortingOrder     = SortingOrder;
+			_meshRenderer.sortingLayerName = SortingLayer;
+			_meshRenderer.SetPropertyBlock(_matPropBlock);
 		}
 
 		// ---------------------------------------------------------------------
@@ -79,8 +75,17 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
-		public void InternalUpdate() {
-			UpdateFrameTimer();
+		public void InitWithAsset(SwfAnimationAsset asset) {
+			Asset = asset;
+			if ( asset ) {
+				_matPropBlock = new MaterialPropertyBlock();
+				_matPropBlock.SetTexture("_MainTex", asset.Atlas);
+			}
+			var controller = GetComponent<SwfAnimationController>();
+			if ( controller ) {
+				controller.InitWithAsset();
+			}
+			UpdateCurrentMesh();
 		}
 
 		// ---------------------------------------------------------------------

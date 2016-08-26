@@ -149,7 +149,7 @@ namespace FlashTools.Internal {
 		}
 
 		static void ConfigureBakedFrames(string asset_path, SwfAnimationAsset asset) {
-			var baked_frames = new List<SwfAnimationAsset.BakedFrame>();
+			var baked_frames = new List<SwfAnimationAsset.Frame>();
 			if ( asset && asset.Atlas && asset.Data != null && asset.Data.Frames.Count > 0 ) {
 				for ( var i = 0; i < asset.Data.Frames.Count; ++i ) {
 					var frame = asset.Data.Frames[i];
@@ -157,10 +157,10 @@ namespace FlashTools.Internal {
 					baked_frames.Add(baked_frame);
 				}
 			}
-			asset.BakedFrames = baked_frames;
+			asset.Frames = baked_frames;
 		}
 
-		static SwfAnimationAsset.BakedFrame BakeFrameFromAnimationFrame(SwfAnimationAsset asset, SwfAnimationFrameData frame) {
+		static SwfAnimationAsset.Frame BakeFrameFromAnimationFrame(SwfAnimationAsset asset, SwfAnimationFrameData frame) {
 			List<Vector2>   _uvs       = new List<Vector2>();
 			List<Color>     _mulcolors = new List<Color>();
 			List<Vector4>   _addcolors = new List<Vector4>();
@@ -265,7 +265,7 @@ namespace FlashTools.Internal {
 
 			AssetDatabase.AddObjectToAsset(mesh, asset);
 
-			return new SwfAnimationAsset.BakedFrame{
+			return new SwfAnimationAsset.Frame{
 				Mesh      = mesh,
 				Materials = _materials.ToArray()};
 		}
