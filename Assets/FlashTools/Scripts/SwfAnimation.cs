@@ -6,8 +6,9 @@ namespace FlashTools {
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 	public class SwfAnimation : MonoBehaviour {
 
-		MeshFilter   _meshFilter   = null;
-		MeshRenderer _meshRenderer = null;
+		MeshFilter            _meshFilter   = null;
+		MeshRenderer          _meshRenderer = null;
+		MaterialPropertyBlock _matPropBlock = null;
 
 		// ---------------------------------------------------------------------
 		//
@@ -109,18 +110,39 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
+		void UpdateAllProperties() {
+			asset        = _asset;
+			currentFrame = _currentFrame;
+			sortingLayer = _sortingLayer;
+			sortingOrder = _sortingOrder;
+		}
+
+		void UpdateMaterialPropertyBlock() {
+			if ( _matPropBlock != null ) {
+				var atlas = asset && asset.Atlas ? asset.Atlas : null;
+				if ( atlas ) {
+					_matPropBlock.SetTexture("_MainTex", atlas);
+				} else {
+					_matPropBlock.Clear();
+				}
+				if ( _meshRenderer ) {
+					_meshRenderer.SetPropertyBlock(_matPropBlock);
+				}
+			}
+		}
+
 		void ChangeSortingProperties() {
-			_meshRenderer.sortingOrder     = sortingOrder;
-			_meshRenderer.sortingLayerName = sortingLayer;
+			if ( _meshRenderer ) {
+				_meshRenderer.sortingOrder     = sortingOrder;
+				_meshRenderer.sortingLayerName = sortingLayer;
+			}
 		}
 
 		void ChangeAsset() {
-			_meshRenderer.enabled = !!asset;
-			if ( asset ) {
-				var prop_block = new MaterialPropertyBlock();
-				prop_block.SetTexture("_MainTex", asset.Atlas);
-				_meshRenderer.SetPropertyBlock(prop_block);
+			if ( _meshRenderer ) {
+				_meshRenderer.enabled = !!asset;
 			}
+			UpdateMaterialPropertyBlock();
 			UpdateCurrentMesh();
 		}
 
@@ -132,9 +154,13 @@ namespace FlashTools {
 		}
 
 		void UpdateCurrentMesh() {
-			var baked_frame               = GetCurrentBakedFrame();
-			_meshFilter.sharedMesh        = baked_frame.Mesh;
-			_meshRenderer.sharedMaterials = baked_frame.Materials;
+			var baked_frame = GetCurrentBakedFrame();
+			if ( _meshFilter ) {
+				_meshFilter.sharedMesh = baked_frame.Mesh;
+			}
+			if ( _meshRenderer ) {
+				_meshRenderer.sharedMaterials = baked_frame.Materials;
+			}
 		}
 
 		SwfAnimationAsset.Frame GetCurrentBakedFrame() {
@@ -152,6 +178,8 @@ namespace FlashTools {
 		void Awake() {
 			_meshFilter   = GetComponent<MeshFilter>();
 			_meshRenderer = GetComponent<MeshRenderer>();
+			_matPropBlock = new MaterialPropertyBlock();
+			UpdateAllProperties();
 		}
 
 		void OnEnable() {
@@ -170,14 +198,11 @@ namespace FlashTools {
 
 	#if UNITY_EDITOR
 		void Reset() {
-			OnValidate();
+			UpdateAllProperties();
 		}
 
 		void OnValidate() {
-			asset        = _asset;
-			currentFrame = _currentFrame;
-			sortingLayer = _sortingLayer;
-			sortingOrder = _sortingOrder;
+			UpdateAllProperties();
 		}
 	#endif
 	}

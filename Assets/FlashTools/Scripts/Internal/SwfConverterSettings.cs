@@ -69,9 +69,6 @@ namespace FlashTools.Internal {
 					"SwfManager. Material not found: {0}",
 					path));
 			}
-			if ( material ) {
-				material.hideFlags = HideFlags.HideInInspector;
-			}
 			return material;
 		}
 
