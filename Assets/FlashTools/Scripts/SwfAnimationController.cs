@@ -4,6 +4,16 @@ namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	[RequireComponent(typeof(SwfAnimation))]
 	public class SwfAnimationController : MonoBehaviour {
+
+		SwfAnimation _animation  = null;
+		float        _frameTimer = 0.0f;
+
+		// ---------------------------------------------------------------------
+		//
+		// Properties
+		//
+		// ---------------------------------------------------------------------
+
 		public enum LoopModes {
 			Once,
 			Loop
@@ -15,16 +25,24 @@ namespace FlashTools {
 			Playing
 		}
 
-		public bool      AutoPlay      = false;
-		public LoopModes LoopMode      = LoopModes.Once;
+		[SerializeField]
+		bool _autoPlay = false;
+		public bool autoPlay {
+			get { return _autoPlay; }
+			set { _autoPlay = value; }
+		}
 
-		//
-		//
-		//
+		[SerializeField]
+		LoopModes _loopMode = LoopModes.Once;
+		public LoopModes loopMode {
+			get { return _loopMode; }
+			set { _loopMode = value; }
+		}
 
-		SwfAnimation     _animation    = null;
-		float            _frameTimer   = 0.0f;
-		States           _currentState = States.Stopped;
+		States _currentState = States.Stopped;
+		public States currentState {
+			get { return _currentState; }
+		}
 
 		// ---------------------------------------------------------------------
 		//
@@ -34,8 +52,8 @@ namespace FlashTools {
 
 		public void Stop() {
 			_frameTimer = 0.0f;
-			_animation.currentFrame = 0;
 			_currentState = States.Stopped;
+			_animation.currentFrame = 0;
 		}
 
 		public void Pause() {
@@ -52,24 +70,8 @@ namespace FlashTools {
 
 		public void Play() {
 			_frameTimer = 0.0f;
-			_animation.currentFrame = 0;
 			_currentState = States.Playing;
-		}
-
-		public bool isStopped {
-			get { return currentState == States.Stopped; }
-		}
-
-		public bool isPaused {
-			get { return currentState == States.Paused; }
-		}
-
-		public bool isPlaying {
-			get { return currentState == States.Playing; }
-		}
-
-		public States currentState {
-			get { return _currentState; }
+			_animation.currentFrame = 0;
 		}
 
 		// ---------------------------------------------------------------------
@@ -78,43 +80,27 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
-		public void InitWithAsset() {
-			_animation = GetComponent<SwfAnimation>();
-			if ( AutoPlay ) {
-				Play();
-			}
-		}
-
 		public void InternalUpdate(float dt) {
-			if ( !_animation ) {
-				return;
-			}
 			if ( currentState == States.Playing ) {
-				var frame_rate    = _animation.frameRate;
-				var frame_count   = _animation.frameCount;
-				var current_frame = _animation.currentFrame;
-				_frameTimer += frame_rate * dt;
+				_frameTimer += _animation.frameRate * dt;
 				if ( _frameTimer > 1.0f ) {
 					while ( _frameTimer > 1.0f ) {
 						_frameTimer -= 1.0f;
-						++current_frame;
-						if ( current_frame > frame_count - 1 ) {
-							switch ( LoopMode ) {
+						if ( !_animation.ToNextFrame() ) {
+							switch ( loopMode ) {
 							case LoopModes.Once:
-								current_frame = frame_count > 0 ? frame_count - 1 : 0;
 								_currentState = States.Stopped;
 								break;
 							case LoopModes.Loop:
-								current_frame = 0;
+								_animation.ToBeginFrame();
 								break;
 							default:
 								throw new UnityException(string.Format(
 									"SwfAnimationController. Incorrect loop mode: {0}",
-									LoopMode));
+									loopMode));
 							}
 						}
 					}
-					_animation.currentFrame = current_frame;
 				}
 			}
 		}
@@ -124,6 +110,13 @@ namespace FlashTools {
 		// Messages
 		//
 		// ---------------------------------------------------------------------
+
+		void Awake() {
+			_animation = GetComponent<SwfAnimation>();
+			if ( autoPlay ) {
+				Play();
+			}
+		}
 
 		void OnEnable() {
 			var swf_manager = SwfManager.GetInstance(true);

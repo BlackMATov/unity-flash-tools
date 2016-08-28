@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfAnimation)), CanEditMultipleObjects]
@@ -43,11 +42,11 @@ namespace FlashTools.Internal {
 			GUILayout.EndHorizontal();
 		}
 
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 		//
 		// Messages
 		//
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 
 		void OnEnable() {
 			_animation = target as SwfAnimation;

@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.IO;
-using System.Linq;
 
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfAnimationAsset)), CanEditMultipleObjects]
@@ -65,6 +64,7 @@ namespace FlashTools.Internal {
 				anim_go.AddComponent<MeshFilter>();
 				anim_go.AddComponent<MeshRenderer>();
 				anim_go.AddComponent<SwfAnimation>().asset = _asset;
+				anim_go.AddComponent<SwfAnimationController>();
 				return anim_go;
 			}
 			return null;
@@ -176,11 +176,11 @@ namespace FlashTools.Internal {
 			GUILayout.EndHorizontal();
 		}
 
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 		//
 		// Messages
 		//
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 
 		void OnEnable() {
 			_asset           = target as SwfAnimationAsset;

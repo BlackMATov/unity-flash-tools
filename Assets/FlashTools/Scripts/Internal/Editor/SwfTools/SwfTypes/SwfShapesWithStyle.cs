@@ -67,11 +67,11 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				FillStyles.Count);
 		}
 
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 		//
 		// FillStyles
 		//
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 
 		static List<FillStyle> ReadFillStyles(
 			SwfStreamReader reader, bool allow_big_array, bool with_alpha)
@@ -145,11 +145,11 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			reader.ReadFixedPoint_8_8(); // FocalPoint
 		}
 
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 		//
 		// LineStyles
 		//
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 
 		static void SkipLineStyles(
 			SwfStreamReader reader, bool allow_big_array, bool with_alpha, bool line2_type)
@@ -197,11 +197,11 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			}
 		}
 
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 		//
 		// ShapeRecords
 		//
-		// ------------------------------------------------------------------------
+		// ---------------------------------------------------------------------
 
 		static void ReadShapeRecords(
 			SwfStreamReader reader, List<FillStyle> fill_styles,
