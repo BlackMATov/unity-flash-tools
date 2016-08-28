@@ -1,6 +1,6 @@
 Shader "FlashTools/SwfSimple" {
 	Properties {
-		[PerRendererData] _MainTex ("Main Texture", 2D) = "white" {}
+		[PerRendererData] _MainTex("Main Texture", 2D) = "white" {}
 	}
 
 	SubShader {
