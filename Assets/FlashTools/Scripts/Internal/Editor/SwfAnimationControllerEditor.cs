@@ -37,9 +37,13 @@ namespace FlashTools.Internal {
 		}
 
 		public override void OnInspectorGUI() {
+			serializedObject.Update();
 			DrawDefaultInspector();
 			if ( Application.isPlaying ) {
 				DrawAnimationControls();
+			}
+			if ( GUI.changed ) {
+				serializedObject.ApplyModifiedProperties();
 			}
 		}
 	}
