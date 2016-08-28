@@ -186,19 +186,28 @@ namespace FlashTools.Internal {
 					? FindBitmapFromAnimationData(asset.Data, inst.Bitmap)
 					: null;
 				if ( bitmap != null ) {
-					var width  = bitmap.RealSize.x / 20.0f; //TODO: twips?
-					var height = bitmap.RealSize.y / 20.0f; //TODO: twips?
+					var width  = bitmap.RealSize.x / 20.0f;
+					var height = bitmap.RealSize.y / 20.0f;
 
 					var v0 = new Vector3(    0,      0, 0);
 					var v1 = new Vector3(width,      0, 0);
 					var v2 = new Vector3(width, height, 0);
 					var v3 = new Vector3(    0, height, 0);
 
+					var frame_offset = Matrix4x4.TRS(
+						new Vector2(
+							-asset.Data.FrameSize.x * 0.5f / asset.Settings.PixelsPerUnit,
+							+asset.Data.FrameSize.y * 0.5f / asset.Settings.PixelsPerUnit),
+						Quaternion.identity,
+						Vector3.one);
+
 					var matrix =
+						frame_offset *
 						Matrix4x4.Scale(new Vector3(
 							+1.0f / asset.Settings.PixelsPerUnit,
 							-1.0f / asset.Settings.PixelsPerUnit,
-							+1.0f / asset.Settings.PixelsPerUnit)) * inst.Matrix;
+							+1.0f / asset.Settings.PixelsPerUnit)) *
+						inst.Matrix;
 
 					baked_vertices.Add(matrix.MultiplyPoint3x4(v0));
 					baked_vertices.Add(matrix.MultiplyPoint3x4(v1));

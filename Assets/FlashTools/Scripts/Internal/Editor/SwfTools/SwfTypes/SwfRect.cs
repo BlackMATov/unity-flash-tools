@@ -39,7 +39,15 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		public Rect ToUnityRect() {
-			return Rect.MinMaxRect(XMin, YMin, XMax, YMax);
+			return Rect.MinMaxRect(
+				XMin, YMin,
+				XMax, YMax);
+		}
+
+		public Vector2 ToUnityVectorSize() {
+			return new Vector2(
+				Mathf.Abs(XMax - XMin),
+				Mathf.Abs(YMax - YMin));
 		}
 	}
 }

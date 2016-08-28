@@ -64,10 +64,7 @@ namespace FlashTools.Internal {
 				var anim_go = new GameObject(_asset.name);
 				anim_go.AddComponent<MeshFilter>();
 				anim_go.AddComponent<MeshRenderer>();
-				anim_go.AddComponent<SwfAnimation>();
-				anim_go.AddComponent<SwfAnimationController>();
-
-				anim_go.GetComponent<SwfAnimation>().InitWithAsset(_asset);
+				anim_go.AddComponent<SwfAnimation>().asset = _asset;
 				return anim_go;
 			}
 			return null;

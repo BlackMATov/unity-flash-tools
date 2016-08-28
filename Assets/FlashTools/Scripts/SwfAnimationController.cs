@@ -15,10 +15,6 @@ namespace FlashTools {
 			Playing
 		}
 
-		//
-		//
-		//
-
 		public bool      AutoPlay      = false;
 		public LoopModes LoopMode      = LoopModes.Once;
 
@@ -29,6 +25,52 @@ namespace FlashTools {
 		SwfAnimation     _animation    = null;
 		float            _frameTimer   = 0.0f;
 		States           _currentState = States.Stopped;
+
+		// ---------------------------------------------------------------------
+		//
+		// Functions
+		//
+		// ---------------------------------------------------------------------
+
+		public void Stop() {
+			_frameTimer = 0.0f;
+			_animation.currentFrame = 0;
+			_currentState = States.Stopped;
+		}
+
+		public void Pause() {
+			if ( currentState == States.Playing ) {
+				_currentState = States.Paused;
+			}
+		}
+
+		public void Resume() {
+			if ( currentState == States.Paused ) {
+				_currentState = States.Playing;
+			}
+		}
+
+		public void Play() {
+			_frameTimer = 0.0f;
+			_animation.currentFrame = 0;
+			_currentState = States.Playing;
+		}
+
+		public bool isStopped {
+			get { return currentState == States.Stopped; }
+		}
+
+		public bool isPaused {
+			get { return currentState == States.Paused; }
+		}
+
+		public bool isPlaying {
+			get { return currentState == States.Playing; }
+		}
+
+		public States currentState {
+			get { return _currentState; }
+		}
 
 		// ---------------------------------------------------------------------
 		//
@@ -75,52 +117,6 @@ namespace FlashTools {
 					_animation.currentFrame = current_frame;
 				}
 			}
-		}
-
-		// ---------------------------------------------------------------------
-		//
-		// Functions
-		//
-		// ---------------------------------------------------------------------
-
-		public void Stop() {
-			_frameTimer = 0.0f;
-			_animation.currentFrame = 0;
-			_currentState = States.Stopped;
-		}
-
-		public void Pause() {
-			if ( currentState == States.Playing ) {
-				_currentState = States.Paused;
-			}
-		}
-
-		public void Resume() {
-			if ( currentState == States.Paused ) {
-				_currentState = States.Playing;
-			}
-		}
-
-		public void Play() {
-			_frameTimer = 0.0f;
-			_animation.currentFrame = 0;
-			_currentState = States.Playing;
-		}
-
-		public bool isStopped {
-			get { return currentState == States.Stopped; }
-		}
-
-		public bool isPaused {
-			get { return currentState == States.Paused; }
-		}
-
-		public bool isPlaying {
-			get { return currentState == States.Playing; }
-		}
-
-		public States currentState {
-			get { return _currentState; }
 		}
 
 		// ---------------------------------------------------------------------

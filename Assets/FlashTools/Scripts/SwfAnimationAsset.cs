@@ -65,6 +65,7 @@ namespace FlashTools {
 	[System.Serializable]
 	public class SwfAnimationData {
 		public float                          FrameRate      = 0.0f;
+		public Vector2                        FrameSize      = Vector2.zero;
 		public List<SwfAnimationFrameData>    Frames         = new List<SwfAnimationFrameData>();
 		public List<SwfAnimationBitmapData>   Bitmaps        = new List<SwfAnimationBitmapData>();
 	}
@@ -74,6 +75,13 @@ namespace FlashTools {
 		public class Frame {
 			public Mesh       Mesh;
 			public Material[] Materials;
+			public static Frame identity {
+				get {
+					return new Frame{
+						Mesh      = new Mesh(),
+						Materials = new Material[0]};
+				}
+			}
 		}
 		public SwfAnimationData Data;
 		public Texture2D        Atlas;

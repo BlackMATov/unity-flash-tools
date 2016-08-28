@@ -56,7 +56,8 @@ namespace FlashTools.Internal {
 			string swf_asset, SwfAnimationAsset asset, SwfDecoder decoder)
 		{
 			var animation_data = new SwfAnimationData{
-				FrameRate = decoder.UncompressedHeader.FrameRate
+				FrameRate = decoder.UncompressedHeader.FrameRate,
+				FrameSize = decoder.UncompressedHeader.FrameSize.ToUnityVectorSize()
 			};
 			var context  = new SwfContext();
 			var executer = new SwfContextExecuter(context, 0);
