@@ -36,9 +36,9 @@ namespace FlashTools.Internal {
 					PixelsPerUnit      = 100.0f,
 					GenerateMipMaps    = true,
 					AtlasPowerOfTwo    = true,
-					AtlasForceSquare   = false,
+					AtlasForceSquare   = true,
 					AtlasTextureFilter = AtlasFilter.Bilinear,
-					AtlasTextureFormat = AtlasFormat.AutomaticTruecolor};
+					AtlasTextureFormat = AtlasFormat.AutomaticCompressed};
 			}
 		}
 

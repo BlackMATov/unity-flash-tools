@@ -9,33 +9,12 @@ using System.IO;
 namespace FlashTools.Internal {
 	public class SwfConverterSettings : ScriptableObject {
 
-		// ---------------------------------------------------------------------
-		//
-		// Constants
-		//
-		// ---------------------------------------------------------------------
+		public SwfSettings DefaultSettings;
 
-		const string DefaultBasePath     = "Assets/FlashTools/Resources/";
-		const string DefaultSettingsPath = DefaultBasePath + "SwfConverterSettings.asset";
-		const string SwfSimpleMatPath    = DefaultBasePath + "Materials/SwfSimpleMat.mat";
-		const string SwfIncrMaskMatPath  = DefaultBasePath + "Materials/SwfIncrMaskMat.mat";
-		const string SwfDecrMaskMatPath  = DefaultBasePath + "Materials/SwfDecrMaskMat.mat";
-		const string SwfMaskedMatPathFmt = DefaultBasePath + "Materials/SwfMaskedMat_{0}.mat";
-
-		// ---------------------------------------------------------------------
-		//
-		// Properties
-		//
-		// ---------------------------------------------------------------------
-
-		[Header("Settings")]
-		public SwfSettings    DefaultSettings;
-
-		[Header("Materials cache")]
-		public Material       SimpleMaterial;
-		public Material       IncrMaskMaterial;
-		public Material       DecrMaskMaterial;
-		public List<Material> MaskedMaterials;
+		[HideInInspector] public Material       SimpleMaterial;
+		[HideInInspector] public Material       IncrMaskMaterial;
+		[HideInInspector] public Material       DecrMaskMaterial;
+		[HideInInspector] public List<Material> MaskedMaterials;
 
 	#if UNITY_EDITOR
 
@@ -45,13 +24,21 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
+		const string DefaultSettingsName         = "SwfConverterSettings.asset";
+		const string SwfSimpleMatRelativePath    = "Materials/SwfSimpleMat.mat";
+		const string SwfIncrMaskMatRelativePath  = "Materials/SwfIncrMaskMat.mat";
+		const string SwfDecrMaskMatRelativePath  = "Materials/SwfDecrMaskMat.mat";
+		const string SwfMaskedMatRelativePathFmt = "Materials/SwfMaskedMat_{0}.mat";
+
 		void FillMaterialsCache() {
-			SimpleMaterial   = SafeLoadMaterial(SwfSimpleMatPath,   true);
-			IncrMaskMaterial = SafeLoadMaterial(SwfIncrMaskMatPath, true);
-			DecrMaskMaterial = SafeLoadMaterial(SwfDecrMaskMatPath, true);
+			var folder       = Path.GetDirectoryName(AssetDatabase.GetAssetPath(this));
+			SimpleMaterial   = SafeLoadMaterial(Path.Combine(folder, SwfSimpleMatRelativePath),   true);
+			IncrMaskMaterial = SafeLoadMaterial(Path.Combine(folder, SwfIncrMaskMatRelativePath), true);
+			DecrMaskMaterial = SafeLoadMaterial(Path.Combine(folder, SwfDecrMaskMatRelativePath), true);
 			MaskedMaterials  = new List<Material>();
 			for ( var i = 0; i < int.MaxValue; ++i ) {
-				var mat = SafeLoadMaterial(string.Format(SwfMaskedMatPathFmt, i), false);
+				var relative_path = string.Format(SwfMaskedMatRelativePathFmt, i);
+				var mat = SafeLoadMaterial(Path.Combine(folder, relative_path), false);
 				if ( mat ) {
 					MaskedMaterials.Add(mat);
 				} else {
@@ -66,8 +53,15 @@ namespace FlashTools.Internal {
 			var material = AssetDatabase.LoadAssetAtPath<Material>(path);
 			if ( !material && exception ) {
 				throw new UnityException(string.Format(
-					"SwfManager. Material not found: {0}",
+					"SwfConverterSettings. Material not found: {0}",
 					path));
+			}
+			return material;
+		}
+
+		Material CheckExistsMaterial(Material material) {
+			if ( !material ) {
+				throw new UnityException("SwfConverterSettings. Material not found");
 			}
 			return material;
 		}
@@ -79,24 +73,36 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		public Material GetMaskedMaterial(int stencil_id) {
+			if ( MaskedMaterials == null || stencil_id < MaskedMaterials.Count ) {
+				FillMaterialsCache();
+			}
 			if ( stencil_id < 0 || stencil_id >= MaskedMaterials.Count ) {
 				throw new UnityException(string.Format(
 					"SwfConverterSettings. Unsupported stencil id: {0}",
 					stencil_id));
 			}
-			return MaskedMaterials[stencil_id];
+			return CheckExistsMaterial(MaskedMaterials[stencil_id]);
 		}
 
 		public Material GetSimpleMaterial() {
-			return SimpleMaterial;
+			if ( !SimpleMaterial ) {
+				FillMaterialsCache();
+			}
+			return CheckExistsMaterial(SimpleMaterial);
 		}
 
 		public Material GetIncrMaskMaterial() {
-			return IncrMaskMaterial;
+			if ( !IncrMaskMaterial ) {
+				FillMaterialsCache();
+			}
+			return CheckExistsMaterial(IncrMaskMaterial);
 		}
 
 		public Material GetDecrMaskMaterial() {
-			return DecrMaskMaterial;
+			if ( !DecrMaskMaterial ) {
+				FillMaterialsCache();
+			}
+			return CheckExistsMaterial(DecrMaskMaterial);
 		}
 
 		// ---------------------------------------------------------------------
@@ -111,29 +117,19 @@ namespace FlashTools.Internal {
 		}
 
 		public static SwfConverterSettings GetDefaultConverter() {
-			var settings_path = DefaultSettingsPath;
-			var settings = AssetDatabase.LoadAssetAtPath<SwfConverterSettings>(settings_path);
-			if ( !settings ) {
-				settings = ScriptableObject.CreateInstance<SwfConverterSettings>();
-				CreateAssetDatabaseFolders(Path.GetDirectoryName(settings_path));
-				AssetDatabase.CreateAsset(settings, settings_path);
-				AssetDatabase.SaveAssets();
+			var asset_guids = AssetDatabase.FindAssets("t:SwfConverterSettings");
+			foreach ( var asset_guid in asset_guids ) {
+				var converter_settings = AssetDatabase.LoadAssetAtPath<SwfConverterSettings>(
+					AssetDatabase.GUIDToAssetPath(asset_guid));
+				if ( converter_settings ) {
+					return converter_settings;
+				}
 			}
-			return settings;
+			throw new UnityException("SwfConverterSettings asset not found");
 		}
 
 		public static SwfSettings GetDefaultSettings() {
 			return GetDefaultConverter().DefaultSettings;
-		}
-
-		static void CreateAssetDatabaseFolders(string path) {
-			if ( !AssetDatabase.IsValidFolder(path) ) {
-				var parent = Path.GetDirectoryName(path);
-				if ( !string.IsNullOrEmpty(parent) ) {
-					CreateAssetDatabaseFolders(parent);
-				}
-				AssetDatabase.CreateFolder(parent, Path.GetFileName(path));
-			}
 		}
 	#endif
 	}
