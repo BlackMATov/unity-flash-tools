@@ -19,9 +19,6 @@ namespace FlashTools.Internal {
 		}
 	}
 
-	public class SwfReadOnlyAttribute : PropertyAttribute {
-	}
-
 	public class SwfSortingLayerAttribute : PropertyAttribute {
 	}
 

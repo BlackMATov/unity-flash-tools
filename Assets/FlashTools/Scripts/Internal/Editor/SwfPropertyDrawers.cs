@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
+
+using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -12,11 +14,13 @@ namespace FlashTools.Internal.SwfEditorTools {
 	[CustomPropertyDrawer(typeof(SwfIntRangeAttribute))]
 	public class SwfIntRangeDrawer : PropertyDrawer {
 		static void ValidateProperty(SerializedProperty property, int min, int max) {
-			if ( property.propertyType == SerializedPropertyType.Integer ) {
-				var clamp = Mathf.Clamp(property.intValue, min, max);
-				if ( clamp != property.intValue ) {
-					property.intValue = clamp;
-					property.serializedObject.ApplyModifiedProperties();
+			if ( !property.hasMultipleDifferentValues ) {
+				if ( property.propertyType == SerializedPropertyType.Integer ) {
+					var clamp = Mathf.Clamp(property.intValue, min, max);
+					if ( clamp != property.intValue ) {
+						property.intValue = clamp;
+						property.serializedObject.ApplyModifiedProperties();
+					}
 				}
 			}
 		}
@@ -36,11 +40,13 @@ namespace FlashTools.Internal.SwfEditorTools {
 	[CustomPropertyDrawer(typeof(SwfFloatRangeAttribute))]
 	public class SwfFloatRangeDrawer : PropertyDrawer {
 		static void ValidateProperty(SerializedProperty property, float min, float max) {
-			if ( property.propertyType == SerializedPropertyType.Float ) {
-				var clamp = Mathf.Clamp(property.floatValue, min, max);
-				if ( clamp != property.floatValue ) {
-					property.floatValue = clamp;
-					property.serializedObject.ApplyModifiedProperties();
+			if ( !property.hasMultipleDifferentValues ) {
+				if ( property.propertyType == SerializedPropertyType.Float ) {
+					var clamp = Mathf.Clamp(property.floatValue, min, max);
+					if ( clamp != property.floatValue ) {
+						property.floatValue = clamp;
+						property.serializedObject.ApplyModifiedProperties();
+					}
 				}
 			}
 		}
@@ -54,22 +60,6 @@ namespace FlashTools.Internal.SwfEditorTools {
 	}
 
 	//
-	// SwfReadOnlyDrawer
-	//
-
-	[CustomPropertyDrawer(typeof(SwfReadOnlyAttribute))]
-	public class SwfReadOnlyDrawer : PropertyDrawer {
-		public override void OnGUI(
-			Rect position, SerializedProperty property, GUIContent label)
-		{
-			var last_gui_enabled = GUI.enabled;
-			GUI.enabled = false;
-			EditorGUI.PropertyField(position, property, label, true);
-			GUI.enabled = last_gui_enabled;
-		}
-	}
-
-	//
 	// SwfSortingLayerDrawer
 	//
 
@@ -78,7 +68,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 
 		const string DefaultLayerName = "Default";
 
-		static List<string> GetAllSortingLayers() {
+		static List<string> GetAllSortingLayers(bool include_empty) {
 			var result = new List<string>();
 			var tag_assets = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset");
 			if ( tag_assets.Length > 0 ) {
@@ -102,35 +92,54 @@ namespace FlashTools.Internal.SwfEditorTools {
 			if ( !result.Contains(DefaultLayerName) ) {
 				result.Add(DefaultLayerName);
 			}
+			if ( include_empty ) {
+				result.Add(string.Empty);
+			}
 			return result;
 		}
 
 		static void ValidateProperty(SerializedProperty property) {
-			if ( property.propertyType == SerializedPropertyType.String ) {
-				var all_sorting_layers = GetAllSortingLayers();
-				if ( !all_sorting_layers.Contains(property.stringValue) ) {
-					property.stringValue = DefaultLayerName;
-					property.serializedObject.ApplyModifiedProperties();
+			if ( !property.hasMultipleDifferentValues ) {
+				if ( property.propertyType == SerializedPropertyType.String ) {
+					var all_sorting_layers = GetAllSortingLayers(false);
+					if ( !all_sorting_layers.Contains(property.stringValue) ) {
+						property.stringValue = DefaultLayerName;
+						property.serializedObject.ApplyModifiedProperties();
+					}
 				}
 			}
+		}
+
+		static void DoWithMixedValue(bool mixed, Action act) {
+			var last_show_mixed_value = EditorGUI.showMixedValue;
+			EditorGUI.showMixedValue = mixed;
+			act();
+			EditorGUI.showMixedValue = last_show_mixed_value;
 		}
 
 		public override void OnGUI(
 			Rect position, SerializedProperty property, GUIContent label)
 		{
-			var all_sorting_layers = GetAllSortingLayers();
 			if ( property.propertyType == SerializedPropertyType.String ) {
 				ValidateProperty(property);
-				var last_sorting_layer  = property.stringValue;
-				var sorting_layer_index = EditorGUI.Popup(
-					position,
-					label,
-					all_sorting_layers.FindIndex(p => p == property.stringValue),
-					all_sorting_layers.Select(p => new GUIContent(p)).ToArray());
-				property.stringValue = all_sorting_layers[sorting_layer_index];
-				if ( last_sorting_layer != property.stringValue ) {
-					property.serializedObject.ApplyModifiedProperties();
-				}
+				DoWithMixedValue(property.hasMultipleDifferentValues, () => {
+					var all_sorting_layers  = GetAllSortingLayers(true);
+					var sorting_layer_index = EditorGUI.Popup(
+						position,
+						label,
+						property.hasMultipleDifferentValues
+							? all_sorting_layers.FindIndex(p => string.IsNullOrEmpty(p))
+							: all_sorting_layers.FindIndex(p => p == property.stringValue),
+						all_sorting_layers.Select(p => new GUIContent(p)).ToArray());
+					var new_value = all_sorting_layers[sorting_layer_index];
+					if ( !string.IsNullOrEmpty(new_value) ) {
+						if ( property.hasMultipleDifferentValues ) {
+							property.stringValue = string.Empty;
+						}
+						property.stringValue = new_value;
+						property.serializedObject.ApplyModifiedProperties();
+					}
+				});
 			} else {
 				EditorGUI.LabelField(position, label.text, "Use SwfSortingLayer with string attribute.");
 			}
@@ -158,7 +167,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 			return Mathf.RoundToInt(Mathf.Pow(2, value));
 		}
 
-		int[] GenPowerOfTwoValues(int min_pow2, int max_pow2) {
+		static int[] GenPowerOfTwoValues(int min_pow2, int max_pow2) {
 			var values = new List<int>();
 			while ( min_pow2 <= max_pow2 ) {
 				values.Add(GetPowerOfTwo(min_pow2));
@@ -168,19 +177,28 @@ namespace FlashTools.Internal.SwfEditorTools {
 		}
 
 		static void ValidateProperty(SerializedProperty property, bool need_pow2, int min_pow2, int max_pow2) {
-			if ( property.propertyType == SerializedPropertyType.Integer ) {
-				var last_value = property.intValue;
-				if ( need_pow2 && !Mathf.IsPowerOfTwo(property.intValue) ) {
-					property.intValue = Mathf.ClosestPowerOfTwo(property.intValue);
-				}
-				property.intValue = Mathf.Clamp(
-					property.intValue,
-					GetPowerOfTwo(min_pow2),
-					GetPowerOfTwo(max_pow2));
-				if ( last_value != property.intValue ) {
-					property.serializedObject.ApplyModifiedProperties();
+			if ( !property.hasMultipleDifferentValues ) {
+				if ( property.propertyType == SerializedPropertyType.Integer ) {
+					var last_value = property.intValue;
+					if ( need_pow2 && !Mathf.IsPowerOfTwo(property.intValue) ) {
+						property.intValue = Mathf.ClosestPowerOfTwo(property.intValue);
+					}
+					property.intValue = Mathf.Clamp(
+						property.intValue,
+						GetPowerOfTwo(min_pow2),
+						GetPowerOfTwo(max_pow2));
+					if ( last_value != property.intValue ) {
+						property.serializedObject.ApplyModifiedProperties();
+					}
 				}
 			}
+		}
+
+		static void DoWithMixedValue(bool mixed, Action act) {
+			var last_show_mixed_value = EditorGUI.showMixedValue;
+			EditorGUI.showMixedValue = mixed;
+			act();
+			EditorGUI.showMixedValue = last_show_mixed_value;
 		}
 
 		public override void OnGUI(
@@ -189,15 +207,17 @@ namespace FlashTools.Internal.SwfEditorTools {
 			if ( property.propertyType == SerializedPropertyType.Integer ) {
 				var attr      = attribute as SwfPowerOfTwoIfAttribute;
 				var bool_prop = FindNextBoolProperty(property, attr.BoolProp);
-				var need_pow2 = (bool_prop != null && bool_prop.boolValue);
+				var need_pow2 = (bool_prop != null && (bool_prop.boolValue || bool_prop.hasMultipleDifferentValues));
 				ValidateProperty(property, need_pow2, attr.MinPow2, attr.MaxPow2);
-				if ( need_pow2 ) {
-					var values = GenPowerOfTwoValues(attr.MinPow2, attr.MaxPow2);
-					var vnames = values.Select(p => new GUIContent(p.ToString())).ToArray();
-					EditorGUI.IntPopup(position, property, vnames, values, label);
-				} else {
-					EditorGUI.PropertyField(position, property, label, true);
-				}
+				DoWithMixedValue(property.hasMultipleDifferentValues, () => {
+					if ( need_pow2 ) {
+						var values = GenPowerOfTwoValues(attr.MinPow2, attr.MaxPow2);
+						var vnames = values.Select(p => new GUIContent(p.ToString())).ToArray();
+						EditorGUI.IntPopup(position, property, vnames, values, label);
+					} else {
+						EditorGUI.PropertyField(position, property, label, true);
+					}
+				});
 			} else {
 				EditorGUI.LabelField(position, label.text, "Use SwfPowerOfTwoIf with integer attribute.");
 			}
