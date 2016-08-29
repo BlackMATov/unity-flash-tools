@@ -8,11 +8,6 @@ using UnityEditor;
 namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	public class SwfManager : MonoBehaviour {
-		// ---------------------------------------------------------------------
-		//
-		// Properties
-		//
-		// ---------------------------------------------------------------------
 
 		HashSet<SwfAnimation>           _animations  = new HashSet<SwfAnimation>();
 		HashSet<SwfAnimationController> _controllers = new HashSet<SwfAnimationController>();

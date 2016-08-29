@@ -7,12 +7,11 @@ namespace FlashTools.Internal {
 		SwfManager _manager = null;
 
 		void DrawAnimationCount() {
-			var last_gui_enabled = GUI.enabled;
-			GUI.enabled = false;
-			EditorGUILayout.IntField(
-				"Animation count",
-				_manager.AllAnimationCount);
-			GUI.enabled = last_gui_enabled;
+			SwfEditorUtils.DoWithEnabledGUI(false, () => {
+				EditorGUILayout.IntField(
+					"Animation count",
+					_manager.AllAnimationCount);
+			});
 		}
 
 		// ---------------------------------------------------------------------

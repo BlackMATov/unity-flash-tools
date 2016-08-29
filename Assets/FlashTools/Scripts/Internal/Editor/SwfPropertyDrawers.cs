@@ -110,36 +110,31 @@ namespace FlashTools.Internal.SwfEditorTools {
 			}
 		}
 
-		static void DoWithMixedValue(bool mixed, Action act) {
-			var last_show_mixed_value = EditorGUI.showMixedValue;
-			EditorGUI.showMixedValue = mixed;
-			act();
-			EditorGUI.showMixedValue = last_show_mixed_value;
-		}
-
 		public override void OnGUI(
 			Rect position, SerializedProperty property, GUIContent label)
 		{
 			if ( property.propertyType == SerializedPropertyType.String ) {
 				ValidateProperty(property);
-				DoWithMixedValue(property.hasMultipleDifferentValues, () => {
-					var all_sorting_layers  = GetAllSortingLayers(true);
-					var sorting_layer_index = EditorGUI.Popup(
-						position,
-						label,
-						property.hasMultipleDifferentValues
-							? all_sorting_layers.FindIndex(p => string.IsNullOrEmpty(p))
-							: all_sorting_layers.FindIndex(p => p == property.stringValue),
-						all_sorting_layers.Select(p => new GUIContent(p)).ToArray());
-					var new_value = all_sorting_layers[sorting_layer_index];
-					if ( !string.IsNullOrEmpty(new_value) ) {
-						if ( property.hasMultipleDifferentValues ) {
-							property.stringValue = string.Empty;
+				SwfEditorUtils.DoWithMixedValue(
+					property.hasMultipleDifferentValues, () =>
+					{
+						var all_sorting_layers  = GetAllSortingLayers(true);
+						var sorting_layer_index = EditorGUI.Popup(
+							position,
+							label,
+							property.hasMultipleDifferentValues
+								? all_sorting_layers.FindIndex(p => string.IsNullOrEmpty(p))
+								: all_sorting_layers.FindIndex(p => p == property.stringValue),
+							all_sorting_layers.Select(p => new GUIContent(p)).ToArray());
+						var new_value = all_sorting_layers[sorting_layer_index];
+						if ( !string.IsNullOrEmpty(new_value) ) {
+							if ( property.hasMultipleDifferentValues ) {
+								property.stringValue = string.Empty;
+							}
+							property.stringValue = new_value;
+							property.serializedObject.ApplyModifiedProperties();
 						}
-						property.stringValue = new_value;
-						property.serializedObject.ApplyModifiedProperties();
-					}
-				});
+					});
 			} else {
 				EditorGUI.LabelField(position, label.text, "Use SwfSortingLayer with string attribute.");
 			}
@@ -194,13 +189,6 @@ namespace FlashTools.Internal.SwfEditorTools {
 			}
 		}
 
-		static void DoWithMixedValue(bool mixed, Action act) {
-			var last_show_mixed_value = EditorGUI.showMixedValue;
-			EditorGUI.showMixedValue = mixed;
-			act();
-			EditorGUI.showMixedValue = last_show_mixed_value;
-		}
-
 		public override void OnGUI(
 			Rect position, SerializedProperty property, GUIContent label)
 		{
@@ -209,15 +197,17 @@ namespace FlashTools.Internal.SwfEditorTools {
 				var bool_prop = FindNextBoolProperty(property, attr.BoolProp);
 				var need_pow2 = (bool_prop != null && (bool_prop.boolValue || bool_prop.hasMultipleDifferentValues));
 				ValidateProperty(property, need_pow2, attr.MinPow2, attr.MaxPow2);
-				DoWithMixedValue(property.hasMultipleDifferentValues, () => {
-					if ( need_pow2 ) {
-						var values = GenPowerOfTwoValues(attr.MinPow2, attr.MaxPow2);
-						var vnames = values.Select(p => new GUIContent(p.ToString())).ToArray();
-						EditorGUI.IntPopup(position, property, vnames, values, label);
-					} else {
-						EditorGUI.PropertyField(position, property, label, true);
-					}
-				});
+				SwfEditorUtils.DoWithMixedValue(
+					property.hasMultipleDifferentValues, () =>
+					{
+						if ( need_pow2 ) {
+							var values = GenPowerOfTwoValues(attr.MinPow2, attr.MaxPow2);
+							var vnames = values.Select(p => new GUIContent(p.ToString())).ToArray();
+							EditorGUI.IntPopup(position, property, vnames, values, label);
+						} else {
+							EditorGUI.PropertyField(position, property, label, true);
+						}
+					});
 			} else {
 				EditorGUI.LabelField(position, label.text, "Use SwfPowerOfTwoIf with integer attribute.");
 			}
