@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using FlashTools.Internal;
+using System;
 
 namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
@@ -10,9 +12,26 @@ namespace FlashTools {
 
 		// ---------------------------------------------------------------------
 		//
+		// Events
+		//
+		// ---------------------------------------------------------------------
+
+		public event Action<SwfAnimationController> OnStopPlayingEvent;
+		public event Action<SwfAnimationController> OnRewindPlayingEvent;
+
+		public event Action<SwfAnimationController> OnPausePlayingEvent;
+		public event Action<SwfAnimationController> OnResumePausedEvent;
+
+		// ---------------------------------------------------------------------
+		//
 		// Properties
 		//
 		// ---------------------------------------------------------------------
+
+		public enum PlayModes {
+			Forward,
+			Backward
+		}
 
 		public enum LoopModes {
 			Once,
@@ -33,6 +52,21 @@ namespace FlashTools {
 		}
 
 		[SerializeField]
+		[SwfFloatRange(0.0f, float.MaxValue)]
+		float _rateScale = 1.0f;
+		public float rateScale {
+			get { return _rateScale; }
+			set { _rateScale = Mathf.Clamp(value, 0.0f, float.MaxValue); }
+		}
+
+		[SerializeField]
+		PlayModes _playMode = PlayModes.Forward;
+		public PlayModes playMode {
+			get { return _playMode; }
+			set { _playMode = value; }
+		}
+
+		[SerializeField]
 		LoopModes _loopMode = LoopModes.Once;
 		public LoopModes loopMode {
 			get { return _loopMode; }
@@ -44,6 +78,18 @@ namespace FlashTools {
 			get { return _currentState; }
 		}
 
+		public bool isStopped {
+			get { return currentState == States.Stopped; }
+		}
+
+		public bool isPaused {
+			get { return currentState == States.Paused; }
+		}
+
+		public bool isPlaying {
+			get { return currentState == States.Playing; }
+		}
+
 		// ---------------------------------------------------------------------
 		//
 		// Functions
@@ -51,27 +97,61 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		public void Stop() {
+			Stop(true);
+		}
+
+		public void Stop(bool rewind) {
+			var is_playing = isPlaying;
 			_frameTimer = 0.0f;
 			_currentState = States.Stopped;
-			_animation.currentFrame = 0;
+			if ( rewind ) {
+				Rewind();
+			}
+			if ( is_playing && OnStopPlayingEvent != null ) {
+				OnStopPlayingEvent(this);
+			}
 		}
 
 		public void Pause() {
-			if ( currentState == States.Playing ) {
+			if ( isPlaying ) {
 				_currentState = States.Paused;
+				if ( OnPausePlayingEvent != null ) {
+					OnPausePlayingEvent(this);
+				}
 			}
 		}
 
 		public void Resume() {
-			if ( currentState == States.Paused ) {
+			if ( isPaused ) {
 				_currentState = States.Playing;
+				if ( OnResumePausedEvent != null ) {
+					OnResumePausedEvent(this);
+				}
 			}
 		}
 
 		public void Play() {
+			Rewind();
 			_frameTimer = 0.0f;
 			_currentState = States.Playing;
-			_animation.currentFrame = 0;
+		}
+
+		public void Rewind() {
+			switch ( playMode ) {
+			case PlayModes.Forward:
+				_animation.ToBeginFrame();
+				break;
+			case PlayModes.Backward:
+				_animation.ToEndFrame();
+				break;
+			default:
+				throw new UnityException(string.Format(
+					"SwfAnimationController. Incorrect play mode: {0}",
+					playMode));
+			}
+			if ( isPlaying && OnRewindPlayingEvent != null ) {
+				OnRewindPlayingEvent(this);
+			}
 		}
 
 		// ---------------------------------------------------------------------
@@ -81,27 +161,46 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		public void InternalUpdate(float dt) {
-			if ( currentState == States.Playing ) {
-				_frameTimer += _animation.frameRate * dt;
-				if ( _frameTimer > 1.0f ) {
-					while ( _frameTimer > 1.0f ) {
-						_frameTimer -= 1.0f;
-						if ( !_animation.ToNextFrame() ) {
-							switch ( loopMode ) {
-							case LoopModes.Once:
-								_currentState = States.Stopped;
-								break;
-							case LoopModes.Loop:
-								_animation.ToBeginFrame();
-								break;
-							default:
-								throw new UnityException(string.Format(
-									"SwfAnimationController. Incorrect loop mode: {0}",
-									loopMode));
-							}
-						}
-					}
+			if ( isPlaying ) {
+				UpdateAnimationTimer(dt);
+			}
+		}
+
+		void UpdateAnimationTimer(float dt) {
+			_frameTimer += _animation.frameRate * rateScale * dt;
+			while ( _frameTimer > 1.0f ) {
+				_frameTimer -= 1.0f;
+				AnimationTimerTick();
+			}
+		}
+
+		void AnimationTimerTick() {
+			if ( !NextAnimationFrame() ) {
+				switch ( loopMode ) {
+				case LoopModes.Once:
+					Stop(false);
+					break;
+				case LoopModes.Loop:
+					Rewind();
+					break;
+				default:
+					throw new UnityException(string.Format(
+						"SwfAnimationController. Incorrect loop mode: {0}",
+						loopMode));
 				}
+			}
+		}
+
+		bool NextAnimationFrame() {
+			switch ( playMode ) {
+			case PlayModes.Forward:
+				return _animation.ToNextFrame();
+			case PlayModes.Backward:
+				return _animation.ToPrevFrame();
+			default:
+				throw new UnityException(string.Format(
+					"SwfAnimationController. Incorrect play mode: {0}",
+					playMode));
 			}
 		}
 
