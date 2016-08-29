@@ -49,6 +49,7 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationAssetPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationControllerEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationEditor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfEditorUtils.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfManagerEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfPropertyDrawers.cs" />

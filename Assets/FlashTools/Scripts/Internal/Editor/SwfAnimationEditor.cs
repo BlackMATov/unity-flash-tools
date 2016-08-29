@@ -1,26 +1,56 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfAnimation)), CanEditMultipleObjects]
 	public class SwfAnimationEditor : Editor {
-		SwfAnimation _animation = null;
+		List<SwfAnimation> _animations = new List<SwfAnimation>();
 
-		SerializedProperty GetCurrentFrameProperty() {
-			var prop = serializedObject.FindProperty("_currentFrame");
-			if ( prop == null ) {
-				throw new UnityException("SwfAnimationEditor. Not found current frame property");
+		void AllAnimationsForeachWithUndo(Action<SwfAnimation> act) {
+			Undo.RecordObjects(
+				_animations.ToArray(),
+				"Inspector");
+			foreach ( var animation in _animations ) {
+				act(animation);
+				EditorUtility.SetDirty(animation);
 			}
-			return prop;
+		}
+
+		int GetMinAnimationsFrameCount() {
+			return _animations.Count > 0
+				? _animations.Min(anim => anim.frameCount)
+				: 0;
+		}
+
+		string GetAnimationsFrameCountStr() {
+			return _animations.Aggregate(string.Empty, (acc, anim) => {
+				var frame_count_str = anim.frameCount.ToString();
+				return string.IsNullOrEmpty(acc)
+					? frame_count_str
+					: (acc != frame_count_str ? "--" : acc);
+			});
+		}
+
+		string GetAnimationsCurrentFrameStr() {
+			return _animations.Aggregate(string.Empty, (acc, anim) => {
+				var current_frame_str = anim.currentFrame.ToString();
+				return string.IsNullOrEmpty(acc)
+					? current_frame_str
+					: (acc != current_frame_str ? "--" : acc);
+			});
 		}
 
 		void DrawCurrentFrame() {
-			if ( _animation.frameCount > 1 ) {
-				Undo.RecordObject(_animation, "Change SwfAnimation frame");
+			var min_frame_count = GetMinAnimationsFrameCount();
+			if ( min_frame_count > 0 ) {
 				EditorGUILayout.IntSlider(
-					GetCurrentFrameProperty(),
+					SwfEditorUtils.GetPropertyByName(serializedObject, "_currentFrame"),
 					0,
-					_animation.frameCount - 1,
+					min_frame_count - 1,
 					"Frame");
 			}
 		}
@@ -31,27 +61,19 @@ namespace FlashTools.Internal {
 			GUILayout.FlexibleSpace();
 			{
 				if ( GUILayout.Button(new GUIContent("<<", "to begin frame")) ) {
-					Undo.RecordObject(_animation, "Change SwfAnimation frame");
-					_animation.ToBeginFrame();
-					EditorUtility.SetDirty(_animation);
+					AllAnimationsForeachWithUndo(p => p.ToBeginFrame());
 				}
 				if ( GUILayout.Button(new GUIContent("<", "to prev frame")) ) {
-					Undo.RecordObject(_animation, "Change SwfAnimation frame");
-					_animation.ToPrevFrame();
-					EditorUtility.SetDirty(_animation);
+					AllAnimationsForeachWithUndo(p => p.ToPrevFrame());
 				}
 				GUILayout.Label(string.Format(
 					"{0}/{1}",
-					_animation.currentFrame, _animation.frameCount));
+					GetAnimationsCurrentFrameStr(), GetAnimationsFrameCountStr()));
 				if ( GUILayout.Button(new GUIContent(">", "to next frame")) ) {
-					Undo.RecordObject(_animation, "Change SwfAnimation frame");
-					_animation.ToNextFrame();
-					EditorUtility.SetDirty(_animation);
+					AllAnimationsForeachWithUndo(p => p.ToNextFrame());
 				}
 				if ( GUILayout.Button(new GUIContent(">>", "to end frame")) ) {
-					Undo.RecordObject(_animation, "Change SwfAnimation frame");
-					_animation.ToEndFrame();
-					EditorUtility.SetDirty(_animation);
+					AllAnimationsForeachWithUndo(p => p.ToEndFrame());
 				}
 			}
 			GUILayout.FlexibleSpace();
@@ -65,7 +87,9 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_animation = target as SwfAnimation;
+			_animations = targets
+				.OfType<SwfAnimation>()
+				.ToList();
 		}
 
 		public override void OnInspectorGUI() {

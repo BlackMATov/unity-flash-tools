@@ -1,79 +1,92 @@
 ﻿using UnityEngine;
 using UnityEditor;
+
+using System;
 using System.IO;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfAnimationAsset)), CanEditMultipleObjects]
 	public class SwfAnimationAssetEditor : Editor {
-		SwfAnimationAsset _asset           = null;
-		bool              _settingsFoldout = false;
+		List<SwfAnimationAsset> _assets          = new List<SwfAnimationAsset>();
+		bool                    _settingsFoldout = false;
 
-		void OverriddenSettingsToDefault() {
-			if ( _asset ) {
-				_asset.Overridden = SwfConverterSettings.GetDefaultSettings();
+		//
+		//
+		//
+
+		static string GetAssetPath(SwfAnimationAsset asset) {
+			return asset
+				? AssetDatabase.GetAssetPath(asset)
+				: string.Empty;
+		}
+
+		static string GetSwfPath(SwfAnimationAsset asset) {
+			var asset_path = GetAssetPath(asset);
+			return string.IsNullOrEmpty(asset_path)
+				? string.Empty
+				: Path.ChangeExtension(asset_path, ".swf");
+		}
+
+		static string GetPrefabPath(SwfAnimationAsset asset) {
+			var asset_path = GetAssetPath(asset);
+			return string.IsNullOrEmpty(asset_path)
+				? string.Empty
+				: Path.ChangeExtension(asset_path, ".prefab");
+		}
+
+		//
+		//
+		//
+
+		static void RevertOverriddenSettings(SwfAnimationAsset asset) {
+			asset.Overridden = asset.Settings;
+		}
+
+		static void OverriddenSettingsToDefault(SwfAnimationAsset asset) {
+			asset.Overridden = SwfConverterSettings.GetDefaultSettings();
+		}
+
+		static void ApplyOverriddenSettings(SwfAnimationAsset asset) {
+			if ( File.Exists(GetSwfPath(asset)) ) {
+				asset.Settings = asset.Overridden;
+				ReconvertAnimationAsset(asset);
+			} else {
+				Debug.LogErrorFormat(
+					"Swf source for animation not found: '{0}'",
+					GetSwfPath(asset));
+				RevertOverriddenSettings(asset);
 			}
 		}
 
-		void RevertOverriddenSettings() {
-			if ( _asset ) {
-				_asset.Overridden = _asset.Settings;
-			}
-		}
-
-		void ApplyOverriddenSettings() {
-			if ( _asset ) {
-				if ( File.Exists(GetSwfPath()) ) {
-					_asset.Settings = _asset.Overridden;
-					ReconvertAnimation();
-				} else {
-					Debug.LogErrorFormat(
-						"Swf source for animation not found: '{0}'",
-						GetSwfPath());
-					RevertOverriddenSettings();
-				}
-			}
-		}
-
-		void ReconvertAnimation() {
-			if ( _asset && _asset.Atlas ) {
+		static void ReconvertAnimationAsset(SwfAnimationAsset asset) {
+			if ( asset && asset.Atlas ) {
 				AssetDatabase.DeleteAsset(
-					AssetDatabase.GetAssetPath(_asset.Atlas));
-				_asset.Atlas = null;
+					AssetDatabase.GetAssetPath(asset.Atlas));
+				asset.Atlas = null;
 			}
 			AssetDatabase.ImportAsset(
-				GetSwfPath(),
+				GetSwfPath(asset),
 				ImportAssetOptions.ForceUpdate);
 		}
 
-		void ShowUnappliedDialog() {
-			var title =
-				"Unapplied swf animation settings";
-			var message = string.Format(
-				"Unapplied swf animation settings for '{0}'",
-				GetAssetPath());
-			if ( EditorUtility.DisplayDialog(title, message, "Apply", "Revert") ) {
-				ApplyOverriddenSettings();
-			} else {
-				RevertOverriddenSettings();
-			}
-		}
-
-		GameObject CreateAnimationGO() {
-			if ( _asset ) {
-				var anim_go = new GameObject(_asset.name);
+		static GameObject CreateAnimationGO(SwfAnimationAsset asset) {
+			if ( asset ) {
+				var anim_go = new GameObject(asset.name);
 				anim_go.AddComponent<MeshFilter>();
 				anim_go.AddComponent<MeshRenderer>();
-				anim_go.AddComponent<SwfAnimation>().asset = _asset;
+				anim_go.AddComponent<SwfAnimation>().asset = asset;
 				anim_go.AddComponent<SwfAnimationController>();
 				return anim_go;
 			}
 			return null;
 		}
 
-		void CreateAnimationPrefab() {
-			var anim_go = CreateAnimationGO();
+		static void CreateAnimationPrefab(SwfAnimationAsset asset) {
+			var anim_go = CreateAnimationGO(asset);
 			if ( anim_go ) {
-				var prefab_path = GetPrefabPath();
+				var prefab_path = GetPrefabPath(asset);
 				if ( !string.IsNullOrEmpty(prefab_path) ) {
 					var prefab = AssetDatabase.LoadMainAssetAtPath(prefab_path);
 					if ( !prefab ) {
@@ -88,52 +101,88 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		void CreateAnimationOnScene() {
-			var anim_go = CreateAnimationGO();
+		static void CreateAnimationOnScene(SwfAnimationAsset asset) {
+			var anim_go = CreateAnimationGO(asset);
 			if ( anim_go ) {
 				Undo.RegisterCreatedObjectUndo(anim_go, "Instance SwfAnimation");
 			}
 		}
 
-		string GetAssetPath() {
-			return _asset
-				? AssetDatabase.GetAssetPath(_asset)
-				: string.Empty;
+		//
+		//
+		//
+
+		void AllAssetsForeach(Action<SwfAnimationAsset> act) {
+			foreach ( var asset in _assets ) {
+				act(asset);
+			}
 		}
 
-		string GetSwfPath() {
-			var asset_path = GetAssetPath();
-			return string.IsNullOrEmpty(asset_path)
-				? string.Empty
-				: Path.ChangeExtension(asset_path, ".swf");
+		void AllOverriddenSettingsToDefault() {
+			AllAssetsForeach(p => OverriddenSettingsToDefault(p));
 		}
 
-		string GetPrefabPath() {
-			var asset_path = GetAssetPath();
-			return string.IsNullOrEmpty(asset_path)
-				? string.Empty
-				: Path.ChangeExtension(asset_path, ".prefab");
+		void RevertAllOverriddenSettings() {
+			AllAssetsForeach(p => RevertOverriddenSettings(p));
+		}
+
+		void ApplyAllOverriddenSettings() {
+			AllAssetsForeach(p => ApplyOverriddenSettings(p));
+		}
+
+		void CreateAllAnimationPrefabs() {
+			AllAssetsForeach(p => CreateAnimationPrefab(p));
+		}
+
+		void CreateAllAnimationsOnScene() {
+			AllAssetsForeach(p => CreateAnimationOnScene(p));
+		}
+
+		//
+		//
+		//
+
+		void ShowUnappliedDialog() {
+			var unapplied = _assets
+				.Where(p => !p.Settings.CheckEquals(p.Overridden))
+				.ToArray();
+			if ( unapplied.Length > 0 ) {
+				var title =
+					"Unapplied swf animation settings";
+				var message = unapplied.Length == 1
+					? string.Format(
+						"Unapplied swf animation settings for '{0}'",
+						GetAssetPath(unapplied[0]))
+					: string.Format(
+						"Unapplied multiple({0}) swf animation settings",
+						unapplied.Length);
+				if ( EditorUtility.DisplayDialog(title, message, "Apply", "Revert") ) {
+					ApplyAllOverriddenSettings();
+				} else {
+					RevertAllOverriddenSettings();
+				}
+			}
 		}
 
 		void DrawGUISettings() {
-			var last_gui_enabled = GUI.enabled;
-			GUI.enabled = false;
-			var script_prop = serializedObject.FindProperty("m_Script");
-			if ( script_prop != null ) {
+			SwfEditorUtils.DoWithEnabledGUI(false, () => {
+				var script_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "m_Script");
 				EditorGUILayout.PropertyField(script_prop, true);
-			}
-			var atlas_prop = serializedObject.FindProperty("Atlas");
-			if ( atlas_prop != null ) {
+
+				var atlas_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Atlas");
 				EditorGUILayout.PropertyField(atlas_prop, true);
-			}
-			var frames_prop = serializedObject.FindProperty("Frames");
-			if ( frames_prop != null && frames_prop.isArray ) {
-				EditorGUILayout.IntField("Frame count", frames_prop.arraySize);
-			}
-			GUI.enabled = last_gui_enabled;
+
+				var frames_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Frames");
+				if ( frames_prop.isArray ) {
+					SwfEditorUtils.DoWithMixedValue(
+						frames_prop.hasMultipleDifferentValues, () => {
+							EditorGUILayout.IntField("Frame count", frames_prop.arraySize);
+						});
+				}
+			});
 			_settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "Settings");
 			if ( _settingsFoldout ) {
-				var it = serializedObject.FindProperty("Overridden");
+				var it = SwfEditorUtils.GetPropertyByName(serializedObject, "Overridden");
 				while ( it.NextVisible(true) ) {
 					EditorGUILayout.PropertyField(it, true);
 				}
@@ -146,19 +195,21 @@ namespace FlashTools.Internal {
 			GUILayout.FlexibleSpace();
 			{
 				var default_settings = SwfConverterSettings.GetDefaultSettings();
-				GUI.enabled = !_asset.Overridden.CheckEquals(default_settings);
-				if ( GUILayout.Button("Default") ) {
-					OverriddenSettingsToDefault();
-				}
-				GUI.enabled = !_asset.Overridden.CheckEquals(_asset.Settings);
-				if ( GUILayout.Button("Revert") ) {
-					RevertOverriddenSettings();
-				}
-				GUI.enabled = !_asset.Overridden.CheckEquals(_asset.Settings);
-				if ( GUILayout.Button("Apply") ) {
-					ApplyOverriddenSettings();
-				}
-				GUI.enabled = true;
+				SwfEditorUtils.DoWithEnabledGUI(
+					_assets.Any(p => !p.Overridden.CheckEquals(default_settings)), () => {
+						if ( GUILayout.Button("Default") ) {
+							AllOverriddenSettingsToDefault();
+						}
+					});
+				SwfEditorUtils.DoWithEnabledGUI(
+					_assets.Any(p => !p.Overridden.CheckEquals(p.Settings)), () => {
+						if ( GUILayout.Button("Revert") ) {
+							RevertAllOverriddenSettings();
+						}
+						if ( GUILayout.Button("Apply") ) {
+							ApplyAllOverriddenSettings();
+						}
+					});
 			}
 			GUILayout.EndHorizontal();
 		}
@@ -167,10 +218,10 @@ namespace FlashTools.Internal {
 			GUILayout.BeginHorizontal();
 			{
 				if ( GUILayout.Button("Create prefab") ) {
-					CreateAnimationPrefab();
+					CreateAllAnimationPrefabs();
 				}
 				if ( GUILayout.Button("Instance to scene") ) {
-					CreateAnimationOnScene();
+					CreateAllAnimationsOnScene();
 				}
 			}
 			GUILayout.EndHorizontal();
@@ -183,15 +234,15 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_asset           = target as SwfAnimationAsset;
-			_settingsFoldout = _asset && !_asset.Settings.CheckEquals(
-				SwfConverterSettings.GetDefaultSettings());
+			_assets = targets
+				.OfType<SwfAnimationAsset>()
+				.ToList();
+			_settingsFoldout =
+				_assets.Any(p => !p.Settings.CheckEquals(SwfConverterSettings.GetDefaultSettings()));
 		}
 
 		void OnDisable() {
-			if ( _asset && !_asset.Settings.CheckEquals(_asset.Overridden) ) {
-				ShowUnappliedDialog();
-			}
+			ShowUnappliedDialog();
 		}
 
 		public override void OnInspectorGUI() {

@@ -1,26 +1,36 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
+using System;
+using System.Linq;
+using System.Collections.Generic;
+
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfAnimationController)), CanEditMultipleObjects]
 	public class SwfAnimationControllerEditor : Editor {
-		SwfAnimationController _controller = null;
+		List<SwfAnimationController> _controllers = new List<SwfAnimationController>();
+
+		void AllControllersForeach(Action<SwfAnimationController> act) {
+			foreach ( var controller in _controllers ) {
+				act(controller);
+			}
+		}
 
 		void DrawAnimationControls() {
 			GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			{
 				if ( GUILayout.Button("Stop") ) {
-					_controller.Stop();
+					AllControllersForeach(p => p.Stop());
 				}
 				if ( GUILayout.Button("Pause") ) {
-					_controller.Pause();
+					AllControllersForeach(p => p.Pause());
 				}
 				if ( GUILayout.Button("Resume") ) {
-					_controller.Resume();
+					AllControllersForeach(p => p.Resume());
 				}
 				if ( GUILayout.Button("Play") ) {
-					_controller.Play();
+					AllControllersForeach(p => p.Play());
 				}
 			}
 			GUILayout.EndHorizontal();
@@ -33,7 +43,9 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_controller = target as SwfAnimationController;
+			_controllers = targets
+				.OfType<SwfAnimationController>()
+				.ToList();
 		}
 
 		public override void OnInspectorGUI() {

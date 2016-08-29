@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -72,9 +71,10 @@ namespace FlashTools.Internal.SwfEditorTools {
 			var result = new List<string>();
 			var tag_assets = AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset");
 			if ( tag_assets.Length > 0 ) {
-				var tag_manager = new SerializedObject(tag_assets[0]);
-				var layers = tag_manager.FindProperty("m_SortingLayers");
-				if ( layers != null && layers.isArray ) {
+				var layers = SwfEditorUtils.GetPropertyByName(
+					new SerializedObject(tag_assets[0]),
+					"m_SortingLayers");
+				if ( layers.isArray ) {
 					for ( var i = 0; i < layers.arraySize; ++i ) {
 						var layer_prop = layers.GetArrayElementAtIndex(i);
 						var layer_prop_name = layer_prop != null
@@ -116,8 +116,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 			if ( property.propertyType == SerializedPropertyType.String ) {
 				ValidateProperty(property);
 				SwfEditorUtils.DoWithMixedValue(
-					property.hasMultipleDifferentValues, () =>
-					{
+					property.hasMultipleDifferentValues, () => {
 						var all_sorting_layers  = GetAllSortingLayers(true);
 						var sorting_layer_index = EditorGUI.Popup(
 							position,
@@ -198,8 +197,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 				var need_pow2 = (bool_prop != null && (bool_prop.boolValue || bool_prop.hasMultipleDifferentValues));
 				ValidateProperty(property, need_pow2, attr.MinPow2, attr.MaxPow2);
 				SwfEditorUtils.DoWithMixedValue(
-					property.hasMultipleDifferentValues, () =>
-					{
+					property.hasMultipleDifferentValues, () => {
 						if ( need_pow2 ) {
 							var values = GenPowerOfTwoValues(attr.MinPow2, attr.MaxPow2);
 							var vnames = values.Select(p => new GUIContent(p.ToString())).ToArray();

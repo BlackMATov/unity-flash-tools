@@ -18,5 +18,15 @@ namespace FlashTools.Internal {
 			act();
 			GUI.enabled = last_gui_enabled;
 		}
+
+		public static SerializedProperty GetPropertyByName(SerializedObject obj, string name) {
+			var prop = obj.FindProperty(name);
+			if ( prop == null ) {
+				throw new UnityException(string.Format(
+					"SwfEditorUtils. Not found property: {0}",
+					name));
+			}
+			return prop;
+		}
 	}
 }
