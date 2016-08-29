@@ -38,6 +38,7 @@ namespace FlashTools.Internal {
 				Debug.LogErrorFormat(
 					"Postprocess swf animation asset error: {0}",
 					e.Message);
+				SwfEditorUtils.DeleteAnimationAssetWithDepends(asset);
 			}
 		}
 

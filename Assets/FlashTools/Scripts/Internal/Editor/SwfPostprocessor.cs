@@ -35,7 +35,7 @@ namespace FlashTools.Internal {
 				EditorUtility.SetDirty(new_asset);
 				AssetDatabase.SaveAssets();
 			} else {
-				DeleteSwfAnimationAsset(new_asset);
+				SwfEditorUtils.DeleteAnimationAssetWithDepends(new_asset);
 			}
 		}
 
@@ -289,17 +289,6 @@ namespace FlashTools.Internal {
 			new_atlas.Apply();
 			GameObject.DestroyImmediate(atlas, true);
 			return new BitmapsAtlasInfo{Atlas = new_atlas, Rects = rects};
-		}
-
-		static void DeleteSwfAnimationAsset(SwfAnimationAsset asset) {
-			if ( asset ) {
-				if ( asset.Atlas ) {
-					AssetDatabase.DeleteAsset(
-						AssetDatabase.GetAssetPath(asset.Atlas));
-				}
-				AssetDatabase.DeleteAsset(
-					AssetDatabase.GetAssetPath(asset));
-			}
 		}
 	}
 }

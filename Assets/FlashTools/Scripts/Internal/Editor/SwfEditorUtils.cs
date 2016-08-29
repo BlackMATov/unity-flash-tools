@@ -28,5 +28,16 @@ namespace FlashTools.Internal {
 			}
 			return prop;
 		}
+
+		public static void DeleteAnimationAssetWithDepends(SwfAnimationAsset asset) {
+			if ( asset ) {
+				if ( asset.Atlas ) {
+					AssetDatabase.DeleteAsset(
+						AssetDatabase.GetAssetPath(asset.Atlas));
+				}
+				AssetDatabase.DeleteAsset(
+					AssetDatabase.GetAssetPath(asset));
+			}
+		}
 	}
 }
