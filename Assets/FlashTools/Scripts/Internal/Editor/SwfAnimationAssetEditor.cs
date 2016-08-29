@@ -61,11 +61,6 @@ namespace FlashTools.Internal {
 		}
 
 		static void ReconvertAnimationAsset(SwfAnimationAsset asset) {
-			if ( asset && asset.Atlas ) {
-				AssetDatabase.DeleteAsset(
-					AssetDatabase.GetAssetPath(asset.Atlas));
-				asset.Atlas = null;
-			}
 			AssetDatabase.ImportAsset(
 				GetSwfPath(asset),
 				ImportAssetOptions.ForceUpdate);

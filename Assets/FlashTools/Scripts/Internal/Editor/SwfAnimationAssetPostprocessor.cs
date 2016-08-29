@@ -34,6 +34,7 @@ namespace FlashTools.Internal {
 					EditorUtility.SetDirty(asset);
 					AssetDatabase.SaveAssets();
 				}
+				ConfigureAssetAnimations(asset);
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
 					"Postprocess swf animation asset error: {0}",
@@ -308,6 +309,19 @@ namespace FlashTools.Internal {
 				}
 			}
 			return null;
+		}
+
+		// ---------------------------------------------------------------------
+		//
+		// ConfigureAssetAnimations
+		//
+		// ---------------------------------------------------------------------
+
+		static void ConfigureAssetAnimations(SwfAnimationAsset asset) {
+			var animations = GameObject.FindObjectsOfType<SwfAnimation>();
+			foreach ( var animation in animations ) {
+				animation.UpdateAllProperties();
+			}
 		}
 	}
 }

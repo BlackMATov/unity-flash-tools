@@ -110,32 +110,11 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
-		void UpdateAllProperties() {
+		public void UpdateAllProperties() {
 			asset        = _asset;
 			currentFrame = _currentFrame;
 			sortingLayer = _sortingLayer;
 			sortingOrder = _sortingOrder;
-		}
-
-		void UpdateMaterialPropertyBlock() {
-			if ( _matPropBlock != null ) {
-				var atlas = asset && asset.Atlas ? asset.Atlas : null;
-				if ( atlas ) {
-					_matPropBlock.SetTexture("_MainTex", atlas);
-				} else {
-					_matPropBlock.Clear();
-				}
-				if ( _meshRenderer ) {
-					_meshRenderer.SetPropertyBlock(_matPropBlock);
-				}
-			}
-		}
-
-		void ChangeSortingProperties() {
-			if ( _meshRenderer ) {
-				_meshRenderer.sortingOrder     = sortingOrder;
-				_meshRenderer.sortingLayerName = sortingLayer;
-			}
 		}
 
 		void ChangeAsset() {
@@ -153,12 +132,31 @@ namespace FlashTools {
 			UpdateCurrentMesh();
 		}
 
-		void UpdateCurrentMesh() {
-			var baked_frame = GetCurrentBakedFrame();
-			if ( _meshFilter ) {
-				_meshFilter.sharedMesh = baked_frame.Mesh;
-			}
+		void ChangeSortingProperties() {
 			if ( _meshRenderer ) {
+				_meshRenderer.sortingOrder     = sortingOrder;
+				_meshRenderer.sortingLayerName = sortingLayer;
+			}
+		}
+
+		void UpdateMaterialPropertyBlock() {
+			if ( _meshRenderer ) {
+				if ( _matPropBlock == null ) {
+					_matPropBlock = new MaterialPropertyBlock();
+				}
+				_meshRenderer.GetPropertyBlock(_matPropBlock);
+				var atlas = asset && asset.Atlas ? asset.Atlas : null;
+				if ( atlas ) {
+					_matPropBlock.SetTexture("_MainTex", atlas);
+				}
+				_meshRenderer.SetPropertyBlock(_matPropBlock);
+			}
+		}
+
+		void UpdateCurrentMesh() {
+			if ( _meshFilter && _meshRenderer ) {
+				var baked_frame = GetCurrentBakedFrame();
+				_meshFilter.sharedMesh = baked_frame.Mesh;
 				_meshRenderer.sharedMaterials = baked_frame.Materials;
 			}
 		}

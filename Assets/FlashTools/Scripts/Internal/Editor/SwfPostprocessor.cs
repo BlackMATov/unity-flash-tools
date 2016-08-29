@@ -41,6 +41,11 @@ namespace FlashTools.Internal {
 
 		static bool LoadDataFromSwfFile(string swf_asset, SwfAnimationAsset asset) {
 			try {
+				if ( asset.Atlas ) {
+					AssetDatabase.DeleteAsset(
+						AssetDatabase.GetAssetPath(asset.Atlas));
+					asset.Atlas = null;
+				}
 				asset.Data = LoadAnimationDataFromSwfDecoder(
 					swf_asset,
 					asset,
