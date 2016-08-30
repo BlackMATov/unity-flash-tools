@@ -289,10 +289,6 @@ if (!Function.prototype.bind) {
 	
 	fttim.prepare_keyframes = function(timeline) {
 		ft.type_assert(timeline, Timeline);
-		if ( timeline.layers.length > 0 && timeline.frameCount > 1 ) {
-			timeline.selectAllFrames();
-			//timeline.convertToKeyframes();
-		}
 		ft.array_reverse_foreach(timeline.layers, function(layer, index) {
 			timeline.setSelectedLayers(index);
 			ftlay.prepare_keyframes(layer);
@@ -301,6 +297,7 @@ if (!Function.prototype.bind) {
 	
 	fttim.convert_shapes = function(timeline, document) {
 		ft.type_assert(timeline, Timeline);
+		ft.type_assert(document, Document);
 		ft.array_reverse_foreach(timeline.layers, function(layer, index) {
 			timeline.setSelectedLayers(index);
 			ftlay.convert_shapes(layer, timeline, document);
@@ -325,16 +322,24 @@ if (!Function.prototype.bind) {
 		layer.visible = prev_visible;
 	};
 	
+	ftlay.is_shape_frame = function (frame) {
+		ft.type_assert(frame, Frame);
+		return frame.tweenType == "shape";
+	};
+	
 	ftlay.prepare_keyframes = function(layer) {
 		ft.type_assert(layer, Layer);
 		ftlay.do_in_unlocked(layer, function() {
 			ft.array_foreach(layer.frames, function(frame, index) {
 				frame.convertToFrameByFrameAnimation();
-			}.bind(this));
+			}.bind(this), this.is_shape_frame.bind(this));
 		}.bind(this));
 	};
 	
 	ftlay.convert_shapes = function(layer, timeline, document) {
+		ft.type_assert(layer, Layer);
+		ft.type_assert(timeline, Timeline);
+		ft.type_assert(document, Document);
 		ftlay.do_in_unlocked(layer, function() {
 			ft.array_foreach(layer.frames, function(frame, index) {
 				if (frame.startFrame == index) {
