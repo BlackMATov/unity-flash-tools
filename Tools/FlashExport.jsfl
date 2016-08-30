@@ -35,11 +35,11 @@ if (!Function.prototype.bind) {
 
 	"use strict";
 	
-	// ----------------------------------------------------------------------------
+	// ------------------------------------------------------------------------
 	//
 	// ft
 	//
-	// ----------------------------------------------------------------------------
+	// ------------------------------------------------------------------------
 
 	var ft = {};
 
@@ -92,31 +92,17 @@ if (!Function.prototype.bind) {
 	ft.escape_string = function (str) {
 		ft.type_assert(str, 'string');
 		return str
-			.replace(/\&/g, '&amp;')
+			.replace(/\&/g, '&amp;' )
 			.replace(/\"/g, '&quot;')
 			.replace(/\'/g, '&apos;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;');
+			.replace(/</g,  '&lt;'  )
+			.replace(/>/g,  '&gt;'  );
 	};
 
 	ft.combine_path = function (lhs, rhs) {
 		ft.type_assert(lhs, 'string');
 		ft.type_assert(rhs, 'string');
 		return ft.escape_path(lhs) + ft.escape_path(rhs);
-	};
-	
-	ft.hex_str_to_color32 = function (hstr) {
-		ft.type_assert(hstr, 'string');
-		ft.assert(hstr.length == 7, "incorrect hex_str");
-		var result = [];
-		var hex_digit = ['0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'];
-		for (var i = 1; i < hstr.length; i += 2) {
-			result.push(
-				hex_digit.indexOf(hstr[i + 0].toUpperCase()) * 16.0 +
-				hex_digit.indexOf(hstr[i + 1].toUpperCase())
-			);
-		}
-		return result;
 	};
 	
 	ft.array_filter = function (arr, filter) {
@@ -155,20 +141,6 @@ if (!Function.prototype.bind) {
 			}
 		}
 	};
-
-	ft.object_foreach = function (obj, func, filter) {
-		ft.type_assert(obj, 'object');
-		ft.type_assert(func, Function);
-		ft.type_assert_if_defined(filter, Function);
-		for (var key in obj) {
-			if (obj.hasOwnProperty(key)) {
-				var value = obj[key];
-				if (filter === undefined || filter(key, value)) {
-					func(key, value);
-				}
-			}
-		}
-	};
 	
 	// ------------------------------------
 	// Document
@@ -186,13 +158,7 @@ if (!Function.prototype.bind) {
 	ftdoc.prepare_folders = function (document) {
 		ft.type_assert(document, Document);
 		var export_folder = ftdoc.get_export_folder(document);
-		if (FLfile.exists(export_folder)) {
-			if (!FLfile.remove(export_folder)) {
-				throw "Can't remove document export folder ({0})!"
-					.format(export_folder);
-			}
-		}
-		if (!FLfile.createFolder(export_folder)) {
+		if (!FLfile.exists(export_folder) && !FLfile.createFolder(export_folder)) {
 			throw "Can't create document export folder ({0})!"
 				.format(export_folder);
 		}
@@ -270,6 +236,7 @@ if (!Function.prototype.bind) {
 	};
 
 	ftlib.for_each_by_items = function (library, func, filter) {
+		ft.type_assert(library, Library);
 		ft.type_assert(func, Function);
 		ft.type_assert_if_defined(filter, Function);
 		ft.array_foreach(library.items, func, filter);
