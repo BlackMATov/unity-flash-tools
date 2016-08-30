@@ -28,7 +28,8 @@ namespace FlashTools.Internal {
 
 		string GetAnimationsFrameCountStr() {
 			return _animations.Aggregate(string.Empty, (acc, anim) => {
-				var frame_count_str = anim.frameCount.ToString();
+				var frame_count     = anim.frameCount > 0 ? anim.frameCount - 1 : 0;
+				var frame_count_str = frame_count.ToString();
 				return string.IsNullOrEmpty(acc)
 					? frame_count_str
 					: (acc != frame_count_str ? "--" : acc);
@@ -37,11 +38,59 @@ namespace FlashTools.Internal {
 
 		string GetAnimationsCurrentFrameStr() {
 			return _animations.Aggregate(string.Empty, (acc, anim) => {
-				var current_frame_str = anim.currentFrame.ToString();
+				var current_frame     = anim.currentFrame;
+				var current_frame_str = current_frame.ToString();
 				return string.IsNullOrEmpty(acc)
 					? current_frame_str
 					: (acc != current_frame_str ? "--" : acc);
 			});
+		}
+
+		bool IsAllAnimationsHasOneAsset() {
+			foreach ( var animation in _animations ) {
+				if ( !animation.asset ) {
+					return false;
+				}
+				if ( animation.asset != _animations.First().asset ) {
+					return false;
+				}
+			}
+			return true;
+		}
+
+		List<string> GetAllSequences(bool include_empty) {
+			var seq_set = new HashSet<string>(_animations
+				.Where(p => p.asset)
+				.SelectMany(p => p.asset.Sequences)
+				.Select(p => p.Name));
+			if ( include_empty ) {
+				seq_set.Add(string.Empty);
+			}
+			return seq_set.ToList();
+		}
+
+		void DrawSequence() {
+			if ( IsAllAnimationsHasOneAsset() ) {
+				var sequence_prop  = SwfEditorUtils.GetPropertyByName(serializedObject, "_sequence");
+				SwfEditorUtils.DoWithMixedValue(
+					sequence_prop.hasMultipleDifferentValues, () => {
+						var all_sequences  = GetAllSequences(true);
+						var sequence_index = EditorGUILayout.Popup(
+							"Sequence",
+							sequence_prop.hasMultipleDifferentValues
+								? all_sequences.FindIndex(p => string.IsNullOrEmpty(p))
+								: all_sequences.FindIndex(p => p == sequence_prop.stringValue),
+							all_sequences.ToArray());
+						var new_sequence = all_sequences[sequence_index];
+						if ( !string.IsNullOrEmpty(new_sequence) ) {
+							if ( sequence_prop.hasMultipleDifferentValues ) {
+								sequence_prop.stringValue = string.Empty;
+							}
+							sequence_prop.stringValue = new_sequence;
+							sequence_prop.serializedObject.ApplyModifiedProperties();
+						}
+					});
+			}
 		}
 
 		void DrawCurrentFrame() {
@@ -51,7 +100,7 @@ namespace FlashTools.Internal {
 					SwfEditorUtils.GetPropertyByName(serializedObject, "_currentFrame"),
 					0,
 					min_frame_count - 1,
-					"Frame");
+					"Current frame");
 			}
 		}
 
@@ -95,6 +144,7 @@ namespace FlashTools.Internal {
 		public override void OnInspectorGUI() {
 			serializedObject.Update();
 			DrawDefaultInspector();
+			DrawSequence();
 			DrawCurrentFrame();
 			DrawAnimationControls();
 			if ( GUI.changed ) {

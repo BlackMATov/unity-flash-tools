@@ -73,19 +73,17 @@ namespace FlashTools {
 	public class SwfAnimationAsset : ScriptableObject {
 		[System.Serializable]
 		public class Frame {
-			public Mesh       Mesh;
-			public Material[] Materials;
-			public static Frame identity {
-				get {
-					return new Frame{
-						Mesh      = new Mesh(),
-						Materials = new Material[0]};
-				}
-			}
+			public Mesh         Mesh      = new Mesh();
+			public Material[]   Materials = new Material[0];
+		}
+		[System.Serializable]
+		public class Sequence {
+			public string       Name      = string.Empty;
+			public List<Frame>  Frames    = new List<Frame>();
 		}
 		public SwfAnimationData Data;
 		public Texture2D        Atlas;
-		public List<Frame>      Frames;
+		public List<Sequence>   Sequences;
 		public SwfSettings      Settings;
 		public SwfSettings      Overridden;
 
@@ -93,7 +91,7 @@ namespace FlashTools {
 		void Reset() {
 			Data       = new SwfAnimationData();
 			Atlas      = null;
-			Frames     = new List<Frame>();
+			Sequences  = new List<Sequence>();
 			Settings   = SwfConverterSettings.GetDefaultSettings();
 			Overridden = SwfConverterSettings.GetDefaultSettings();
 		}

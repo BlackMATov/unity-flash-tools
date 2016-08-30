@@ -167,11 +167,11 @@ namespace FlashTools.Internal {
 				var atlas_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Atlas");
 				EditorGUILayout.PropertyField(atlas_prop, true);
 
-				var frames_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Frames");
-				if ( frames_prop.isArray ) {
+				var sequences_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Sequences");
+				if ( sequences_prop.isArray ) {
 					SwfEditorUtils.DoWithMixedValue(
-						frames_prop.hasMultipleDifferentValues, () => {
-							EditorGUILayout.IntField("Frame count", frames_prop.arraySize);
+						sequences_prop.hasMultipleDifferentValues, () => {
+							EditorGUILayout.IntField("Sequence count", sequences_prop.arraySize);
 						});
 				}
 			});

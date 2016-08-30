@@ -151,15 +151,22 @@ namespace FlashTools.Internal {
 
 		static void ConfigureBakedFrames(string asset_path, SwfAnimationAsset asset) {
 			RemoveAllSubAssets(asset_path);
-			var baked_frames = new List<SwfAnimationAsset.Frame>();
-			if ( asset && asset.Atlas && asset.Data != null && asset.Data.Frames.Count > 0 ) {
+			var sequences = new List<SwfAnimationAsset.Sequence>();
+			if ( IsValidAssetForFrame(asset) ) {
 				for ( var i = 0; i < asset.Data.Frames.Count; ++i ) {
-					var frame = asset.Data.Frames[i];
+					var frame       = asset.Data.Frames[i];
 					var baked_frame = BakeFrameFromAnimationFrame(asset, frame);
-					baked_frames.Add(baked_frame);
+					if ( !string.IsNullOrEmpty(frame.Name) &&
+						(sequences.Count < 1 || sequences.Last().Name != frame.Name) )
+					{
+						sequences.Add(new SwfAnimationAsset.Sequence{Name = frame.Name});
+					} else if ( sequences.Count < 1 ) {
+						sequences.Add(new SwfAnimationAsset.Sequence{Name = "Default"});
+					}
+					sequences.Last().Frames.Add(baked_frame);
 				}
 			}
-			asset.Frames = baked_frames;
+			asset.Sequences = sequences;
 		}
 
 		static void RemoveAllSubAssets(string asset_path) {
@@ -170,6 +177,12 @@ namespace FlashTools.Internal {
 					GameObject.DestroyImmediate(asset, true);
 				}
 			}
+		}
+
+		static bool IsValidAssetForFrame(SwfAnimationAsset asset) {
+			return
+				asset && asset.Atlas &&
+				asset.Data != null && asset.Data.Frames != null;
 		}
 
 		static SwfAnimationAsset.Frame BakeFrameFromAnimationFrame(
