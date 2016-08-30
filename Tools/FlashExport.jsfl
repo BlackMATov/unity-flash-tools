@@ -170,11 +170,13 @@ if (!Function.prototype.bind) {
 	};
 
 	ftdoc.prepare_keyframes = function(document) {
+		ft.type_assert(document, Document);
 		ftlib.prepare_keyframes(document.library, document);
 		fttim.prepare_keyframes(document.getTimeline());
 	};
 	
 	ftdoc.convert_shapes = function(document) {
+		ft.type_assert(document, Document);
 		ftlib.convert_shapes(document.library, document);
 		fttim.convert_shapes(document.getTimeline(), document);
 	};
@@ -393,9 +395,12 @@ if (!Function.prototype.bind) {
 			} catch (e) {
 				ft.trace_fmt("- Document conversion error: {0}", e);
 			}
-			fl.revertDocument(document);
+		});
+		ft.array_foreach(fl.documents, function (document) {
+			if ( document.canRevert() ) {
+				fl.revertDocument(document);
+			}
 		});
 		ft.trace("- Finish -");
-		fl.showIdleMessage(true);
 	})();
 })();
