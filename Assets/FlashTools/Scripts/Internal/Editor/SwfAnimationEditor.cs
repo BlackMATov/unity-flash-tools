@@ -95,12 +95,13 @@ namespace FlashTools.Internal {
 
 		void DrawCurrentFrame() {
 			var min_frame_count = GetMinAnimationsFrameCount();
-			if ( min_frame_count > 0 ) {
+			if ( min_frame_count > 1 ) {
 				EditorGUILayout.IntSlider(
 					SwfEditorUtils.GetPropertyByName(serializedObject, "_currentFrame"),
 					0,
 					min_frame_count - 1,
 					"Current frame");
+				DrawAnimationControls();
 			}
 		}
 
@@ -146,7 +147,6 @@ namespace FlashTools.Internal {
 			DrawDefaultInspector();
 			DrawSequence();
 			DrawCurrentFrame();
-			DrawAnimationControls();
 			if ( GUI.changed ) {
 				serializedObject.ApplyModifiedProperties();
 			}
