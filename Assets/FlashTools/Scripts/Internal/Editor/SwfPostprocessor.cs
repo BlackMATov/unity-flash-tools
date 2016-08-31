@@ -62,8 +62,7 @@ namespace FlashTools.Internal {
 		{
 			var animation_data = new SwfAnimationData{
 				FrameRate = decoder.UncompressedHeader.FrameRate,
-				FrameSize = decoder.UncompressedHeader.FrameSize.ToUnityVectorSize()
-			};
+				FrameSize = decoder.UncompressedHeader.FrameSize.ToUnityVectorSize()};
 			var context  = new SwfContext();
 			var executer = new SwfContextExecuter(context, 0);
 			while ( executer.NextFrame(decoder.Tags, context.DisplayList) ) {
@@ -173,8 +172,7 @@ namespace FlashTools.Internal {
 						ClipDepth      = 0,
 						Bitmap         = mask.Bitmap,
 						Matrix         = mask.Matrix,
-						ColorTransform = mask.ColorTransform
-					});
+						ColorTransform = mask.ColorTransform});
 				}
 			}
 			masks.RemoveAll(p => p.ClipDepth < depth);
@@ -203,8 +201,7 @@ namespace FlashTools.Internal {
 				var bitmap_data = new SwfAnimationBitmapData{
 					Id         = bitmap_define.Key,
 					RealSize   = new Vector2(bitmap_define.Value.Width, bitmap_define.Value.Height),
-					SourceRect = rects[i]
-				};
+					SourceRect = rects[i]};
 				bitmaps.Add(bitmap_data);
 			}
 			return bitmaps;

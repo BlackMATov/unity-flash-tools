@@ -28,8 +28,7 @@ namespace FlashTools.Internal.SwfTools {
 				var new_short_header = new SwfShortHeader{
 					Format     = "FWS",
 					Version    = OriginalHeader.Version,
-					FileLength = OriginalHeader.FileLength
-				};
+					FileLength = OriginalHeader.FileLength};
 				var uncompressed_stream = new MemoryStream();
 				new_short_header.Write(uncompressed_stream);
 				rest_stream.WriteTo(uncompressed_stream);

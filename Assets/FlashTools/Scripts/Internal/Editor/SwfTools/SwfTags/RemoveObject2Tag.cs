@@ -18,9 +18,8 @@
 		}
 
 		public static RemoveObject2Tag Create(SwfStreamReader reader) {
-			var tag   = new RemoveObject2Tag();
-			tag.Depth = reader.ReadUInt16();
-			return tag;
+			return new RemoveObject2Tag{
+				Depth = reader.ReadUInt16()};
 		}
 	}
 }

@@ -20,9 +20,8 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 		}
 
 		public static SetBackgroundColorTag Create(SwfStreamReader reader) {
-			var tag             = new SetBackgroundColorTag();
-			tag.BackgroundColor = SwfColor.Read(reader, false);
-			return tag;
+			return new SetBackgroundColorTag{
+				BackgroundColor = SwfColor.Read(reader, false)};
 		}
 	}
 }
