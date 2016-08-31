@@ -54,6 +54,7 @@
      <Compile Include="Assets\FlashTools\Scripts\SwfManager.cs" />
      <None Include="Assets\FlashTools\Resources\Shaders\SwfDecrMask.shader" />
      <None Include="Assets\FlashTools\Resources\Shaders\SwfSimple.shader" />
+     <None Include="Assets\FlashTools\CHANGELOG.txt" />
      <None Include="Assets\FlashTools\Resources\Shaders\SwfIncrMask.shader" />
      <None Include="Assets\FlashTools\Resources\Shaders\SwfMasked.shader" />
  <Reference Include="UnityEngine.UI">
