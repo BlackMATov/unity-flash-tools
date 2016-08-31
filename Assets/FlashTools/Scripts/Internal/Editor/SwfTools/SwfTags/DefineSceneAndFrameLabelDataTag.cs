@@ -35,15 +35,13 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 			for ( var i = 0; i < scenes.Capacity; ++i ) {
 				scenes.Add(new SceneOffsetData{
 					Offset = reader.ReadEncodedU32(),
-					Name   = reader.ReadString()
-				});
+					Name   = reader.ReadString()});
 			}
 			var frames = new List<FrameLabelData>((int)reader.ReadEncodedU32());
 			for ( var i = 0; i < frames.Capacity; ++i ) {
 				frames.Add(new FrameLabelData{
 					Number = reader.ReadEncodedU32(),
-					Label  = reader.ReadString()
-				});
+					Label  = reader.ReadString()});
 			}
 			return new DefineSceneAndFrameLabelDataTag{
 				Scenes = scenes,

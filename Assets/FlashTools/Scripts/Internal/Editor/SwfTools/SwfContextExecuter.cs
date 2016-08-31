@@ -176,6 +176,14 @@ namespace FlashTools.Internal.SwfTools {
 			return dl;
 		}
 
+		public SwfDisplayList Visit(ExportAssetsTag tag, SwfDisplayList dl) {
+			return dl;
+		}
+
+		public SwfDisplayList Visit(SymbolClassTag tag, SwfDisplayList dl) {
+			return dl;
+		}
+
 		public SwfDisplayList Visit(DefineSceneAndFrameLabelDataTag tag, SwfDisplayList dl) {
 			return dl;
 		}
