@@ -6,11 +6,11 @@ using FlashTools.Internal.SwfTools.SwfTypes;
 
 namespace FlashTools.Internal.SwfTools {
 	public class SwfContextExecuter : SwfTagVisitor<SwfDisplayList, SwfDisplayList> {
-		public SwfContext MainContex = null;
+		public SwfLibrary Library    = null;
 		public int        CurrentTag = 0;
 
-		public SwfContextExecuter(SwfContext main_context, int current_tag) {
-			MainContex = main_context;
+		public SwfContextExecuter(SwfLibrary library, int current_tag) {
+			Library    = library;
 			CurrentTag = current_tag;
 		}
 
@@ -30,10 +30,8 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(PlaceObjectTag tag, SwfDisplayList dl) {
-			var is_shape  =
-				MainContex.Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId);
-			var is_sprite =
-				MainContex.Library.HasDefine<SwfLibrarySpriteDefine>(tag.CharacterId);
+			var is_shape  = Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId);
+			var is_sprite = Library.HasDefine<SwfLibrarySpriteDefine>(tag.CharacterId);
 			SwfDisplayInstance new_inst = null;
 			if ( is_shape ) {
 				new_inst = new SwfDisplayShapeInstance();
@@ -54,10 +52,10 @@ namespace FlashTools.Internal.SwfTools {
 
 		public SwfDisplayList Visit(PlaceObject2Tag tag, SwfDisplayList dl) {
 			var is_shape  = tag.HasCharacter
-				? MainContex.Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId)
+				? Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId)
 				: false;
 			var is_sprite = tag.HasCharacter
-				? MainContex.Library.HasDefine<SwfLibrarySpriteDefine>(tag.CharacterId)
+				? Library.HasDefine<SwfLibrarySpriteDefine>(tag.CharacterId)
 				: false;
 			if ( tag.HasCharacter ) {
 				SwfDisplayInstance old_inst = null;
@@ -101,10 +99,10 @@ namespace FlashTools.Internal.SwfTools {
 
 		public SwfDisplayList Visit(PlaceObject3Tag tag, SwfDisplayList dl) {
 			var is_shape  = tag.HasCharacter
-				? MainContex.Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId)
+				? Library.HasDefine<SwfLibraryShapeDefine >(tag.CharacterId)
 				: false;
 			var is_sprite = tag.HasCharacter
-				? MainContex.Library.HasDefine<SwfLibrarySpriteDefine>(tag.CharacterId)
+				? Library.HasDefine<SwfLibrarySpriteDefine>(tag.CharacterId)
 				: false;
 			if ( tag.HasCharacter ) {
 				SwfDisplayInstance old_inst = null;
@@ -168,7 +166,7 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(FrameLabelTag tag, SwfDisplayList dl) {
-			dl.FrameName = tag.Name;
+			dl.FrameName = tag.Name.Trim();
 			return dl;
 		}
 
@@ -255,7 +253,7 @@ namespace FlashTools.Internal.SwfTools {
 				Bitmaps  = bitmap_styles.Select(p => p.BitmapId    ).ToArray(),
 				Matrices = bitmap_styles.Select(p => p.BitmapMatrix).ToArray()
 			};
-			MainContex.Library.Defines.Add(define_id, define);
+			Library.Defines.Add(define_id, define);
 		}
 
 		void AddBitmapToLibrary(ushort define_id, int width, int height, byte[] argb32) {
@@ -264,18 +262,18 @@ namespace FlashTools.Internal.SwfTools {
 				Height = height,
 				ARGB32 = argb32
 			};
-			MainContex.Library.Defines.Add(define_id, define);
+			Library.Defines.Add(define_id, define);
 		}
 
 		void AddSpriteToLibrary(ushort define_id, SwfControlTags control_tags) {
 			var define = new SwfLibrarySpriteDefine{
 				ControlTags = control_tags
 			};
-			MainContex.Library.Defines.Add(define_id, define);
+			Library.Defines.Add(define_id, define);
 		}
 
 		bool IsSpriteTimelineEnd(SwfDisplaySpriteInstance sprite) {
-			var sprite_def = MainContex.Library.FindDefine<SwfLibrarySpriteDefine>(sprite.Id);
+			var sprite_def = Library.FindDefine<SwfLibrarySpriteDefine>(sprite.Id);
 			if ( sprite_def != null && sprite.CurrentTag < sprite_def.ControlTags.Tags.Count ) {
 				return false;
 			}
@@ -295,12 +293,12 @@ namespace FlashTools.Internal.SwfTools {
 				.Where (p => p.Type == SwfDisplayInstanceType.Sprite)
 				.Select(p => p as SwfDisplaySpriteInstance);
 			foreach ( var sprite in sprites ) {
-				var sprite_def = MainContex.Library.FindDefine<SwfLibrarySpriteDefine>(sprite.Id);
+				var sprite_def = Library.FindDefine<SwfLibrarySpriteDefine>(sprite.Id);
 				if ( sprite_def != null ) {
 					if ( IsSpriteTimelineEnd(sprite) ) {
 						sprite.Reset();
 					}
-					var sprite_executer = new SwfContextExecuter(MainContex, sprite.CurrentTag);
+					var sprite_executer = new SwfContextExecuter(Library, sprite.CurrentTag);
 					sprite_executer.NextFrame(sprite_def.ControlTags.Tags, sprite.DisplayList);
 					sprite.CurrentTag = sprite_executer.CurrentTag;
 				}

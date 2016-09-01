@@ -30,7 +30,7 @@ namespace FlashTools.Internal {
 				if ( atlas_asset != asset.Atlas ) {
 					asset.Atlas = atlas_asset;
 					ConfigureAtlas(asset_path, asset);
-					ConfigureBakedFrames(asset_path, asset);
+					ConfigureClips(asset_path, asset);
 					EditorUtility.SetDirty(asset);
 					AssetDatabase.SaveAssets();
 				}
@@ -45,11 +45,7 @@ namespace FlashTools.Internal {
 
 		static Texture2D LoadAtlasAsset(string asset_path) {
 			return AssetDatabase.LoadAssetAtPath<Texture2D>(
-				GetAtlasPath(asset_path));
-		}
-
-		static string GetAtlasPath(string asset_path) {
-			return Path.ChangeExtension(asset_path, ".png");
+				SwfEditorUtils.GetAtlasPathFromSettingsPath(asset_path));
 		}
 
 		// ---------------------------------------------------------------------
@@ -77,12 +73,12 @@ namespace FlashTools.Internal {
 			atlas_importer.filterMode          = SwfAtlasFilterToImporterFilter(asset.Settings.AtlasTextureFilter);
 			atlas_importer.textureFormat       = SwfAtlasFormatToImporterFormat(asset.Settings.AtlasTextureFormat);
 			AssetDatabase.ImportAsset(
-				GetAtlasPath(asset_path),
+				SwfEditorUtils.GetAtlasPathFromSettingsPath(asset_path),
 				ImportAssetOptions.ForceUpdate);
 		}
 
 		static TextureImporter GetBitmapsAtlasImporter(string asset_path) {
-			var atlas_path     = GetAtlasPath(asset_path);
+			var atlas_path     = SwfEditorUtils.GetAtlasPathFromSettingsPath(asset_path);
 			var atlas_importer = AssetImporter.GetAtPath(atlas_path) as TextureImporter;
 			if ( !atlas_importer ) {
 				throw new UnityException(string.Format(
@@ -138,9 +134,70 @@ namespace FlashTools.Internal {
 
 		// ---------------------------------------------------------------------
 		//
-		// ConfigureBakedFrames
+		// ConfigureClips
 		//
 		// ---------------------------------------------------------------------
+
+		static void ConfigureClips(
+			string asset_path,
+			SwfAnimationAsset asset)
+		{
+			SwfEditorUtils.RemoveAllSubAssets(asset_path);
+			foreach ( var symbol in asset.Data.Symbols ) {
+				ConfigureClip(asset_path, asset, symbol);
+			}
+		}
+
+		static void ConfigureClip(
+			string asset_path,
+			SwfAnimationAsset asset, SwfAnimationSymbolData symbol)
+		{
+			var clip_asset_path = Path.ChangeExtension(asset_path, symbol.Id.ToString() + ".asset");
+			var clip_asset = AssetDatabase.LoadAssetAtPath<SwfAnimationClipAsset>(clip_asset_path);
+			if ( !clip_asset ) {
+				clip_asset = ScriptableObject.CreateInstance<SwfAnimationClipAsset>();
+				AssetDatabase.CreateAsset(clip_asset, clip_asset_path);
+			}
+			clip_asset.Atlas     = asset.Atlas;
+			clip_asset.FrameRate = asset.Data.FrameRate;
+			clip_asset.Sequences = LoadClipSequences(asset, symbol);
+			asset.Clips.Add(clip_asset);
+			foreach ( var sequence in clip_asset.Sequences ) {
+				for ( var i = 0; i < sequence.Frames.Count; ++i ) {
+					var mesh = sequence.Frames[i].Mesh;
+					mesh.name = sequence.Name + "_" + i.ToString();
+					AssetDatabase.AddObjectToAsset(mesh, clip_asset);
+				}
+			}
+		}
+
+		static List<SwfAnimationClipAsset.Sequence> LoadClipSequences(
+			SwfAnimationAsset asset, SwfAnimationSymbolData symbol)
+		{
+			var sequences = new List<SwfAnimationClipAsset.Sequence>();
+			if ( IsValidAssetsForFrame(asset, symbol) ) {
+				foreach ( var frame in symbol.Frames ) {
+					var baked_frame = BakeClipFrame(asset, frame);
+					if ( !string.IsNullOrEmpty(frame.Name) &&
+						(sequences.Count < 1 || sequences.Last().Name != frame.Name) )
+					{
+						sequences.Add(new SwfAnimationClipAsset.Sequence{Name = frame.Name});
+					} else if ( sequences.Count < 1 ) {
+						sequences.Add(new SwfAnimationClipAsset.Sequence{Name = "Default"});
+					}
+					sequences.Last().Frames.Add(baked_frame);
+				}
+			}
+			return sequences;
+		}
+
+		static bool IsValidAssetsForFrame(
+			SwfAnimationAsset asset, SwfAnimationSymbolData symbol)
+		{
+			return
+				asset && asset.Atlas && asset.Data != null &&
+				symbol != null && symbol.Frames != null;
+		}
 
 		class BakedGroup {
 			public SwfAnimationInstanceType Type;
@@ -149,43 +206,7 @@ namespace FlashTools.Internal {
 			public Material                 Material;
 		}
 
-		static void ConfigureBakedFrames(string asset_path, SwfAnimationAsset asset) {
-			RemoveAllSubAssets(asset_path);
-			var sequences = new List<SwfAnimationAsset.Sequence>();
-			if ( IsValidAssetForFrame(asset) ) {
-				for ( var i = 0; i < asset.Data.Frames.Count; ++i ) {
-					var frame       = asset.Data.Frames[i];
-					var baked_frame = BakeFrameFromAnimationFrame(asset, frame);
-					if ( !string.IsNullOrEmpty(frame.Name) &&
-						(sequences.Count < 1 || sequences.Last().Name != frame.Name) )
-					{
-						sequences.Add(new SwfAnimationAsset.Sequence{Name = frame.Name});
-					} else if ( sequences.Count < 1 ) {
-						sequences.Add(new SwfAnimationAsset.Sequence{Name = "Default"});
-					}
-					sequences.Last().Frames.Add(baked_frame);
-				}
-			}
-			asset.Sequences = sequences;
-		}
-
-		static void RemoveAllSubAssets(string asset_path) {
-			var assets = AssetDatabase.LoadAllAssetsAtPath(asset_path);
-			for ( var i = 0; i < assets.Length; ++i ) {
-				var asset = assets[i];
-				if ( !AssetDatabase.IsMainAsset(asset) ) {
-					GameObject.DestroyImmediate(asset, true);
-				}
-			}
-		}
-
-		static bool IsValidAssetForFrame(SwfAnimationAsset asset) {
-			return
-				asset && asset.Atlas &&
-				asset.Data != null && asset.Data.Frames != null;
-		}
-
-		static SwfAnimationAsset.Frame BakeFrameFromAnimationFrame(
+		static SwfAnimationClipAsset.Frame BakeClipFrame(
 			SwfAnimationAsset asset, SwfAnimationFrameData frame)
 		{
 			List<Vector2>    baked_uvs       = new List<Vector2>();
@@ -195,8 +216,7 @@ namespace FlashTools.Internal {
 			List<BakedGroup> baked_groups    = new List<BakedGroup>();
 			List<Material>   baked_materials = new List<Material>();
 
-			for ( var i = 0; i < frame.Instances.Count; ++i ) {
-				var inst   = frame.Instances[i];
+			foreach ( var inst in frame.Instances ) {
 				var bitmap = inst != null
 					? FindBitmapFromAnimationData(asset.Data, inst.Bitmap)
 					: null;
@@ -246,8 +266,8 @@ namespace FlashTools.Internal {
 					baked_addcolors.Add(inst.ColorTransform.Add);
 
 					if ( baked_groups.Count == 0 ||
-						 baked_groups[baked_groups.Count - 1].Type      != inst.Type ||
-						 baked_groups[baked_groups.Count - 1].ClipDepth != inst.ClipDepth )
+						baked_groups[baked_groups.Count - 1].Type      != inst.Type ||
+						baked_groups[baked_groups.Count - 1].ClipDepth != inst.ClipDepth )
 					{
 						baked_groups.Add(new BakedGroup{
 							Type      = inst.Type,
@@ -308,8 +328,7 @@ namespace FlashTools.Internal {
 			mesh.SetColors(baked_mulcolors);
 			mesh.RecalculateNormals();
 
-			AssetDatabase.AddObjectToAsset(mesh, asset);
-			return new SwfAnimationAsset.Frame{
+			return new SwfAnimationClipAsset.Frame{
 				Mesh      = mesh,
 				Materials = baked_materials.ToArray()};
 		}
@@ -333,7 +352,9 @@ namespace FlashTools.Internal {
 		static void ConfigureAssetAnimations(SwfAnimationAsset asset) {
 			var animations = GameObject.FindObjectsOfType<SwfAnimation>();
 			foreach ( var animation in animations ) {
-				animation.UpdateAllProperties();
+				if ( animation && animation.clip && asset.Clips.Contains(animation.clip) ) {
+					animation.UpdateAllProperties();
+				}
 			}
 		}
 	}

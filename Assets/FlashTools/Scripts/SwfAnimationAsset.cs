@@ -56,6 +56,12 @@ namespace FlashTools {
 	}
 
 	[System.Serializable]
+	public class SwfAnimationSymbolData {
+		public int                            Id             = 0;
+		public List<SwfAnimationFrameData>    Frames         = new List<SwfAnimationFrameData>();
+	}
+
+	[System.Serializable]
 	public class SwfAnimationBitmapData {
 		public int                            Id             = 0;
 		public Vector2                        RealSize       = Vector2.zero;
@@ -66,32 +72,22 @@ namespace FlashTools {
 	public class SwfAnimationData {
 		public float                          FrameRate      = 0.0f;
 		public Vector2                        FrameSize      = Vector2.zero;
-		public List<SwfAnimationFrameData>    Frames         = new List<SwfAnimationFrameData>();
+		public List<SwfAnimationSymbolData>   Symbols        = new List<SwfAnimationSymbolData>();
 		public List<SwfAnimationBitmapData>   Bitmaps        = new List<SwfAnimationBitmapData>();
 	}
 
 	public class SwfAnimationAsset : ScriptableObject {
-		[System.Serializable]
-		public class Frame {
-			public Mesh         Mesh      = new Mesh();
-			public Material[]   Materials = new Material[0];
-		}
-		[System.Serializable]
-		public class Sequence {
-			public string       Name      = string.Empty;
-			public List<Frame>  Frames    = new List<Frame>();
-		}
-		public SwfAnimationData Data;
-		public Texture2D        Atlas;
-		public List<Sequence>   Sequences;
-		public SwfSettings      Settings;
-		public SwfSettings      Overridden;
+		public SwfAnimationData            Data;
+		public Texture2D                   Atlas;
+		public List<SwfAnimationClipAsset> Clips;
+		public SwfSettings                 Settings;
+		public SwfSettings                 Overridden;
 
 	#if UNITY_EDITOR
 		void Reset() {
 			Data       = new SwfAnimationData();
 			Atlas      = null;
-			Sequences  = new List<Sequence>();
+			Clips      = new List<SwfAnimationClipAsset>();
 			Settings   = SwfConverterSettings.GetDefaultSettings();
 			Overridden = SwfConverterSettings.GetDefaultSettings();
 		}

@@ -6,11 +6,11 @@ namespace FlashTools {
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 	public class SwfAnimation : MonoBehaviour {
 
-		MeshFilter                 _meshFilter   = null;
-		MeshRenderer               _meshRenderer = null;
+		MeshFilter                     _meshFilter   = null;
+		MeshRenderer                   _meshRenderer = null;
 
-		SwfAnimationAsset.Sequence _curSequence  = null;
-		MaterialPropertyBlock      _curPropBlock = null;
+		SwfAnimationClipAsset.Sequence _curSequence  = null;
+		MaterialPropertyBlock          _curPropBlock = null;
 
 		// ---------------------------------------------------------------------
 		//
@@ -41,12 +41,12 @@ namespace FlashTools {
 
 		[Header("Animation")]
 		[SerializeField]
-		SwfAnimationAsset _asset = null;
-		public SwfAnimationAsset asset {
-			get { return _asset; }
+		SwfAnimationClipAsset _clip = null;
+		public SwfAnimationClipAsset clip {
+			get { return _clip; }
 			set {
-				_asset = value;
-				ChangeAsset();
+				_clip = value;
+				ChangeClip();
 			}
 		}
 
@@ -80,9 +80,7 @@ namespace FlashTools {
 
 		public float frameRate {
 			get {
-				return asset && asset.Data != null
-					? asset.Data.FrameRate
-					: 1.0f;
+				return clip ? clip.FrameRate : 1.0f;
 			}
 		}
 
@@ -123,16 +121,16 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		public void UpdateAllProperties() {
-			asset        = _asset;
+			clip         = _clip;
 			sequence     = _sequence;
 			currentFrame = _currentFrame;
 			sortingLayer = _sortingLayer;
 			sortingOrder = _sortingOrder;
 		}
 
-		void ChangeAsset() {
+		void ChangeClip() {
 			if ( _meshRenderer ) {
-				_meshRenderer.enabled = !!asset;
+				_meshRenderer.enabled = !!clip;
 			}
 			UpdatePropertyBlock();
 			ChangeSequence();
@@ -140,19 +138,19 @@ namespace FlashTools {
 
 		void ChangeSequence() {
 			_curSequence = null;
-			if ( asset && asset.Sequences != null ) {
-				for ( int i = 0, e = asset.Sequences.Count; i < e; ++i ) {
-					var asset_sequence = asset.Sequences[i];
-					if ( asset_sequence != null && asset_sequence.Name == sequence ) {
-						_curSequence = asset_sequence;
+			if ( clip && clip.Sequences != null ) {
+				for ( int i = 0, e = clip.Sequences.Count; i < e; ++i ) {
+					var clip_sequence = clip.Sequences[i];
+					if ( clip_sequence != null && clip_sequence.Name == sequence ) {
+						_curSequence = clip_sequence;
 					}
 				}
 				if ( _curSequence == null ) {
-					for ( int i = 0, e = asset.Sequences.Count; i < e; ++i ) {
-						var asset_sequence = asset.Sequences[i];
-						if ( asset_sequence != null ) {
-							_sequence    = asset_sequence.Name;
-							_curSequence = asset_sequence;
+					for ( int i = 0, e = clip.Sequences.Count; i < e; ++i ) {
+						var clip_sequence = clip.Sequences[i];
+						if ( clip_sequence != null ) {
+							_sequence    = clip_sequence.Name;
+							_curSequence = clip_sequence;
 							break;
 						}
 					}
@@ -181,7 +179,7 @@ namespace FlashTools {
 					_curPropBlock = new MaterialPropertyBlock();
 				}
 				_meshRenderer.GetPropertyBlock(_curPropBlock);
-				var atlas = asset && asset.Atlas ? asset.Atlas : null;
+				var atlas = clip ? clip.Atlas : null;
 				if ( atlas ) {
 					_curPropBlock.SetTexture("_MainTex", atlas);
 				}
@@ -197,11 +195,11 @@ namespace FlashTools {
 			}
 		}
 
-		SwfAnimationAsset.Frame GetCurrentBakedFrame() {
+		SwfAnimationClipAsset.Frame GetCurrentBakedFrame() {
 			var frames = _curSequence != null ? _curSequence.Frames : null;
 			return frames != null && currentFrame >= 0 && currentFrame < frames.Count
 				? frames[currentFrame]
-				: new SwfAnimationAsset.Frame();
+				: new SwfAnimationClipAsset.Frame();
 		}
 
 		// ---------------------------------------------------------------------

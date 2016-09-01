@@ -107,13 +107,4 @@ namespace FlashTools.Internal.SwfTools {
 		public string           FrameName = string.Empty;
 		public DisplayInstances Instances = new DisplayInstances();
 	}
-
-	//
-	// SwfContext
-	//
-
-	public class SwfContext {
-		public SwfLibrary     Library     = new SwfLibrary();
-		public SwfDisplayList DisplayList = new SwfDisplayList();
-	}
 }

@@ -47,6 +47,7 @@
   <ItemGroup>
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationAssetEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationAssetPostprocessor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationClipAssetEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationControllerEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfEditorUtils.cs" />

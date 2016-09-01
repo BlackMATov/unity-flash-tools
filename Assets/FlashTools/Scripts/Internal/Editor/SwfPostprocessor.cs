@@ -25,7 +25,7 @@ namespace FlashTools.Internal {
 		}
 
 		static void SwfAssetProcess(string swf_asset) {
-			var new_asset_path = Path.ChangeExtension(swf_asset, ".asset");
+			var new_asset_path = SwfEditorUtils.GetSettingsPathFromSwfPath(swf_asset);
 			var new_asset = AssetDatabase.LoadAssetAtPath<SwfAnimationAsset>(new_asset_path);
 			if ( !new_asset ) {
 				new_asset = ScriptableObject.CreateInstance<SwfAnimationAsset>();
@@ -60,25 +60,44 @@ namespace FlashTools.Internal {
 		static SwfAnimationData LoadAnimationDataFromSwfDecoder(
 			string swf_asset, SwfAnimationAsset asset, SwfDecoder decoder)
 		{
-			var animation_data = new SwfAnimationData{
+			var library = new SwfLibrary();
+			return new SwfAnimationData{
 				FrameRate = decoder.UncompressedHeader.FrameRate,
-				FrameSize = decoder.UncompressedHeader.FrameSize.ToUnityVectorSize()};
-			var context  = new SwfContext();
-			var executer = new SwfContextExecuter(context, 0);
-			while ( executer.NextFrame(decoder.Tags, context.DisplayList) ) {
-				animation_data.Frames.Add(
-					LoadAnimationFrameFromContext(context));
-			}
-			animation_data.Bitmaps = LoadBitmapsFromContext(swf_asset, asset, context);
-			return animation_data;
+				FrameSize = decoder.UncompressedHeader.FrameSize.ToUnityVectorSize(),
+				Symbols   = LoadAnimationSymbols(library, decoder),
+				Bitmaps   = LoadAnimationBitmaps(swf_asset, asset.Settings, library)};
 		}
 
-		static SwfAnimationFrameData LoadAnimationFrameFromContext(SwfContext context) {
+		static List<SwfAnimationSymbolData> LoadAnimationSymbols(
+			SwfLibrary library, SwfDecoder decoder)
+		{
+			var symbols = new List<SwfAnimationSymbolData>();
+			symbols.Add(LoadAnimationSymbol(0, library, decoder.Tags));
+			return symbols;
+		}
+
+		static SwfAnimationSymbolData LoadAnimationSymbol(
+			int symbol_id, SwfLibrary library, List<SwfTagBase> tags)
+		{
+			var disp_lst      = new SwfDisplayList();
+			var executer      = new SwfContextExecuter(library, 0);
+			var symbol_frames = new List<SwfAnimationFrameData>();
+			while ( executer.NextFrame(tags, disp_lst) ) {
+				symbol_frames.Add(LoadAnimationSymbolFrame(library, disp_lst));
+			}
+			return new SwfAnimationSymbolData{
+				Id     = symbol_id,
+				Frames = symbol_frames};
+		}
+
+		static SwfAnimationFrameData LoadAnimationSymbolFrame(
+			SwfLibrary library, SwfDisplayList display_list)
+		{
 			var frame = new SwfAnimationFrameData();
-			frame.Name = context.DisplayList.FrameName;
+			frame.Name = display_list.FrameName;
 			return AddDisplayListToFrame(
-				context,
-				context.DisplayList,
+				library,
+				display_list,
 				0,
 				0,
 				null,
@@ -88,8 +107,8 @@ namespace FlashTools.Internal {
 		}
 
 		static SwfAnimationFrameData AddDisplayListToFrame(
-			SwfContext                     ctx,
-			SwfDisplayList                 dl,
+			SwfLibrary                     library,
+			SwfDisplayList                 display_list,
 			ushort                         parent_masked,
 			ushort                         parent_mask,
 			List<SwfAnimationInstanceData> parent_masks,
@@ -98,18 +117,18 @@ namespace FlashTools.Internal {
 			SwfAnimationFrameData          frame)
 		{
 			var self_masks = new List<SwfAnimationInstanceData>();
-			foreach ( var inst in dl.Instances.Values.Where(p => p.Visible) ) {
+			foreach ( var inst in display_list.Instances.Values.Where(p => p.Visible) ) {
 				CheckSelfMasks(self_masks, inst.Depth, frame);
 				var child_matrix          = parent_matrix * inst.Matrix.ToUnityMatrix();
 				var child_color_transform = parent_color_transform * inst.ColorTransform.ToAnimationColorTransform();
 				switch ( inst.Type ) {
 				case SwfDisplayInstanceType.Shape:
-					var shape_def = ctx.Library.FindDefine<SwfLibraryShapeDefine>(inst.Id);
+					var shape_def = library.FindDefine<SwfLibraryShapeDefine>(inst.Id);
 					if ( shape_def != null ) {
 						for ( var i = 0; i < shape_def.Bitmaps.Length; ++i ) {
 							var bitmap_id     = shape_def.Bitmaps[i];
 							var bitmap_matrix = i < shape_def.Matrices.Length ? shape_def.Matrices[i] : SwfMatrix.identity;
-							var bitmap_def    = ctx.Library.FindDefine<SwfLibraryBitmapDefine>(bitmap_id);
+							var bitmap_def    = library.FindDefine<SwfLibraryBitmapDefine>(bitmap_id);
 							if ( bitmap_def != null ) {
 								var frame_inst_type =
 									(parent_mask > 0 || inst.ClipDepth > 0)
@@ -139,11 +158,11 @@ namespace FlashTools.Internal {
 					}
 					break;
 				case SwfDisplayInstanceType.Sprite:
-					var sprite_def = ctx.Library.FindDefine<SwfLibrarySpriteDefine>(inst.Id);
+					var sprite_def = library.FindDefine<SwfLibrarySpriteDefine>(inst.Id);
 					if ( sprite_def != null ) {
 						var sprite_inst = inst as SwfDisplaySpriteInstance;
 						AddDisplayListToFrame(
-							ctx,
+							library,
 							sprite_inst.DisplayList,
 							(ushort)(parent_masked + self_masks.Count),
 							(ushort)(parent_mask > 0 ? parent_mask : (inst.ClipDepth > 0 ? inst.ClipDepth : (ushort)0)),
@@ -178,23 +197,20 @@ namespace FlashTools.Internal {
 			masks.RemoveAll(p => p.ClipDepth < depth);
 		}
 
-		static List<SwfAnimationBitmapData> LoadBitmapsFromContext(
-			string swf_asset, SwfAnimationAsset asset, SwfContext context)
+		static List<SwfAnimationBitmapData> LoadAnimationBitmaps(
+			string swf_asset, SwfSettings settings, SwfLibrary library)
 		{
-			var bitmap_defines = context.Library.Defines
+			var bitmap_defines = library.Defines
 				.Where  (p => p.Value.Type == SwfLibraryDefineType.Bitmap)
 				.Select (p => new KeyValuePair<int, SwfLibraryBitmapDefine>(p.Key, p.Value as SwfLibraryBitmapDefine))
 				.ToArray();
-
 			var textures = bitmap_defines
 				.Select (p => LoadTextureFromBitmapDefine(p.Value))
 				.ToArray();
-
 			var rects = PackAndSaveBitmapsAtlas(
 				swf_asset,
 				textures,
-				asset.Settings);
-
+				settings);
 			var bitmaps = new List<SwfAnimationBitmapData>(bitmap_defines.Length);
 			for ( var i = 0; i < bitmap_defines.Length; ++i ) {
 				var bitmap_define = bitmap_defines[i];
@@ -236,10 +252,6 @@ namespace FlashTools.Internal {
 			public Rect[]    Rects;
 		}
 
-		static string GetAtlasPath(string swf_asset) {
-			return Path.ChangeExtension(swf_asset, ".png");
-		}
-
 		static Rect[] PackAndSaveBitmapsAtlas(
 			string      swf_asset,
 			Texture2D[] textures,
@@ -247,12 +259,11 @@ namespace FlashTools.Internal {
 		{
 			var atlas_info = PackBitmapsAtlas(textures, settings);
 			File.WriteAllBytes(
-				GetAtlasPath(swf_asset),
+				SwfEditorUtils.GetAtlasPathFromSwfPath(swf_asset),
 				atlas_info.Atlas.EncodeToPNG());
 			GameObject.DestroyImmediate(atlas_info.Atlas, true);
 			AssetDatabase.ImportAsset(
-				GetAtlasPath(swf_asset),
-				ImportAssetOptions.ForceUpdate);
+				SwfEditorUtils.GetAtlasPathFromSwfPath(swf_asset));
 			return atlas_info.Rects;
 		}
 

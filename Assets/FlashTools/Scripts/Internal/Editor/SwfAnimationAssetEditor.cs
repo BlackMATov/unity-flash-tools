@@ -26,14 +26,7 @@ namespace FlashTools.Internal {
 			var asset_path = GetAssetPath(asset);
 			return string.IsNullOrEmpty(asset_path)
 				? string.Empty
-				: Path.ChangeExtension(asset_path, ".swf");
-		}
-
-		static string GetPrefabPath(SwfAnimationAsset asset) {
-			var asset_path = GetAssetPath(asset);
-			return string.IsNullOrEmpty(asset_path)
-				? string.Empty
-				: Path.ChangeExtension(asset_path, ".prefab");
+				: SwfEditorUtils.GetSwfPathFromSettingsPath(asset_path);
 		}
 
 		//
@@ -66,43 +59,6 @@ namespace FlashTools.Internal {
 				ImportAssetOptions.ForceUpdate);
 		}
 
-		static GameObject CreateAnimationGO(SwfAnimationAsset asset) {
-			if ( asset ) {
-				var anim_go = new GameObject(asset.name);
-				anim_go.AddComponent<MeshFilter>();
-				anim_go.AddComponent<MeshRenderer>();
-				anim_go.AddComponent<SwfAnimation>().asset = asset;
-				anim_go.AddComponent<SwfAnimationController>();
-				return anim_go;
-			}
-			return null;
-		}
-
-		static void CreateAnimationPrefab(SwfAnimationAsset asset) {
-			var anim_go = CreateAnimationGO(asset);
-			if ( anim_go ) {
-				var prefab_path = GetPrefabPath(asset);
-				if ( !string.IsNullOrEmpty(prefab_path) ) {
-					var prefab = AssetDatabase.LoadMainAssetAtPath(prefab_path);
-					if ( !prefab ) {
-						prefab = PrefabUtility.CreateEmptyPrefab(prefab_path);
-					}
-					PrefabUtility.ReplacePrefab(
-						anim_go,
-						prefab,
-						ReplacePrefabOptions.ConnectToPrefab);
-				}
-				GameObject.DestroyImmediate(anim_go, true);
-			}
-		}
-
-		static void CreateAnimationOnScene(SwfAnimationAsset asset) {
-			var anim_go = CreateAnimationGO(asset);
-			if ( anim_go ) {
-				Undo.RegisterCreatedObjectUndo(anim_go, "Instance SwfAnimation");
-			}
-		}
-
 		//
 		//
 		//
@@ -123,14 +79,6 @@ namespace FlashTools.Internal {
 
 		void ApplyAllOverriddenSettings() {
 			AllAssetsForeach(p => ApplyOverriddenSettings(p));
-		}
-
-		void CreateAllAnimationPrefabs() {
-			AllAssetsForeach(p => CreateAnimationPrefab(p));
-		}
-
-		void CreateAllAnimationsOnScene() {
-			AllAssetsForeach(p => CreateAnimationOnScene(p));
 		}
 
 		//
@@ -167,11 +115,11 @@ namespace FlashTools.Internal {
 				var atlas_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Atlas");
 				EditorGUILayout.PropertyField(atlas_prop, true);
 
-				var sequences_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Sequences");
-				if ( sequences_prop.isArray ) {
+				var clips_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Clips");
+				if ( clips_prop.isArray ) {
 					SwfEditorUtils.DoWithMixedValue(
-						sequences_prop.hasMultipleDifferentValues, () => {
-							EditorGUILayout.IntField("Sequence count", sequences_prop.arraySize);
+						clips_prop.hasMultipleDifferentValues, () => {
+							EditorGUILayout.IntField("Clips count", clips_prop.arraySize);
 						});
 				}
 			});
@@ -209,19 +157,6 @@ namespace FlashTools.Internal {
 			GUILayout.EndHorizontal();
 		}
 
-		void DrawGUIAnimation() {
-			GUILayout.BeginHorizontal();
-			{
-				if ( GUILayout.Button("Create prefab") ) {
-					CreateAllAnimationPrefabs();
-				}
-				if ( GUILayout.Button("Instance to scene") ) {
-					CreateAllAnimationsOnScene();
-				}
-			}
-			GUILayout.EndHorizontal();
-		}
-
 		// ---------------------------------------------------------------------
 		//
 		// Messages
@@ -243,7 +178,6 @@ namespace FlashTools.Internal {
 		public override void OnInspectorGUI() {
 			serializedObject.Update();
 			DrawGUISettings();
-			DrawGUIAnimation();
 			if ( GUI.changed ) {
 				serializedObject.ApplyModifiedProperties();
 			}

@@ -46,12 +46,12 @@ namespace FlashTools.Internal {
 			});
 		}
 
-		bool IsAllAnimationsHasOneAsset() {
+		bool IsAllAnimationsHasOneClip() {
 			foreach ( var animation in _animations ) {
-				if ( !animation.asset ) {
+				if ( !animation.clip ) {
 					return false;
 				}
-				if ( animation.asset != _animations.First().asset ) {
+				if ( animation.clip != _animations.First().clip ) {
 					return false;
 				}
 			}
@@ -60,8 +60,8 @@ namespace FlashTools.Internal {
 
 		List<string> GetAllSequences(bool include_empty) {
 			var seq_set = new HashSet<string>(_animations
-				.Where(p => p.asset)
-				.SelectMany(p => p.asset.Sequences)
+				.Where(p => p.clip)
+				.SelectMany(p => p.clip.Sequences)
 				.Select(p => p.Name));
 			if ( include_empty ) {
 				seq_set.Add(string.Empty);
@@ -70,8 +70,8 @@ namespace FlashTools.Internal {
 		}
 
 		void DrawSequence() {
-			if ( IsAllAnimationsHasOneAsset() ) {
-				var sequence_prop  = SwfEditorUtils.GetPropertyByName(serializedObject, "_sequence");
+			if ( IsAllAnimationsHasOneClip() ) {
+				var sequence_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "_sequence");
 				SwfEditorUtils.DoWithMixedValue(
 					sequence_prop.hasMultipleDifferentValues, () => {
 						var all_sequences  = GetAllSequences(true);

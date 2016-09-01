@@ -2,6 +2,7 @@
 using UnityEditor;
 
 using System;
+using System.IO;
 
 namespace FlashTools.Internal {
 	public static class SwfEditorUtils {
@@ -38,6 +39,35 @@ namespace FlashTools.Internal {
 				AssetDatabase.DeleteAsset(
 					AssetDatabase.GetAssetPath(asset));
 			}
+		}
+
+		public static void RemoveAllSubAssets(string asset_path) {
+			var assets = AssetDatabase.LoadAllAssetsAtPath(asset_path);
+			foreach ( var asset in assets ) {
+				if ( !AssetDatabase.IsMainAsset(asset) ) {
+					GameObject.DestroyImmediate(asset, true);
+				}
+			}
+		}
+
+		public static string GetSwfPathFromSettingsPath(string settings_path) {
+			return Path.ChangeExtension(
+				Path.Combine(
+					Path.GetDirectoryName(settings_path),
+					Path.GetFileNameWithoutExtension(settings_path)),
+				".swf");
+		}
+
+		public static string GetAtlasPathFromSwfPath(string swf_path) {
+			return Path.ChangeExtension(swf_path, ".settings.png");
+		}
+
+		public static string GetAtlasPathFromSettingsPath(string settings_path) {
+			return Path.ChangeExtension(settings_path, ".png");
+		}
+
+		public static string GetSettingsPathFromSwfPath(string swf_path) {
+			return Path.ChangeExtension(swf_path, ".settings.asset");
 		}
 	}
 }
