@@ -6,29 +6,29 @@ using System.Linq;
 using System.Collections.Generic;
 
 namespace FlashTools.Internal {
-	[CustomEditor(typeof(SwfAnimation)), CanEditMultipleObjects]
-	public class SwfAnimationEditor : Editor {
-		List<SwfAnimation> _animations = new List<SwfAnimation>();
+	[CustomEditor(typeof(SwfClip)), CanEditMultipleObjects]
+	public class SwfClipEditor : Editor {
+		List<SwfClip> _clips = new List<SwfClip>();
 
-		void AllAnimationsForeachWithUndo(Action<SwfAnimation> act) {
+		void AllClipsForeachWithUndo(Action<SwfClip> act) {
 			Undo.RecordObjects(
-				_animations.ToArray(),
+				_clips.ToArray(),
 				"Inspector");
-			foreach ( var animation in _animations ) {
-				act(animation);
-				EditorUtility.SetDirty(animation);
+			foreach ( var clip in _clips ) {
+				act(clip);
+				EditorUtility.SetDirty(clip);
 			}
 		}
 
-		int GetMinAnimationsFrameCount() {
-			return _animations.Count > 0
-				? _animations.Min(anim => anim.frameCount)
+		int GetMinClipsFrameCount() {
+			return _clips.Count > 0
+				? _clips.Min(clip => clip.frameCount)
 				: 0;
 		}
 
-		string GetAnimationsFrameCountStr() {
-			return _animations.Aggregate(string.Empty, (acc, anim) => {
-				var frame_count     = anim.frameCount > 0 ? anim.frameCount - 1 : 0;
+		string GetClipsFrameCountStr() {
+			return _clips.Aggregate(string.Empty, (acc, clip) => {
+				var frame_count     = clip.frameCount > 0 ? clip.frameCount - 1 : 0;
 				var frame_count_str = frame_count.ToString();
 				return string.IsNullOrEmpty(acc)
 					? frame_count_str
@@ -36,9 +36,9 @@ namespace FlashTools.Internal {
 			});
 		}
 
-		string GetAnimationsCurrentFrameStr() {
-			return _animations.Aggregate(string.Empty, (acc, anim) => {
-				var current_frame     = anim.currentFrame;
+		string GetClipsCurrentFrameStr() {
+			return _clips.Aggregate(string.Empty, (acc, clip) => {
+				var current_frame     = clip.currentFrame;
 				var current_frame_str = current_frame.ToString();
 				return string.IsNullOrEmpty(acc)
 					? current_frame_str
@@ -46,12 +46,12 @@ namespace FlashTools.Internal {
 			});
 		}
 
-		bool IsAllAnimationsHasOneClip() {
-			foreach ( var animation in _animations ) {
-				if ( !animation.clip ) {
+		bool IsAllClipsHasOneClip() {
+			foreach ( var clip in _clips ) {
+				if ( !clip.clip ) {
 					return false;
 				}
-				if ( animation.clip != _animations.First().clip ) {
+				if ( clip.clip != _clips.First().clip ) {
 					return false;
 				}
 			}
@@ -59,7 +59,7 @@ namespace FlashTools.Internal {
 		}
 
 		List<string> GetAllSequences(bool include_empty) {
-			var seq_set = new HashSet<string>(_animations
+			var seq_set = new HashSet<string>(_clips
 				.Where(p => p.clip)
 				.SelectMany(p => p.clip.Sequences)
 				.Select(p => p.Name));
@@ -70,7 +70,7 @@ namespace FlashTools.Internal {
 		}
 
 		void DrawSequence() {
-			if ( IsAllAnimationsHasOneClip() ) {
+			if ( IsAllClipsHasOneClip() ) {
 				var sequence_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "_sequence");
 				SwfEditorUtils.DoWithMixedValue(
 					sequence_prop.hasMultipleDifferentValues, () => {
@@ -94,36 +94,36 @@ namespace FlashTools.Internal {
 		}
 
 		void DrawCurrentFrame() {
-			var min_frame_count = GetMinAnimationsFrameCount();
+			var min_frame_count = GetMinClipsFrameCount();
 			if ( min_frame_count > 1 ) {
 				EditorGUILayout.IntSlider(
 					SwfEditorUtils.GetPropertyByName(serializedObject, "_currentFrame"),
 					0,
 					min_frame_count - 1,
 					"Current frame");
-				DrawAnimationControls();
+				DrawClipControls();
 			}
 		}
 
-		void DrawAnimationControls() {
+		void DrawClipControls() {
 			EditorGUILayout.Space();
 			GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			{
 				if ( GUILayout.Button(new GUIContent("<<", "to begin frame")) ) {
-					AllAnimationsForeachWithUndo(p => p.ToBeginFrame());
+					AllClipsForeachWithUndo(p => p.ToBeginFrame());
 				}
 				if ( GUILayout.Button(new GUIContent("<", "to prev frame")) ) {
-					AllAnimationsForeachWithUndo(p => p.ToPrevFrame());
+					AllClipsForeachWithUndo(p => p.ToPrevFrame());
 				}
 				GUILayout.Label(string.Format(
 					"{0}/{1}",
-					GetAnimationsCurrentFrameStr(), GetAnimationsFrameCountStr()));
+					GetClipsCurrentFrameStr(), GetClipsFrameCountStr()));
 				if ( GUILayout.Button(new GUIContent(">", "to next frame")) ) {
-					AllAnimationsForeachWithUndo(p => p.ToNextFrame());
+					AllClipsForeachWithUndo(p => p.ToNextFrame());
 				}
 				if ( GUILayout.Button(new GUIContent(">>", "to end frame")) ) {
-					AllAnimationsForeachWithUndo(p => p.ToEndFrame());
+					AllClipsForeachWithUndo(p => p.ToEndFrame());
 				}
 			}
 			GUILayout.FlexibleSpace();
@@ -137,8 +137,8 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_animations = targets
-				.OfType<SwfAnimation>()
+			_clips = targets
+				.OfType<SwfClip>()
 				.ToList();
 		}
 

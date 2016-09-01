@@ -76,18 +76,18 @@ namespace FlashTools {
 		public List<SwfAnimationBitmapData>   Bitmaps        = new List<SwfAnimationBitmapData>();
 	}
 
-	public class SwfAnimationAsset : ScriptableObject {
-		public SwfAnimationData            Data;
-		public Texture2D                   Atlas;
-		public List<SwfAnimationClipAsset> Clips;
-		public SwfSettings                 Settings;
-		public SwfSettings                 Overridden;
+	public class SwfAsset : ScriptableObject {
+		public SwfAnimationData   Data;
+		public Texture2D          Atlas;
+		public List<SwfClipAsset> Clips;
+		public SwfSettings        Settings;
+		public SwfSettings        Overridden;
 
 	#if UNITY_EDITOR
 		void Reset() {
 			Data       = new SwfAnimationData();
 			Atlas      = null;
-			Clips      = new List<SwfAnimationClipAsset>();
+			Clips      = new List<SwfClipAsset>();
 			Settings   = SwfConverterSettings.GetDefaultSettings();
 			Overridden = SwfConverterSettings.GetDefaultSettings();
 		}

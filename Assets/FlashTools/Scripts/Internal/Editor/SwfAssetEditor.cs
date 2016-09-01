@@ -7,22 +7,22 @@ using System.Linq;
 using System.Collections.Generic;
 
 namespace FlashTools.Internal {
-	[CustomEditor(typeof(SwfAnimationAsset)), CanEditMultipleObjects]
-	public class SwfAnimationAssetEditor : Editor {
-		List<SwfAnimationAsset> _assets          = new List<SwfAnimationAsset>();
-		bool                    _settingsFoldout = false;
+	[CustomEditor(typeof(SwfAsset)), CanEditMultipleObjects]
+	public class SwfAssetEditor : Editor {
+		List<SwfAsset> _assets          = new List<SwfAsset>();
+		bool           _settingsFoldout = false;
 
 		//
 		//
 		//
 
-		static string GetAssetPath(SwfAnimationAsset asset) {
+		static string GetAssetPath(SwfAsset asset) {
 			return asset
 				? AssetDatabase.GetAssetPath(asset)
 				: string.Empty;
 		}
 
-		static string GetSwfPath(SwfAnimationAsset asset) {
+		static string GetSwfPath(SwfAsset asset) {
 			var asset_path = GetAssetPath(asset);
 			return string.IsNullOrEmpty(asset_path)
 				? string.Empty
@@ -33,27 +33,27 @@ namespace FlashTools.Internal {
 		//
 		//
 
-		static void RevertOverriddenSettings(SwfAnimationAsset asset) {
+		static void RevertOverriddenSettings(SwfAsset asset) {
 			asset.Overridden = asset.Settings;
 		}
 
-		static void OverriddenSettingsToDefault(SwfAnimationAsset asset) {
+		static void OverriddenSettingsToDefault(SwfAsset asset) {
 			asset.Overridden = SwfConverterSettings.GetDefaultSettings();
 		}
 
-		static void ApplyOverriddenSettings(SwfAnimationAsset asset) {
+		static void ApplyOverriddenSettings(SwfAsset asset) {
 			if ( File.Exists(GetSwfPath(asset)) ) {
 				asset.Settings = asset.Overridden;
-				ReconvertAnimationAsset(asset);
+				ReconvertAsset(asset);
 			} else {
 				Debug.LogErrorFormat(
-					"Swf source for animation not found: '{0}'",
+					"Swf source for asset not found: '{0}'",
 					GetSwfPath(asset));
 				RevertOverriddenSettings(asset);
 			}
 		}
 
-		static void ReconvertAnimationAsset(SwfAnimationAsset asset) {
+		static void ReconvertAsset(SwfAsset asset) {
 			AssetDatabase.ImportAsset(GetSwfPath(asset));
 		}
 
@@ -61,7 +61,7 @@ namespace FlashTools.Internal {
 		//
 		//
 
-		void AllAssetsForeach(Action<SwfAnimationAsset> act) {
+		void AllAssetsForeach(Action<SwfAsset> act) {
 			foreach ( var asset in _assets ) {
 				act(asset);
 			}
@@ -89,13 +89,13 @@ namespace FlashTools.Internal {
 				.ToArray();
 			if ( unapplied.Length > 0 ) {
 				var title =
-					"Unapplied swf animation settings";
+					"Unapplied swf asset settings";
 				var message = unapplied.Length == 1
 					? string.Format(
-						"Unapplied swf animation settings for '{0}'",
+						"Unapplied swf asset settings for '{0}'",
 						GetAssetPath(unapplied[0]))
 					: string.Format(
-						"Unapplied multiple({0}) swf animation settings",
+						"Unapplied multiple({0}) swf asset settings",
 						unapplied.Length);
 				if ( EditorUtility.DisplayDialog(title, message, "Apply", "Revert") ) {
 					ApplyAllOverriddenSettings();
@@ -163,7 +163,7 @@ namespace FlashTools.Internal {
 
 		void OnEnable() {
 			_assets = targets
-				.OfType<SwfAnimationAsset>()
+				.OfType<SwfAsset>()
 				.ToList();
 			_settingsFoldout =
 				_assets.Any(p => !p.Settings.CheckEquals(SwfConverterSettings.GetDefaultSettings()));

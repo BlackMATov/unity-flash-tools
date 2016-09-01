@@ -4,11 +4,11 @@ using System;
 
 namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
-	[RequireComponent(typeof(SwfAnimation))]
-	public class SwfAnimationController : MonoBehaviour {
+	[RequireComponent(typeof(SwfClip))]
+	public class SwfClipController : MonoBehaviour {
 
-		SwfAnimation _animation  = null;
-		float        _frameTimer = 0.0f;
+		SwfClip _clip       = null;
+		float   _frameTimer = 0.0f;
 
 		// ---------------------------------------------------------------------
 		//
@@ -16,11 +16,11 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
-		public event Action<SwfAnimationController> OnStopPlayingEvent;
-		public event Action<SwfAnimationController> OnRewindPlayingEvent;
+		public event Action<SwfClipController> OnStopPlayingEvent;
+		public event Action<SwfClipController> OnRewindPlayingEvent;
 
-		public event Action<SwfAnimationController> OnPausePlayingEvent;
-		public event Action<SwfAnimationController> OnResumePausedEvent;
+		public event Action<SwfClipController> OnPausePlayingEvent;
+		public event Action<SwfClipController> OnResumePausedEvent;
 
 		// ---------------------------------------------------------------------
 		//
@@ -139,14 +139,14 @@ namespace FlashTools {
 		public void Rewind() {
 			switch ( playMode ) {
 			case PlayModes.Forward:
-				_animation.ToBeginFrame();
+				_clip.ToBeginFrame();
 				break;
 			case PlayModes.Backward:
-				_animation.ToEndFrame();
+				_clip.ToEndFrame();
 				break;
 			default:
 				throw new UnityException(string.Format(
-					"SwfAnimationController. Incorrect play mode: {0}",
+					"SwfClipController. Incorrect play mode: {0}",
 					playMode));
 			}
 			if ( isPlaying && OnRewindPlayingEvent != null ) {
@@ -162,20 +162,20 @@ namespace FlashTools {
 
 		public void InternalUpdate(float dt) {
 			if ( isPlaying ) {
-				UpdateAnimationTimer(dt);
+				UpdateFrameTimer(dt);
 			}
 		}
 
-		void UpdateAnimationTimer(float dt) {
-			_frameTimer += _animation.frameRate * rateScale * dt;
+		void UpdateFrameTimer(float dt) {
+			_frameTimer += _clip.frameRate * rateScale * dt;
 			while ( _frameTimer > 1.0f ) {
 				_frameTimer -= 1.0f;
-				AnimationTimerTick();
+				FrameTimerTick();
 			}
 		}
 
-		void AnimationTimerTick() {
-			if ( !NextAnimationFrame() ) {
+		void FrameTimerTick() {
+			if ( !NextClipFrame() ) {
 				switch ( loopMode ) {
 				case LoopModes.Once:
 					Stop(false);
@@ -185,21 +185,21 @@ namespace FlashTools {
 					break;
 				default:
 					throw new UnityException(string.Format(
-						"SwfAnimationController. Incorrect loop mode: {0}",
+						"SwfClipController. Incorrect loop mode: {0}",
 						loopMode));
 				}
 			}
 		}
 
-		bool NextAnimationFrame() {
+		bool NextClipFrame() {
 			switch ( playMode ) {
 			case PlayModes.Forward:
-				return _animation.ToNextFrame();
+				return _clip.ToNextFrame();
 			case PlayModes.Backward:
-				return _animation.ToPrevFrame();
+				return _clip.ToPrevFrame();
 			default:
 				throw new UnityException(string.Format(
-					"SwfAnimationController. Incorrect play mode: {0}",
+					"SwfClipController. Incorrect play mode: {0}",
 					playMode));
 			}
 		}
@@ -211,7 +211,7 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		void Awake() {
-			_animation = GetComponent<SwfAnimation>();
+			_clip = GetComponent<SwfClip>();
 			if ( autoPlay ) {
 				Play();
 			}
@@ -220,14 +220,14 @@ namespace FlashTools {
 		void OnEnable() {
 			var swf_manager = SwfManager.GetInstance(true);
 			if ( swf_manager ) {
-				swf_manager.AddSwfAnimationController(this);
+				swf_manager.AddSwfClipController(this);
 			}
 		}
 
 		void OnDisable() {
 			var swf_manager = SwfManager.GetInstance(false);
 			if ( swf_manager ) {
-				swf_manager.RemoveSwfAnimationController(this);
+				swf_manager.RemoveSwfClipController(this);
 			}
 		}
 	}

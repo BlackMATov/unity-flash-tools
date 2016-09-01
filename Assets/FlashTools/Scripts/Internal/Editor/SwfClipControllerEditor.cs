@@ -6,17 +6,17 @@ using System.Linq;
 using System.Collections.Generic;
 
 namespace FlashTools.Internal {
-	[CustomEditor(typeof(SwfAnimationController)), CanEditMultipleObjects]
-	public class SwfAnimationControllerEditor : Editor {
-		List<SwfAnimationController> _controllers = new List<SwfAnimationController>();
+	[CustomEditor(typeof(SwfClipController)), CanEditMultipleObjects]
+	public class SwfClipControllerEditor : Editor {
+		List<SwfClipController> _controllers = new List<SwfClipController>();
 
-		void AllControllersForeach(Action<SwfAnimationController> act) {
+		void AllControllersForeach(Action<SwfClipController> act) {
 			foreach ( var controller in _controllers ) {
 				act(controller);
 			}
 		}
 
-		void DrawAnimationControls() {
+		void DrawClipControls() {
 			GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			{
@@ -44,7 +44,7 @@ namespace FlashTools.Internal {
 
 		void OnEnable() {
 			_controllers = targets
-				.OfType<SwfAnimationController>()
+				.OfType<SwfClipController>()
 				.ToList();
 		}
 
@@ -52,7 +52,7 @@ namespace FlashTools.Internal {
 			serializedObject.Update();
 			DrawDefaultInspector();
 			if ( Application.isPlaying ) {
-				DrawAnimationControls();
+				DrawClipControls();
 			}
 			if ( GUI.changed ) {
 				serializedObject.ApplyModifiedProperties();

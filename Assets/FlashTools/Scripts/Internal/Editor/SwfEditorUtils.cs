@@ -30,7 +30,7 @@ namespace FlashTools.Internal {
 			return prop;
 		}
 
-		public static void DeleteAnimationAssetWithDepends(SwfAnimationAsset asset) {
+		public static void DeleteAssetWithDepends(SwfAsset asset) {
 			if ( asset ) {
 				if ( asset.Atlas ) {
 					AssetDatabase.DeleteAsset(

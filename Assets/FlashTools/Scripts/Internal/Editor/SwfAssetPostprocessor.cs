@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Collections.Generic;
 
 namespace FlashTools.Internal {
-	public class SwfAnimationAssetPostprocessor : AssetPostprocessor {
+	public class SwfAssetPostprocessor : AssetPostprocessor {
 		static void OnPostprocessAllAssets(
 			string[] imported_assets,
 			string[] deleted_assets,
@@ -17,14 +17,14 @@ namespace FlashTools.Internal {
 			var asset_paths = imported_assets
 				.Where(p => Path.GetExtension(p).ToLower().Equals(".asset"));
 			foreach ( var asset_path in asset_paths ) {
-				var asset = AssetDatabase.LoadAssetAtPath<SwfAnimationAsset>(asset_path);
+				var asset = AssetDatabase.LoadAssetAtPath<SwfAsset>(asset_path);
 				if ( asset ) {
 					AssetProcess(asset_path, asset);
 				}
 			}
 		}
 
-		static void AssetProcess(string asset_path, SwfAnimationAsset asset) {
+		static void AssetProcess(string asset_path, SwfAsset asset) {
 			try {
 				var atlas_asset = LoadAtlasAsset(asset_path);
 				if ( atlas_asset != asset.Atlas ) {
@@ -34,12 +34,12 @@ namespace FlashTools.Internal {
 					EditorUtility.SetDirty(asset);
 					AssetDatabase.SaveAssets();
 				}
-				ConfigureAssetAnimations(asset);
+				ConfigureAssetClips(asset);
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
 					"Postprocess swf animation asset error: {0}",
 					e.Message);
-				SwfEditorUtils.DeleteAnimationAssetWithDepends(asset);
+				SwfEditorUtils.DeleteAssetWithDepends(asset);
 			}
 		}
 
@@ -54,7 +54,7 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
-		static void ConfigureAtlas(string asset_path, SwfAnimationAsset asset) {
+		static void ConfigureAtlas(string asset_path, SwfAsset asset) {
 			var atlas_importer      = GetBitmapsAtlasImporter(asset_path);
 			var atlas_importer_size = GetSizeFromTextureImporter(atlas_importer);
 			atlas_importer.spritesheet = asset.Data.Bitmaps
@@ -139,7 +139,7 @@ namespace FlashTools.Internal {
 
 		static void ConfigureClips(
 			string asset_path,
-			SwfAnimationAsset asset)
+			SwfAsset asset)
 		{
 			SwfEditorUtils.RemoveAllSubAssets(asset_path);
 			foreach ( var symbol in asset.Data.Symbols ) {
@@ -149,14 +149,14 @@ namespace FlashTools.Internal {
 
 		static void ConfigureClip(
 			string asset_path,
-			SwfAnimationAsset asset,
+			SwfAsset asset,
 			SwfAnimationSymbolData symbol)
 		{
 			var clip_asset_path = SwfEditorUtils.GetClipPathFromSettingsPath(
 				asset_path, symbol.Name);
-			var clip_asset = AssetDatabase.LoadAssetAtPath<SwfAnimationClipAsset>(clip_asset_path);
+			var clip_asset = AssetDatabase.LoadAssetAtPath<SwfClipAsset>(clip_asset_path);
 			if ( !clip_asset ) {
-				clip_asset = ScriptableObject.CreateInstance<SwfAnimationClipAsset>();
+				clip_asset = ScriptableObject.CreateInstance<SwfClipAsset>();
 				AssetDatabase.CreateAsset(clip_asset, clip_asset_path);
 			}
 			clip_asset.Atlas     = asset.Atlas;
@@ -172,19 +172,19 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		static List<SwfAnimationClipAsset.Sequence> LoadClipSequences(
-			SwfAnimationAsset asset, SwfAnimationSymbolData symbol)
+		static List<SwfClipAsset.Sequence> LoadClipSequences(
+			SwfAsset asset, SwfAnimationSymbolData symbol)
 		{
-			var sequences = new List<SwfAnimationClipAsset.Sequence>();
+			var sequences = new List<SwfClipAsset.Sequence>();
 			if ( IsValidAssetsForFrame(asset, symbol) ) {
 				foreach ( var frame in symbol.Frames ) {
 					var baked_frame = BakeClipFrame(asset, frame);
 					if ( !string.IsNullOrEmpty(frame.Name) &&
 						(sequences.Count < 1 || sequences.Last().Name != frame.Name) )
 					{
-						sequences.Add(new SwfAnimationClipAsset.Sequence{Name = frame.Name});
+						sequences.Add(new SwfClipAsset.Sequence{Name = frame.Name});
 					} else if ( sequences.Count < 1 ) {
-						sequences.Add(new SwfAnimationClipAsset.Sequence{Name = "Default"});
+						sequences.Add(new SwfClipAsset.Sequence{Name = "Default"});
 					}
 					sequences.Last().Frames.Add(baked_frame);
 				}
@@ -193,7 +193,7 @@ namespace FlashTools.Internal {
 		}
 
 		static bool IsValidAssetsForFrame(
-			SwfAnimationAsset asset, SwfAnimationSymbolData symbol)
+			SwfAsset asset, SwfAnimationSymbolData symbol)
 		{
 			return
 				asset && asset.Atlas && asset.Data != null &&
@@ -207,8 +207,8 @@ namespace FlashTools.Internal {
 			public Material                 Material;
 		}
 
-		static SwfAnimationClipAsset.Frame BakeClipFrame(
-			SwfAnimationAsset asset, SwfAnimationFrameData frame)
+		static SwfClipAsset.Frame BakeClipFrame(
+			SwfAsset asset, SwfAnimationFrameData frame)
 		{
 			List<Vector2>    baked_uvs       = new List<Vector2>();
 			List<Color>      baked_mulcolors = new List<Color>();
@@ -321,7 +321,7 @@ namespace FlashTools.Internal {
 			mesh.SetColors(baked_mulcolors);
 			mesh.RecalculateNormals();
 
-			return new SwfAnimationClipAsset.Frame{
+			return new SwfClipAsset.Frame{
 				Mesh      = mesh,
 				Materials = baked_materials.ToArray()};
 		}
@@ -338,15 +338,15 @@ namespace FlashTools.Internal {
 
 		// ---------------------------------------------------------------------
 		//
-		// ConfigureAssetAnimations
+		// ConfigureAssetClips
 		//
 		// ---------------------------------------------------------------------
 
-		static void ConfigureAssetAnimations(SwfAnimationAsset asset) {
-			var animations = GameObject.FindObjectsOfType<SwfAnimation>();
-			foreach ( var animation in animations ) {
-				if ( animation && animation.clip && asset.Clips.Contains(animation.clip) ) {
-					animation.UpdateAllProperties();
+		static void ConfigureAssetClips(SwfAsset asset) {
+			var clips = GameObject.FindObjectsOfType<SwfClip>();
+			foreach ( var clip in clips ) {
+				if ( clip && clip.clip && asset.Clips.Contains(clip.clip) ) {
+					clip.UpdateAllProperties();
 				}
 			}
 		}

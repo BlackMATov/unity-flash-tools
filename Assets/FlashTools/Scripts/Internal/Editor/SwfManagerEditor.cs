@@ -9,8 +9,8 @@ namespace FlashTools.Internal {
 		void DrawAnimationCount() {
 			SwfEditorUtils.DoWithEnabledGUI(false, () => {
 				EditorGUILayout.IntField(
-					"Animation count",
-					_manager.AllAnimationCount);
+					"Clip count",
+					_manager.AllClipCount);
 			});
 		}
 

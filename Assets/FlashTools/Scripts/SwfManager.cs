@@ -5,8 +5,8 @@ namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	public class SwfManager : MonoBehaviour {
 
-		HashSet<SwfAnimation>           _animations  = new HashSet<SwfAnimation>();
-		HashSet<SwfAnimationController> _controllers = new HashSet<SwfAnimationController>();
+		HashSet<SwfClip>           _clips       = new HashSet<SwfClip>();
+		HashSet<SwfClipController> _controllers = new HashSet<SwfClipController>();
 
 		// ---------------------------------------------------------------------
 		//
@@ -32,27 +32,27 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
-		public int AllAnimationCount {
-			get { return _animations.Count; }
+		public int AllClipCount {
+			get { return _clips.Count; }
 		}
 
-		public void AddSwfAnimation(SwfAnimation animation) {
-			_animations.Add(animation);
+		public void AddSwfClip(SwfClip clip) {
+			_clips.Add(clip);
 		}
 
-		public void RemoveSwfAnimation(SwfAnimation animation) {
-			_animations.Remove(animation);
+		public void RemoveSwfClip(SwfClip clip) {
+			_clips.Remove(clip);
 		}
 
-		public int AllAnimationControllerCount {
+		public int AllClipControllerCount {
 			get { return _controllers.Count; }
 		}
 
-		public void AddSwfAnimationController(SwfAnimationController controller) {
+		public void AddSwfClipController(SwfClipController controller) {
 			_controllers.Add(controller);
 		}
 
-		public void RemoveSwfAnimationController(SwfAnimationController controller) {
+		public void RemoveSwfClipController(SwfClipController controller) {
 			_controllers.Remove(controller);
 		}
 
@@ -62,18 +62,18 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
-		void GrabEnabledAnimations() {
-			var all_animations = FindObjectsOfType<SwfAnimation>();
-			for ( int i = 0, e = all_animations.Length; i < e; ++i ) {
-				var animation = all_animations[i];
-				if ( animation.enabled ) {
-					_animations.Add(animation);
+		void GrabEnabledClips() {
+			var all_clips = FindObjectsOfType<SwfClip>();
+			for ( int i = 0, e = all_clips.Length; i < e; ++i ) {
+				var clip = all_clips[i];
+				if ( clip.enabled ) {
+					_clips.Add(clip);
 				}
 			}
 		}
 
 		void GrabEnabledControllers() {
-			var all_controllers = FindObjectsOfType<SwfAnimationController>();
+			var all_controllers = FindObjectsOfType<SwfClipController>();
 			for ( int i = 0, e = all_controllers.Length; i < e; ++i ) {
 				var controller = all_controllers[i];
 				if ( controller.enabled ) {
@@ -82,8 +82,8 @@ namespace FlashTools {
 			}
 		}
 
-		void DropAnimations() {
-			_animations.Clear();
+		void DropClips() {
+			_clips.Clear();
 		}
 
 		void DropControllers() {
@@ -105,12 +105,12 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			GrabEnabledAnimations();
+			GrabEnabledClips();
 			GrabEnabledControllers();
 		}
 
 		void OnDisable() {
-			DropAnimations();
+			DropClips();
 			DropControllers();
 		}
 

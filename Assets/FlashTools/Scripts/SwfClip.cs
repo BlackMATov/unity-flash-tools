@@ -4,13 +4,13 @@ using FlashTools.Internal;
 namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-	public class SwfAnimation : MonoBehaviour {
+	public class SwfClip : MonoBehaviour {
 
-		MeshFilter                     _meshFilter   = null;
-		MeshRenderer                   _meshRenderer = null;
+		MeshFilter            _meshFilter   = null;
+		MeshRenderer          _meshRenderer = null;
 
-		SwfAnimationClipAsset.Sequence _curSequence  = null;
-		MaterialPropertyBlock          _curPropBlock = null;
+		SwfClipAsset.Sequence _curSequence  = null;
+		MaterialPropertyBlock _curPropBlock = null;
 
 		// ---------------------------------------------------------------------
 		//
@@ -41,8 +41,8 @@ namespace FlashTools {
 
 		[Header("Animation")]
 		[SerializeField]
-		SwfAnimationClipAsset _clip = null;
-		public SwfAnimationClipAsset clip {
+		SwfClipAsset _clip = null;
+		public SwfClipAsset clip {
 			get { return _clip; }
 			set {
 				_clip = value;
@@ -195,11 +195,11 @@ namespace FlashTools {
 			}
 		}
 
-		SwfAnimationClipAsset.Frame GetCurrentBakedFrame() {
+		SwfClipAsset.Frame GetCurrentBakedFrame() {
 			var frames = _curSequence != null ? _curSequence.Frames : null;
 			return frames != null && currentFrame >= 0 && currentFrame < frames.Count
 				? frames[currentFrame]
-				: new SwfAnimationClipAsset.Frame();
+				: new SwfClipAsset.Frame();
 		}
 
 		// ---------------------------------------------------------------------
@@ -219,14 +219,14 @@ namespace FlashTools {
 		void OnEnable() {
 			var swf_manager = SwfManager.GetInstance(true);
 			if ( swf_manager ) {
-				swf_manager.AddSwfAnimation(this);
+				swf_manager.AddSwfClip(this);
 			}
 		}
 
 		void OnDisable() {
 			var swf_manager = SwfManager.GetInstance(false);
 			if ( swf_manager ) {
-				swf_manager.RemoveSwfAnimation(this);
+				swf_manager.RemoveSwfClip(this);
 			}
 		}
 

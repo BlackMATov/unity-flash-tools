@@ -7,17 +7,17 @@ using System.Linq;
 using System.Collections.Generic;
 
 namespace FlashTools.Internal {
-	[CustomEditor(typeof(SwfAnimationClipAsset)), CanEditMultipleObjects]
-	public class SwfAnimationClipAssetEditor : Editor {
-		List<SwfAnimationClipAsset> _clips = new List<SwfAnimationClipAsset>();
+	[CustomEditor(typeof(SwfClipAsset)), CanEditMultipleObjects]
+	public class SwfClipAssetEditor : Editor {
+		List<SwfClipAsset> _clips = new List<SwfClipAsset>();
 
-		static string GetClipPath(SwfAnimationClipAsset clip) {
+		static string GetClipPath(SwfClipAsset clip) {
 			return clip
 				? AssetDatabase.GetAssetPath(clip)
 				: string.Empty;
 		}
 
-		static string GetPrefabPath(SwfAnimationClipAsset clip) {
+		static string GetPrefabPath(SwfClipAsset clip) {
 			var clip_path = GetClipPath(clip);
 			return string.IsNullOrEmpty(clip_path)
 				? string.Empty
@@ -28,21 +28,21 @@ namespace FlashTools.Internal {
 		//
 		//
 
-		static GameObject CreateAnimationGO(SwfAnimationClipAsset clip) {
+		static GameObject CreateClipGO(SwfClipAsset clip) {
 			if ( clip ) {
-				var anim_go = new GameObject(clip.name);
-				anim_go.AddComponent<MeshFilter>();
-				anim_go.AddComponent<MeshRenderer>();
-				anim_go.AddComponent<SwfAnimation>().clip = clip;
-				anim_go.AddComponent<SwfAnimationController>();
-				return anim_go;
+				var clip_go = new GameObject(clip.name);
+				clip_go.AddComponent<MeshFilter>();
+				clip_go.AddComponent<MeshRenderer>();
+				clip_go.AddComponent<SwfClip>().clip = clip;
+				clip_go.AddComponent<SwfClipController>();
+				return clip_go;
 			}
 			return null;
 		}
 
-		static void CreateClipPrefab(SwfAnimationClipAsset clip) {
-			var anim_go = CreateAnimationGO(clip);
-			if ( anim_go ) {
+		static void CreateClipPrefab(SwfClipAsset clip) {
+			var clip_go = CreateClipGO(clip);
+			if ( clip_go ) {
 				var prefab_path = GetPrefabPath(clip);
 				if ( !string.IsNullOrEmpty(prefab_path) ) {
 					var prefab = AssetDatabase.LoadMainAssetAtPath(prefab_path);
@@ -50,18 +50,18 @@ namespace FlashTools.Internal {
 						prefab = PrefabUtility.CreateEmptyPrefab(prefab_path);
 					}
 					PrefabUtility.ReplacePrefab(
-						anim_go,
+						clip_go,
 						prefab,
 						ReplacePrefabOptions.ConnectToPrefab);
 				}
-				GameObject.DestroyImmediate(anim_go, true);
+				GameObject.DestroyImmediate(clip_go, true);
 			}
 		}
 
-		static void CreateClipOnScene(SwfAnimationClipAsset clip) {
-			var anim_go = CreateAnimationGO(clip);
-			if ( anim_go ) {
-				Undo.RegisterCreatedObjectUndo(anim_go, "Instance SwfAnimation");
+		static void CreateClipOnScene(SwfClipAsset clip) {
+			var clip_go = CreateClipGO(clip);
+			if ( clip_go ) {
+				Undo.RegisterCreatedObjectUndo(clip_go, "Instance SwfClip");
 			}
 		}
 
@@ -69,7 +69,7 @@ namespace FlashTools.Internal {
 		//
 		//
 
-		void AllClipsForeach(Action<SwfAnimationClipAsset> act) {
+		void AllClipsForeach(Action<SwfClipAsset> act) {
 			foreach ( var clip in _clips ) {
 				act(clip);
 			}
@@ -129,7 +129,7 @@ namespace FlashTools.Internal {
 
 		void OnEnable() {
 			_clips = targets
-				.OfType<SwfAnimationClipAsset>()
+				.OfType<SwfClipAsset>()
 				.ToList();
 		}
 

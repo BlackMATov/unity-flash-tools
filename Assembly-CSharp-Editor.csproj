@@ -45,11 +45,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationAssetEditor.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationAssetPostprocessor.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationClipAssetEditor.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationControllerEditor.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAnimationEditor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAssetEditor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfAssetPostprocessor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfClipAssetEditor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfClipControllerEditor.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfClipEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfEditorUtils.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfManagerEditor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfPostprocessor.cs" />

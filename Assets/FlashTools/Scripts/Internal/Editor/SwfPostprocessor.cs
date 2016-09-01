@@ -26,27 +26,27 @@ namespace FlashTools.Internal {
 
 		static void SwfAssetProcess(string swf_asset) {
 			var new_asset_path = SwfEditorUtils.GetSettingsPathFromSwfPath(swf_asset);
-			var new_asset = AssetDatabase.LoadAssetAtPath<SwfAnimationAsset>(new_asset_path);
+			var new_asset = AssetDatabase.LoadAssetAtPath<SwfAsset>(new_asset_path);
 			if ( !new_asset ) {
-				new_asset = ScriptableObject.CreateInstance<SwfAnimationAsset>();
+				new_asset = ScriptableObject.CreateInstance<SwfAsset>();
 				AssetDatabase.CreateAsset(new_asset, new_asset_path);
 			}
 			if ( LoadDataFromSwfFile(swf_asset, new_asset) ) {
 				EditorUtility.SetDirty(new_asset);
 				AssetDatabase.SaveAssets();
 			} else {
-				SwfEditorUtils.DeleteAnimationAssetWithDepends(new_asset);
+				SwfEditorUtils.DeleteAssetWithDepends(new_asset);
 			}
 		}
 
-		static bool LoadDataFromSwfFile(string swf_asset, SwfAnimationAsset asset) {
+		static bool LoadDataFromSwfFile(string swf_asset, SwfAsset asset) {
 			try {
 				if ( asset.Atlas ) {
 					AssetDatabase.DeleteAsset(
 						AssetDatabase.GetAssetPath(asset.Atlas));
 					asset.Atlas = null;
 				}
-				asset.Data = LoadAnimationDataFromSwfDecoder(
+				asset.Data = LoadDataFromSwfDecoder(
 					swf_asset,
 					asset,
 					new SwfDecoder(swf_asset));
@@ -57,28 +57,28 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		static SwfAnimationData LoadAnimationDataFromSwfDecoder(
-			string swf_asset, SwfAnimationAsset asset, SwfDecoder decoder)
+		static SwfAnimationData LoadDataFromSwfDecoder(
+			string swf_asset, SwfAsset asset, SwfDecoder decoder)
 		{
 			var library = new SwfLibrary();
 			return new SwfAnimationData{
 				FrameRate = decoder.UncompressedHeader.FrameRate,
-				Symbols   = LoadAnimationSymbols(library, decoder),
-				Bitmaps   = LoadAnimationBitmaps(swf_asset, asset.Settings, library)};
+				Symbols   = LoadSymbols(library, decoder),
+				Bitmaps   = LoadBitmaps(swf_asset, asset.Settings, library)};
 		}
 
-		static List<SwfAnimationSymbolData> LoadAnimationSymbols(
+		static List<SwfAnimationSymbolData> LoadSymbols(
 			SwfLibrary library, SwfDecoder decoder)
 		{
 			var symbols = new List<SwfAnimationSymbolData>();
-			symbols.Add(LoadAnimationSymbol(0, "_Stage", library, decoder.Tags));
+			symbols.Add(LoadSymbol(0, "_Stage", library, decoder.Tags));
 			var sprite_defs = library.Defines
 				.Where (p => p.Value.Type == SwfLibraryDefineType.Sprite)
 				.Select(p => new KeyValuePair<int, SwfLibrarySpriteDefine>(
 					p.Key, p.Value as SwfLibrarySpriteDefine))
 				.Where (p => !string.IsNullOrEmpty(p.Value.ExportName));
 			foreach ( var sprite_def in sprite_defs ) {
-				symbols.Add(LoadAnimationSymbol(
+				symbols.Add(LoadSymbol(
 					sprite_def.Key,
 					sprite_def.Value.ExportName,
 					library,
@@ -87,14 +87,14 @@ namespace FlashTools.Internal {
 			return symbols;
 		}
 
-		static SwfAnimationSymbolData LoadAnimationSymbol(
+		static SwfAnimationSymbolData LoadSymbol(
 			int symbol_id, string symbol_name, SwfLibrary library, List<SwfTagBase> tags)
 		{
 			var disp_lst      = new SwfDisplayList();
 			var executer      = new SwfContextExecuter(library, 0);
 			var symbol_frames = new List<SwfAnimationFrameData>();
 			while ( executer.NextFrame(tags, disp_lst) ) {
-				symbol_frames.Add(LoadAnimationSymbolFrame(library, disp_lst));
+				symbol_frames.Add(LoadSymbolFrame(library, disp_lst));
 			}
 			return new SwfAnimationSymbolData{
 				Id     = symbol_id,
@@ -102,7 +102,7 @@ namespace FlashTools.Internal {
 				Frames = symbol_frames};
 		}
 
-		static SwfAnimationFrameData LoadAnimationSymbolFrame(
+		static SwfAnimationFrameData LoadSymbolFrame(
 			SwfLibrary library, SwfDisplayList display_list)
 		{
 			var frame = new SwfAnimationFrameData();
@@ -209,7 +209,7 @@ namespace FlashTools.Internal {
 			masks.RemoveAll(p => p.ClipDepth < depth);
 		}
 
-		static List<SwfAnimationBitmapData> LoadAnimationBitmaps(
+		static List<SwfAnimationBitmapData> LoadBitmaps(
 			string swf_asset, SwfSettings settings, SwfLibrary library)
 		{
 			var bitmap_defines = library.Defines
