@@ -150,7 +150,7 @@ namespace FlashTools.Internal {
 		static void ConfigureClip(
 			string asset_path,
 			SwfAsset asset,
-			SwfAnimationSymbolData symbol)
+			SwfSymbolData symbol)
 		{
 			var clip_asset_path = SwfEditorUtils.GetClipPathFromSettingsPath(
 				asset_path, symbol.Name);
@@ -173,7 +173,7 @@ namespace FlashTools.Internal {
 		}
 
 		static List<SwfClipAsset.Sequence> LoadClipSequences(
-			SwfAsset asset, SwfAnimationSymbolData symbol)
+			SwfAsset asset, SwfSymbolData symbol)
 		{
 			var sequences = new List<SwfClipAsset.Sequence>();
 			if ( IsValidAssetsForFrame(asset, symbol) ) {
@@ -193,7 +193,7 @@ namespace FlashTools.Internal {
 		}
 
 		static bool IsValidAssetsForFrame(
-			SwfAsset asset, SwfAnimationSymbolData symbol)
+			SwfAsset asset, SwfSymbolData symbol)
 		{
 			return
 				asset && asset.Atlas && asset.Data != null &&
@@ -201,14 +201,14 @@ namespace FlashTools.Internal {
 		}
 
 		class BakedGroup {
-			public SwfAnimationInstanceType Type;
-			public int                      ClipDepth;
-			public List<int>                Triangles;
-			public Material                 Material;
+			public SwfInstanceData.Types Type;
+			public int                   ClipDepth;
+			public List<int>             Triangles;
+			public Material              Material;
 		}
 
 		static SwfClipAsset.Frame BakeClipFrame(
-			SwfAsset asset, SwfAnimationFrameData frame)
+			SwfAsset asset, SwfFrameData frame)
 		{
 			List<Vector2>    baked_uvs       = new List<Vector2>();
 			List<Color>      baked_mulcolors = new List<Color>();
@@ -248,15 +248,15 @@ namespace FlashTools.Internal {
 					baked_uvs.Add(new Vector2(source_rect.xMax, source_rect.yMax));
 					baked_uvs.Add(new Vector2(source_rect.xMin, source_rect.yMax));
 
-					baked_mulcolors.Add(inst.ColorTransform.Mul);
-					baked_mulcolors.Add(inst.ColorTransform.Mul);
-					baked_mulcolors.Add(inst.ColorTransform.Mul);
-					baked_mulcolors.Add(inst.ColorTransform.Mul);
+					baked_mulcolors.Add(inst.ColorTrans.Mul);
+					baked_mulcolors.Add(inst.ColorTrans.Mul);
+					baked_mulcolors.Add(inst.ColorTrans.Mul);
+					baked_mulcolors.Add(inst.ColorTrans.Mul);
 
-					baked_addcolors.Add(inst.ColorTransform.Add);
-					baked_addcolors.Add(inst.ColorTransform.Add);
-					baked_addcolors.Add(inst.ColorTransform.Add);
-					baked_addcolors.Add(inst.ColorTransform.Add);
+					baked_addcolors.Add(inst.ColorTrans.Add);
+					baked_addcolors.Add(inst.ColorTrans.Add);
+					baked_addcolors.Add(inst.ColorTrans.Add);
+					baked_addcolors.Add(inst.ColorTrans.Add);
 
 					if ( baked_groups.Count == 0 ||
 						baked_groups[baked_groups.Count - 1].Type      != inst.Type ||
@@ -283,16 +283,16 @@ namespace FlashTools.Internal {
 			for ( var i = 0; i < baked_groups.Count; ++i ) {
 				var group = baked_groups[i];
 				switch ( group.Type ) {
-				case SwfAnimationInstanceType.Mask:
+				case SwfInstanceData.Types.Mask:
 					group.Material = default_converter.GetIncrMaskMaterial();
 					break;
-				case SwfAnimationInstanceType.Group:
+				case SwfInstanceData.Types.Group:
 					group.Material = default_converter.GetSimpleMaterial();
 					break;
-				case SwfAnimationInstanceType.Masked:
+				case SwfInstanceData.Types.Masked:
 					group.Material = default_converter.GetMaskedMaterial(group.ClipDepth);
 					break;
-				case SwfAnimationInstanceType.MaskReset:
+				case SwfInstanceData.Types.MaskReset:
 					group.Material = default_converter.GetDecrMaskMaterial();
 					break;
 				default:
@@ -326,7 +326,7 @@ namespace FlashTools.Internal {
 				Materials = baked_materials.ToArray()};
 		}
 
-		static SwfAnimationBitmapData FindBitmapFromAnimationData(SwfAnimationData data, int bitmap_id) {
+		static SwfBitmapData FindBitmapFromAnimationData(SwfAssetData data, int bitmap_id) {
 			for ( var i = 0; i < data.Bitmaps.Count; ++i ) {
 				var bitmap = data.Bitmaps[i];
 				if ( bitmap.Id == bitmap_id ) {

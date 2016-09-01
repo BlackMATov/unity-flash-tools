@@ -1,14 +1,13 @@
 ﻿using UnityEngine;
 using FlashTools.Internal;
-using System;
 
 namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	[RequireComponent(typeof(SwfClip))]
 	public class SwfClipController : MonoBehaviour {
 
-		SwfClip _clip       = null;
-		float   _frameTimer = 0.0f;
+		SwfClip _clip  = null;
+		float   _timer = 0.0f;
 
 		// ---------------------------------------------------------------------
 		//
@@ -16,11 +15,11 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
-		public event Action<SwfClipController> OnStopPlayingEvent;
-		public event Action<SwfClipController> OnRewindPlayingEvent;
+		public event System.Action<SwfClipController> OnStopPlayingEvent;
+		public event System.Action<SwfClipController> OnRewindPlayingEvent;
 
-		public event Action<SwfClipController> OnPausePlayingEvent;
-		public event Action<SwfClipController> OnResumePausedEvent;
+		public event System.Action<SwfClipController> OnPausePlayingEvent;
+		public event System.Action<SwfClipController> OnResumePausedEvent;
 
 		// ---------------------------------------------------------------------
 		//
@@ -73,21 +72,21 @@ namespace FlashTools {
 			set { _loopMode = value; }
 		}
 
-		States _currentState = States.Stopped;
-		public States currentState {
-			get { return _currentState; }
+		States _state = States.Stopped;
+		public States state {
+			get { return _state; }
 		}
 
 		public bool isStopped {
-			get { return currentState == States.Stopped; }
+			get { return state == States.Stopped; }
 		}
 
 		public bool isPaused {
-			get { return currentState == States.Paused; }
+			get { return state == States.Paused; }
 		}
 
 		public bool isPlaying {
-			get { return currentState == States.Playing; }
+			get { return state == States.Playing; }
 		}
 
 		// ---------------------------------------------------------------------
@@ -102,8 +101,8 @@ namespace FlashTools {
 
 		public void Stop(bool rewind) {
 			var is_playing = isPlaying;
-			_frameTimer = 0.0f;
-			_currentState = States.Stopped;
+			_timer = 0.0f;
+			_state = States.Stopped;
 			if ( rewind ) {
 				Rewind();
 			}
@@ -114,7 +113,7 @@ namespace FlashTools {
 
 		public void Pause() {
 			if ( isPlaying ) {
-				_currentState = States.Paused;
+				_state = States.Paused;
 				if ( OnPausePlayingEvent != null ) {
 					OnPausePlayingEvent(this);
 				}
@@ -123,7 +122,7 @@ namespace FlashTools {
 
 		public void Resume() {
 			if ( isPaused ) {
-				_currentState = States.Playing;
+				_state = States.Playing;
 				if ( OnResumePausedEvent != null ) {
 					OnResumePausedEvent(this);
 				}
@@ -132,17 +131,21 @@ namespace FlashTools {
 
 		public void Play() {
 			Rewind();
-			_frameTimer = 0.0f;
-			_currentState = States.Playing;
+			_timer = 0.0f;
+			_state = States.Playing;
 		}
 
 		public void Rewind() {
 			switch ( playMode ) {
 			case PlayModes.Forward:
-				_clip.ToBeginFrame();
+				if ( _clip ) {
+					_clip.ToBeginFrame();
+				}
 				break;
 			case PlayModes.Backward:
-				_clip.ToEndFrame();
+				if ( _clip ) {
+					_clip.ToEndFrame();
+				}
 				break;
 			default:
 				throw new UnityException(string.Format(
@@ -162,19 +165,20 @@ namespace FlashTools {
 
 		public void InternalUpdate(float dt) {
 			if ( isPlaying ) {
-				UpdateFrameTimer(dt);
+				UpdateTimer(dt);
 			}
 		}
 
-		void UpdateFrameTimer(float dt) {
-			_frameTimer += _clip.frameRate * rateScale * dt;
-			while ( _frameTimer > 1.0f ) {
-				_frameTimer -= 1.0f;
-				FrameTimerTick();
+		void UpdateTimer(float dt) {
+			var frame_rate = _clip ? _clip.frameRate : 1.0f;
+			_timer += frame_rate * rateScale * dt;
+			while ( _timer > 1.0f ) {
+				_timer -= 1.0f;
+				TimerTick();
 			}
 		}
 
-		void FrameTimerTick() {
+		void TimerTick() {
 			if ( !NextClipFrame() ) {
 				switch ( loopMode ) {
 				case LoopModes.Once:
@@ -194,9 +198,9 @@ namespace FlashTools {
 		bool NextClipFrame() {
 			switch ( playMode ) {
 			case PlayModes.Forward:
-				return _clip.ToNextFrame();
+				return _clip ? _clip.ToNextFrame() : false;
 			case PlayModes.Backward:
-				return _clip.ToPrevFrame();
+				return _clip ? _clip.ToPrevFrame() : false;
 			default:
 				throw new UnityException(string.Format(
 					"SwfClipController. Incorrect play mode: {0}",

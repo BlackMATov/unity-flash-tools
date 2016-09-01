@@ -179,26 +179,28 @@ namespace FlashTools {
 					_curPropBlock = new MaterialPropertyBlock();
 				}
 				_meshRenderer.GetPropertyBlock(_curPropBlock);
-				var atlas = clip ? clip.Atlas : null;
-				if ( atlas ) {
-					_curPropBlock.SetTexture("_MainTex", atlas);
-				}
+				_curPropBlock.SetTexture(
+					"_MainTex",
+					clip && clip.Atlas ? clip.Atlas : Texture2D.whiteTexture);
 				_meshRenderer.SetPropertyBlock(_curPropBlock);
 			}
 		}
 
 		void UpdateCurrentMesh() {
 			if ( _meshFilter && _meshRenderer ) {
-				var baked_frame = GetCurrentBakedFrame();
-				_meshFilter.sharedMesh = baked_frame.Mesh;
+				var baked_frame               = GetCurrentBakedFrame();
+				_meshFilter.sharedMesh        = baked_frame.Mesh;
 				_meshRenderer.sharedMaterials = baked_frame.Materials;
 			}
 		}
 
 		SwfClipAsset.Frame GetCurrentBakedFrame() {
 			var frames = _curSequence != null ? _curSequence.Frames : null;
-			return frames != null && currentFrame >= 0 && currentFrame < frames.Count
+			var frame  = frames != null && currentFrame >= 0 && currentFrame < frames.Count
 				? frames[currentFrame]
+				: new SwfClipAsset.Frame();
+			return frame != null
+				? frame
 				: new SwfClipAsset.Frame();
 		}
 

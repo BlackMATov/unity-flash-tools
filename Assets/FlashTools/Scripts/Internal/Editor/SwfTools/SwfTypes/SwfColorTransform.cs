@@ -59,8 +59,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				RAdd, GAdd, BAdd, AAdd, HasAdd);
 		}
 
-		public SwfAnimationColorTransform ToAnimationColorTransform() {
-			var trans = SwfAnimationColorTransform.identity;
+		public SwfColorTransData ToColorTransData() {
+			var trans = SwfColorTransData.identity;
 			if ( HasAdd ) {
 				trans.Add = new Vector4(
 					RAdd / 255.0f,

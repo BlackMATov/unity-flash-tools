@@ -4,22 +4,22 @@ using System.Collections.Generic;
 
 namespace FlashTools {
 	[System.Serializable]
-	public struct SwfAnimationColorTransform {
+	public struct SwfColorTransData {
 		public Vector4 Mul;
 		public Vector4 Add;
 
-		public static SwfAnimationColorTransform identity {
+		public static SwfColorTransData identity {
 			get {
-				return new SwfAnimationColorTransform{
+				return new SwfColorTransData{
 					Mul = Vector4.one,
 					Add = Vector4.zero};
 			}
 		}
 
-		public static SwfAnimationColorTransform operator*(
-			SwfAnimationColorTransform a, SwfAnimationColorTransform b)
+		public static SwfColorTransData operator*(
+			SwfColorTransData a, SwfColorTransData b)
 		{
-			return new SwfAnimationColorTransform{
+			return new SwfColorTransData{
 				Mul = new Vector4(
 					b.Mul.x * a.Mul.x,
 					b.Mul.y * a.Mul.y,
@@ -33,51 +33,49 @@ namespace FlashTools {
 		}
 	}
 
-	public enum SwfAnimationInstanceType {
-		Mask,
-		Group,
-		Masked,
-		MaskReset
+	[System.Serializable]
+	public class SwfInstanceData {
+		public enum Types {
+			Mask,
+			Group,
+			Masked,
+			MaskReset
+		}
+		public Types                 Type       = Types.Group;
+		public ushort                ClipDepth  = 0;
+		public ushort                Bitmap     = 0;
+		public Matrix4x4             Matrix     = Matrix4x4.identity;
+		public SwfColorTransData     ColorTrans = SwfColorTransData.identity;
 	}
 
 	[System.Serializable]
-	public class SwfAnimationInstanceData {
-		public SwfAnimationInstanceType       Type           = SwfAnimationInstanceType.Group;
-		public ushort                         ClipDepth      = 0;
-		public ushort                         Bitmap         = 0;
-		public Matrix4x4                      Matrix         = Matrix4x4.identity;
-		public SwfAnimationColorTransform     ColorTransform = SwfAnimationColorTransform.identity;
+	public class SwfFrameData {
+		public string                Name       = string.Empty;
+		public List<SwfInstanceData> Instances  = new List<SwfInstanceData>();
 	}
 
 	[System.Serializable]
-	public class SwfAnimationFrameData {
-		public string                         Name           = string.Empty;
-		public List<SwfAnimationInstanceData> Instances      = new List<SwfAnimationInstanceData>();
+	public class SwfSymbolData {
+		public string                Name       = string.Empty;
+		public List<SwfFrameData>    Frames     = new List<SwfFrameData>();
 	}
 
 	[System.Serializable]
-	public class SwfAnimationSymbolData {
-		public int                            Id             = 0;
-		public string                         Name           = string.Empty;
-		public List<SwfAnimationFrameData>    Frames         = new List<SwfAnimationFrameData>();
+	public class SwfBitmapData {
+		public int                   Id         = 0;
+		public Vector2               RealSize   = Vector2.zero;
+		public Rect                  SourceRect = new Rect();
 	}
 
 	[System.Serializable]
-	public class SwfAnimationBitmapData {
-		public int                            Id             = 0;
-		public Vector2                        RealSize       = Vector2.zero;
-		public Rect                           SourceRect     = new Rect();
-	}
-
-	[System.Serializable]
-	public class SwfAnimationData {
-		public float                          FrameRate      = 0.0f;
-		public List<SwfAnimationSymbolData>   Symbols        = new List<SwfAnimationSymbolData>();
-		public List<SwfAnimationBitmapData>   Bitmaps        = new List<SwfAnimationBitmapData>();
+	public class SwfAssetData {
+		public float                 FrameRate  = 0.0f;
+		public List<SwfSymbolData>   Symbols    = new List<SwfSymbolData>();
+		public List<SwfBitmapData>   Bitmaps    = new List<SwfBitmapData>();
 	}
 
 	public class SwfAsset : ScriptableObject {
-		public SwfAnimationData   Data;
+		public SwfAssetData       Data;
 		public Texture2D          Atlas;
 		public List<SwfClipAsset> Clips;
 		public SwfSettings        Settings;
@@ -85,7 +83,7 @@ namespace FlashTools {
 
 	#if UNITY_EDITOR
 		void Reset() {
-			Data       = new SwfAnimationData();
+			Data       = new SwfAssetData();
 			Atlas      = null;
 			Clips      = new List<SwfClipAsset>();
 			Settings   = SwfConverterSettings.GetDefaultSettings();
