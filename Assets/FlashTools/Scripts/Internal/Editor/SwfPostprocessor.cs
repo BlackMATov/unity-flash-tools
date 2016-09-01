@@ -205,7 +205,7 @@ namespace FlashTools.Internal {
 		}
 
 		static List<SwfBitmapData> LoadBitmaps(
-			string swf_asset, SwfSettings settings, SwfLibrary library)
+			string swf_asset, SwfSettingsData settings, SwfLibrary library)
 		{
 			var bitmap_defines = library.Defines
 				.Where  (p => p.Value.Type == SwfLibraryDefineType.Bitmap)
@@ -259,7 +259,7 @@ namespace FlashTools.Internal {
 		}
 
 		static Rect[] PackAndSaveBitmapsAtlas(
-			string swf_asset, Texture2D[] textures, SwfSettings settings)
+			string swf_asset, Texture2D[] textures, SwfSettingsData settings)
 		{
 			var atlas_info = PackBitmapsAtlas(textures, settings);
 			var atlas_path = SwfEditorUtils.GetAtlasPathFromSwfPath(swf_asset);
@@ -269,7 +269,7 @@ namespace FlashTools.Internal {
 			return atlas_info.Rects;
 		}
 
-		static BitmapsAtlasInfo PackBitmapsAtlas(Texture2D[] textures, SwfSettings settings) {
+		static BitmapsAtlasInfo PackBitmapsAtlas(Texture2D[] textures, SwfSettingsData settings) {
 			var atlas_padding  = Mathf.Max(0,  settings.AtlasPadding);
 			var max_atlas_size = Mathf.Max(32, settings.AtlasPowerOfTwo
 				? Mathf.ClosestPowerOfTwo(settings.MaxAtlasSize)

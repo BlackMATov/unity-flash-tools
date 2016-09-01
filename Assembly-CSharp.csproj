@@ -45,8 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfConverterSettings.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfPropertyAttributes.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfAttributes.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\SwfSettings.cs" />
      <Compile Include="Assets\FlashTools\Scripts\SwfAsset.cs" />
      <Compile Include="Assets\FlashTools\Scripts\SwfClip.cs" />

@@ -96,14 +96,14 @@ namespace FlashTools.Internal {
 		}
 
 		static FilterMode SwfAtlasFilterToImporterFilter(
-			SwfSettings.AtlasFilter filter)
+			SwfSettingsData.AtlasFilter filter)
 		{
 			switch ( filter ) {
-			case SwfSettings.AtlasFilter.Point:
+			case SwfSettingsData.AtlasFilter.Point:
 				return FilterMode.Point;
-			case SwfSettings.AtlasFilter.Bilinear:
+			case SwfSettingsData.AtlasFilter.Bilinear:
 				return FilterMode.Bilinear;
-			case SwfSettings.AtlasFilter.Trilinear:
+			case SwfSettingsData.AtlasFilter.Trilinear:
 				return FilterMode.Trilinear;
 			default:
 				throw new UnityException(string.Format(
@@ -113,16 +113,16 @@ namespace FlashTools.Internal {
 		}
 
 		static TextureImporterFormat SwfAtlasFormatToImporterFormat(
-			SwfSettings.AtlasFormat format)
+			SwfSettingsData.AtlasFormat format)
 		{
 			switch ( format ) {
-			case SwfSettings.AtlasFormat.AutomaticCompressed:
+			case SwfSettingsData.AtlasFormat.AutomaticCompressed:
 				return TextureImporterFormat.AutomaticCompressed;
-			case SwfSettings.AtlasFormat.Automatic16bit:
+			case SwfSettingsData.AtlasFormat.Automatic16bit:
 				return TextureImporterFormat.Automatic16bit;
-			case SwfSettings.AtlasFormat.AutomaticTruecolor:
+			case SwfSettingsData.AtlasFormat.AutomaticTruecolor:
 				return TextureImporterFormat.AutomaticTruecolor;
-			case SwfSettings.AtlasFormat.AutomaticCrunched:
+			case SwfSettingsData.AtlasFormat.AutomaticCrunched:
 				return TextureImporterFormat.AutomaticCrunched;
 			default:
 				throw new UnityException(string.Format(
@@ -279,21 +279,21 @@ namespace FlashTools.Internal {
 				}
 			}
 
-			var default_converter = SwfConverterSettings.GetDefaultConverter();
+			var settings_holder = SwfSettings.GetSettingsHolder();
 			for ( var i = 0; i < baked_groups.Count; ++i ) {
 				var group = baked_groups[i];
 				switch ( group.Type ) {
 				case SwfInstanceData.Types.Mask:
-					group.Material = default_converter.GetIncrMaskMaterial();
+					group.Material = settings_holder.GetIncrMaskMaterial();
 					break;
 				case SwfInstanceData.Types.Group:
-					group.Material = default_converter.GetSimpleMaterial();
+					group.Material = settings_holder.GetSimpleMaterial();
 					break;
 				case SwfInstanceData.Types.Masked:
-					group.Material = default_converter.GetMaskedMaterial(group.ClipDepth);
+					group.Material = settings_holder.GetMaskedMaterial(group.ClipDepth);
 					break;
 				case SwfInstanceData.Types.MaskReset:
-					group.Material = default_converter.GetDecrMaskMaterial();
+					group.Material = settings_holder.GetDecrMaskMaterial();
 					break;
 				default:
 					throw new UnityException(string.Format(

@@ -78,16 +78,16 @@ namespace FlashTools {
 		public SwfAssetData       Data;
 		public Texture2D          Atlas;
 		public List<SwfClipAsset> Clips;
-		public SwfSettings        Settings;
-		public SwfSettings        Overridden;
+		public SwfSettingsData    Settings;
+		public SwfSettingsData    Overridden;
 
 	#if UNITY_EDITOR
 		void Reset() {
 			Data       = new SwfAssetData();
 			Atlas      = null;
 			Clips      = new List<SwfClipAsset>();
-			Settings   = SwfConverterSettings.GetDefaultSettings();
-			Overridden = SwfConverterSettings.GetDefaultSettings();
+			Settings   = SwfSettings.GetDefaultSettings();
+			Overridden = SwfSettings.GetDefaultSettings();
 		}
 	#endif
 	}
