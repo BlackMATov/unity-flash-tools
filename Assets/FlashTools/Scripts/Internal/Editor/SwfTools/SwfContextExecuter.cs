@@ -175,10 +175,22 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(ExportAssetsTag tag, SwfDisplayList dl) {
+			foreach ( var asset_tag in tag.AssetTags ) {
+				var define = Library.FindDefine<SwfLibraryDefine>(asset_tag.Tag);
+				if ( define != null ) {
+					define.ExportName = asset_tag.Name.Trim();
+				}
+			}
 			return dl;
 		}
 
 		public SwfDisplayList Visit(SymbolClassTag tag, SwfDisplayList dl) {
+			foreach ( var symbol_tag in tag.SymbolTags ) {
+				var define = Library.FindDefine<SwfLibraryDefine>(symbol_tag.Tag);
+				if ( define != null ) {
+					define.ExportName = symbol_tag.Name.Trim();
+				}
+			}
 			return dl;
 		}
 

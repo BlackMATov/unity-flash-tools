@@ -54,9 +54,7 @@ namespace FlashTools.Internal {
 		}
 
 		static void ReconvertAnimationAsset(SwfAnimationAsset asset) {
-			AssetDatabase.ImportAsset(
-				GetSwfPath(asset),
-				ImportAssetOptions.ForceUpdate);
+			AssetDatabase.ImportAsset(GetSwfPath(asset));
 		}
 
 		//

@@ -63,7 +63,6 @@ namespace FlashTools.Internal {
 			var library = new SwfLibrary();
 			return new SwfAnimationData{
 				FrameRate = decoder.UncompressedHeader.FrameRate,
-				FrameSize = decoder.UncompressedHeader.FrameSize.ToUnityVectorSize(),
 				Symbols   = LoadAnimationSymbols(library, decoder),
 				Bitmaps   = LoadAnimationBitmaps(swf_asset, asset.Settings, library)};
 		}
@@ -72,12 +71,24 @@ namespace FlashTools.Internal {
 			SwfLibrary library, SwfDecoder decoder)
 		{
 			var symbols = new List<SwfAnimationSymbolData>();
-			symbols.Add(LoadAnimationSymbol(0, library, decoder.Tags));
+			symbols.Add(LoadAnimationSymbol(0, "_Stage", library, decoder.Tags));
+			var sprite_defs = library.Defines
+				.Where (p => p.Value.Type == SwfLibraryDefineType.Sprite)
+				.Select(p => new KeyValuePair<int, SwfLibrarySpriteDefine>(
+					p.Key, p.Value as SwfLibrarySpriteDefine))
+				.Where (p => !string.IsNullOrEmpty(p.Value.ExportName));
+			foreach ( var sprite_def in sprite_defs ) {
+				symbols.Add(LoadAnimationSymbol(
+					sprite_def.Key,
+					sprite_def.Value.ExportName,
+					library,
+					sprite_def.Value.ControlTags.Tags));
+			}
 			return symbols;
 		}
 
 		static SwfAnimationSymbolData LoadAnimationSymbol(
-			int symbol_id, SwfLibrary library, List<SwfTagBase> tags)
+			int symbol_id, string symbol_name, SwfLibrary library, List<SwfTagBase> tags)
 		{
 			var disp_lst      = new SwfDisplayList();
 			var executer      = new SwfContextExecuter(library, 0);
@@ -87,6 +98,7 @@ namespace FlashTools.Internal {
 			}
 			return new SwfAnimationSymbolData{
 				Id     = symbol_id,
+				Name   = symbol_name,
 				Frames = symbol_frames};
 		}
 
@@ -202,15 +214,14 @@ namespace FlashTools.Internal {
 		{
 			var bitmap_defines = library.Defines
 				.Where  (p => p.Value.Type == SwfLibraryDefineType.Bitmap)
-				.Select (p => new KeyValuePair<int, SwfLibraryBitmapDefine>(p.Key, p.Value as SwfLibraryBitmapDefine))
+				.Select (p => new KeyValuePair<int, SwfLibraryBitmapDefine>(
+					p.Key, p.Value as SwfLibraryBitmapDefine))
 				.ToArray();
 			var textures = bitmap_defines
 				.Select (p => LoadTextureFromBitmapDefine(p.Value))
 				.ToArray();
 			var rects = PackAndSaveBitmapsAtlas(
-				swf_asset,
-				textures,
-				settings);
+				swf_asset, textures, settings);
 			var bitmaps = new List<SwfAnimationBitmapData>(bitmap_defines.Length);
 			for ( var i = 0; i < bitmap_defines.Length; ++i ) {
 				var bitmap_define = bitmap_defines[i];
@@ -253,24 +264,17 @@ namespace FlashTools.Internal {
 		}
 
 		static Rect[] PackAndSaveBitmapsAtlas(
-			string      swf_asset,
-			Texture2D[] textures,
-			SwfSettings settings)
+			string swf_asset, Texture2D[] textures, SwfSettings settings)
 		{
 			var atlas_info = PackBitmapsAtlas(textures, settings);
-			File.WriteAllBytes(
-				SwfEditorUtils.GetAtlasPathFromSwfPath(swf_asset),
-				atlas_info.Atlas.EncodeToPNG());
+			var atlas_path = SwfEditorUtils.GetAtlasPathFromSwfPath(swf_asset);
+			File.WriteAllBytes(atlas_path, atlas_info.Atlas.EncodeToPNG());
 			GameObject.DestroyImmediate(atlas_info.Atlas, true);
-			AssetDatabase.ImportAsset(
-				SwfEditorUtils.GetAtlasPathFromSwfPath(swf_asset));
+			AssetDatabase.ImportAsset(atlas_path);
 			return atlas_info.Rects;
 		}
 
-		static BitmapsAtlasInfo PackBitmapsAtlas(
-			Texture2D[] textures,
-			SwfSettings settings)
-		{
+		static BitmapsAtlasInfo PackBitmapsAtlas(Texture2D[] textures, SwfSettings settings) {
 			var atlas_padding  = Mathf.Max(0,  settings.AtlasPadding);
 			var max_atlas_size = Mathf.Max(32, settings.AtlasPowerOfTwo
 				? Mathf.ClosestPowerOfTwo(settings.MaxAtlasSize)

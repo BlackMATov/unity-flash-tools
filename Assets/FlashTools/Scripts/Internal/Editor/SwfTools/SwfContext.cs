@@ -17,6 +17,7 @@ namespace FlashTools.Internal.SwfTools {
 	}
 
 	public abstract class SwfLibraryDefine {
+		public string ExportName = string.Empty;
 		public abstract SwfLibraryDefineType Type { get; }
 	}
 

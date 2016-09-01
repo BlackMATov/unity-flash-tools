@@ -73,8 +73,7 @@ namespace FlashTools.Internal {
 			atlas_importer.filterMode          = SwfAtlasFilterToImporterFilter(asset.Settings.AtlasTextureFilter);
 			atlas_importer.textureFormat       = SwfAtlasFormatToImporterFormat(asset.Settings.AtlasTextureFormat);
 			AssetDatabase.ImportAsset(
-				SwfEditorUtils.GetAtlasPathFromSettingsPath(asset_path),
-				ImportAssetOptions.ForceUpdate);
+				SwfEditorUtils.GetAtlasPathFromSettingsPath(asset_path));
 		}
 
 		static TextureImporter GetBitmapsAtlasImporter(string asset_path) {
@@ -150,9 +149,11 @@ namespace FlashTools.Internal {
 
 		static void ConfigureClip(
 			string asset_path,
-			SwfAnimationAsset asset, SwfAnimationSymbolData symbol)
+			SwfAnimationAsset asset,
+			SwfAnimationSymbolData symbol)
 		{
-			var clip_asset_path = Path.ChangeExtension(asset_path, symbol.Id.ToString() + ".asset");
+			var clip_asset_path = SwfEditorUtils.GetClipPathFromSettingsPath(
+				asset_path, symbol.Name);
 			var clip_asset = AssetDatabase.LoadAssetAtPath<SwfAnimationClipAsset>(clip_asset_path);
 			if ( !clip_asset ) {
 				clip_asset = ScriptableObject.CreateInstance<SwfAnimationClipAsset>();
@@ -229,15 +230,7 @@ namespace FlashTools.Internal {
 					var v2 = new Vector3(width, height, 0);
 					var v3 = new Vector3(    0, height, 0);
 
-					var frame_offset = Matrix4x4.TRS(
-						new Vector2(
-							-asset.Data.FrameSize.x * 0.5f / asset.Settings.PixelsPerUnit,
-							+asset.Data.FrameSize.y * 0.5f / asset.Settings.PixelsPerUnit),
-						Quaternion.identity,
-						Vector3.one);
-
 					var matrix =
-						frame_offset *
 						Matrix4x4.Scale(new Vector3(
 							+1.0f / asset.Settings.PixelsPerUnit,
 							-1.0f / asset.Settings.PixelsPerUnit,

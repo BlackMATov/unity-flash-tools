@@ -58,6 +58,7 @@ namespace FlashTools {
 	[System.Serializable]
 	public class SwfAnimationSymbolData {
 		public int                            Id             = 0;
+		public string                         Name           = string.Empty;
 		public List<SwfAnimationFrameData>    Frames         = new List<SwfAnimationFrameData>();
 	}
 
@@ -71,7 +72,6 @@ namespace FlashTools {
 	[System.Serializable]
 	public class SwfAnimationData {
 		public float                          FrameRate      = 0.0f;
-		public Vector2                        FrameSize      = Vector2.zero;
 		public List<SwfAnimationSymbolData>   Symbols        = new List<SwfAnimationSymbolData>();
 		public List<SwfAnimationBitmapData>   Bitmaps        = new List<SwfAnimationBitmapData>();
 	}

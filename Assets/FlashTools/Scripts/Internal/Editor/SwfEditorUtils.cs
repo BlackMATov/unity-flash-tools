@@ -51,23 +51,23 @@ namespace FlashTools.Internal {
 		}
 
 		public static string GetSwfPathFromSettingsPath(string settings_path) {
-			return Path.ChangeExtension(
-				Path.Combine(
-					Path.GetDirectoryName(settings_path),
-					Path.GetFileNameWithoutExtension(settings_path)),
-				".swf");
+			return Path.ChangeExtension(settings_path, ".swf");
 		}
 
 		public static string GetAtlasPathFromSwfPath(string swf_path) {
-			return Path.ChangeExtension(swf_path, ".settings.png");
+			return Path.ChangeExtension(swf_path, "._Atlas.png");
 		}
 
 		public static string GetAtlasPathFromSettingsPath(string settings_path) {
-			return Path.ChangeExtension(settings_path, ".png");
+			return Path.ChangeExtension(settings_path, "._Atlas.png");
 		}
 
 		public static string GetSettingsPathFromSwfPath(string swf_path) {
-			return Path.ChangeExtension(swf_path, ".settings.asset");
+			return Path.ChangeExtension(swf_path, ".asset");
+		}
+
+		public static string GetClipPathFromSettingsPath(string settings_path, string clip_name) {
+			return Path.ChangeExtension(settings_path, clip_name + ".asset");
 		}
 	}
 }

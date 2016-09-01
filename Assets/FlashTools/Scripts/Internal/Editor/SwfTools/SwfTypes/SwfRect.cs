@@ -43,11 +43,5 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				XMin, YMin,
 				XMax, YMax);
 		}
-
-		public Vector2 ToUnityVectorSize() {
-			return new Vector2(
-				Mathf.Abs(XMax - XMin),
-				Mathf.Abs(YMax - YMin));
-		}
 	}
 }
