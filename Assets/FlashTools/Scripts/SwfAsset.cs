@@ -75,10 +75,15 @@ namespace FlashTools {
 	}
 
 	public class SwfAsset : ScriptableObject {
+		[HideInInspector]
 		public SwfAssetData       Data;
+		[SwfReadOnly]
 		public Texture2D          Atlas;
+		[HideInInspector]
 		public List<SwfClipAsset> Clips;
+		[HideInInspector]
 		public SwfSettingsData    Settings;
+		[HideInInspector]
 		public SwfSettingsData    Overridden;
 
 	#if UNITY_EDITOR

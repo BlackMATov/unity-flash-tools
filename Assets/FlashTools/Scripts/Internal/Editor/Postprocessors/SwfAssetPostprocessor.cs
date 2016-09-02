@@ -19,33 +19,33 @@ namespace FlashTools.Internal {
 			foreach ( var asset_path in asset_paths ) {
 				var asset = AssetDatabase.LoadAssetAtPath<SwfAsset>(asset_path);
 				if ( asset ) {
-					AssetProcess(asset_path, asset);
+					SwfAssetProcess(asset);
 				}
 			}
 		}
 
-		static void AssetProcess(string asset_path, SwfAsset asset) {
+		static void SwfAssetProcess(SwfAsset asset) {
 			try {
-				var atlas_asset = LoadAtlasAsset(asset_path);
+				var atlas_asset = LoadAtlasAsset(asset);
 				if ( atlas_asset != asset.Atlas ) {
 					asset.Atlas = atlas_asset;
-					ConfigureAtlas(asset_path, asset);
-					ConfigureClips(asset_path, asset);
+					ConfigureAtlas(asset);
+					ConfigureClips(asset);
 					EditorUtility.SetDirty(asset);
 					AssetDatabase.SaveAssets();
 				}
 				ConfigureAssetClips(asset);
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
-					"Postprocess swf animation asset error: {0}",
+					"Postprocess swf asset error: {0}",
 					e.Message);
 				SwfEditorUtils.DeleteAssetWithDepends(asset);
 			}
 		}
 
-		static Texture2D LoadAtlasAsset(string asset_path) {
+		static Texture2D LoadAtlasAsset(SwfAsset asset) {
 			return AssetDatabase.LoadAssetAtPath<Texture2D>(
-				SwfEditorUtils.GetAtlasPathFromSettingsPath(asset_path));
+				SwfEditorUtils.GetAtlasPathFromAsset(asset));
 		}
 
 		// ---------------------------------------------------------------------
@@ -54,8 +54,8 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
-		static void ConfigureAtlas(string asset_path, SwfAsset asset) {
-			var atlas_importer      = GetBitmapsAtlasImporter(asset_path);
+		static void ConfigureAtlas(SwfAsset asset) {
+			var atlas_importer      = GetBitmapsAtlasImporter(asset);
 			var atlas_importer_size = GetSizeFromTextureImporter(atlas_importer);
 			atlas_importer.spritesheet = asset.Data.Bitmaps
 				.Select(bitmap => new SpriteMetaData{
@@ -72,12 +72,11 @@ namespace FlashTools.Internal {
 			atlas_importer.mipmapEnabled       = asset.Settings.GenerateMipMaps;
 			atlas_importer.filterMode          = SwfAtlasFilterToImporterFilter(asset.Settings.AtlasTextureFilter);
 			atlas_importer.textureFormat       = SwfAtlasFormatToImporterFormat(asset.Settings.AtlasTextureFormat);
-			AssetDatabase.ImportAsset(
-				SwfEditorUtils.GetAtlasPathFromSettingsPath(asset_path));
+			AssetDatabase.ImportAsset(SwfEditorUtils.GetAtlasPathFromAsset(asset));
 		}
 
-		static TextureImporter GetBitmapsAtlasImporter(string asset_path) {
-			var atlas_path     = SwfEditorUtils.GetAtlasPathFromSettingsPath(asset_path);
+		static TextureImporter GetBitmapsAtlasImporter(SwfAsset asset) {
+			var atlas_path     = SwfEditorUtils.GetAtlasPathFromAsset(asset);
 			var atlas_importer = AssetImporter.GetAtPath(atlas_path) as TextureImporter;
 			if ( !atlas_importer ) {
 				throw new UnityException(string.Format(
@@ -137,36 +136,32 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
-		static void ConfigureClips(
-			string asset_path,
-			SwfAsset asset)
-		{
-			SwfEditorUtils.RemoveAllSubAssets(asset_path);
+		static void ConfigureClips(SwfAsset asset) {
 			foreach ( var symbol in asset.Data.Symbols ) {
-				ConfigureClip(asset_path, asset, symbol);
+				ConfigureClip(asset, symbol);
 			}
 		}
 
-		static void ConfigureClip(
-			string asset_path,
-			SwfAsset asset,
-			SwfSymbolData symbol)
-		{
-			var clip_asset_path = SwfEditorUtils.GetClipPathFromSettingsPath(
-				asset_path, symbol.Name);
-			var clip_asset = AssetDatabase.LoadAssetAtPath<SwfClipAsset>(clip_asset_path);
-			if ( !clip_asset ) {
-				clip_asset = ScriptableObject.CreateInstance<SwfClipAsset>();
-				AssetDatabase.CreateAsset(clip_asset, clip_asset_path);
-			}
+		static void ConfigureClip(SwfAsset asset, SwfSymbolData symbol) {
+			var clip_asset_path = Path.ChangeExtension(
+				AssetDatabase.GetAssetPath(asset),
+				symbol.Name + ".asset");
+			var clip_asset       = SwfEditorUtils
+				.LoadOrCreateAsset<SwfClipAsset>(clip_asset_path);
 			clip_asset.Atlas     = asset.Atlas;
 			clip_asset.FrameRate = asset.Data.FrameRate;
 			clip_asset.Sequences = LoadClipSequences(asset, symbol);
+			ConfigureClipSubAssets(clip_asset);
 			asset.Clips.Add(clip_asset);
+		}
+
+		static void ConfigureClipSubAssets(SwfClipAsset clip_asset) {
+			SwfEditorUtils.RemoveAllSubAssets(
+				AssetDatabase.GetAssetPath(clip_asset));
 			foreach ( var sequence in clip_asset.Sequences ) {
 				for ( var i = 0; i < sequence.Frames.Count; ++i ) {
-					var mesh = sequence.Frames[i].Mesh;
-					mesh.name = sequence.Name + "_" + i.ToString();
+					var mesh  = sequence.Frames[i].Mesh;
+					mesh.name = string.Format("{0}_{1}", sequence.Name, i);
 					AssetDatabase.AddObjectToAsset(mesh, clip_asset);
 				}
 			}
@@ -219,7 +214,7 @@ namespace FlashTools.Internal {
 
 			foreach ( var inst in frame.Instances ) {
 				var bitmap = inst != null
-					? FindBitmapFromAnimationData(asset.Data, inst.Bitmap)
+					? FindBitmapFromAssetData(asset.Data, inst.Bitmap)
 					: null;
 				if ( bitmap != null ) {
 					var width  = bitmap.RealSize.x / 20.0f;
@@ -297,7 +292,7 @@ namespace FlashTools.Internal {
 					break;
 				default:
 					throw new UnityException(string.Format(
-						"SwfAnimationAssetPostprocessor. Incorrect instance type: {0}",
+						"SwfAssetPostprocessor. Incorrect instance type: {0}",
 						group.Type));
 				}
 				if ( group.Material ) {
@@ -305,7 +300,7 @@ namespace FlashTools.Internal {
 					baked_materials.Add(group.Material);
 				} else {
 					throw new UnityException(string.Format(
-						"SwfAnimationAssetPostprocessor. Material for baked group ({0}) not found",
+						"SwfAssetPostprocessor. Material for baked group ({0}) not found",
 						group.Type));
 				}
 			}
@@ -326,7 +321,7 @@ namespace FlashTools.Internal {
 				Materials = baked_materials.ToArray()};
 		}
 
-		static SwfBitmapData FindBitmapFromAnimationData(SwfAssetData data, int bitmap_id) {
+		static SwfBitmapData FindBitmapFromAssetData(SwfAssetData data, int bitmap_id) {
 			for ( var i = 0; i < data.Bitmaps.Count; ++i ) {
 				var bitmap = data.Bitmaps[i];
 				if ( bitmap.Id == bitmap_id ) {

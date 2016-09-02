@@ -17,39 +17,38 @@ namespace FlashTools.Internal {
 			string[] moved_assets,
 			string[] moved_from_asset_paths)
 		{
-			var swf_asset_paths = imported_assets
+			var swf_paths = imported_assets
 				.Where(p => Path.GetExtension(p).ToLower().Equals(".swf"));
-			foreach ( var swf_asset_path in swf_asset_paths ) {
-				SwfAssetProcess(swf_asset_path);
+			foreach ( var swf_path in swf_paths ) {
+				SwfFileProcess(swf_path);
 			}
 		}
 
-		static void SwfAssetProcess(string swf_asset) {
-			var new_asset_path = SwfEditorUtils.GetSettingsPathFromSwfPath(swf_asset);
-			var new_asset = AssetDatabase.LoadAssetAtPath<SwfAsset>(new_asset_path);
-			if ( !new_asset ) {
-				new_asset = ScriptableObject.CreateInstance<SwfAsset>();
-				AssetDatabase.CreateAsset(new_asset, new_asset_path);
+		static void SwfFileProcess(string swf_path) {
+			var swf_asset_path = Path.ChangeExtension(swf_path, ".asset");
+			var swf_asset      = AssetDatabase.LoadAssetAtPath<SwfAsset>(swf_asset_path);
+			if ( !swf_asset ) {
+				swf_asset = ScriptableObject.CreateInstance<SwfAsset>();
+				AssetDatabase.CreateAsset(swf_asset, swf_asset_path);
 			}
-			if ( LoadDataFromSwfFile(swf_asset, new_asset) ) {
-				EditorUtility.SetDirty(new_asset);
+			if ( LoadSwfAsset(swf_path, swf_asset) ) {
+				EditorUtility.SetDirty(swf_asset);
 				AssetDatabase.SaveAssets();
 			} else {
-				SwfEditorUtils.DeleteAssetWithDepends(new_asset);
+				SwfEditorUtils.DeleteAssetWithDepends(swf_asset);
 			}
 		}
 
-		static bool LoadDataFromSwfFile(string swf_asset, SwfAsset asset) {
+		static bool LoadSwfAsset(string swf_path, SwfAsset swf_asset) {
 			try {
-				if ( asset.Atlas ) {
+				if ( swf_asset.Atlas ) {
 					AssetDatabase.DeleteAsset(
-						AssetDatabase.GetAssetPath(asset.Atlas));
-					asset.Atlas = null;
+						AssetDatabase.GetAssetPath(swf_asset.Atlas));
+					swf_asset.Atlas = null;
 				}
-				asset.Data = LoadDataFromSwfDecoder(
+				swf_asset.Data = LoadSwfAssetData(
 					swf_asset,
-					asset,
-					new SwfDecoder(swf_asset));
+					new SwfDecoder(swf_path));
 				return true;
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat("Parsing swf error: {0}", e.Message);
@@ -57,21 +56,21 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		static SwfAssetData LoadDataFromSwfDecoder(
-			string swf_asset, SwfAsset asset, SwfDecoder decoder)
+		static SwfAssetData LoadSwfAssetData(
+			SwfAsset swf_asset, SwfDecoder swf_decoder)
 		{
 			var library = new SwfLibrary();
 			return new SwfAssetData{
-				FrameRate = decoder.UncompressedHeader.FrameRate,
-				Symbols   = LoadSymbols(library, decoder),
-				Bitmaps   = LoadBitmaps(swf_asset, asset.Settings, library)};
+				FrameRate = swf_decoder.UncompressedHeader.FrameRate,
+				Symbols   = LoadSymbols(library, swf_decoder),
+				Bitmaps   = LoadBitmaps(library, swf_asset)};
 		}
 
 		static List<SwfSymbolData> LoadSymbols(
 			SwfLibrary library, SwfDecoder decoder)
 		{
 			var symbols = new List<SwfSymbolData>();
-			symbols.Add(LoadSymbol("_Stage", library, decoder.Tags));
+			symbols.Add(LoadSymbol("_Stage_", library, decoder.Tags));
 			var sprite_defs = library.Defines.Values
 				.OfType<SwfLibrarySpriteDefine>()
 				.Where(p => !string.IsNullOrEmpty(p.ExportName));
@@ -90,14 +89,14 @@ namespace FlashTools.Internal {
 			var executer      = new SwfContextExecuter(library, 0);
 			var symbol_frames = new List<SwfFrameData>();
 			while ( executer.NextFrame(tags, disp_lst) ) {
-				symbol_frames.Add(LoadSymbolFrame(library, disp_lst));
+				symbol_frames.Add(LoadSymbolFrameData(library, disp_lst));
 			}
 			return new SwfSymbolData{
 				Name   = symbol_name,
 				Frames = symbol_frames};
 		}
 
-		static SwfFrameData LoadSymbolFrame(
+		static SwfFrameData LoadSymbolFrameData(
 			SwfLibrary library, SwfDisplayList display_list)
 		{
 			var frame = new SwfFrameData();
@@ -205,7 +204,7 @@ namespace FlashTools.Internal {
 		}
 
 		static List<SwfBitmapData> LoadBitmaps(
-			string swf_asset, SwfSettingsData settings, SwfLibrary library)
+			SwfLibrary library, SwfAsset asset)
 		{
 			var bitmap_defines = library.Defines
 				.Where  (p => p.Value.Type == SwfLibraryDefineType.Bitmap)
@@ -215,8 +214,7 @@ namespace FlashTools.Internal {
 			var textures = bitmap_defines
 				.Select (p => LoadTextureFromBitmapDefine(p.Value))
 				.ToArray();
-			var rects = PackAndSaveBitmapsAtlas(
-				swf_asset, textures, settings);
+			var rects = PackAndSaveBitmapsAtlas(asset, textures);
 			var bitmaps = new List<SwfBitmapData>(bitmap_defines.Length);
 			for ( var i = 0; i < bitmap_defines.Length; ++i ) {
 				var bitmap_define = bitmap_defines[i];
@@ -258,11 +256,9 @@ namespace FlashTools.Internal {
 			public Rect[]    Rects;
 		}
 
-		static Rect[] PackAndSaveBitmapsAtlas(
-			string swf_asset, Texture2D[] textures, SwfSettingsData settings)
-		{
-			var atlas_info = PackBitmapsAtlas(textures, settings);
-			var atlas_path = SwfEditorUtils.GetAtlasPathFromSwfPath(swf_asset);
+		static Rect[] PackAndSaveBitmapsAtlas(SwfAsset asset, Texture2D[] textures) {
+			var atlas_info = PackBitmapsAtlas(textures, asset.Settings);
+			var atlas_path = SwfEditorUtils.GetAtlasPathFromAsset(asset);
 			File.WriteAllBytes(atlas_path, atlas_info.Atlas.EncodeToPNG());
 			GameObject.DestroyImmediate(atlas_info.Atlas, true);
 			AssetDatabase.ImportAsset(atlas_path);
@@ -276,6 +272,9 @@ namespace FlashTools.Internal {
 				: settings.MaxAtlasSize);
 			var atlas = new Texture2D(0, 0);
 			var rects = atlas.PackTextures(textures, atlas_padding, max_atlas_size);
+			if ( rects == null ) {
+				throw new UnityException("Pack textures to atlas error");
+			}
 			return settings.AtlasForceSquare && atlas.width != atlas.height
 				? BitmapsAtlasToSquare(atlas, rects)
 				: new BitmapsAtlasInfo{Atlas = atlas, Rects = rects};

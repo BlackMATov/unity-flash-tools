@@ -132,8 +132,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 							}
 							property.stringValue = new_value;
 							property.serializedObject.ApplyModifiedProperties();
-						}
-					});
+						}});
 			} else {
 				EditorGUI.LabelField(position, label.text, "Use SwfSortingLayer with string attribute.");
 			}
@@ -204,10 +203,59 @@ namespace FlashTools.Internal.SwfEditorTools {
 							EditorGUI.IntPopup(position, property, vnames, values, label);
 						} else {
 							EditorGUI.PropertyField(position, property, label, true);
-						}
-					});
+						}});
 			} else {
 				EditorGUI.LabelField(position, label.text, "Use SwfPowerOfTwoIf with integer attribute.");
+			}
+		}
+	}
+
+	//
+	// SwfReadOnlyDrawer
+	//
+
+	[CustomPropertyDrawer(typeof(SwfReadOnlyAttribute))]
+	public class SwfReadOnlyDrawer : PropertyDrawer {
+		public override void OnGUI(
+			Rect position, SerializedProperty property, GUIContent label)
+		{
+			SwfEditorUtils.DoWithEnabledGUI(false, () => {
+				EditorGUI.PropertyField(position, property, label, true);
+			});
+		}
+	}
+
+	//
+	// SwfAssetGUIDDrawer
+	//
+
+	[CustomPropertyDrawer(typeof(SwfAssetGUIDAttribute))]
+	public class SwfAssetGUIDDrawer : PropertyDrawer {
+		public override void OnGUI(
+			Rect position, SerializedProperty property, GUIContent label)
+		{
+			if ( property.propertyType == SerializedPropertyType.String ) {
+				var attr = attribute as SwfAssetGUIDAttribute;
+				SwfEditorUtils.DoWithEnabledGUI(!attr.ReadOnly, () => {
+					SwfEditorUtils.DoWithMixedValue(
+						property.hasMultipleDifferentValues, () => {
+							EditorGUI.BeginChangeCheck();
+							var asset_path = AssetDatabase.GUIDToAssetPath(property.stringValue);
+							var asset      = AssetDatabase.LoadMainAssetAtPath(asset_path);
+							var new_asset  = EditorGUI.ObjectField(
+								position, property.displayName, asset, typeof(UnityEngine.Object), false);
+							if ( EditorGUI.EndChangeCheck() ) {
+								if ( property.hasMultipleDifferentValues ) {
+									property.stringValue = "--";
+								}
+								var new_asset_path   = AssetDatabase.GetAssetPath(new_asset);
+								property.stringValue = AssetDatabase.AssetPathToGUID(new_asset_path);
+								property.serializedObject.ApplyModifiedProperties();
+							}
+						});
+				});
+			} else {
+				EditorGUI.LabelField(position, label.text, "Use SwfAssetGUID with string attribute.");
 			}
 		}
 	}

@@ -3,6 +3,7 @@ using UnityEditor;
 
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	public static class SwfEditorUtils {
@@ -50,24 +51,18 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		public static string GetSwfPathFromSettingsPath(string settings_path) {
-			return Path.ChangeExtension(settings_path, ".swf");
+		public static T LoadOrCreateAsset<T>(string asset_path) where T : ScriptableObject {
+			var asset = AssetDatabase.LoadAssetAtPath<T>(asset_path);
+			if ( !asset ) {
+				asset = ScriptableObject.CreateInstance<T>();
+				AssetDatabase.CreateAsset(asset, asset_path);
+			}
+			return asset;
 		}
 
-		public static string GetAtlasPathFromSwfPath(string swf_path) {
-			return Path.ChangeExtension(swf_path, "._Atlas.png");
-		}
-
-		public static string GetAtlasPathFromSettingsPath(string settings_path) {
-			return Path.ChangeExtension(settings_path, "._Atlas.png");
-		}
-
-		public static string GetSettingsPathFromSwfPath(string swf_path) {
-			return Path.ChangeExtension(swf_path, ".asset");
-		}
-
-		public static string GetClipPathFromSettingsPath(string settings_path, string clip_name) {
-			return Path.ChangeExtension(settings_path, clip_name + ".asset");
+		public static string GetAtlasPathFromAsset(SwfAsset asset) {
+			var asset_path = AssetDatabase.GetAssetPath(asset);
+			return Path.ChangeExtension(asset_path, "._Atlas_.png");
 		}
 	}
 }

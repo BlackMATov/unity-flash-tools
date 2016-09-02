@@ -180,11 +180,11 @@ namespace FlashTools.Internal {
 		}
 
 		public static SwfSettings GetHolder() {
-			var settings_holder = LoadFirstAssetByFilter<SwfSettings>("t:SwfSettings");
-			if ( !settings_holder ) {
-				throw new UnityException("SwfSettings asset not found");
+			var holder = LoadFirstAssetByFilter<SwfSettings>("t:SwfSettings");
+			if ( !holder ) {
+				throw new UnityException("SwfSettings. SwfSettings asset not found");
 			}
-			return settings_holder;
+			return holder;
 		}
 
 		public static SwfSettingsData GetDefault() {

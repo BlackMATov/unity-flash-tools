@@ -32,4 +32,14 @@ namespace FlashTools.Internal {
 			BoolProp = bool_prop;
 		}
 	}
+
+	public class SwfReadOnlyAttribute : PropertyAttribute {
+	}
+
+	public class SwfAssetGUIDAttribute : PropertyAttribute {
+		public bool ReadOnly;
+		public SwfAssetGUIDAttribute(bool read_only) {
+			ReadOnly = read_only;
+		}
+	}
 }

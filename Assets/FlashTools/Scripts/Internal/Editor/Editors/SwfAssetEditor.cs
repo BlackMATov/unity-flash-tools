@@ -26,7 +26,7 @@ namespace FlashTools.Internal {
 			var asset_path = GetAssetPath(asset);
 			return string.IsNullOrEmpty(asset_path)
 				? string.Empty
-				: SwfEditorUtils.GetSwfPathFromSettingsPath(asset_path);
+				: Path.ChangeExtension(asset_path, ".swf");
 		}
 
 		//
@@ -93,7 +93,7 @@ namespace FlashTools.Internal {
 				var message = unapplied.Length == 1
 					? string.Format(
 						"Unapplied swf asset settings for '{0}'",
-						GetAssetPath(unapplied[0]))
+						AssetDatabase.GetAssetPath(unapplied[0]))
 					: string.Format(
 						"Unapplied multiple({0}) swf asset settings",
 						unapplied.Length);
@@ -107,12 +107,6 @@ namespace FlashTools.Internal {
 
 		void DrawGUISettings() {
 			SwfEditorUtils.DoWithEnabledGUI(false, () => {
-				var script_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "m_Script");
-				EditorGUILayout.PropertyField(script_prop, true);
-
-				var atlas_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Atlas");
-				EditorGUILayout.PropertyField(atlas_prop, true);
-
 				var clips_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Clips");
 				if ( clips_prop.isArray ) {
 					SwfEditorUtils.DoWithMixedValue(
@@ -175,6 +169,7 @@ namespace FlashTools.Internal {
 
 		public override void OnInspectorGUI() {
 			serializedObject.Update();
+			DrawDefaultInspector();
 			DrawGUISettings();
 			if ( GUI.changed ) {
 				serializedObject.ApplyModifiedProperties();
