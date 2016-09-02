@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
+using FlashTools.Internal;
 
 namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	public class SwfManager : MonoBehaviour {
 
-		HashSet<SwfClip>           _clips       = new HashSet<SwfClip>();
-		HashSet<SwfClipController> _controllers = new HashSet<SwfClipController>();
+		SwfAssocList<SwfClip>           _clips       = new SwfAssocList<SwfClip>();
+		SwfAssocList<SwfClipController> _controllers = new SwfAssocList<SwfClipController>();
 
 		// ---------------------------------------------------------------------
 		//
@@ -91,10 +91,9 @@ namespace FlashTools {
 		}
 
 		void UpdateControllers() {
-			var dt   = Time.deltaTime;
-			var iter = _controllers.GetEnumerator();
-			while ( iter.MoveNext() ) {
-				iter.Current.InternalUpdate(dt);
+			var dt = Time.deltaTime;
+			for ( int i = 0, e = _controllers.Count; i < e; ++i ) {
+				_controllers[i].InternalUpdate(dt);
 			}
 		}
 
