@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6da591d87f967451298a275621e1fd5d, type: 3}
   m_Name: SwfSettings
   m_EditorClassIdentifier: 
-  DefaultSettings:
+  Settings:
     MaxAtlasSize: 1024
     AtlasPadding: 1
     PixelsPerUnit: 100

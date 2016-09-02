@@ -62,7 +62,7 @@ namespace FlashTools.Internal {
 
 	public class SwfSettings : ScriptableObject {
 
-		public SwfSettingsData DefaultSettings;
+		public SwfSettingsData Settings;
 
 		[HideInInspector] public Material       SimpleMaterial;
 		[HideInInspector] public Material       IncrMaskMaterial;
@@ -175,11 +175,11 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void Reset() {
-			DefaultSettings = SwfSettingsData.identity;
+			Settings = SwfSettingsData.identity;
 			FillMaterialsCache();
 		}
 
-		public static SwfSettings GetSettingsHolder() {
+		public static SwfSettings GetHolder() {
 			var settings_holder = LoadFirstAssetByFilter<SwfSettings>("t:SwfSettings");
 			if ( !settings_holder ) {
 				throw new UnityException("SwfSettings asset not found");
@@ -187,8 +187,8 @@ namespace FlashTools.Internal {
 			return settings_holder;
 		}
 
-		public static SwfSettingsData GetDefaultSettings() {
-			return GetSettingsHolder().DefaultSettings;
+		public static SwfSettingsData GetDefault() {
+			return GetHolder().Settings;
 		}
 	#endif
 	}

@@ -86,8 +86,8 @@ namespace FlashTools {
 			Data       = new SwfAssetData();
 			Atlas      = null;
 			Clips      = new List<SwfClipAsset>();
-			Settings   = SwfSettings.GetDefaultSettings();
-			Overridden = SwfSettings.GetDefaultSettings();
+			Settings   = SwfSettings.GetDefault();
+			Overridden = SwfSettings.GetDefault();
 		}
 	#endif
 	}

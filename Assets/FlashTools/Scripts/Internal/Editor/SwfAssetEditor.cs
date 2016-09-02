@@ -38,7 +38,7 @@ namespace FlashTools.Internal {
 		}
 
 		static void OverriddenSettingsToDefault(SwfAsset asset) {
-			asset.Overridden = SwfSettings.GetDefaultSettings();
+			asset.Overridden = SwfSettings.GetDefault();
 		}
 
 		static void ApplyOverriddenSettings(SwfAsset asset) {
@@ -135,7 +135,7 @@ namespace FlashTools.Internal {
 			GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			{
-				var default_settings = SwfSettings.GetDefaultSettings();
+				var default_settings = SwfSettings.GetDefault();
 				SwfEditorUtils.DoWithEnabledGUI(
 					_assets.Any(p => !p.Overridden.CheckEquals(default_settings)), () => {
 						if ( GUILayout.Button("Default") ) {
@@ -166,7 +166,7 @@ namespace FlashTools.Internal {
 				.OfType<SwfAsset>()
 				.ToList();
 			_settingsFoldout =
-				_assets.Any(p => !p.Settings.CheckEquals(SwfSettings.GetDefaultSettings()));
+				_assets.Any(p => !p.Settings.CheckEquals(SwfSettings.GetDefault()));
 		}
 
 		void OnDisable() {

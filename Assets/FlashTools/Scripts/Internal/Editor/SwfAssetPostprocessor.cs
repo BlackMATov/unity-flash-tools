@@ -279,7 +279,7 @@ namespace FlashTools.Internal {
 				}
 			}
 
-			var settings_holder = SwfSettings.GetSettingsHolder();
+			var settings_holder = SwfSettings.GetHolder();
 			for ( var i = 0; i < baked_groups.Count; ++i ) {
 				var group = baked_groups[i];
 				switch ( group.Type ) {
