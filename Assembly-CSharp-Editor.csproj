@@ -66,6 +66,7 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineShape4Tag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineShapeTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DefineSpriteTag.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\DoABCTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\EndTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\ExportAssetsTag.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTags\FileAttributesTag.cs" />

@@ -37,7 +37,7 @@
 
 		DoAction     = 12, // Unsupported
 		DoInitAction = 59, // Unsupported
-		DoABC        = 82, // Unsupported
+		DoABC        = 82,
 
 		// -----------------------------
 		// Shape
@@ -175,7 +175,7 @@
 			// Actions
 			case (int)SwfTagType.DoAction:                     return UnsupportedTag.Create(SwfTagType.DoAction);
 			case (int)SwfTagType.DoInitAction:                 return UnsupportedTag.Create(SwfTagType.DoInitAction);
-			case (int)SwfTagType.DoABC:                        return UnsupportedTag.Create(SwfTagType.DoABC);
+			case (int)SwfTagType.DoABC:                        return DoABCTag.Create(reader);
 			// Shape
 			case (int)SwfTagType.DefineShape:                  return DefineShapeTag.Create(reader);
 			case (int)SwfTagType.DefineShape2:                 return DefineShape2Tag.Create(reader);
