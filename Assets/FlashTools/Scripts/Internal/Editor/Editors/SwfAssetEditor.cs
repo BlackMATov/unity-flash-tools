@@ -106,19 +106,10 @@ namespace FlashTools.Internal {
 		}
 
 		void DrawGUISettings() {
-			SwfEditorUtils.DoWithEnabledGUI(false, () => {
-				var clips_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Clips");
-				if ( clips_prop.isArray ) {
-					SwfEditorUtils.DoWithMixedValue(
-						clips_prop.hasMultipleDifferentValues, () => {
-							EditorGUILayout.IntField("Clips count", clips_prop.arraySize);
-						});
-				}
-			});
 			_settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "Settings");
 			if ( _settingsFoldout ) {
 				var it = SwfEditorUtils.GetPropertyByName(serializedObject, "Overridden");
-				while ( it.NextVisible(true) ) {
+				while ( it.Next(true) ) {
 					EditorGUILayout.PropertyField(it, true);
 				}
 				DrawGUISettingsControls();
@@ -156,11 +147,8 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_assets = targets
-				.OfType<SwfAsset>()
-				.ToList();
-			_settingsFoldout =
-				_assets.Any(p => !p.Settings.CheckEquals(SwfSettings.GetDefault()));
+			_assets          = targets.OfType<SwfAsset>().ToList();
+			_settingsFoldout = true;
 		}
 
 		void OnDisable() {

@@ -148,7 +148,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 
 		static SerializedProperty FindNextBoolProperty(SerializedProperty property, string next_prop) {
 			var prop = property.Copy();
-			while ( prop.NextVisible(false) ) {
+			while ( prop.Next(false) ) {
 				if ( prop.name == next_prop && prop.propertyType == SerializedPropertyType.Boolean ) {
 					return prop;
 				}

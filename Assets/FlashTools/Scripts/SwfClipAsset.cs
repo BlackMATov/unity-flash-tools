@@ -14,8 +14,12 @@ namespace FlashTools {
 			public string      Name      = string.Empty;
 			public List<Frame> Frames    = new List<Frame>();
 		}
+
+		[SwfReadOnly]
 		public Texture2D       Atlas;
+		[SwfReadOnly]
 		public float           FrameRate;
+		[HideInInspector]
 		public List<Sequence>  Sequences;
 
 		#if UNITY_EDITOR

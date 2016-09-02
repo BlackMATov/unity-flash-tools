@@ -87,17 +87,8 @@ namespace FlashTools.Internal {
 		//
 		//
 
-		void DrawGUIProperties() {
+		void DrawGUISequences() {
 			SwfEditorUtils.DoWithEnabledGUI(false, () => {
-				var script_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "m_Script");
-				EditorGUILayout.PropertyField(script_prop, true);
-
-				var atlas_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Atlas");
-				EditorGUILayout.PropertyField(atlas_prop, true);
-
-				var frame_rate_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "FrameRate");
-				EditorGUILayout.PropertyField(frame_rate_prop, true);
-
 				var sequences_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Sequences");
 				if ( sequences_prop.isArray ) {
 					SwfEditorUtils.DoWithMixedValue(
@@ -134,8 +125,13 @@ namespace FlashTools.Internal {
 		}
 
 		public override void OnInspectorGUI() {
-			DrawGUIProperties();
+			serializedObject.Update();
+			DrawDefaultInspector();
+			DrawGUISequences();
 			DrawGUIControls();
+			if ( GUI.changed ) {
+				serializedObject.ApplyModifiedProperties();
+			}
 		}
 	}
 }
