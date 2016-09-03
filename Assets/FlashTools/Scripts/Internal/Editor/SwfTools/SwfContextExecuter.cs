@@ -170,6 +170,10 @@ namespace FlashTools.Internal.SwfTools {
 			return dl;
 		}
 
+		public SwfDisplayList Visit(ProtectTag tag, SwfDisplayList dl) {
+			return dl;
+		}
+
 		public SwfDisplayList Visit(EndTag tag, SwfDisplayList dl) {
 			return dl;
 		}
@@ -184,6 +188,18 @@ namespace FlashTools.Internal.SwfTools {
 			return dl;
 		}
 
+		public SwfDisplayList Visit(EnableDebuggerTag tag, SwfDisplayList dl) {
+			return dl;
+		}
+
+		public SwfDisplayList Visit(EnableDebugger2Tag tag, SwfDisplayList dl) {
+			return dl;
+		}
+
+		public SwfDisplayList Visit(ScriptLimitsTag tag, SwfDisplayList dl) {
+			return dl;
+		}
+
 		public SwfDisplayList Visit(SymbolClassTag tag, SwfDisplayList dl) {
 			foreach ( var symbol_tag in tag.SymbolTags ) {
 				var define = Library.FindDefine<SwfLibraryDefine>(symbol_tag.Tag);
@@ -191,6 +207,10 @@ namespace FlashTools.Internal.SwfTools {
 					define.ExportName = symbol_tag.Name.Trim();
 				}
 			}
+			return dl;
+		}
+
+		public SwfDisplayList Visit(MetadataTag tag, SwfDisplayList dl) {
 			return dl;
 		}
 
@@ -248,6 +268,15 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(FileAttributesTag tag, SwfDisplayList dl) {
+			return dl;
+		}
+
+		public SwfDisplayList Visit(EnableTelemetryTag tag, SwfDisplayList dl) {
+			return dl;
+		}
+
+		public SwfDisplayList Visit(DefineBinaryDataTag tag, SwfDisplayList dl) {
+			//TODO: IMPLME
 			return dl;
 		}
 

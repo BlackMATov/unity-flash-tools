@@ -17,17 +17,17 @@
 
 		SetBackgroundColor = 9,
 		FrameLabel = 43,
-		//Protect = 24,
+		Protect = 24,
 		End = 0,
 		ExportAssets = 56,
-		//ImportAssets = 57,
-		//EnableDebugger = 58,
-		//EnableDebugger2 = 64,
-		//ScriptLimits = 65,
+		ImportAssets = 57, // Unsupported
+		EnableDebugger = 58,
+		EnableDebugger2 = 64,
+		ScriptLimits = 65,
 		SetTabIndex = 66, // Unsupported
-		//ImportAssets2 = 71,
+		ImportAssets2 = 71, // Unsupported
 		SymbolClass = 76,
-		//Metadata = 77,
+		Metadata = 77,
 		DefineScalingGrid = 78, // Unsupported
 		DefineSceneAndFrameLabelData = 86,
 
@@ -122,8 +122,8 @@
 		// -----------------------------
 
 		FileAttributes = 69,
-		//EnableTelemetry = 93,
-		//DefineBinaryData = 87,
+		EnableTelemetry = 93,
+		DefineBinaryData = 87,
 
 		// -----------------------------
 		// Unknown
@@ -166,10 +166,17 @@
 			// Control
 			case (int)SwfTagType.SetBackgroundColor:           return SetBackgroundColorTag.Create(reader);
 			case (int)SwfTagType.FrameLabel:                   return FrameLabelTag.Create(reader);
+			case (int)SwfTagType.Protect:                      return ProtectTag.Create(reader);
 			case (int)SwfTagType.End:                          return EndTag.Create(reader);
 			case (int)SwfTagType.ExportAssets:                 return ExportAssetsTag.Create(reader);
+			case (int)SwfTagType.ImportAssets:                 return UnsupportedTag.Create(SwfTagType.ImportAssets);
+			case (int)SwfTagType.EnableDebugger:               return EnableDebuggerTag.Create(reader);
+			case (int)SwfTagType.EnableDebugger2:              return EnableDebugger2Tag.Create(reader);
+			case (int)SwfTagType.ScriptLimits:                 return ScriptLimitsTag.Create(reader);
 			case (int)SwfTagType.SetTabIndex:                  return UnsupportedTag.Create(SwfTagType.SetTabIndex);
+			case (int)SwfTagType.ImportAssets2:                return UnsupportedTag.Create(SwfTagType.ImportAssets2);
 			case (int)SwfTagType.SymbolClass:                  return SymbolClassTag.Create(reader);
+			case (int)SwfTagType.Metadata:                     return MetadataTag.Create(reader);
 			case (int)SwfTagType.DefineScalingGrid:            return UnsupportedTag.Create(SwfTagType.DefineScalingGrid);
 			case (int)SwfTagType.DefineSceneAndFrameLabelData: return DefineSceneAndFrameLabelDataTag.Create(reader);
 			// Actions
@@ -199,6 +206,8 @@
 			case (int)SwfTagType.VideoFrame:                   return UnsupportedTag.Create(SwfTagType.VideoFrame);
 			// Metadata
 			case (int)SwfTagType.FileAttributes:               return FileAttributesTag.Create(reader);
+			case (int)SwfTagType.EnableTelemetry:              return EnableTelemetryTag.Create(reader);
+			case (int)SwfTagType.DefineBinaryData:             return DefineBinaryDataTag.Create(reader);
 			default:                                           return UnknownTag.Create(tag_data.TagId);
 			}
 		}
