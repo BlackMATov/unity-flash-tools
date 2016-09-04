@@ -31,14 +31,16 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 		}
 
 		public static DefineSceneAndFrameLabelDataTag Create(SwfStreamReader reader) {
-			var scenes = new List<SceneOffsetData>((int)reader.ReadEncodedU32());
-			for ( var i = 0; i < scenes.Capacity; ++i ) {
+			var scene_count = reader.ReadEncodedU32();
+			var scenes      = new List<SceneOffsetData>((int)scene_count);
+			for ( var i = 0; i < scene_count; ++i ) {
 				scenes.Add(new SceneOffsetData{
 					Offset = reader.ReadEncodedU32(),
 					Name   = reader.ReadString()});
 			}
-			var frames = new List<FrameLabelData>((int)reader.ReadEncodedU32());
-			for ( var i = 0; i < frames.Capacity; ++i ) {
+			var frame_count = reader.ReadEncodedU32();
+			var frames      = new List<FrameLabelData>((int)frame_count);
+			for ( var i = 0; i < frame_count; ++i ) {
 				frames.Add(new FrameLabelData{
 					Number = reader.ReadEncodedU32(),
 					Label  = reader.ReadString()});

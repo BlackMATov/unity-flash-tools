@@ -141,8 +141,9 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		public static SwfSurfaceFilters Read(SwfStreamReader reader) {
-			var filters = new List<Filter>(reader.ReadByte());
-			for ( var i = 0; i < filters.Capacity; ++i ) {
+			var filter_count = reader.ReadByte();
+			var filters      = new List<Filter>((int)filter_count);
+			for ( var i = 0; i < filter_count; ++i ) {
 				filters.Add(ReadFilter(reader));
 			}
 			return new SwfSurfaceFilters{

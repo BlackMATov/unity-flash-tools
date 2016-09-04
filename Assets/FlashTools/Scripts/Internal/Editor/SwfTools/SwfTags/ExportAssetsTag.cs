@@ -25,8 +25,9 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 		}
 
 		public static ExportAssetsTag Create(SwfStreamReader reader) {
-			var asset_tags = new List<AssetTagData>((int)reader.ReadUInt16());
-			for ( var i = 0; i < asset_tags.Capacity; ++i ) {
+			var asset_tag_count = reader.ReadUInt16();
+			var asset_tags      = new List<AssetTagData>((int)asset_tag_count);
+			for ( var i = 0; i < asset_tag_count; ++i ) {
 				asset_tags.Add(new AssetTagData{
 					Tag  = reader.ReadUInt16(),
 					Name = reader.ReadString()});

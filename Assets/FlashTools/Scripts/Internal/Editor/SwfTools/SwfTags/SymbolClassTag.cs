@@ -25,8 +25,9 @@ namespace FlashTools.Internal.SwfTools.SwfTags {
 		}
 
 		public static SymbolClassTag Create(SwfStreamReader reader) {
-			var symbol_tags = new List<SymbolTagData>((int)reader.ReadUInt16());
-			for ( var i = 0; i < symbol_tags.Capacity; ++i ) {
+			var symbol_tag_count = reader.ReadUInt16();
+			var symbol_tags      = new List<SymbolTagData>((int)symbol_tag_count);
+			for ( var i = 0; i < symbol_tag_count; ++i ) {
 				symbol_tags.Add(new SymbolTagData{
 					Tag  = reader.ReadUInt16(),
 					Name = reader.ReadString()});
