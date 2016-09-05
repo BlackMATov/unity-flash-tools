@@ -113,7 +113,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				fill_style.BitmapId     = reader.ReadUInt16();
 				fill_style.BitmapMatrix = SwfMatrix.Read(reader, true);
 			} else {
-				throw new UnityException(
+				Debug.LogError(
 					"imported .swf file contains vector graphics. " +
 					"You should use Tools/FlashExport.jsfl script for prepare .fla file");
 			}
