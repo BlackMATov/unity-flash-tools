@@ -173,6 +173,7 @@ if (!Function.prototype.bind) {
 		ftdoc.full_exit_edit_mode(doc);
 		ftdoc.unlock_all_timelines(doc);
 		ftdoc.optimize_all_timelines(doc);
+		ftdoc.rasterize_all_shapes(doc);
 		ftdoc.prepare_all_bitmaps(doc);
 		ftdoc.export_swf(doc);
 	};
@@ -201,8 +202,8 @@ if (!Function.prototype.bind) {
 	
 	ftdoc.unlock_all_timelines = function (doc) {
 		ft.type_assert(doc, Document);
-		fttim.unlock(doc.getTimeline());
 		ftlib.unlock_all_timelines(doc, doc.library);
+		fttim.unlock(doc.getTimeline());
 	};
 	
 	ftdoc.optimize_all_timelines = function (doc) {
@@ -211,7 +212,14 @@ if (!Function.prototype.bind) {
 		ftlib.optimize_single_graphics(doc, doc.library);
 	};
 	
+	ftdoc.rasterize_all_shapes = function (doc) {
+		ft.type_assert(doc, Document);
+		ftlib.rasterize_all_shapes(doc, doc.library);
+		fttim.rasterize_all_shapes(doc, doc.getTimeline());
+	};
+	
 	ftdoc.prepare_all_bitmaps = function (doc) {
+		ft.type_assert(doc, Document);
 		ftlib.prepare_all_bitmaps(doc.library);
 	};
 	
@@ -297,6 +305,12 @@ if (!Function.prototype.bind) {
 	};
 	
 	ftlib.bake_symbol_item = function (doc, library, item_name, new_item_name, first_frame) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(library, Library);
+		ft.type_assert(item_name, 'string');
+		ft.type_assert(new_item_name, 'string');
+		ft.type_assert(first_frame, 'number');
+		
 		if (!library.itemExists(new_item_name)) {
 			library.addNewItem("graphic", new_item_name);
 			if (library.editItem(new_item_name)) {
@@ -319,9 +333,17 @@ if (!Function.prototype.bind) {
 		ft.type_assert(library, Library);
 		
 		ft.array_reverse_foreach(library.items, function (item) {
-			fttim.optimize_single_graphics(doc, item, item.timeline);
+			fttim.optimize_single_graphics(doc, item.timeline, item);
 		}, ftlib.is_symbol_item);
-		fttim.optimize_single_graphics(doc, null, doc.getTimeline());
+		fttim.optimize_single_graphics(doc, doc.getTimeline(), null);
+	};
+	
+	ftlib.rasterize_all_shapes = function (doc, library) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(library, Library);
+		ftlib.edit_all_symbol_items(doc, library, function(item) {
+			fttim.rasterize_all_shapes(doc, item.timeline);
+		});
 	};
 	
 	ftlib.prepare_all_bitmaps = function (library) {
@@ -357,6 +379,11 @@ if (!Function.prototype.bind) {
 		return fttim.is_symbol_instance(elem) && elem.symbolType == "movie clip";
 	};
 	
+	fttim.is_shape_frame = function (frame) {
+		ft.type_assert(frame, Frame);
+		return frame.tweenType == "shape";
+	};
+	
 	fttim.unlock = function (timeline) {
 		ft.type_assert(timeline, Timeline);
 		ft.array_foreach(timeline.layers, function(layer) {
@@ -366,6 +393,8 @@ if (!Function.prototype.bind) {
 	};
 	
 	fttim.replace_baked_symbols = function (doc, timeline, replaces) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(timeline, Timeline);
 		ft.array_foreach(timeline.layers, function(layer) {
 			ft.array_foreach(layer.frames, function(frame, frame_index) {
 				if ( timeline.currentFrame != frame_index ) {
@@ -382,7 +411,9 @@ if (!Function.prototype.bind) {
 		});
 	};
 	
-	fttim.optimize_single_graphics = function (doc, opt_item, timeline) {
+	fttim.optimize_single_graphics = function (doc, timeline, opt_item) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(timeline, Timeline);
 		ft.array_foreach(timeline.layers, function(layer) {
 			ft.array_foreach(layer.frames, function(frame, frame_index) {
 				ft.array_foreach(frame.elements, function(elem) {
@@ -421,6 +452,36 @@ if (!Function.prototype.bind) {
 				}, acc2);
 			}, acc);
 		}, true);
+	};
+	
+	fttim.rasterize_all_shapes = function (doc, timeline) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(timeline, Timeline);
+		
+		ft.array_reverse_foreach(timeline.layers, function(layer, layer_index) {
+			timeline.setSelectedLayers(layer_index);
+			ft.array_foreach(layer.frames, function(frame, frame_index) {
+				frame.convertToFrameByFrameAnimation();
+			}, function (frame, frame_index) {
+				return frame.startFrame == frame_index && fttim.is_shape_frame(frame);
+			});
+		});
+		
+		ft.array_reverse_foreach(timeline.layers, function(layer, layer_index) {
+			timeline.setSelectedLayers(layer_index);
+			ft.array_foreach(layer.frames, function(frame, frame_index) {
+				timeline.currentFrame = frame_index;
+				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
+				doc.selectNone();
+				doc.selection = ft.array_filter(frame.elements, fttim.is_shape_instance);
+				if (doc.selection.length > 0) {
+					doc.convertSelectionToBitmap();
+					doc.arrange("back");
+				}
+			}, function (frame, frame_index) {
+				return frame.startFrame == frame_index;
+			});
+		});
 	};
 	
 	//
