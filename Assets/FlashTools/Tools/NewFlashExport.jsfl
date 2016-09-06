@@ -154,11 +154,11 @@ if (!Function.prototype.bind) {
 	};
 	
 	ft.gen_unique_name = function() {
-		if (!ft.unique_name_index) {
-			ft.unique_name_index = 0;
+		if (!ft.gen_unique_name_index) {
+			ft.gen_unique_name_index = 0;
 		}
-		++ft.unique_name_index;
-		return "ft_unique_name_" + ft.unique_name_index;
+		++ft.gen_unique_name_index;
+		return "ft_unique_name_" + ft.gen_unique_name_index;
 	};
 	
 	//
@@ -171,9 +171,9 @@ if (!Function.prototype.bind) {
 		ft.type_assert(doc, Document);
 		ftdoc.prepare_folders(doc);
 		ftdoc.full_exit_edit_mode(doc);
-		ftdoc.delete_unused_items(doc);
 		ftdoc.unlock_all_timelines(doc);
 		ftdoc.optimize_all_timelines(doc);
+		ftdoc.prepare_all_bitmaps(doc);
 		ftdoc.export_swf(doc);
 	};
 	
@@ -199,17 +199,6 @@ if (!Function.prototype.bind) {
 		}
 	};
 	
-	ftdoc.delete_unused_items = function (doc) {
-		ft.type_assert(doc, Document);
-		var unused_items = doc.library.unusedItems;
-		ft.array_foreach(unused_items, function (item) {
-			ft.trace_fmt("Remove unused item: {0}", item.name);
-			doc.library.deleteItem(item.name);
-		}, function(item) {
-			return !item.linkageExportForAS && !item.linkageExportForRS;
-		});
-	};
-	
 	ftdoc.unlock_all_timelines = function (doc) {
 		ft.type_assert(doc, Document);
 		fttim.unlock(doc.getTimeline());
@@ -218,10 +207,19 @@ if (!Function.prototype.bind) {
 	
 	ftdoc.optimize_all_timelines = function (doc) {
 		ft.type_assert(doc, Document);
-		fttim.optimize_one_frame_graphics(doc, doc.getTimeline());
-		ftlib.optimize_one_frame_graphics(doc, doc.library);
-		fttim.optimize_static_symbols(doc, doc.getTimeline());
-		ftlib.optimize_static_symbols(doc, doc.library);
+		//ftlib.optimize_static_symbols(doc, doc.library);
+		//fttim.optimize_static_symbols(doc, doc.getTimeline());
+		//ftlib.optimize_one_frame_graphics(doc, doc.library);
+		//fttim.optimize_one_frame_graphics(doc, doc.getTimeline());
+		//ftlib.optimize_static_symbols(doc, doc.library);
+		//fttim.optimize_static_symbols(doc, doc.getTimeline());
+		
+		ftlib.optimize_static_items(doc, doc.library);
+		ftlib.optimize_single_graphics(doc, doc.library);
+	};
+	
+	ftdoc.prepare_all_bitmaps = function (doc) {
+		ftlib.prepare_all_bitmaps(doc.library);
 	};
 	
 	ftdoc.export_swf = function (doc) {
@@ -302,6 +300,50 @@ if (!Function.prototype.bind) {
 		});
 	};
 	
+	ftlib.optimize_static_items = function (doc, library) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(library, Library);
+		
+		var replaces = {};
+		ft.array_reverse_foreach(library.items, function (item) {
+			var new_item_name = ft.gen_unique_name();
+			library.addNewItem("graphic", new_item_name);
+			if (library.editItem(new_item_name)) {
+				if (library.addItemToDocument({x:0, y:0}, item.name)) {
+					var new_item_elem = doc.selection[0];
+					new_item_elem.setTransformationPoint({x:0, y:0});
+					new_item_elem.transformX = 0;
+					new_item_elem.transformY = 0;
+					doc.convertSelectionToBitmap();
+					replaces[item.name] = new_item_name;
+				}
+				doc.exitEditMode();
+			}
+		}, function(item) { return ftlib.is_symbol_item(item) && fttim.is_static(item.timeline); });
+
+		ftlib.edit_all_symbol_items(doc, library, function(item) {
+			fttim.replace_baked_symbols(doc, item.timeline, replaces);
+		});
+		fttim.replace_baked_symbols(doc, doc.getTimeline(), replaces);
+	};
+	
+	ftlib.optimize_single_graphics = function (doc, library) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(library, Library);
+		
+		ft.array_reverse_foreach(library.items, function (item) {
+			fttim.optimize_single_graphics(doc, item, item.timeline);
+		}, ftlib.is_symbol_item);
+		fttim.optimize_single_graphics(doc, null, doc.getTimeline());
+	};
+	
+	ftlib.prepare_all_bitmaps = function (library) {
+		ft.type_assert(library, Library);
+		ft.array_foreach(library.items, function (item) {
+			item.compressionType = "lossless";
+		}, ftlib.is_bitmap_item);
+	};
+	
 	//
 	// timeline
 	//
@@ -345,31 +387,10 @@ if (!Function.prototype.bind) {
 					timeline.currentFrame = frame_index;
 				}
 				ft.array_foreach(frame.elements, function(elem) {
-					doc.selectNone();
-					doc.selection = [elem];
-					if (doc.selection.length > 0) {
-						var sx = elem.skewX;
-						var sy = elem.skewY;
-						elem.skewX = 0;
-						elem.skewY = 0;
-						
-						var tx  = elem.matrix.tx;
-						var ty  = elem.matrix.ty;
-						var tpx = elem.getTransformationPoint().x;
-						var tpy = elem.getTransformationPoint().y;
-						elem.setTransformationPoint({x:0, y:0});
-						
-						var new_sym  = doc.convertToSymbol("graphic", ft.gen_unique_name(), "top left");
-						var new_elem = doc.selection[0];
-						
-						var dx = new_elem.matrix.tx - tx;
-						var dy = new_elem.matrix.ty - ty;
-						
-						new_elem.setTransformationPoint({x:tpx-dx, y:tpy-dy});
-						new_elem.skewX = sx;
-						new_elem.skewY = sy;
-						
-						ft.trace_fmt("Optimize one frame graphics: {0}", timeline.name);
+					if (!fttim.is_static(elem.libraryItem.timeline)) {
+						doc.selectNone();
+						doc.selection = [elem];
+						fttim.bake_selected_element(doc, timeline);
 					}
 				}, fttim.is_symbol_graphic_single_frame_instance);
 			}, function(frame, frame_index) {
@@ -377,6 +398,69 @@ if (!Function.prototype.bind) {
 			});
 		});
 	};
+	
+	fttim.bake_selected_element = function (doc, timeline) {
+		if (doc.selection.length == 1) {
+			var elem                = doc.selection[0];
+			elem.colorMode = "none";
+			var lib_item_name       = elem.libraryItem.name;
+			var lib_item_cache_name = "ft_cache_name_" + lib_item_name + "_" + elem.firstFrame;
+			ft.trace_fmt("Optimize one frame graphic: {0} in {1}", lib_item_cache_name, timeline.name);
+			
+			var skx = elem.skewX;
+			var sky = elem.skewY;
+			var scx = elem.scaleX;
+			var scy = elem.scaleY;
+			var psx = elem.transformX;
+			var psy = elem.transformY;
+			
+			elem.skewX      = 0;
+			elem.skewY      = 0;
+			elem.scaleX     = 1;
+			elem.scaleY     = 1;
+			elem.transformX = 0;
+			elem.transformY = 0;
+			
+			var tx  = elem.matrix.tx;
+			var ty  = elem.matrix.ty;
+			var tpx = elem.getTransformationPoint().x;
+			var tpy = elem.getTransformationPoint().y;
+			elem.setTransformationPoint({x:0, y:0});
+			
+			if (!fttim.swapped_elements) {
+				fttim.swapped_elements = {};
+			}
+			
+			if (fttim.swapped_elements.hasOwnProperty(lib_item_cache_name)) {
+				fl.trace("???");
+				var cache = fttim.swapped_elements[lib_item_cache_name];
+				doc.swapElement(cache.item);
+				doc.selection[0].transformX += cache.dx;
+				doc.selection[0].transformY += cache.dy;
+			} else {
+				fl.trace("!!!");
+				var new_lib_item = doc.convertToSymbol("graphic", ft.gen_unique_name(), "top left");
+				fttim.swapped_elements[lib_item_cache_name] = {
+					item: new_lib_item.name,
+					dx:   doc.selection[0].matrix.tx - tx,
+					dy:   doc.selection[0].matrix.ty - ty};
+			}
+			
+			var new_elem = doc.selection[0];
+			new_elem.firstFrame = 0;
+			
+			var dx = new_elem.matrix.tx - tx;
+			var dy = new_elem.matrix.ty - ty;
+			
+			new_elem.setTransformationPoint({x:tpx-dx, y:tpy-dy});
+			new_elem.transformX = psx;
+			new_elem.transformY = psy;
+			new_elem.scaleX     = scx;
+			new_elem.scaleY     = scy;
+			new_elem.skewX      = skx;
+			new_elem.skewY      = sky;
+		}
+	}
 	
 	fttim.optimize_static_symbols = function (doc, timeline) {
 		ft.type_assert(doc, Document);
@@ -390,6 +474,77 @@ if (!Function.prototype.bind) {
 			}
 		}
 	};
+	
+	fttim.replace_baked_symbols = function (doc, timeline, replaces) {
+		ft.array_foreach(timeline.layers, function(layer) {
+			ft.array_foreach(layer.frames, function(frame, frame_index) {
+				if ( timeline.currentFrame != frame_index ) {
+					timeline.currentFrame = frame_index;
+				}
+				ft.array_foreach(frame.elements, function(elem) {
+					if (replaces.hasOwnProperty(elem.libraryItem.name)) {
+						doc.selectNone();
+						doc.selection = [elem];
+						doc.swapElement(replaces[elem.libraryItem.name]);
+					}
+				}, fttim.is_symbol_instance);
+			});
+		});
+	};
+	
+	fttim.optimize_single_graphics = function (doc, opt_item, timeline) {
+		ft.array_foreach(timeline.layers, function(layer) {
+			ft.array_foreach(layer.frames, function(frame, frame_index) {
+				ft.array_foreach(frame.elements, function(elem) {
+					if (!fttim.is_static(elem.libraryItem.timeline)) {
+						var lib_item_name       = elem.libraryItem.name;
+						var lib_item_cache_name = "ft_cache_name_" + lib_item_name + "_" + elem.firstFrame;
+						
+						if (!doc.library.itemExists(lib_item_cache_name)) {
+							doc.library.addNewItem("graphic", lib_item_cache_name);
+							if (doc.library.editItem(lib_item_cache_name)) {
+								if (doc.library.addItemToDocument({x:0, y:0}, lib_item_name)) {
+									var new_item_elem = doc.selection[0];
+									new_item_elem.symbolType = "graphic";
+									new_item_elem.firstFrame = elem.firstFrame;
+									new_item_elem.setTransformationPoint({x:0, y:0});
+									new_item_elem.transformX = 0;
+									new_item_elem.transformY = 0;
+									doc.convertSelectionToBitmap();
+								}
+								doc.exitEditMode();
+							}
+						}
+						
+						if (opt_item == null || doc.library.editItem(opt_item.name)) {
+							if ( timeline.currentFrame != frame_index ) {
+								timeline.currentFrame = frame_index;
+							}
+							doc.selectNone();
+							doc.selection = [elem];
+							doc.swapElement(lib_item_cache_name);
+							doc.selection[0].firstFrame = 0;
+							doc.exitEditMode();
+						}
+						
+						/*
+						var new_item_name = ft.gen_unique_name();
+						doc.library.addNewItem("graphic", new_item_name);
+						if (doc.library.editItem(new_item_name)) {
+							if (doc.library.addItemToDocument({x:0, y:0}, elem.libraryItem.name)) {
+								var new_item_elem = doc.selection[0];
+								new_item_elem.setTransformationPoint({x:0, y:0});
+								new_item_elem.transformX = 0;
+								new_item_elem.transformY = 0;
+								doc.convertSelectionToBitmap();
+							}
+							doc.exitEditMode();
+						}*/
+					}
+				}, fttim.is_symbol_graphic_single_frame_instance);
+			});
+		});
+	}
 	
 	fttim.is_static = function (timeline) {
 		ft.type_assert(timeline, Timeline);
@@ -425,7 +580,7 @@ if (!Function.prototype.bind) {
 		});
 		ft.array_foreach(fl.documents, function (doc) {
 			if ( doc.canRevert() ) {
-				fl.revertDocument(document);
+				//fl.revertDocument(document);
 			}
 		});
 		ft.trace("- Finish -");
