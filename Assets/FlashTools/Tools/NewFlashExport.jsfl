@@ -207,13 +207,6 @@ if (!Function.prototype.bind) {
 	
 	ftdoc.optimize_all_timelines = function (doc) {
 		ft.type_assert(doc, Document);
-		//ftlib.optimize_static_symbols(doc, doc.library);
-		//fttim.optimize_static_symbols(doc, doc.getTimeline());
-		//ftlib.optimize_one_frame_graphics(doc, doc.library);
-		//fttim.optimize_one_frame_graphics(doc, doc.getTimeline());
-		//ftlib.optimize_static_symbols(doc, doc.library);
-		//fttim.optimize_static_symbols(doc, doc.getTimeline());
-		
 		ftlib.optimize_static_items(doc, doc.library);
 		ftlib.optimize_single_graphics(doc, doc.library);
 	};
@@ -284,22 +277,6 @@ if (!Function.prototype.bind) {
 		});
 	};
 	
-	ftlib.optimize_one_frame_graphics = function (doc, library) {
-		ft.type_assert(doc, Document);
-		ft.type_assert(library, Library);
-		ftlib.edit_all_symbol_items(doc, library, function(item) {
-			fttim.optimize_one_frame_graphics(doc, item.timeline);
-		});
-	};
-	
-	ftlib.optimize_static_symbols = function (doc, library) {
-		ft.type_assert(doc, Document);
-		ft.type_assert(library, Library);
-		ftlib.edit_all_symbol_items(doc, library, function(item) {
-			fttim.optimize_static_symbols(doc, item.timeline);
-		});
-	};
-	
 	ftlib.optimize_static_items = function (doc, library) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(library, Library);
@@ -307,24 +284,34 @@ if (!Function.prototype.bind) {
 		var replaces = {};
 		ft.array_reverse_foreach(library.items, function (item) {
 			var new_item_name = ft.gen_unique_name();
-			library.addNewItem("graphic", new_item_name);
-			if (library.editItem(new_item_name)) {
-				if (library.addItemToDocument({x:0, y:0}, item.name)) {
-					var new_item_elem = doc.selection[0];
-					new_item_elem.setTransformationPoint({x:0, y:0});
-					new_item_elem.transformX = 0;
-					new_item_elem.transformY = 0;
-					doc.convertSelectionToBitmap();
-					replaces[item.name] = new_item_name;
-				}
-				doc.exitEditMode();
-			}
-		}, function(item) { return ftlib.is_symbol_item(item) && fttim.is_static(item.timeline); });
+			ftlib.bake_symbol_item(doc, library, item.name, new_item_name, 0);
+			replaces[item.name] = new_item_name;
+		}, function(item) {
+			return ftlib.is_symbol_item(item) && fttim.is_static(item.timeline);
+		});
 
 		ftlib.edit_all_symbol_items(doc, library, function(item) {
 			fttim.replace_baked_symbols(doc, item.timeline, replaces);
 		});
 		fttim.replace_baked_symbols(doc, doc.getTimeline(), replaces);
+	};
+	
+	ftlib.bake_symbol_item = function (doc, library, item_name, new_item_name, first_frame) {
+		if (!library.itemExists(new_item_name)) {
+			library.addNewItem("graphic", new_item_name);
+			if (library.editItem(new_item_name)) {
+				if (library.addItemToDocument({x:0, y:0}, item_name)) {
+					var new_item_elem = doc.selection[0];
+					new_item_elem.symbolType = "graphic";
+					new_item_elem.firstFrame = first_frame;
+					new_item_elem.setTransformationPoint({x:0, y:0});
+					new_item_elem.transformX = 0;
+					new_item_elem.transformY = 0;
+					doc.convertSelectionToBitmap();
+				}
+				doc.exitEditMode();
+			}
+		}
 	};
 	
 	ftlib.optimize_single_graphics = function (doc, library) {
@@ -378,103 +365,6 @@ if (!Function.prototype.bind) {
 		});
 	};
 	
-	fttim.optimize_one_frame_graphics = function (doc, timeline) {
-		ft.type_assert(doc, Document);
-		ft.type_assert(timeline, Timeline);
-		ft.array_foreach(timeline.layers, function(layer) {
-			ft.array_foreach(layer.frames, function(frame, frame_index) {
-				if ( timeline.currentFrame != frame_index ) {
-					timeline.currentFrame = frame_index;
-				}
-				ft.array_foreach(frame.elements, function(elem) {
-					if (!fttim.is_static(elem.libraryItem.timeline)) {
-						doc.selectNone();
-						doc.selection = [elem];
-						fttim.bake_selected_element(doc, timeline);
-					}
-				}, fttim.is_symbol_graphic_single_frame_instance);
-			}, function(frame, frame_index) {
-				return frame.startFrame == frame_index;
-			});
-		});
-	};
-	
-	fttim.bake_selected_element = function (doc, timeline) {
-		if (doc.selection.length == 1) {
-			var elem                = doc.selection[0];
-			elem.colorMode = "none";
-			var lib_item_name       = elem.libraryItem.name;
-			var lib_item_cache_name = "ft_cache_name_" + lib_item_name + "_" + elem.firstFrame;
-			ft.trace_fmt("Optimize one frame graphic: {0} in {1}", lib_item_cache_name, timeline.name);
-			
-			var skx = elem.skewX;
-			var sky = elem.skewY;
-			var scx = elem.scaleX;
-			var scy = elem.scaleY;
-			var psx = elem.transformX;
-			var psy = elem.transformY;
-			
-			elem.skewX      = 0;
-			elem.skewY      = 0;
-			elem.scaleX     = 1;
-			elem.scaleY     = 1;
-			elem.transformX = 0;
-			elem.transformY = 0;
-			
-			var tx  = elem.matrix.tx;
-			var ty  = elem.matrix.ty;
-			var tpx = elem.getTransformationPoint().x;
-			var tpy = elem.getTransformationPoint().y;
-			elem.setTransformationPoint({x:0, y:0});
-			
-			if (!fttim.swapped_elements) {
-				fttim.swapped_elements = {};
-			}
-			
-			if (fttim.swapped_elements.hasOwnProperty(lib_item_cache_name)) {
-				fl.trace("???");
-				var cache = fttim.swapped_elements[lib_item_cache_name];
-				doc.swapElement(cache.item);
-				doc.selection[0].transformX += cache.dx;
-				doc.selection[0].transformY += cache.dy;
-			} else {
-				fl.trace("!!!");
-				var new_lib_item = doc.convertToSymbol("graphic", ft.gen_unique_name(), "top left");
-				fttim.swapped_elements[lib_item_cache_name] = {
-					item: new_lib_item.name,
-					dx:   doc.selection[0].matrix.tx - tx,
-					dy:   doc.selection[0].matrix.ty - ty};
-			}
-			
-			var new_elem = doc.selection[0];
-			new_elem.firstFrame = 0;
-			
-			var dx = new_elem.matrix.tx - tx;
-			var dy = new_elem.matrix.ty - ty;
-			
-			new_elem.setTransformationPoint({x:tpx-dx, y:tpy-dy});
-			new_elem.transformX = psx;
-			new_elem.transformY = psy;
-			new_elem.scaleX     = scx;
-			new_elem.scaleY     = scy;
-			new_elem.skewX      = skx;
-			new_elem.skewY      = sky;
-		}
-	}
-	
-	fttim.optimize_static_symbols = function (doc, timeline) {
-		ft.type_assert(doc, Document);
-		ft.type_assert(timeline, Timeline);
-		if (fttim.is_static(timeline)) {
-			doc.selectNone();
-			doc.selectAll();
-			if (doc.selection.length > 0) {
-				doc.convertSelectionToBitmap();
-				ft.trace_fmt("Optimize static symbol: {0}", timeline.name);
-			}
-		}
-	};
-	
 	fttim.replace_baked_symbols = function (doc, timeline, replaces) {
 		ft.array_foreach(timeline.layers, function(layer) {
 			ft.array_foreach(layer.frames, function(frame, frame_index) {
@@ -496,55 +386,26 @@ if (!Function.prototype.bind) {
 		ft.array_foreach(timeline.layers, function(layer) {
 			ft.array_foreach(layer.frames, function(frame, frame_index) {
 				ft.array_foreach(frame.elements, function(elem) {
-					if (!fttim.is_static(elem.libraryItem.timeline)) {
-						var lib_item_name       = elem.libraryItem.name;
-						var lib_item_cache_name = "ft_cache_name_" + lib_item_name + "_" + elem.firstFrame;
-						
-						if (!doc.library.itemExists(lib_item_cache_name)) {
-							doc.library.addNewItem("graphic", lib_item_cache_name);
-							if (doc.library.editItem(lib_item_cache_name)) {
-								if (doc.library.addItemToDocument({x:0, y:0}, lib_item_name)) {
-									var new_item_elem = doc.selection[0];
-									new_item_elem.symbolType = "graphic";
-									new_item_elem.firstFrame = elem.firstFrame;
-									new_item_elem.setTransformationPoint({x:0, y:0});
-									new_item_elem.transformX = 0;
-									new_item_elem.transformY = 0;
-									doc.convertSelectionToBitmap();
-								}
-								doc.exitEditMode();
-							}
+					var lib_item_name       = elem.libraryItem.name;
+					var lib_item_cache_name = "ft_cache_name_" + lib_item_name + "_" + elem.firstFrame;
+					ftlib.bake_symbol_item(doc, doc.library, lib_item_name, lib_item_cache_name, elem.firstFrame);
+					
+					if (opt_item == null || doc.library.editItem(opt_item.name)) {
+						if ( timeline.currentFrame != frame_index ) {
+							timeline.currentFrame = frame_index;
 						}
-						
-						if (opt_item == null || doc.library.editItem(opt_item.name)) {
-							if ( timeline.currentFrame != frame_index ) {
-								timeline.currentFrame = frame_index;
-							}
-							doc.selectNone();
-							doc.selection = [elem];
-							doc.swapElement(lib_item_cache_name);
-							doc.selection[0].firstFrame = 0;
-							doc.exitEditMode();
-						}
-						
-						/*
-						var new_item_name = ft.gen_unique_name();
-						doc.library.addNewItem("graphic", new_item_name);
-						if (doc.library.editItem(new_item_name)) {
-							if (doc.library.addItemToDocument({x:0, y:0}, elem.libraryItem.name)) {
-								var new_item_elem = doc.selection[0];
-								new_item_elem.setTransformationPoint({x:0, y:0});
-								new_item_elem.transformX = 0;
-								new_item_elem.transformY = 0;
-								doc.convertSelectionToBitmap();
-							}
-							doc.exitEditMode();
-						}*/
+						doc.selectNone();
+						doc.selection = [elem];
+						doc.swapElement(lib_item_cache_name);
+						doc.selection[0].firstFrame = 0;
+						doc.exitEditMode();
 					}
-				}, fttim.is_symbol_graphic_single_frame_instance);
+				}, function(elem) {
+					return fttim.is_symbol_graphic_single_frame_instance(elem) && !fttim.is_static(elem.libraryItem.timeline);
+				});
 			});
 		});
-	}
+	};
 	
 	fttim.is_static = function (timeline) {
 		ft.type_assert(timeline, Timeline);
@@ -580,7 +441,7 @@ if (!Function.prototype.bind) {
 		});
 		ft.array_foreach(fl.documents, function (doc) {
 			if ( doc.canRevert() ) {
-				//fl.revertDocument(document);
+				fl.revertDocument(document);
 			}
 		});
 		ft.trace("- Finish -");
