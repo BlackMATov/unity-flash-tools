@@ -276,7 +276,6 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		public SwfDisplayList Visit(DefineBinaryDataTag tag, SwfDisplayList dl) {
-			//TODO: IMPLME
 			return dl;
 		}
 
@@ -302,11 +301,12 @@ namespace FlashTools.Internal.SwfTools {
 		}
 
 		void AddBitmapToLibrary(ushort define_id, int width, int height, byte[] argb32) {
+			var duplicated = FindDuplicatedBitmap(argb32);
 			var define = new SwfLibraryBitmapDefine{
-				Width  = width,
-				Height = height,
-				ARGB32 = argb32
-			};
+				Width    = width,
+				Height   = height,
+				ARGB32   = duplicated > 0 ? new byte[0] : argb32,
+				Redirect = duplicated};
 			Library.Defines.Add(define_id, define);
 		}
 
@@ -315,6 +315,18 @@ namespace FlashTools.Internal.SwfTools {
 				ControlTags = control_tags
 			};
 			Library.Defines.Add(define_id, define);
+		}
+
+		ushort FindDuplicatedBitmap(byte[] argb32) {
+			foreach ( var define in Library.Defines ) {
+				var bitmap = define.Value as SwfLibraryBitmapDefine;
+				if ( bitmap != null && bitmap.ARGB32.Length == argb32.Length ) {
+					if ( bitmap.ARGB32.SequenceEqual(argb32) ) {
+						return define.Key;
+					}
+				}
+			}
+			return 0;
 		}
 
 		bool IsSpriteTimelineEnd(SwfDisplaySpriteInstance sprite) {

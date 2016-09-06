@@ -207,21 +207,23 @@ namespace FlashTools.Internal {
 			SwfLibrary library, SwfAsset asset)
 		{
 			var bitmap_defines = library.Defines
-				.Where  (p => p.Value.Type == SwfLibraryDefineType.Bitmap)
-				.Select (p => new KeyValuePair<int, SwfLibraryBitmapDefine>(
-					p.Key, p.Value as SwfLibraryBitmapDefine))
-				.ToArray();
+				.Where       (p => p.Value.Type == SwfLibraryDefineType.Bitmap)
+				.ToDictionary(p => p.Key, p => p.Value as SwfLibraryBitmapDefine);
 			var textures = bitmap_defines
-				.Select (p => LoadTextureFromBitmapDefine(p.Value))
-				.ToArray();
-			var rects = PackAndSaveBitmapsAtlas(asset, textures);
-			var bitmaps = new List<SwfBitmapData>(bitmap_defines.Length);
-			for ( var i = 0; i < bitmap_defines.Length; ++i ) {
-				var bitmap_define = bitmap_defines[i];
+				.Where  (p => p.Value.Redirect == 0)
+				.Select (p => new KeyValuePair<int, Texture2D>(
+					p.Key, LoadTextureFromBitmapDefine(p.Value)))
+				.ToList();
+			var rects = PackAndSaveBitmapsAtlas(asset, textures.Select(p => p.Value).ToArray());
+			var bitmaps = new List<SwfBitmapData>(bitmap_defines.Count);
+			foreach ( var bitmap_define in bitmap_defines ) {
+				var texture_key = bitmap_define.Value.Redirect > 0
+					? bitmap_define.Value.Redirect
+					: bitmap_define.Key;
 				var bitmap_data = new SwfBitmapData{
 					Id         = bitmap_define.Key,
 					RealSize   = new Vector2(bitmap_define.Value.Width, bitmap_define.Value.Height),
-					SourceRect = rects[i]};
+					SourceRect = rects[textures.FindIndex(p => p.Key == texture_key)]};
 				bitmaps.Add(bitmap_data);
 			}
 			return bitmaps;

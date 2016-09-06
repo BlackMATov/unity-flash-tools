@@ -31,9 +31,10 @@ namespace FlashTools.Internal.SwfTools {
 	}
 
 	public class SwfLibraryBitmapDefine : SwfLibraryDefine {
-		public int    Width  = 0;
-		public int    Height = 0;
-		public byte[] ARGB32 = new byte[0];
+		public int    Width    = 0;
+		public int    Height   = 0;
+		public byte[] ARGB32   = new byte[0];
+		public ushort Redirect = 0;
 
 		public override SwfLibraryDefineType Type {
 			get { return SwfLibraryDefineType.Bitmap; }
