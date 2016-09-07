@@ -1,4 +1,11 @@
 -----------------
+-- Version 0.2 --
+-----------------
+
+Export optimizations
+Export clips with export names
+
+-----------------
 -- Version 0.1 --
 -----------------
 
