@@ -40,7 +40,8 @@ namespace FlashTools.Internal {
 			return null;
 		}
 
-		static void CreateClipPrefab(SwfClipAsset clip) {
+		static GameObject CreateClipPrefab(SwfClipAsset clip) {
+			GameObject result = null;
 			var clip_go = CreateClipGO(clip);
 			if ( clip_go ) {
 				var prefab_path = GetPrefabPath(clip);
@@ -49,38 +50,40 @@ namespace FlashTools.Internal {
 					if ( !prefab ) {
 						prefab = PrefabUtility.CreateEmptyPrefab(prefab_path);
 					}
-					PrefabUtility.ReplacePrefab(
+					result = PrefabUtility.ReplacePrefab(
 						clip_go,
 						prefab,
 						ReplacePrefabOptions.ConnectToPrefab);
 				}
 				GameObject.DestroyImmediate(clip_go, true);
 			}
+			return result;
 		}
 
-		static void CreateClipOnScene(SwfClipAsset clip) {
+		static GameObject CreateClipOnScene(SwfClipAsset clip) {
 			var clip_go = CreateClipGO(clip);
 			if ( clip_go ) {
 				Undo.RegisterCreatedObjectUndo(clip_go, "Instance SwfClip");
 			}
+			return clip_go;
 		}
 
 		//
 		//
 		//
-
-		void AllClipsForeach(Action<SwfClipAsset> act) {
-			foreach ( var clip in _clips ) {
-				act(clip);
-			}
-		}
 
 		void CreateAllClipsPrefabs() {
-			AllClipsForeach(p => CreateClipPrefab(p));
+			Selection.objects = _clips
+				.Select (p => CreateClipPrefab(p))
+				.Where  (p => !!p)
+				.ToArray();
 		}
 
 		void CreateAllClipsOnScene() {
-			AllClipsForeach(p => CreateClipOnScene(p));
+			Selection.objects = _clips
+				.Select (p => CreateClipOnScene(p))
+				.Where  (p => !!p)
+				.ToArray();
 		}
 
 		//
