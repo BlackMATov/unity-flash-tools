@@ -32,7 +32,12 @@ if (!Function.prototype.bind) {
 	// ft
 	//
 	
-	var ft = {};
+	var ft = {
+		profile_mode             : true,
+		verbose_mode             : true,
+		optimize_static_items    : true,
+		optimize_single_graphics : true
+	};
 	
 	ft.trace = function () {
 		fl.outputPanel.trace(
@@ -72,6 +77,50 @@ if (!Function.prototype.bind) {
 	ft.type_assert_if_defined = function (item, type) {
 		if (item !== undefined) {
 			ft.type_assert(item, type);
+		}
+	};
+	
+	ft.profile_function = function (func, msg) {
+		ft.type_assert(func, Function);
+		ft.type_assert(msg, 'string');
+		if (!ft.profile_function_stack) {
+			ft.profile_function_stack = [];
+		}
+		if (!ft.profile_function_level) {
+			ft.profile_function_level = 0;
+		}
+		var stack_index = ft.profile_function_stack.length;
+		ft.profile_function_stack.push({
+			msg   : msg,
+			level : ft.profile_function_level,
+			time  : 0});
+		++ft.profile_function_level;
+		var func_time = ft.get_call_function_time(func);
+		--ft.profile_function_level;
+		ft.profile_function_stack[stack_index].time = func_time;
+		if (stack_index == 0) {
+			for (var i = 0; i < ft.profile_function_stack.length; ++i) {
+				var info  = ft.profile_function_stack[i];
+				var ident = "--";
+				for (var j = 0; j < info.level; ++j) {
+					ident += "--";
+				}
+				if (ft.profile_mode) {
+					ft.trace_fmt("{0} Profile: '{1}' : {2}", ident, info.msg, info.time);
+				}
+			}
+			ft.profile_function_stack = [];
+		}
+	};
+	
+	ft.get_call_function_time = function (func) {
+		ft.type_assert(func, Function);
+		var b_time = Date.now();
+		try {
+			func();
+		} finally {
+			var e_time = Date.now();
+			return (e_time - b_time)/1000;
 		}
 	};
 	
@@ -169,13 +218,13 @@ if (!Function.prototype.bind) {
 	
 	ftdoc.prepare = function (doc) {
 		ft.type_assert(doc, Document);
-		ftdoc.prepare_folders(doc);
-		ftdoc.full_exit_edit_mode(doc);
-		ftdoc.unlock_all_timelines(doc);
-		ftdoc.optimize_all_timelines(doc);
-		ftdoc.rasterize_all_shapes(doc);
-		ftdoc.prepare_all_bitmaps(doc);
-		ftdoc.export_swf(doc);
+		ft.profile_function(function() { ftdoc.prepare_folders(doc);        }, "Prepare folders");
+		ft.profile_function(function() { ftdoc.full_exit_edit_mode(doc);    }, "Full exit edit mode");
+		ft.profile_function(function() { ftdoc.unlock_all_timelines(doc);   }, "Unlock all timelines");
+		ft.profile_function(function() { ftdoc.optimize_all_timelines(doc); }, "Optimize all timelines");
+		ft.profile_function(function() { ftdoc.rasterize_all_shapes(doc);   }, "Rasterize all shapes");
+		ft.profile_function(function() { ftdoc.prepare_all_bitmaps(doc);    }, "Prepare all bitmaps");
+		ft.profile_function(function() { ftdoc.export_swf(doc);             }, "Export swf");
 	};
 	
 	ftdoc.prepare_folders = function (doc) {
@@ -208,8 +257,16 @@ if (!Function.prototype.bind) {
 	
 	ftdoc.optimize_all_timelines = function (doc) {
 		ft.type_assert(doc, Document);
-		ftlib.optimize_static_items(doc, doc.library);
-		ftlib.optimize_single_graphics(doc, doc.library);
+		if (ft.optimize_static_items) {
+			ft.profile_function(function() {
+				ftlib.optimize_static_items(doc, doc.library);
+			}, "Optimize static items");
+		}
+		if (ft.optimize_single_graphics) {
+			ft.profile_function(function() {
+				ftlib.optimize_single_graphics(doc, doc.library);
+			}, "Optimize single graphics");
+		}
 	};
 	
 	ftdoc.rasterize_all_shapes = function (doc) {
@@ -225,7 +282,7 @@ if (!Function.prototype.bind) {
 	
 	ftdoc.export_swf = function (doc) {
 		ft.type_assert(doc, Document);
-		ft.trace_fmt("Export swf: {0}", doc.name);
+		ft.trace_fmt("!!!Document!!!: '{0}' conversion complete!", doc.name);
 		doc.exportSWF(ftdoc.get_export_swf_path(doc));
 	};
 	
@@ -294,6 +351,9 @@ if (!Function.prototype.bind) {
 			var new_item_name = ft.gen_unique_name();
 			ftlib.bake_symbol_item(doc, library, item.name, new_item_name, 0);
 			replaces[item.name] = new_item_name;
+			if (ft.verbose_mode) {
+				ft.trace_fmt("Optimize static item: '{0}'", item.name);
+			}
 		}, function(item) {
 			return ftlib.is_symbol_item(item) && fttim.is_static(item.timeline);
 		});
@@ -421,6 +481,11 @@ if (!Function.prototype.bind) {
 					var lib_item_cache_name = "ft_cache_name_" + lib_item_name + "_" + elem.firstFrame;
 					ftlib.bake_symbol_item(doc, doc.library, lib_item_name, lib_item_cache_name, elem.firstFrame);
 					
+					if (ft.verbose_mode) {
+						ft.trace_fmt("Optimize single graphic '{0}' for frame '{1}' in '{2}'",
+							lib_item_name, elem.firstFrame, timeline.name);
+					}
+					
 					if (opt_item == null || doc.library.editItem(opt_item.name)) {
 						if ( timeline.currentFrame != frame_index ) {
 							timeline.currentFrame = frame_index;
@@ -467,6 +532,7 @@ if (!Function.prototype.bind) {
 			});
 		});
 		
+		var any_rasterize = false;
 		ft.array_reverse_foreach(timeline.layers, function(layer, layer_index) {
 			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function(frame, frame_index) {
@@ -477,11 +543,15 @@ if (!Function.prototype.bind) {
 				if (doc.selection.length > 0) {
 					doc.convertSelectionToBitmap();
 					doc.arrange("back");
+					any_rasterize = true;
 				}
 			}, function (frame, frame_index) {
 				return frame.startFrame == frame_index;
 			});
 		});
+		if (any_rasterize && ft.verbose_mode) {
+			ft.trace_fmt("Rasterize vector shapes in '{0}'", timeline.name);
+		}
 	};
 	
 	//
@@ -494,17 +564,19 @@ if (!Function.prototype.bind) {
 		ft.trace("- Start -");
 		ft.array_foreach(fl.documents, function (doc) {
 			try {
-				ft.trace_fmt("Document: {0}", doc.name);
+				ft.trace_fmt("!!!Document!!!: '{0}'", doc.name);
 				ftdoc.prepare(doc);
 			} catch (e) {
-				ft.trace_fmt("- Document conversion error: {0}", e);
+				ft.trace_fmt("!!!Document!!!: '{0}' conversion error: '{1}'", doc.name, e);
 			}
 		});
-		ft.array_foreach(fl.documents, function (doc) {
-			if ( doc.canRevert() ) {
-				fl.revertDocument(document);
-			}
-		});
+		ft.profile_function(function() {
+			ft.array_foreach(fl.documents, function (doc) {
+				if ( doc.canRevert() ) {
+					fl.revertDocument(document);
+				}
+			});
+		}, "Revert documents");
 		ft.trace("- Finish -");
 	})();
 })();
