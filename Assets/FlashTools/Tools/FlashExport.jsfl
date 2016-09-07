@@ -33,7 +33,7 @@ if (!Function.prototype.bind) {
 	//
 	
 	var ft = {
-		profile_mode             : true,
+		profile_mode             : false,
 		verbose_mode             : true,
 		optimize_static_items    : true,
 		optimize_single_graphics : true
@@ -43,7 +43,7 @@ if (!Function.prototype.bind) {
 		fl.outputPanel.trace(
 			Array.prototype.join.call(arguments, " "));
 	};
-
+	
 	ft.trace_fmt = function (format) {
 		var args = Array.prototype.slice.call(arguments, 1);
 		ft.trace(format.format.apply(format, args));
@@ -63,7 +63,7 @@ if (!Function.prototype.bind) {
 			}
 		}
 	};
-
+	
 	ft.type_assert = function (item, type) {
 		var type_is_string = (typeof type === 'string');
 		ft.assert(
@@ -73,7 +73,7 @@ if (!Function.prototype.bind) {
 			typeof item,
 			type_is_string ? type : type.constructor.name);
 	};
-
+	
 	ft.type_assert_if_defined = function (item, type) {
 		if (item !== undefined) {
 			ft.type_assert(item, type);
@@ -128,7 +128,7 @@ if (!Function.prototype.bind) {
 		ft.type_assert(path, 'string');
 		return path.replace(/ /g, '%20');
 	};
-
+	
 	ft.escape_string = function (str) {
 		ft.type_assert(str, 'string');
 		return str
@@ -138,7 +138,7 @@ if (!Function.prototype.bind) {
 			.replace(/</g,  '&lt;'  )
 			.replace(/>/g,  '&gt;'  );
 	};
-
+	
 	ft.combine_path = function (lhs, rhs) {
 		ft.type_assert(lhs, 'string');
 		ft.type_assert(rhs, 'string');
@@ -357,7 +357,7 @@ if (!Function.prototype.bind) {
 		}, function(item) {
 			return ftlib.is_symbol_item(item) && fttim.is_static(item.timeline);
 		});
-
+		
 		ftlib.edit_all_symbol_items(doc, library, function(item) {
 			fttim.replace_baked_symbols(doc, item.timeline, replaces);
 		});
@@ -444,6 +444,11 @@ if (!Function.prototype.bind) {
 		return frame.tweenType == "shape";
 	};
 	
+	fttim.is_keyframe = function (frame, frame_index) {
+		ft.type_assert(frame, Frame);
+		return frame.startFrame == frame_index;
+	};
+	
 	fttim.unlock = function (timeline) {
 		ft.type_assert(timeline, Timeline);
 		ft.array_foreach(timeline.layers, function(layer) {
@@ -467,7 +472,7 @@ if (!Function.prototype.bind) {
 						doc.swapElement(replaces[elem.libraryItem.name]);
 					}
 				}, fttim.is_symbol_instance);
-			});
+			}, fttim.is_keyframe);
 		});
 	};
 	
@@ -499,7 +504,7 @@ if (!Function.prototype.bind) {
 				}, function(elem) {
 					return fttim.is_symbol_graphic_single_frame_instance(elem) && !fttim.is_static(elem.libraryItem.timeline);
 				});
-			});
+			}, fttim.is_keyframe);
 		});
 	};
 	
@@ -528,7 +533,7 @@ if (!Function.prototype.bind) {
 			ft.array_foreach(layer.frames, function(frame, frame_index) {
 				frame.convertToFrameByFrameAnimation();
 			}, function (frame, frame_index) {
-				return frame.startFrame == frame_index && fttim.is_shape_frame(frame);
+				return fttim.is_keyframe(frame, frame_index) && fttim.is_shape_frame(frame);
 			});
 		});
 		
@@ -545,9 +550,7 @@ if (!Function.prototype.bind) {
 					doc.arrange("back");
 					any_rasterize = true;
 				}
-			}, function (frame, frame_index) {
-				return frame.startFrame == frame_index;
-			});
+			}, fttim.is_keyframe);
 		});
 		if (any_rasterize && ft.verbose_mode) {
 			ft.trace_fmt("Rasterize vector shapes in '{0}'", timeline.name);
