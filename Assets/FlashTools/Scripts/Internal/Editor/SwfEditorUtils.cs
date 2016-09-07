@@ -1,24 +1,29 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-using System;
 using System.IO;
 using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	public static class SwfEditorUtils {
-		public static void DoWithMixedValue(bool mixed, Action act) {
+		public static void DoWithMixedValue(bool mixed, System.Action act) {
 			var last_show_mixed_value = EditorGUI.showMixedValue;
 			EditorGUI.showMixedValue = mixed;
-			act();
-			EditorGUI.showMixedValue = last_show_mixed_value;
+			try {
+				act();
+			} finally {
+				EditorGUI.showMixedValue = last_show_mixed_value;
+			}
 		}
 
-		public static void DoWithEnabledGUI(bool enabled, Action act) {
+		public static void DoWithEnabledGUI(bool enabled, System.Action act) {
 			var last_gui_enabled = GUI.enabled;
 			GUI.enabled = enabled;
-			act();
-			GUI.enabled = last_gui_enabled;
+			try {
+				act();
+			} finally {
+				GUI.enabled = last_gui_enabled;
+			}
 		}
 
 		public static SerializedProperty GetPropertyByName(SerializedObject obj, string name) {

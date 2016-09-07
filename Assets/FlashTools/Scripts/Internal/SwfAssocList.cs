@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	public class SwfAssocList<T> {
 		SwfList<T>           _list;
 		Dictionary<T, int>   _dict;
-		IEqualityComparer<T> _comparer;
+		IEqualityComparer<T> _comp;
 
 		public SwfAssocList() {
-			_list     = new SwfList<T>();
-			_dict     = new Dictionary<T, int>();
-			_comparer = EqualityComparer<T>.Default;
+			_list = new SwfList<T>();
+			_dict = new Dictionary<T, int>();
+			_comp = EqualityComparer<T>.Default;
 		}
 
 		public SwfAssocList(int capacity) {
-			_list     = new SwfList<T>(capacity);
-			_dict     = new Dictionary<T, int>(capacity);
-			_comparer = EqualityComparer<T>.Default;
+			_list = new SwfList<T>(capacity);
+			_dict = new Dictionary<T, int>(capacity);
+			_comp = EqualityComparer<T>.Default;
 		}
 
 		public T this[int index] {
@@ -53,7 +52,7 @@ namespace FlashTools.Internal {
 			if ( _dict.TryGetValue(item, out index) ) {
 				_dict.Remove(item);
 				var reordered =_list.UnorderedRemoveAt(index);
-				if ( !_comparer.Equals(reordered, item) ) {
+				if ( !_comp.Equals(reordered, item) ) {
 					_dict[reordered] = index;
 				}
 			}

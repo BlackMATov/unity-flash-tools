@@ -9,7 +9,6 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		}
 
 		public static SwfClipActions Read(SwfStreamReader reader) {
-			//TODO: IMPLME
 			throw new UnityException("Clip actions is unsupported");
 		}
 

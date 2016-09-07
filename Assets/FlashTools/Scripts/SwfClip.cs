@@ -132,8 +132,8 @@ namespace FlashTools {
 			if ( _meshRenderer ) {
 				_meshRenderer.enabled = !!clip;
 			}
-			UpdatePropertyBlock();
 			ChangeSequence();
+			UpdatePropBlock();
 		}
 
 		void ChangeSequence() {
@@ -173,7 +173,7 @@ namespace FlashTools {
 			}
 		}
 
-		void UpdatePropertyBlock() {
+		void UpdatePropBlock() {
 			if ( _meshRenderer ) {
 				if ( _curPropBlock == null ) {
 					_curPropBlock = new MaterialPropertyBlock();
