@@ -15,7 +15,7 @@ MonoBehaviour:
     MaxAtlasSize: 1024
     AtlasPadding: 1
     PixelsPerUnit: 100
-    GenerateMipMaps: 1
+    GenerateMipMaps: 0
     AtlasPowerOfTwo: 1
     AtlasForceSquare: 1
     AtlasTextureFilter: 1

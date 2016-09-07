@@ -39,7 +39,7 @@ namespace FlashTools.Internal {
 					MaxAtlasSize       = 1024,
 					AtlasPadding       = 1,
 					PixelsPerUnit      = 100.0f,
-					GenerateMipMaps    = true,
+					GenerateMipMaps    = false,
 					AtlasPowerOfTwo    = true,
 					AtlasForceSquare   = true,
 					AtlasTextureFilter = AtlasFilter.Bilinear,
