@@ -125,13 +125,15 @@ namespace FlashTools.Internal.SwfEditorTools {
 								? all_sorting_layers.FindIndex(p => string.IsNullOrEmpty(p))
 								: all_sorting_layers.FindIndex(p => p == property.stringValue),
 							all_sorting_layers.Select(p => new GUIContent(p)).ToArray());
-						var new_value = all_sorting_layers[sorting_layer_index];
-						if ( !string.IsNullOrEmpty(new_value) ) {
-							if ( property.hasMultipleDifferentValues ) {
-								property.stringValue = string.Empty;
+						if ( sorting_layer_index >= 0 && sorting_layer_index < all_sorting_layers.Count ) {
+							var new_value = all_sorting_layers[sorting_layer_index];
+							if ( !string.IsNullOrEmpty(new_value) ) {
+								if ( property.hasMultipleDifferentValues ) {
+									property.stringValue = string.Empty;
+								}
+								property.stringValue = new_value;
+								property.serializedObject.ApplyModifiedProperties();
 							}
-							property.stringValue = new_value;
-							property.serializedObject.ApplyModifiedProperties();
 						}});
 			} else {
 				EditorGUI.LabelField(position, label.text, "Use SwfSortingLayer with string attribute.");

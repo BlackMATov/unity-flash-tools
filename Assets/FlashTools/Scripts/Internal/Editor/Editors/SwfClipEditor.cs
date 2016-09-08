@@ -46,48 +46,52 @@ namespace FlashTools.Internal {
 			});
 		}
 
-		bool IsAllClipsHasOneClip() {
-			foreach ( var clip in _clips ) {
-				if ( !clip.clip ) {
-					return false;
-				}
-				if ( clip.clip != _clips.First().clip ) {
-					return false;
-				}
-			}
-			return true;
-		}
-
 		List<string> GetAllSequences(bool include_empty) {
-			var seq_set = new HashSet<string>(_clips
-				.Where(p => p.clip)
-				.SelectMany(p => p.clip.Sequences)
-				.Select(p => p.Name));
-			if ( include_empty ) {
-				seq_set.Add(string.Empty);
+			var result       = new List<string>();
+			var result_clips = _clips
+				.Where (p => p.clip && p.clip.Sequences.Count > 0)
+				.Select(p => p.clip.Sequences)
+				.Where (p => p.All(s => !string.IsNullOrEmpty(s.Name)))
+				.ToList();
+			if ( result_clips.Count > 0 ) {
+				result = result_clips.First()
+					.Select(p => p.Name)
+					.ToList();
+				var sequences_enum = result_clips
+					.Select(p => p.Select(s => s.Name));
+				foreach ( var sequences in sequences_enum ) {
+					result = result
+						.Where(p => sequences.Contains(p))
+						.ToList();
+				}
+				if ( include_empty ) {
+					result.Add(string.Empty);
+				}
 			}
-			return seq_set.ToList();
+			return result;
 		}
 
 		void DrawSequence() {
-			if ( IsAllClipsHasOneClip() ) {
+			var all_sequences = GetAllSequences(true);
+			if ( all_sequences.Count > 0 ) {
 				var sequence_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "_sequence");
 				SwfEditorUtils.DoWithMixedValue(
 					sequence_prop.hasMultipleDifferentValues, () => {
-						var all_sequences  = GetAllSequences(true);
 						var sequence_index = EditorGUILayout.Popup(
 							"Sequence",
 							sequence_prop.hasMultipleDifferentValues
 								? all_sequences.FindIndex(p => string.IsNullOrEmpty(p))
 								: all_sequences.FindIndex(p => p == sequence_prop.stringValue),
 							all_sequences.ToArray());
-						var new_sequence = all_sequences[sequence_index];
-						if ( !string.IsNullOrEmpty(new_sequence) ) {
-							if ( sequence_prop.hasMultipleDifferentValues ) {
-								sequence_prop.stringValue = string.Empty;
+						if ( sequence_index >= 0 && sequence_index < all_sequences.Count ) {
+							var new_sequence = all_sequences[sequence_index];
+							if ( !string.IsNullOrEmpty(new_sequence) ) {
+								if ( sequence_prop.hasMultipleDifferentValues ) {
+									sequence_prop.stringValue = string.Empty;
+								}
+								sequence_prop.stringValue = new_sequence;
+								sequence_prop.serializedObject.ApplyModifiedProperties();
 							}
-							sequence_prop.stringValue = new_sequence;
-							sequence_prop.serializedObject.ApplyModifiedProperties();
 						}
 					});
 			}
