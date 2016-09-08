@@ -576,7 +576,7 @@ if (!Function.prototype.bind) {
 		ft.profile_function(function() {
 			ft.array_foreach(fl.documents, function (doc) {
 				if ( doc.canRevert() ) {
-					fl.revertDocument(document);
+					fl.revertDocument(doc);
 				}
 			});
 		}, "Revert documents");
