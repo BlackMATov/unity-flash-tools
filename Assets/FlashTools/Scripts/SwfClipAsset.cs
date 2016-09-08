@@ -6,7 +6,7 @@ namespace FlashTools {
 	public class SwfClipAsset : ScriptableObject {
 		[System.Serializable]
 		public class Frame {
-			public Mesh        Mesh      = new Mesh();
+			public Mesh        Mesh      = null;
 			public Material[]  Materials = new Material[0];
 		}
 		[System.Serializable]
