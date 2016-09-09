@@ -6,9 +6,9 @@ using System.Linq;
 namespace FlashTools.Internal {
 	[CustomPreview(typeof(SwfClipAsset))]
 	public class SwfClipAssetPreview : ObjectPreview {
-		int                   _sequenceIndex  = 0;
-		MaterialPropertyBlock _matPropBlock   = null;
-		PreviewRenderUtility  _previewUtility = null;
+		int                   _sequence     = 0;
+		PreviewRenderUtility  _previewUtil  = null;
+		MaterialPropertyBlock _matPropBlock = null;
 
 		Texture2D targetAtlas {
 			get {
@@ -29,14 +29,14 @@ namespace FlashTools.Internal {
 		SwfClipAsset.Frame targetFrame {
 			get {
 				var clip = target as SwfClipAsset;
-				return GetFrameForClip(clip, _sequenceIndex);
+				return GetFrameForClip(clip, _sequence);
 			}
 		}
 
 		SwfClipAsset.Sequence targetSequence {
 			get {
 				var clip = target as SwfClipAsset;
-				return GetSequenceForClip(clip, _sequenceIndex);
+				return GetSequenceForClip(clip, _sequence);
 			}
 		}
 
@@ -90,7 +90,7 @@ namespace FlashTools.Internal {
 
 		public void SetCurrentSequence(string sequence_name) {
 			var clip = target as SwfClipAsset;
-			_sequenceIndex = clip && clip.Sequences != null
+			_sequence = clip && clip.Sequences != null
 				? Mathf.Max(0, clip.Sequences.FindIndex(p => p.Name == sequence_name))
 				: 0;
 		}
@@ -104,7 +104,7 @@ namespace FlashTools.Internal {
 		public override void Initialize(Object[] targets) {
 			base.Initialize(targets);
 			_matPropBlock   = new MaterialPropertyBlock();
-			_previewUtility = new PreviewRenderUtility();
+			_previewUtil = new PreviewRenderUtility();
 		}
 
 		public override bool HasPreviewGUI() {
@@ -116,11 +116,11 @@ namespace FlashTools.Internal {
 				.OfType<SwfClipAsset>()
 				.Any(p => p.Sequences != null && p.Sequences.Count > 1);
 			if ( any_multi_sequences && GUILayout.Button("<", EditorStyles.miniButton) ) {
-				--_sequenceIndex;
+				--_sequence;
 			}
 			var sequence_names = m_Targets
 				.OfType<SwfClipAsset>()
-				.Select (p => GetSequenceForClip(p, _sequenceIndex))
+				.Select (p => GetSequenceForClip(p, _sequence))
 				.Where  (p => p != null && !string.IsNullOrEmpty(p.Name))
 				.Select (p => p.Name)
 				.ToArray();
@@ -132,7 +132,7 @@ namespace FlashTools.Internal {
 			}
 			GUILayout.Label(label_text, EditorStyles.whiteLabel);
 			if ( any_multi_sequences && GUILayout.Button(">", EditorStyles.miniButton) ) {
-				++_sequenceIndex;
+				++_sequence;
 			}
 		}
 
@@ -142,21 +142,21 @@ namespace FlashTools.Internal {
 				var frame    = targetFrame;
 				var sequence = targetSequence;
 				if ( atlas && frame != null && sequence != null ) {
-					_previewUtility.BeginPreview(r, background);
+					_previewUtil.BeginPreview(r, background);
 					{
 						_matPropBlock.SetTexture("_MainTex", atlas);
-						ConfigureCameraForSequence(_previewUtility.m_Camera, sequence);
+						ConfigureCameraForSequence(_previewUtil.m_Camera, sequence);
 						for ( var i = 0; i < frame.Materials.Length; ++i ) {
-							_previewUtility.DrawMesh(
+							_previewUtil.DrawMesh(
 								frame.Mesh,
 								Matrix4x4.identity,
 								frame.Materials[i],
 								i,
 								_matPropBlock);
 						}
-						_previewUtility.m_Camera.Render();
+						_previewUtil.m_Camera.Render();
 					}
-					_previewUtility.EndAndDrawPreview(r);
+					_previewUtil.EndAndDrawPreview(r);
 				}
 			}
 		}
