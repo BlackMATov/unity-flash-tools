@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -90,9 +89,16 @@ namespace FlashTools.Internal {
 		//
 		//
 
+
+
+		//
+		//
+		//
+
 		void DrawGUISequences() {
 			SwfEditorUtils.DoWithEnabledGUI(false, () => {
-				var sequences_prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Sequences");
+				var sequences_prop = SwfEditorUtils.GetPropertyByName(
+					serializedObject, "Sequences");
 				if ( sequences_prop.isArray ) {
 					SwfEditorUtils.DoWithMixedValue(
 						sequences_prop.hasMultipleDifferentValues, () => {
