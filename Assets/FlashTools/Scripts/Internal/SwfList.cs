@@ -106,5 +106,22 @@ namespace FlashTools.Internal {
 				}
 			}
 		}
+
+		public void AssignTo(SwfList<T> list) {
+			if ( list._data.Length < _size ) {
+				var new_data = new T[_size * 2];
+				Array.Copy(_data, new_data, _size);
+				list._data = new_data;
+				list._size = _size;
+			} else {
+				if ( _size < list._size ) {
+					Array.Clear(list._data, _size, list._size - _size);
+				}
+				if ( _size > 0 ) {
+					Array.Copy(_data, list._data, _size);
+				}
+				list._size = _size;
+			}
+		}
 	}
 }

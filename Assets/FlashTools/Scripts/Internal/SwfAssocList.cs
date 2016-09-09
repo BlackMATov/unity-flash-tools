@@ -62,5 +62,9 @@ namespace FlashTools.Internal {
 			_list.Clear();
 			_dict.Clear();
 		}
+
+		public void AssignTo(SwfList<T> list) {
+			_list.AssignTo(list);
+		}
 	}
 }

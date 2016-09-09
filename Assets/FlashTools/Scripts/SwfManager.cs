@@ -7,6 +7,7 @@ namespace FlashTools {
 
 		SwfAssocList<SwfClip>           _clips       = new SwfAssocList<SwfClip>();
 		SwfAssocList<SwfClipController> _controllers = new SwfAssocList<SwfClipController>();
+		SwfList<SwfClipController>      _safeUpdates = new SwfList<SwfClipController>();
 
 		// ---------------------------------------------------------------------
 		//
@@ -92,8 +93,12 @@ namespace FlashTools {
 
 		void UpdateControllers() {
 			var dt = Time.deltaTime;
-			for ( int i = 0, e = _controllers.Count; i < e; ++i ) {
-				_controllers[i].InternalUpdate(dt);
+			_controllers.AssignTo(_safeUpdates);
+			for ( int i = 0, e = _safeUpdates.Count; i < e; ++i ) {
+				var ctrl = _safeUpdates[i];
+				if ( ctrl ) {
+					ctrl.InternalUpdate(dt);
+				}
 			}
 		}
 
