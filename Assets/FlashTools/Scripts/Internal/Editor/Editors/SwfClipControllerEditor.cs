@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -10,7 +9,7 @@ namespace FlashTools.Internal {
 	public class SwfClipControllerEditor : Editor {
 		List<SwfClipController> _controllers = new List<SwfClipController>();
 
-		void AllControllersForeach(Action<SwfClipController> act) {
+		void AllControllersForeach(System.Action<SwfClipController> act) {
 			foreach ( var controller in _controllers ) {
 				act(controller);
 			}

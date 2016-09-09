@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -61,7 +60,7 @@ namespace FlashTools.Internal {
 		//
 		//
 
-		void AllAssetsForeach(Action<SwfAsset> act) {
+		void AllAssetsForeach(System.Action<SwfAsset> act) {
 			foreach ( var asset in _assets ) {
 				act(asset);
 			}

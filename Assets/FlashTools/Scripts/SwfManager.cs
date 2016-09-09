@@ -91,8 +91,7 @@ namespace FlashTools {
 			_controllers.Clear();
 		}
 
-		void UpdateControllers() {
-			var dt = Time.deltaTime;
+		void UpdateControllers(float dt) {
 			_controllers.AssignTo(_safeUpdates);
 			for ( int i = 0, e = _safeUpdates.Count; i < e; ++i ) {
 				var ctrl = _safeUpdates[i];
@@ -119,7 +118,8 @@ namespace FlashTools {
 		}
 
 		void Update() {
-			UpdateControllers();
+			var dt = Time.deltaTime;
+			UpdateControllers(dt);
 		}
 	}
 }

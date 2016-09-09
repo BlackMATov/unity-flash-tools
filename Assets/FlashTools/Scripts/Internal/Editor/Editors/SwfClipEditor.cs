@@ -1,19 +1,17 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
-using System;
 using System.Linq;
 using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfClip)), CanEditMultipleObjects]
 	public class SwfClipEditor : Editor {
-		List<SwfClip> _clips = new List<SwfClip>();
+		List<SwfClip>                            _clips    = new List<SwfClip>();
+		Dictionary<SwfClip, SwfClipAssetPreview> _previews = new Dictionary<SwfClip, SwfClipAssetPreview>();
 
-		void AllClipsForeachWithUndo(Action<SwfClip> act) {
-			Undo.RecordObjects(
-				_clips.ToArray(),
-				"Inspector");
+		void AllClipsForeachWithUndo(System.Action<SwfClip> act) {
+			Undo.RecordObjects(_clips.ToArray(), "Inspector");
 			foreach ( var clip in _clips ) {
 				act(clip);
 				EditorUtility.SetDirty(clip);
@@ -141,9 +139,12 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_clips = targets
-				.OfType<SwfClip>()
-				.ToList();
+			_clips = targets.OfType<SwfClip>().ToList();
+			foreach ( var clip in _clips.Where(p => !!p.clip) ) {
+				var preview = new SwfClipAssetPreview();
+				preview.Initialize(new Object[]{clip.clip});
+				_previews.Add(clip, preview);
+			}
 		}
 
 		public override void OnInspectorGUI() {
@@ -153,6 +154,25 @@ namespace FlashTools.Internal {
 			DrawCurrentFrame();
 			if ( GUI.changed ) {
 				serializedObject.ApplyModifiedProperties();
+			}
+		}
+
+		public override bool RequiresConstantRepaint() {
+			return _previews.Count > 0;
+		}
+
+		public override bool HasPreviewGUI() {
+			return _previews.Count > 0;
+		}
+
+		public override void OnPreviewGUI(Rect r, GUIStyle background) {
+			if ( Event.current.type == EventType.Repaint ) {
+				SwfClipAssetPreview preview;
+				var clip = target as SwfClip;
+				if ( _previews.TryGetValue(clip, out preview) ) {
+					preview.SetCurrentSequence(clip.sequence);
+					preview.DrawPreview(r);
+				}
 			}
 		}
 	}

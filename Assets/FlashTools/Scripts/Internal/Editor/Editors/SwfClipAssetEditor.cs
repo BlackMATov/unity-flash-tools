@@ -142,5 +142,9 @@ namespace FlashTools.Internal {
 				serializedObject.ApplyModifiedProperties();
 			}
 		}
+
+		public override bool RequiresConstantRepaint() {
+			return true;
+		}
 	}
 }
