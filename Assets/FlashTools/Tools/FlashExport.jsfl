@@ -220,10 +220,10 @@ if (!Function.prototype.bind) {
 		ft.type_assert(doc, Document);
 		ft.profile_function(function() { ftdoc.prepare_folders(doc);        }, "Prepare folders");
 		ft.profile_function(function() { ftdoc.full_exit_edit_mode(doc);    }, "Full exit edit mode");
+		ft.profile_function(function() { ftdoc.prepare_all_bitmaps(doc);    }, "Prepare all bitmaps");
 		ft.profile_function(function() { ftdoc.unlock_all_timelines(doc);   }, "Unlock all timelines");
 		ft.profile_function(function() { ftdoc.optimize_all_timelines(doc); }, "Optimize all timelines");
 		ft.profile_function(function() { ftdoc.rasterize_all_shapes(doc);   }, "Rasterize all shapes");
-		ft.profile_function(function() { ftdoc.prepare_all_bitmaps(doc);    }, "Prepare all bitmaps");
 		ft.profile_function(function() { ftdoc.export_swf(doc);             }, "Export swf");
 	};
 	
