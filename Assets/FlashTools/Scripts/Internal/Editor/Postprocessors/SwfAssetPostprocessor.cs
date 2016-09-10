@@ -152,6 +152,7 @@ namespace FlashTools.Internal {
 			clip_asset.FrameRate = asset.Data.FrameRate;
 			clip_asset.Sequences = LoadClipSequences(asset, symbol);
 			ConfigureClipSubAssets(clip_asset);
+			EditorUtility.SetDirty(clip_asset);
 			asset.Clips.Add(clip_asset);
 		}
 

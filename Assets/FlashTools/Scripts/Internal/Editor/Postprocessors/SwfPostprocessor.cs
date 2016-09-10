@@ -26,11 +26,7 @@ namespace FlashTools.Internal {
 
 		static void SwfFileProcess(string swf_path) {
 			var swf_asset_path = Path.ChangeExtension(swf_path, ".asset");
-			var swf_asset      = AssetDatabase.LoadAssetAtPath<SwfAsset>(swf_asset_path);
-			if ( !swf_asset ) {
-				swf_asset = ScriptableObject.CreateInstance<SwfAsset>();
-				AssetDatabase.CreateAsset(swf_asset, swf_asset_path);
-			}
+			var swf_asset      = SwfEditorUtils.LoadOrCreateAsset<SwfAsset>(swf_asset_path);
 			if ( LoadSwfAsset(swf_path, swf_asset) ) {
 				EditorUtility.SetDirty(swf_asset);
 				AssetDatabase.SaveAssets();
