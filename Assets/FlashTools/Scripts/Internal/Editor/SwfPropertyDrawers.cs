@@ -103,6 +103,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 				if ( property.propertyType == SerializedPropertyType.String ) {
 					var all_sorting_layers = GetAllSortingLayers(false);
 					if ( !all_sorting_layers.Contains(property.stringValue) ) {
+						property.stringValue = string.Empty;
 						property.stringValue = DefaultLayerName;
 						property.serializedObject.ApplyModifiedProperties();
 					}
@@ -117,6 +118,8 @@ namespace FlashTools.Internal.SwfEditorTools {
 				ValidateProperty(property);
 				SwfEditorUtils.DoWithMixedValue(
 					property.hasMultipleDifferentValues, () => {
+						label = EditorGUI.BeginProperty(position, label, property);
+						EditorGUI.BeginChangeCheck();
 						var all_sorting_layers  = GetAllSortingLayers(true);
 						var sorting_layer_index = EditorGUI.Popup(
 							position,
@@ -125,16 +128,20 @@ namespace FlashTools.Internal.SwfEditorTools {
 								? all_sorting_layers.FindIndex(p => string.IsNullOrEmpty(p))
 								: all_sorting_layers.FindIndex(p => p == property.stringValue),
 							all_sorting_layers.Select(p => new GUIContent(p)).ToArray());
-						if ( sorting_layer_index >= 0 && sorting_layer_index < all_sorting_layers.Count ) {
-							var new_value = all_sorting_layers[sorting_layer_index];
-							if ( !string.IsNullOrEmpty(new_value) ) {
-								if ( property.hasMultipleDifferentValues ) {
-									property.stringValue = string.Empty;
+						if ( EditorGUI.EndChangeCheck() ) {
+							if ( sorting_layer_index >= 0 && sorting_layer_index < all_sorting_layers.Count ) {
+								var new_value = all_sorting_layers[sorting_layer_index];
+								if ( !string.IsNullOrEmpty(new_value) ) {
+									if ( property.hasMultipleDifferentValues ) {
+										property.stringValue = string.Empty;
+									}
+									property.stringValue = new_value;
+									property.serializedObject.ApplyModifiedProperties();
 								}
-								property.stringValue = new_value;
-								property.serializedObject.ApplyModifiedProperties();
 							}
-						}});
+						}
+						EditorGUI.EndProperty();
+					});
 			} else {
 				EditorGUI.LabelField(position, label.text, "Use SwfSortingLayer with string attribute.");
 			}
@@ -205,7 +212,8 @@ namespace FlashTools.Internal.SwfEditorTools {
 							EditorGUI.IntPopup(position, property, vnames, values, label);
 						} else {
 							EditorGUI.PropertyField(position, property, label, true);
-						}});
+						}
+					});
 			} else {
 				EditorGUI.LabelField(position, label.text, "Use SwfPowerOfTwoIf with integer attribute.");
 			}
@@ -241,6 +249,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 				SwfEditorUtils.DoWithEnabledGUI(!attr.ReadOnly, () => {
 					SwfEditorUtils.DoWithMixedValue(
 						property.hasMultipleDifferentValues, () => {
+							label = EditorGUI.BeginProperty(position, label, property);
 							EditorGUI.BeginChangeCheck();
 							var asset_path = AssetDatabase.GUIDToAssetPath(property.stringValue);
 							var asset      = AssetDatabase.LoadMainAssetAtPath(asset_path);
@@ -254,6 +263,7 @@ namespace FlashTools.Internal.SwfEditorTools {
 								property.stringValue = AssetDatabase.AssetPathToGUID(new_asset_path);
 								property.serializedObject.ApplyModifiedProperties();
 							}
+							EditorGUI.EndProperty();
 						});
 				});
 			} else {
