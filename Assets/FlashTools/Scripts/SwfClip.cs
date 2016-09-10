@@ -121,11 +121,19 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		public void UpdateAllProperties() {
+			ClearCache();
 			clip         = _clip;
 			sequence     = _sequence;
 			currentFrame = _currentFrame;
 			sortingLayer = _sortingLayer;
 			sortingOrder = _sortingOrder;
+		}
+
+		void ClearCache() {
+			_meshFilter   = GetComponent<MeshFilter>();
+			_meshRenderer = GetComponent<MeshRenderer>();
+			_curSequence  = null;
+			_curPropBlock = null;
 		}
 
 		void ChangeClip() {
@@ -212,10 +220,6 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		void Awake() {
-			_meshFilter   = GetComponent<MeshFilter>();
-			_meshRenderer = GetComponent<MeshRenderer>();
-			_curSequence  = null;
-			_curPropBlock = null;
 			UpdateAllProperties();
 		}
 
