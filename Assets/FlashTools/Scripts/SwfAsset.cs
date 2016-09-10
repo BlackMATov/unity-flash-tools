@@ -4,6 +4,49 @@ using System.Collections.Generic;
 
 namespace FlashTools {
 	[System.Serializable]
+	public struct SwfMatrixData {
+		public float ScX;
+		public float ScY;
+		public float SkX;
+		public float SkY;
+		public float TrX;
+		public float TrY;
+
+		public static SwfMatrixData identity {
+			get {
+				return new SwfMatrixData{
+					ScX = 1.0f,
+					ScY = 1.0f,
+					SkX = 0.0f,
+					SkY = 0.0f,
+					TrX = 0.0f,
+					TrY = 0.0f};
+			}
+		}
+
+		public static SwfMatrixData FromUnityMatrix(Matrix4x4 mat) {
+			return new SwfMatrixData{
+				ScX = mat.m00,
+				ScY = mat.m11,
+				SkX = mat.m10,
+				SkY = mat.m01,
+				TrX = mat.m03,
+				TrY = mat.m13};
+		}
+
+		public Matrix4x4 ToUnityMatrix() {
+			var mat = Matrix4x4.identity;
+			mat.m00 = ScX;
+			mat.m11 = ScY;
+			mat.m10 = SkX;
+			mat.m01 = SkY;
+			mat.m03 = TrX;
+			mat.m13 = TrY;
+			return mat;
+		}
+	}
+
+	[System.Serializable]
 	public struct SwfColorTransData {
 		public Vector4 Mul;
 		public Vector4 Add;
@@ -44,7 +87,7 @@ namespace FlashTools {
 		public Types                 Type       = Types.Group;
 		public ushort                ClipDepth  = 0;
 		public ushort                Bitmap     = 0;
-		public Matrix4x4             Matrix     = Matrix4x4.identity;
+		public SwfMatrixData         Matrix     = SwfMatrixData.identity;
 		public SwfColorTransData     ColorTrans = SwfColorTransData.identity;
 	}
 

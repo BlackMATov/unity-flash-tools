@@ -31,10 +31,10 @@ namespace FlashTools.Internal {
 					asset.Atlas = atlas_asset;
 					ConfigureAtlas(asset);
 					ConfigureClips(asset);
+					ConfigureAssetClips(asset);
 					EditorUtility.SetDirty(asset);
 					AssetDatabase.SaveAssets();
 				}
-				ConfigureAssetClips(asset);
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
 					"Postprocess swf asset error: {0}",
@@ -230,7 +230,7 @@ namespace FlashTools.Internal {
 							+1.0f / asset.Settings.PixelsPerUnit,
 							-1.0f / asset.Settings.PixelsPerUnit,
 							+1.0f / asset.Settings.PixelsPerUnit)) *
-						inst.Matrix;
+						inst.Matrix.ToUnityMatrix();
 
 					baked_vertices.Add(matrix.MultiplyPoint3x4(v0));
 					baked_vertices.Add(matrix.MultiplyPoint3x4(v1));
@@ -315,6 +315,7 @@ namespace FlashTools.Internal {
 			mesh.SetUVs(1, baked_addcolors);
 			mesh.SetColors(baked_mulcolors);
 			mesh.RecalculateNormals();
+			mesh.Optimize();
 
 			return new SwfClipAsset.Frame{
 				Mesh      = mesh,

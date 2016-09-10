@@ -152,7 +152,7 @@ namespace FlashTools.Internal {
 									Type       = frame_inst_type,
 									ClipDepth  = (ushort)frame_inst_clip_depth,
 									Bitmap     = bitmap_id,
-									Matrix     = child_matrix * bitmap_matrix.ToUnityMatrix(),
+									Matrix     = SwfMatrixData.FromUnityMatrix(child_matrix * bitmap_matrix.ToUnityMatrix()),
 									ColorTrans = child_color_transform});
 								if ( parent_mask > 0 ) {
 									parent_masks.Add(frame.Instances[frame.Instances.Count - 1]);
