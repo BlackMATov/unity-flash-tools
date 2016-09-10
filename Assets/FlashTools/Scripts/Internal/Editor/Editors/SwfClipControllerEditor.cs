@@ -42,9 +42,7 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_controllers = targets
-				.OfType<SwfClipController>()
-				.ToList();
+			_controllers = targets.OfType<SwfClipController>().ToList();
 		}
 
 		public override void OnInspectorGUI() {

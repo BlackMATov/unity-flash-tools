@@ -143,6 +143,7 @@ namespace FlashTools {
 					var clip_sequence = clip.Sequences[i];
 					if ( clip_sequence != null && clip_sequence.Name == sequence ) {
 						_curSequence = clip_sequence;
+						break;
 					}
 				}
 				if ( _curSequence == null ) {

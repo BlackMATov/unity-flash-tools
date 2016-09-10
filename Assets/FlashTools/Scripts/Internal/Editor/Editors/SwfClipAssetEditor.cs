@@ -89,12 +89,6 @@ namespace FlashTools.Internal {
 		//
 		//
 
-
-
-		//
-		//
-		//
-
 		void DrawGUISequences() {
 			SwfEditorUtils.DoWithEnabledGUI(false, () => {
 				var sequences_prop = SwfEditorUtils.GetPropertyByName(
@@ -128,9 +122,7 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_clips = targets
-				.OfType<SwfClipAsset>()
-				.ToList();
+			_clips = targets.OfType<SwfClipAsset>().ToList();
 		}
 
 		public override void OnInspectorGUI() {
