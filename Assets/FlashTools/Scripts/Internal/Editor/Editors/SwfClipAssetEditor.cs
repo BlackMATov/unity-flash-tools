@@ -23,6 +23,12 @@ namespace FlashTools.Internal {
 				: Path.ChangeExtension(clip_path, ".prefab");
 		}
 
+		static int GetFrameCount(SwfClipAsset clip) {
+			return clip != null ? clip.Sequences.Aggregate(0, (acc, seq) => {
+				return seq.Frames.Count + acc;
+			}) : 0;
+		}
+
 		//
 		//
 		//
@@ -89,6 +95,17 @@ namespace FlashTools.Internal {
 		//
 		//
 
+		void DrawGUIFrameCount() {
+			var counts      = _clips.Select(p => GetFrameCount(p));
+			var mixed_value = counts.GroupBy(p => p).Count() > 1;
+			SwfEditorUtils.DoWithEnabledGUI(false, () => {
+				SwfEditorUtils.DoWithMixedValue(
+					mixed_value, () => {
+						EditorGUILayout.IntField("Frame count", counts.First());
+					});
+			});
+		}
+
 		void DrawGUISequences() {
 			SwfEditorUtils.DoWithEnabledGUI(false, () => {
 				var sequences_prop = SwfEditorUtils.GetPropertyByName(
@@ -128,6 +145,7 @@ namespace FlashTools.Internal {
 		public override void OnInspectorGUI() {
 			serializedObject.Update();
 			DrawDefaultInspector();
+			DrawGUIFrameCount();
 			DrawGUISequences();
 			DrawGUIControls();
 			if ( GUI.changed ) {
