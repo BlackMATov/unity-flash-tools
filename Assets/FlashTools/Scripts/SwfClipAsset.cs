@@ -17,6 +17,8 @@ namespace FlashTools {
 
 		[SwfReadOnly]
 		public Texture2D       Atlas;
+		[SwfAssetGUID(true)]
+		public string          Container;
 		[SwfReadOnly]
 		public float           FrameRate;
 		[HideInInspector]
@@ -25,6 +27,7 @@ namespace FlashTools {
 		#if UNITY_EDITOR
 		void Reset() {
 			Atlas     = null;
+			Container = string.Empty;
 			FrameRate = 1.0f;
 			Sequences = new List<Sequence>();
 		}

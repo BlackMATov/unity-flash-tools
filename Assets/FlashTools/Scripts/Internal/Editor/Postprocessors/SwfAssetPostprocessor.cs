@@ -137,18 +137,18 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		static void ConfigureClips(SwfAsset asset) {
+			asset.Clips.Clear();
 			foreach ( var symbol in asset.Data.Symbols ) {
 				ConfigureClip(asset, symbol);
 			}
 		}
 
 		static void ConfigureClip(SwfAsset asset, SwfSymbolData symbol) {
-			var clip_asset_path = Path.ChangeExtension(
-				AssetDatabase.GetAssetPath(asset),
-				symbol.Name + ".asset");
-			var clip_asset       = SwfEditorUtils
-				.LoadOrCreateAsset<SwfClipAsset>(clip_asset_path);
+			var asset_path       = AssetDatabase.GetAssetPath(asset);
+			var clip_asset_path  = Path.ChangeExtension(asset_path, symbol.Name + ".asset");
+			var clip_asset       = SwfEditorUtils.LoadOrCreateAsset<SwfClipAsset>(clip_asset_path);
 			clip_asset.Atlas     = asset.Atlas;
+			clip_asset.Container = AssetDatabase.AssetPathToGUID(asset_path);
 			clip_asset.FrameRate = asset.Data.FrameRate;
 			clip_asset.Sequences = LoadClipSequences(asset, symbol);
 			ConfigureClipSubAssets(clip_asset);
