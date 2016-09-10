@@ -136,7 +136,7 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		public Material GetMaskedMaterial(int stencil_id) {
-			if ( MaskedMaterials == null || stencil_id < MaskedMaterials.Count ) {
+			if ( MaskedMaterials == null || stencil_id >= MaskedMaterials.Count ) {
 				FillMaterialsCache();
 			}
 			if ( stencil_id < 0 || stencil_id >= MaskedMaterials.Count ) {
