@@ -6,9 +6,9 @@ using System.Linq;
 namespace FlashTools.Internal {
 	[CustomPreview(typeof(SwfClipAsset))]
 	public class SwfClipAssetPreview : ObjectPreview {
-		int                   _sequence     = 0;
-		PreviewRenderUtility  _previewUtil  = null;
-		MaterialPropertyBlock _matPropBlock = null;
+		int                          _sequence     = 0;
+		static MaterialPropertyBlock _matPropBlock = null;
+		static PreviewRenderUtility  _previewUtils = null;
 
 		Texture2D targetAtlas {
 			get {
@@ -103,8 +103,12 @@ namespace FlashTools.Internal {
 
 		public override void Initialize(Object[] targets) {
 			base.Initialize(targets);
-			_matPropBlock   = new MaterialPropertyBlock();
-			_previewUtil = new PreviewRenderUtility();
+			if ( _matPropBlock == null ) {
+				_matPropBlock = new MaterialPropertyBlock();
+			}
+			if ( _previewUtils == null ) {
+				_previewUtils = new PreviewRenderUtility();
+			}
 		}
 
 		public override bool HasPreviewGUI() {
@@ -142,21 +146,21 @@ namespace FlashTools.Internal {
 				var frame    = targetFrame;
 				var sequence = targetSequence;
 				if ( atlas && frame != null && sequence != null ) {
-					_previewUtil.BeginPreview(r, background);
+					_previewUtils.BeginPreview(r, background);
 					{
 						_matPropBlock.SetTexture("_MainTex", atlas);
-						ConfigureCameraForSequence(_previewUtil.m_Camera, sequence);
+						ConfigureCameraForSequence(_previewUtils.m_Camera, sequence);
 						for ( var i = 0; i < frame.Materials.Length; ++i ) {
-							_previewUtil.DrawMesh(
+							_previewUtils.DrawMesh(
 								frame.Mesh,
 								Matrix4x4.identity,
 								frame.Materials[i],
 								i,
 								_matPropBlock);
 						}
-						_previewUtil.m_Camera.Render();
+						_previewUtils.m_Camera.Render();
 					}
-					_previewUtil.EndAndDrawPreview(r);
+					_previewUtils.EndAndDrawPreview(r);
 				}
 			}
 		}

@@ -132,6 +132,15 @@ namespace FlashTools.Internal {
 			GUILayout.EndHorizontal();
 		}
 
+		void SetupPreviews() {
+			_previews.Clear();
+			foreach ( var clip in _clips.Where(p => !!p.clip) ) {
+				var preview = new SwfClipAssetPreview();
+				preview.Initialize(new Object[]{clip.clip});
+				_previews.Add(clip, preview);
+			}
+		}
+
 		// ---------------------------------------------------------------------
 		//
 		// Messages
@@ -140,11 +149,7 @@ namespace FlashTools.Internal {
 
 		void OnEnable() {
 			_clips = targets.OfType<SwfClip>().ToList();
-			foreach ( var clip in _clips.Where(p => !!p.clip) ) {
-				var preview = new SwfClipAssetPreview();
-				preview.Initialize(new Object[]{clip.clip});
-				_previews.Add(clip, preview);
-			}
+			SetupPreviews();
 		}
 
 		public override void OnInspectorGUI() {
@@ -154,6 +159,7 @@ namespace FlashTools.Internal {
 			DrawCurrentFrame();
 			if ( GUI.changed ) {
 				serializedObject.ApplyModifiedProperties();
+				SetupPreviews();
 			}
 		}
 
