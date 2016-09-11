@@ -19,14 +19,11 @@ namespace FlashTools.Internal {
 			GUILayout.BeginHorizontal();
 			GUILayout.FlexibleSpace();
 			{
+				if ( GUILayout.Button("Rewind") ) {
+					AllControllersForeach(p => p.Rewind());
+				}
 				if ( GUILayout.Button("Stop") ) {
 					AllControllersForeach(p => p.Stop());
-				}
-				if ( GUILayout.Button("Pause") ) {
-					AllControllersForeach(p => p.Pause());
-				}
-				if ( GUILayout.Button("Resume") ) {
-					AllControllersForeach(p => p.Resume());
 				}
 				if ( GUILayout.Button("Play") ) {
 					AllControllersForeach(p => p.Play());

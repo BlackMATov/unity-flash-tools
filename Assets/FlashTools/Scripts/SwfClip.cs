@@ -198,7 +198,7 @@ namespace FlashTools {
 		void UpdateCurrentMesh() {
 			if ( _meshFilter && _meshRenderer ) {
 				var baked_frame               = GetCurrentBakedFrame();
-				_meshFilter.sharedMesh        = baked_frame.Mesh;
+				_meshFilter.sharedMesh        = baked_frame.CachedMesh;
 				_meshRenderer.sharedMaterials = baked_frame.Materials;
 			}
 		}

@@ -40,6 +40,19 @@ namespace FlashTools.Internal {
 			}
 		}
 
+		bool isTargetValidForPreview {
+			get {
+				var atlas    = targetAtlas;
+				var frame    = targetFrame;
+				var sequence = targetSequence;
+				return
+					atlas &&
+					frame != null &&
+					sequence != null &&
+					frame.CachedMesh && frame.CachedMesh.vertexCount > 0;
+			}
+		}
+
 		static SwfClipAsset.Frame GetFrameForClip(SwfClipAsset clip, int sequence_index) {
 			var sequence = GetSequenceForClip(clip, sequence_index);
 			var frames = sequence != null && sequence.Frames != null && sequence.Frames.Count > 0
@@ -60,8 +73,8 @@ namespace FlashTools.Internal {
 		static Bounds CalculateBoundsForSequence(SwfClipAsset.Sequence sequence) {
 			var bounds = sequence != null && sequence.Frames != null && sequence.Frames.Count > 0
 				? sequence.Frames
-					.Where (p => !!p.Mesh)
-					.Select(p => p.Mesh.bounds)
+					.Where (p => !!p.CachedMesh)
+					.Select(p => p.CachedMesh.bounds)
 				: new Bounds[0];
 			var result = bounds.Any() ? bounds.First() : new Bounds();
 			foreach ( var bound in bounds ) {
@@ -142,17 +155,15 @@ namespace FlashTools.Internal {
 
 		public override void OnPreviewGUI(Rect r, GUIStyle background) {
 			if ( Event.current.type == EventType.Repaint ) {
-				var atlas    = targetAtlas;
-				var frame    = targetFrame;
-				var sequence = targetSequence;
-				if ( atlas && frame != null && sequence != null ) {
+				if ( isTargetValidForPreview ) {
 					_previewUtils.BeginPreview(r, background);
 					{
-						_matPropBlock.SetTexture("_MainTex", atlas);
-						ConfigureCameraForSequence(_previewUtils.m_Camera, sequence);
+						_matPropBlock.SetTexture("_MainTex", targetAtlas);
+						ConfigureCameraForSequence(_previewUtils.m_Camera, targetSequence);
+						var frame = targetFrame;
 						for ( var i = 0; i < frame.Materials.Length; ++i ) {
 							_previewUtils.DrawMesh(
-								frame.Mesh,
+								frame.CachedMesh,
 								Matrix4x4.identity,
 								frame.Materials[i],
 								i,

@@ -6,8 +6,9 @@ namespace FlashTools {
 	[RequireComponent(typeof(SwfClip))]
 	public class SwfClipController : MonoBehaviour {
 
-		SwfClip _clip  = null;
-		float   _timer = 0.0f;
+		SwfClip _clip      = null;
+		bool    _isPlaying = false;
+		float   _tickTimer = 0.0f;
 
 		// ---------------------------------------------------------------------
 		//
@@ -16,10 +17,8 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		public event System.Action<SwfClipController> OnStopPlayingEvent;
+		public event System.Action<SwfClipController> OnPlayStoppedEvent;
 		public event System.Action<SwfClipController> OnRewindPlayingEvent;
-
-		public event System.Action<SwfClipController> OnPausePlayingEvent;
-		public event System.Action<SwfClipController> OnResumePausedEvent;
 
 		// ---------------------------------------------------------------------
 		//
@@ -35,12 +34,6 @@ namespace FlashTools {
 		public enum LoopModes {
 			Once,
 			Loop
-		}
-
-		public enum States {
-			Stopped,
-			Paused,
-			Playing
 		}
 
 		[SerializeField]
@@ -72,21 +65,12 @@ namespace FlashTools {
 			set { _loopMode = value; }
 		}
 
-		States _state = States.Stopped;
-		public States state {
-			get { return _state; }
+		public bool isPlaying {
+			get { return _isPlaying; }
 		}
 
 		public bool isStopped {
-			get { return state == States.Stopped; }
-		}
-
-		public bool isPaused {
-			get { return state == States.Paused; }
-		}
-
-		public bool isPlaying {
-			get { return state == States.Playing; }
+			get { return !_isPlaying; }
 		}
 
 		// ---------------------------------------------------------------------
@@ -96,43 +80,21 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		public void Stop() {
-			Stop(true);
-		}
-
-		public void Stop(bool rewind) {
 			var is_playing = isPlaying;
-			_timer = 0.0f;
-			_state = States.Stopped;
-			if ( rewind ) {
-				Rewind();
-			}
+			_isPlaying = false;
+			_tickTimer = 0.0f;
 			if ( is_playing && OnStopPlayingEvent != null ) {
 				OnStopPlayingEvent(this);
 			}
 		}
 
-		public void Pause() {
-			if ( isPlaying ) {
-				_state = States.Paused;
-				if ( OnPausePlayingEvent != null ) {
-					OnPausePlayingEvent(this);
-				}
-			}
-		}
-
-		public void Resume() {
-			if ( isPaused ) {
-				_state = States.Playing;
-				if ( OnResumePausedEvent != null ) {
-					OnResumePausedEvent(this);
-				}
-			}
-		}
-
 		public void Play() {
-			Rewind();
-			_timer = 0.0f;
-			_state = States.Playing;
+			var is_stopped = isStopped;
+			_isPlaying = true;
+			_tickTimer = 0.0f;
+			if ( is_stopped && OnPlayStoppedEvent != null ) {
+				OnPlayStoppedEvent(this);
+			}
 		}
 
 		public void Rewind() {
@@ -171,9 +133,9 @@ namespace FlashTools {
 
 		void UpdateTimer(float dt) {
 			var frame_rate = _clip ? _clip.frameRate : 1.0f;
-			_timer += frame_rate * rateScale * dt;
-			while ( _timer > 1.0f ) {
-				_timer -= 1.0f;
+			_tickTimer += frame_rate * rateScale * dt;
+			while ( _tickTimer > 1.0f ) {
+				_tickTimer -= 1.0f;
 				TimerTick();
 			}
 		}
@@ -182,7 +144,7 @@ namespace FlashTools {
 			if ( !NextClipFrame() ) {
 				switch ( loopMode ) {
 				case LoopModes.Once:
-					Stop(false);
+					Stop();
 					break;
 				case LoopModes.Loop:
 					Rewind();
@@ -216,7 +178,7 @@ namespace FlashTools {
 
 		void Awake() {
 			_clip = GetComponent<SwfClip>();
-			if ( autoPlay ) {
+			if ( autoPlay && Application.isPlaying ) {
 				Play();
 			}
 		}

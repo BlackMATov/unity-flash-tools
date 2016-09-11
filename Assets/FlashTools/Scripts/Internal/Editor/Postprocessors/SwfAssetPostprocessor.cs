@@ -151,21 +151,8 @@ namespace FlashTools.Internal {
 			clip_asset.Container = AssetDatabase.AssetPathToGUID(asset_path);
 			clip_asset.FrameRate = asset.Data.FrameRate;
 			clip_asset.Sequences = LoadClipSequences(asset, symbol);
-			ConfigureClipSubAssets(clip_asset);
 			EditorUtility.SetDirty(clip_asset);
 			asset.Clips.Add(clip_asset);
-		}
-
-		static void ConfigureClipSubAssets(SwfClipAsset clip_asset) {
-			SwfEditorUtils.RemoveAllSubAssets(
-				AssetDatabase.GetAssetPath(clip_asset));
-			foreach ( var sequence in clip_asset.Sequences ) {
-				for ( var i = 0; i < sequence.Frames.Count; ++i ) {
-					var mesh  = sequence.Frames[i].Mesh;
-					mesh.name = string.Format("{0}_{1}", sequence.Name, i);
-					AssetDatabase.AddObjectToAsset(mesh, clip_asset);
-				}
-			}
 		}
 
 		static List<SwfClipAsset.Sequence> LoadClipSequences(
@@ -306,21 +293,18 @@ namespace FlashTools.Internal {
 				}
 			}
 
-			var mesh = new Mesh();
-			mesh.subMeshCount = baked_groups.Count;
-			mesh.SetVertices(baked_vertices);
-			for ( var i = 0; i < baked_groups.Count; ++i ) {
-				mesh.SetTriangles(baked_groups[i].Triangles, i);
-			}
-			mesh.SetUVs(0, baked_uvs);
-			mesh.SetUVs(1, baked_addcolors);
-			mesh.SetColors(baked_mulcolors);
-			mesh.RecalculateNormals();
-			mesh.Optimize();
+			var mesh_data = new SwfClipAsset.MeshData{
+				SubMeshes = baked_groups
+					.Select(p => new SwfClipAsset.SubMeshData{Triangles = p.Triangles})
+					.ToList(),
+				Vertices  = baked_vertices,
+				UVs       = baked_uvs,
+				AddColors = baked_addcolors,
+				MulColors = baked_mulcolors};
 
-			return new SwfClipAsset.Frame{
-				Mesh      = mesh,
-				Materials = baked_materials.ToArray()};
+			return new SwfClipAsset.Frame(
+				mesh_data,
+				baked_materials.ToArray());
 		}
 
 		static SwfBitmapData FindBitmapFromAssetData(SwfAssetData data, int bitmap_id) {
