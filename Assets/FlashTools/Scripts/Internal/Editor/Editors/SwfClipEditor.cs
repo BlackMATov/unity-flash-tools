@@ -132,6 +132,16 @@ namespace FlashTools.Internal {
 			GUILayout.EndHorizontal();
 		}
 
+		void HideMaterials() {
+			var settings_holder = SwfSettings.GetHolder();
+			settings_holder.SimpleMaterial  .hideFlags = HideFlags.HideInInspector;
+			settings_holder.IncrMaskMaterial.hideFlags = HideFlags.HideInInspector;
+			settings_holder.DecrMaskMaterial.hideFlags = HideFlags.HideInInspector;
+			foreach ( var masked_material in settings_holder.MaskedMaterials ) {
+				masked_material.hideFlags = HideFlags.HideInInspector;
+			}
+		}
+
 		void SetupPreviews() {
 			_previews.Clear();
 			foreach ( var clip in _clips.Where(p => !!p.clip) ) {
@@ -149,6 +159,7 @@ namespace FlashTools.Internal {
 
 		void OnEnable() {
 			_clips = targets.OfType<SwfClip>().ToList();
+			HideMaterials();
 			SetupPreviews();
 		}
 

@@ -284,7 +284,6 @@ namespace FlashTools.Internal {
 						group.Type));
 				}
 				if ( group.Material ) {
-					group.Material.hideFlags = HideFlags.HideInInspector;
 					baked_materials.Add(group.Material);
 				} else {
 					throw new UnityException(string.Format(
