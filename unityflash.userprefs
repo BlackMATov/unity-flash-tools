@@ -1,8 +1,10 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/Scripts/Internal/SwfUtils.cs">
     <Files>
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Editors/SwfClipAssetPreview.cs" Line="1" Column="1" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfAssetPostprocessor.cs" Line="232" Column="32" />
+      <File FileName="Assets/FlashTools/Scripts/SwfClipAsset.cs" Line="42" Column="40" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/SwfUtils.cs" Line="13" Column="2" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

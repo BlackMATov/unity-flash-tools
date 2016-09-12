@@ -6,6 +6,8 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
+using FlashTools.Internal;
+
 namespace FlashTools.Internal {
 	public class SwfAssetPostprocessor : AssetPostprocessor {
 		static void OnPostprocessAllAssets(
@@ -186,17 +188,18 @@ namespace FlashTools.Internal {
 		class BakedGroup {
 			public SwfInstanceData.Types Type;
 			public int                   ClipDepth;
-			public List<int>             Triangles;
+			public int                   StartVertex;
+			public int                   TriangleCount;
 			public Material              Material;
 		}
 
 		static SwfClipAsset.Frame BakeClipFrame(
 			SwfAsset asset, SwfFrameData frame)
 		{
-			List<Vector2>    baked_uvs       = new List<Vector2>();
+			List<uint>       baked_uvs       = new List<uint>();
 			List<Color>      baked_mulcolors = new List<Color>();
 			List<Vector4>    baked_addcolors = new List<Vector4>();
-			List<Vector3>    baked_vertices  = new List<Vector3>();
+			List<Vector2>    baked_vertices  = new List<Vector2>();
 			List<BakedGroup> baked_groups    = new List<BakedGroup>();
 			List<Material>   baked_materials = new List<Material>();
 
@@ -226,19 +229,10 @@ namespace FlashTools.Internal {
 					baked_vertices.Add(matrix.MultiplyPoint3x4(v3));
 
 					var source_rect = bitmap.SourceRect;
-					baked_uvs.Add(new Vector2(source_rect.xMin, source_rect.yMin));
-					baked_uvs.Add(new Vector2(source_rect.xMax, source_rect.yMin));
-					baked_uvs.Add(new Vector2(source_rect.xMax, source_rect.yMax));
-					baked_uvs.Add(new Vector2(source_rect.xMin, source_rect.yMax));
+					baked_uvs.Add(SwfUtils.PackUV(source_rect.xMin, source_rect.yMin));
+					baked_uvs.Add(SwfUtils.PackUV(source_rect.xMax, source_rect.yMax));
 
 					baked_mulcolors.Add(inst.ColorTrans.Mul);
-					baked_mulcolors.Add(inst.ColorTrans.Mul);
-					baked_mulcolors.Add(inst.ColorTrans.Mul);
-					baked_mulcolors.Add(inst.ColorTrans.Mul);
-
-					baked_addcolors.Add(inst.ColorTrans.Add);
-					baked_addcolors.Add(inst.ColorTrans.Add);
-					baked_addcolors.Add(inst.ColorTrans.Add);
 					baked_addcolors.Add(inst.ColorTrans.Add);
 
 					if ( baked_groups.Count == 0 ||
@@ -246,19 +240,15 @@ namespace FlashTools.Internal {
 						baked_groups[baked_groups.Count - 1].ClipDepth != inst.ClipDepth )
 					{
 						baked_groups.Add(new BakedGroup{
-							Type      = inst.Type,
-							ClipDepth = inst.ClipDepth,
-							Triangles = new List<int>(),
-							Material  = null
+							Type          = inst.Type,
+							ClipDepth     = inst.ClipDepth,
+							StartVertex   = baked_vertices.Count - 4,
+							TriangleCount = 0,
+							Material      = null
 						});
 					}
 
-					baked_groups.Last().Triangles.Add(baked_vertices.Count - 4 + 2);
-					baked_groups.Last().Triangles.Add(baked_vertices.Count - 4 + 1);
-					baked_groups.Last().Triangles.Add(baked_vertices.Count - 4 + 0);
-					baked_groups.Last().Triangles.Add(baked_vertices.Count - 4 + 0);
-					baked_groups.Last().Triangles.Add(baked_vertices.Count - 4 + 3);
-					baked_groups.Last().Triangles.Add(baked_vertices.Count - 4 + 2);
+					baked_groups.Last().TriangleCount += 6;
 				}
 			}
 
@@ -294,7 +284,9 @@ namespace FlashTools.Internal {
 
 			var mesh_data = new SwfClipAsset.MeshData{
 				SubMeshes = baked_groups
-					.Select(p => new SwfClipAsset.SubMeshData{Triangles = p.Triangles})
+					.Select(p => new SwfClipAsset.SubMeshData{
+						StartVertex   = p.StartVertex,
+						TriangleCount = p.TriangleCount})
 					.ToList(),
 				Vertices  = baked_vertices,
 				UVs       = baked_uvs,
