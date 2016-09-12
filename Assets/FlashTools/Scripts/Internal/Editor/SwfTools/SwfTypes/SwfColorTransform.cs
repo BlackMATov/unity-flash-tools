@@ -63,17 +63,17 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			var trans = SwfColorTransData.identity;
 			if ( HasAdd ) {
 				trans.Add = new Vector4(
-					RAdd / 255.0f,
-					GAdd / 255.0f,
-					BAdd / 255.0f,
-					AAdd / 255.0f);
+					RAdd / 256.0f,
+					GAdd / 256.0f,
+					BAdd / 256.0f,
+					AAdd / 256.0f);
 			}
 			if ( HasMul ) {
 				trans.Mul = new Vector4(
-					RMul / 255.0f,
-					GMul / 255.0f,
-					BMul / 255.0f,
-					AMul / 255.0f);
+					RMul / 256.0f,
+					GMul / 256.0f,
+					BMul / 256.0f,
+					AMul / 256.0f);
 			}
 			return trans;
 		}
