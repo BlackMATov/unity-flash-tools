@@ -22,13 +22,17 @@ namespace FlashTools {
 		}
 
 		public static List<Vector3> Vertices = new List<Vector3>();
-		public static void FillVertices(List<Vector2> vertices) {
+		public static void FillVertices(
+			Vector2 mesh_min, float mesh_scale, List<uint> vertices)
+		{
 			Vertices.Clear();
 			if ( Vertices.Capacity < vertices.Count ) {
 				Vertices.Capacity = vertices.Count * 2;
 			}
-			for ( var i = 0; i < vertices.Count; ++i ) {
-				Vertices.Add(vertices[i]);
+			for ( int i = 0, e = vertices.Count; i < e; ++i ) {
+				Vertices.Add(
+					(mesh_min +
+					SwfUtils.UnpackCoordsFromUInt(vertices[i])) / mesh_scale);
 			}
 		}
 
@@ -38,7 +42,7 @@ namespace FlashTools {
 			if ( UVs.Capacity < uvs.Count * 2 ) {
 				UVs.Capacity = uvs.Count * 2 * 2;
 			}
-			for ( var i = 0; i < uvs.Count; i += 2 ) {
+			for ( int i = 0, e = uvs.Count; i < e; i += 2 ) {
 				var min = SwfUtils.UnpackUV(uvs[i+0]);
 				var max = SwfUtils.UnpackUV(uvs[i+1]);
 				UVs.Add(new Vector2(min.x, min.y));
@@ -54,7 +58,7 @@ namespace FlashTools {
 			if ( AddColors.Capacity < colors.Count * 4 ) {
 				AddColors.Capacity = colors.Count * 4 * 2;
 			}
-			for ( var i = 0; i < colors.Count; ++i ) {
+			for ( int i = 0, e = colors.Count; i < e; ++i ) {
 				var color = colors[i];
 				AddColors.Add(color);
 				AddColors.Add(color);
@@ -69,7 +73,7 @@ namespace FlashTools {
 			if ( MulColors.Capacity < colors.Count * 4 ) {
 				MulColors.Capacity = colors.Count * 4 * 2;
 			}
-			for ( var i = 0; i < colors.Count; ++i ) {
+			for ( int i = 0, e = colors.Count; i < e; ++i ) {
 				var color = colors[i];
 				MulColors.Add(color);
 				MulColors.Add(color);
@@ -89,7 +93,9 @@ namespace FlashTools {
 		[System.Serializable]
 		public class MeshData {
 			public List<SubMeshData> SubMeshes = new List<SubMeshData>();
-			public List<Vector2>     Vertices  = new List<Vector2>();
+			public Vector2           MeshMin   = Vector2.zero;
+			public float             MeshScale = 1.0f;
+			public List<uint>        Vertices  = new List<uint>();
 			public List<uint>        UVs       = new List<uint>();
 			public List<Vector4>     AddColors = new List<Vector4>();
 			public List<Color>       MulColors = new List<Color>();
@@ -98,7 +104,7 @@ namespace FlashTools {
 				if ( SubMeshes.Count > 0 ) {
 					mesh.subMeshCount = SubMeshes.Count;
 
-					SwfClipAssetCache.FillVertices(Vertices);
+					SwfClipAssetCache.FillVertices(MeshMin, MeshScale, Vertices);
 					mesh.SetVertices(SwfClipAssetCache.Vertices);
 
 					for ( var i = 0; i < SubMeshes.Count; ++i ) {

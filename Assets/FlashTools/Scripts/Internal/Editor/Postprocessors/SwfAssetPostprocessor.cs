@@ -199,6 +199,7 @@ namespace FlashTools.Internal {
 			List<uint>       baked_uvs       = new List<uint>();
 			List<Color>      baked_mulcolors = new List<Color>();
 			List<Vector4>    baked_addcolors = new List<Vector4>();
+			Vector2          baked_mesh_min  = new Vector2(float.MaxValue, float.MaxValue);
 			List<Vector2>    baked_vertices  = new List<Vector2>();
 			List<BakedGroup> baked_groups    = new List<BakedGroup>();
 			List<Material>   baked_materials = new List<Material>();
@@ -211,22 +212,34 @@ namespace FlashTools.Internal {
 					var width  = bitmap.RealSize.x / 20.0f;
 					var height = bitmap.RealSize.y / 20.0f;
 
-					var v0 = new Vector3(    0,      0, 0);
-					var v1 = new Vector3(width,      0, 0);
-					var v2 = new Vector3(width, height, 0);
-					var v3 = new Vector3(    0, height, 0);
+					var v0 = new Vector2(    0,      0);
+					var v1 = new Vector2(width,      0);
+					var v2 = new Vector2(width, height);
+					var v3 = new Vector2(    0, height);
 
 					var matrix =
-						Matrix4x4.Scale(new Vector3(
-							+1.0f / asset.Settings.PixelsPerUnit,
-							-1.0f / asset.Settings.PixelsPerUnit,
-							+1.0f / asset.Settings.PixelsPerUnit)) *
+						Matrix4x4.Scale(new Vector3(1.0f, -1.0f, 1.0f)) *
 						inst.Matrix.ToUnityMatrix();
 
-					baked_vertices.Add(matrix.MultiplyPoint3x4(v0));
-					baked_vertices.Add(matrix.MultiplyPoint3x4(v1));
-					baked_vertices.Add(matrix.MultiplyPoint3x4(v2));
-					baked_vertices.Add(matrix.MultiplyPoint3x4(v3));
+					var p0 = matrix.MultiplyPoint3x4(v0);
+					var p1 = matrix.MultiplyPoint3x4(v1);
+					var p2 = matrix.MultiplyPoint3x4(v2);
+					var p3 = matrix.MultiplyPoint3x4(v3);
+
+					baked_mesh_min.x = Mathf.Min(baked_mesh_min.x, p0.x);
+					baked_mesh_min.x = Mathf.Min(baked_mesh_min.x, p1.x);
+					baked_mesh_min.x = Mathf.Min(baked_mesh_min.x, p2.x);
+					baked_mesh_min.x = Mathf.Min(baked_mesh_min.x, p3.x);
+
+					baked_mesh_min.y = Mathf.Min(baked_mesh_min.y, p0.y);
+					baked_mesh_min.y = Mathf.Min(baked_mesh_min.y, p1.y);
+					baked_mesh_min.y = Mathf.Min(baked_mesh_min.y, p2.y);
+					baked_mesh_min.y = Mathf.Min(baked_mesh_min.y, p3.y);
+
+					baked_vertices.Add(p0);
+					baked_vertices.Add(p1);
+					baked_vertices.Add(p2);
+					baked_vertices.Add(p3);
 
 					var source_rect = bitmap.SourceRect;
 					baked_uvs.Add(SwfUtils.PackUV(source_rect.xMin, source_rect.yMin));
@@ -288,7 +301,12 @@ namespace FlashTools.Internal {
 						StartVertex   = p.StartVertex,
 						TriangleCount = p.TriangleCount})
 					.ToList(),
-				Vertices  = baked_vertices,
+				MeshMin   = baked_mesh_min,
+				MeshScale = asset.Settings.PixelsPerUnit,
+				Vertices  = baked_vertices
+					.Select(p => p - baked_mesh_min)
+					.Select(p => SwfUtils.PackCoordsToUInt(p))
+					.ToList(),
 				UVs       = baked_uvs,
 				AddColors = baked_addcolors,
 				MulColors = baked_mulcolors};
