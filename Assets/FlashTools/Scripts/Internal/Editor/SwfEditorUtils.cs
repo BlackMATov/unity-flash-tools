@@ -110,6 +110,50 @@ namespace FlashTools.Internal {
 		}
 
 		[Test]
+		public static void PackFloatColorToUShortTests() {
+			float v0 = -5.678f;
+			Assert.AreEqual(
+				v0,
+				SwfUtils.UnpackFloatColorFromUShort(SwfUtils.PackFloatColorToUShort(v0)),
+				0.002f);
+
+			float v1 = 60.678f;
+			Assert.AreEqual(
+				v1,
+				SwfUtils.UnpackFloatColorFromUShort(SwfUtils.PackFloatColorToUShort(v1)),
+				0.002f);
+
+			float v2 = 0.678f;
+			Assert.AreEqual(
+				v2,
+				SwfUtils.UnpackFloatColorFromUShort(SwfUtils.PackFloatColorToUShort(v2)),
+				0.002f);
+		}
+
+		[Test]
+		public static void PackColorToUIntsTests() {
+			var v0 = new Color(0.01f, 0.02f, 0.33f, 1.0f);
+			uint u0, u1;
+			SwfUtils.PackColorToUInts(v0, out u0, out u1);
+			Color c0;
+			SwfUtils.UnpackColorFromUInts(u0, u1, out c0);
+			Assert.AreEqual(v0.r, c0.r, SwfUtils.ColorPrecision);
+			Assert.AreEqual(v0.g, c0.g, SwfUtils.ColorPrecision);
+			Assert.AreEqual(v0.b, c0.b, SwfUtils.ColorPrecision);
+			Assert.AreEqual(v0.a, c0.a, SwfUtils.ColorPrecision);
+
+			var v1 = new Vector4(0.01f, 0.02f, 0.33f, 1.0f);
+			uint u2, u3;
+			SwfUtils.PackColorToUInts(v1, out u2, out u3);
+			Vector4 c1;
+			SwfUtils.UnpackColorFromUInts(u2, u3, out c1);
+			Assert.AreEqual(v1.x, c1.x, SwfUtils.ColorPrecision);
+			Assert.AreEqual(v1.y, c1.y, SwfUtils.ColorPrecision);
+			Assert.AreEqual(v1.z, c1.z, SwfUtils.ColorPrecision);
+			Assert.AreEqual(v1.w, c1.w, SwfUtils.ColorPrecision);
+		}
+
+		[Test]
 		public static void PackUShortsToUIntTests() {
 			ushort v0 = 11, v1 = 99;
 			ushort o0, o1;
@@ -132,21 +176,21 @@ namespace FlashTools.Internal {
 			Assert.AreEqual(
 				v0.x,
 				SwfUtils.UnpackCoordsFromUInt(SwfUtils.PackCoordsToUInt(v0)).x,
-				0.05f);
+				SwfUtils.CoordPrecision);
 			Assert.AreEqual(
 				v0.y,
 				SwfUtils.UnpackCoordsFromUInt(SwfUtils.PackCoordsToUInt(v0)).y,
-				0.05f);
+				SwfUtils.CoordPrecision);
 
 			var v1 = new Vector2(1234.14f, 3200.23f);
 			Assert.AreEqual(
 				v1.x,
 				SwfUtils.UnpackCoordsFromUInt(SwfUtils.PackCoordsToUInt(v1)).x,
-				0.05f);
+				SwfUtils.CoordPrecision);
 			Assert.AreEqual(
 				v1.y,
 				SwfUtils.UnpackCoordsFromUInt(SwfUtils.PackCoordsToUInt(v1)).y,
-				0.05f);
+				SwfUtils.CoordPrecision);
 		}
 	}
 }

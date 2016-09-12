@@ -53,13 +53,14 @@ namespace FlashTools {
 		}
 
 		public static List<Vector4> AddColors = new List<Vector4>();
-		public static void FillAddColors(List<Vector4> colors) {
+		public static void FillAddColors(List<uint> colors) {
 			AddColors.Clear();
-			if ( AddColors.Capacity < colors.Count * 4 ) {
-				AddColors.Capacity = colors.Count * 4 * 2;
+			if ( AddColors.Capacity < colors.Count * 2 ) {
+				AddColors.Capacity = colors.Count * 2 * 2;
 			}
-			for ( int i = 0, e = colors.Count; i < e; ++i ) {
-				var color = colors[i];
+			for ( int i = 0, e = colors.Count; i < e; i += 2 ) {
+				Vector4 color;
+				SwfUtils.UnpackColorFromUInts(colors[i+0], colors[i+1], out color);
 				AddColors.Add(color);
 				AddColors.Add(color);
 				AddColors.Add(color);
@@ -68,13 +69,14 @@ namespace FlashTools {
 		}
 
 		public static List<Color> MulColors = new List<Color>();
-		public static void FillMulColors(List<Color> colors) {
+		public static void FillMulColors(List<uint> colors) {
 			MulColors.Clear();
-			if ( MulColors.Capacity < colors.Count * 4 ) {
-				MulColors.Capacity = colors.Count * 4 * 2;
+			if ( MulColors.Capacity < colors.Count * 2 ) {
+				MulColors.Capacity = colors.Count * 2 * 2;
 			}
-			for ( int i = 0, e = colors.Count; i < e; ++i ) {
-				var color = colors[i];
+			for ( int i = 0, e = colors.Count; i < e; i += 2 ) {
+				Color color;
+				SwfUtils.UnpackColorFromUInts(colors[i+0], colors[i+1], out color);
 				MulColors.Add(color);
 				MulColors.Add(color);
 				MulColors.Add(color);
@@ -97,8 +99,8 @@ namespace FlashTools {
 			public float             MeshScale = 1.0f;
 			public List<uint>        Vertices  = new List<uint>();
 			public List<uint>        UVs       = new List<uint>();
-			public List<Vector4>     AddColors = new List<Vector4>();
-			public List<Color>       MulColors = new List<Color>();
+			public List<uint>        AddColors = new List<uint>();
+			public List<uint>        MulColors = new List<uint>();
 
 			public void FillMesh(Mesh mesh) {
 				if ( SubMeshes.Count > 0 ) {

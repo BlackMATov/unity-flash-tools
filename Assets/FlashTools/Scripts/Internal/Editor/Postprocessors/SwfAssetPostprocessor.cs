@@ -197,8 +197,8 @@ namespace FlashTools.Internal {
 			SwfAsset asset, SwfFrameData frame)
 		{
 			List<uint>       baked_uvs       = new List<uint>();
-			List<Color>      baked_mulcolors = new List<Color>();
-			List<Vector4>    baked_addcolors = new List<Vector4>();
+			List<uint>       baked_mulcolors = new List<uint>();
+			List<uint>       baked_addcolors = new List<uint>();
 			Vector2          baked_mesh_min  = new Vector2(float.MaxValue, float.MaxValue);
 			List<Vector2>    baked_vertices  = new List<Vector2>();
 			List<BakedGroup> baked_groups    = new List<BakedGroup>();
@@ -245,8 +245,17 @@ namespace FlashTools.Internal {
 					baked_uvs.Add(SwfUtils.PackUV(source_rect.xMin, source_rect.yMin));
 					baked_uvs.Add(SwfUtils.PackUV(source_rect.xMax, source_rect.yMax));
 
-					baked_mulcolors.Add(inst.ColorTrans.Mul);
-					baked_addcolors.Add(inst.ColorTrans.Add);
+					uint mul_u0, mul_u1;
+					SwfUtils.PackColorToUInts(
+						inst.ColorTrans.Mul, out mul_u0, out mul_u1);
+					baked_mulcolors.Add(mul_u0);
+					baked_mulcolors.Add(mul_u1);
+
+					uint add_u0, add_u1;
+					SwfUtils.PackColorToUInts(
+						inst.ColorTrans.Add, out add_u0, out add_u1);
+					baked_addcolors.Add(add_u0);
+					baked_addcolors.Add(add_u1);
 
 					if ( baked_groups.Count == 0 ||
 						baked_groups[baked_groups.Count - 1].Type      != inst.Type ||
