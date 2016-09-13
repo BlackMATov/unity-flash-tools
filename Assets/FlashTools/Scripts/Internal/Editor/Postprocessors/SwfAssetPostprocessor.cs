@@ -208,7 +208,7 @@ namespace FlashTools.Internal {
 				var bitmap = inst != null
 					? FindBitmapFromAssetData(asset.Data, inst.Bitmap)
 					: null;
-				if ( bitmap != null ) {
+				if ( bitmap != null && IsVisibleInstance(inst) ) {
 					var width  = bitmap.RealSize.x / 20.0f;
 					var height = bitmap.RealSize.y / 20.0f;
 
@@ -333,6 +333,11 @@ namespace FlashTools.Internal {
 				}
 			}
 			return null;
+		}
+
+		static bool IsVisibleInstance(SwfInstanceData inst) {
+			var result_color = inst.ColorTrans.ApplyToColor(Color.white);
+			return result_color.a >= 0.01f;
 		}
 
 		// ---------------------------------------------------------------------

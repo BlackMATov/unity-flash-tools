@@ -42,6 +42,14 @@ namespace FlashTools {
 		public Vector4 Mul;
 		public Vector4 Add;
 
+		public Color ApplyToColor(Color color) {
+			return new Color(
+				Mathf.Clamp01(color.r * Mul.x + Add.x),
+				Mathf.Clamp01(color.g * Mul.y + Add.y),
+				Mathf.Clamp01(color.b * Mul.z + Add.z),
+				Mathf.Clamp01(color.a * Mul.w + Add.w));
+		}
+
 		public static SwfColorTransData identity {
 			get {
 				return new SwfColorTransData{
