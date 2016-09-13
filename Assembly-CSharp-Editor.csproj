@@ -103,6 +103,7 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfShapesWithStyle.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfShortHeader.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfSurfaceFilters.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\Tests\SwfUtilsTests.cs" />
      <None Include="Assets\FlashTools\Resources\Shaders\SwfDecrMask.shader" />
      <None Include="Assets\FlashTools\Resources\Shaders\SwfSimple.shader" />
      <None Include="Assets\FlashTools\CHANGELOG.txt" />

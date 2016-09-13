@@ -34,21 +34,5 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				"SwfColor. R: {0}, G: {1}, B: {2}, A: {3}",
 				R, G, B, A);
 		}
-
-		public Color ToUnityColor() {
-			return new Color(
-				R / 255.0f,
-				G / 255.0f,
-				B / 255.0f,
-				A / 255.0f);
-		}
-
-		public Color32 ToUnityColor32() {
-			return new Color32(
-				R,
-				G,
-				B,
-				A);
-		}
 	}
 }

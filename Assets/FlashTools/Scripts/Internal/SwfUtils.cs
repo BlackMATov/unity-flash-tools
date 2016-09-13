@@ -3,8 +3,30 @@
 namespace FlashTools.Internal {
 	public static class SwfUtils {
 
+		public const float UVPrecision    = 0.0001f;
 		public const float CoordPrecision = 0.05f;
 		public const float ColorPrecision = 0.002f;
+
+		//
+		//
+		//
+
+		public static uint PackUShortsToUInt(ushort x, ushort y) {
+			var xx = (uint)x;
+			var yy = (uint)y;
+			return (xx << 16) + yy;
+		}
+
+		public static void UnpackUShortsFromUInt(uint pack, out ushort x, out ushort y) {
+			var xx = ((pack >> 16) & 0xFFFF);
+			var yy = (pack & 0xFFFF);
+			x = (ushort)xx;
+			y = (ushort)yy;
+		}
+
+		//
+		//
+		//
 
 		public static uint PackUV(float u, float v) {
 			var uu = (uint)(Mathf.Clamp01(u) * ushort.MaxValue);
@@ -12,12 +34,21 @@ namespace FlashTools.Internal {
 			return (uu << 16) + vv;
 		}
 
-		public static Vector2 UnpackUV(uint v) {
-			var uu = ((v >> 16) & 0xFFFF);
-			var vv = (v & 0xFFFF);
-			return new Vector2(
-				(float)uu / ushort.MaxValue,
-				(float)vv / ushort.MaxValue);
+		public static void UnpackUV(uint pack, out float u, out float v) {
+			var uu = ((pack >> 16) & 0xFFFF);
+			var vv = (pack & 0xFFFF);
+			u = (float)uu / ushort.MaxValue;
+			v = (float)vv / ushort.MaxValue;
+		}
+
+		public static uint PackUV(Vector2 uv) {
+			return PackUV(uv.x, uv.y);
+		}
+
+		public static Vector2 UnpackUV(uint pack) {
+			float u, v;
+			UnpackUV(pack, out u, out v);
+			return new Vector2(u, v);
 		}
 
 		//
@@ -31,71 +62,66 @@ namespace FlashTools.Internal {
 				short.MaxValue);
 		}
 
-		public static float UnpackFloatColorFromUShort(ushort v) {
-			return (short)v / (1.0f / ColorPrecision);
+		public static float UnpackFloatColorFromUShort(ushort pack) {
+			return (short)pack / (1.0f / ColorPrecision);
 		}
 
 		//
 		//
 		//
 
-		public static void PackColorToUInts(Color v, out uint u0, out uint u1) {
-			PackColorToUInts(v.r, v.g, v.b, v.a, out u0, out u1);
+		public static void PackColorToUInts(
+			Color v,
+			out uint pack0, out uint pack1)
+		{
+			PackColorToUInts(v.r, v.g, v.b, v.a, out pack0, out pack1);
 		}
 
-		public static void PackColorToUInts(Vector4 v, out uint u0, out uint u1) {
-			PackColorToUInts(v.x, v.y, v.z, v.w, out u0, out u1);
+		public static void PackColorToUInts(
+			Vector4 v,
+			out uint pack0, out uint pack1)
+		{
+			PackColorToUInts(v.x, v.y, v.z, v.w, out pack0, out pack1);
 		}
 
 		public static void PackColorToUInts(
 			float v0, float v1, float v2, float v3,
-			out uint u0, out uint u1)
+			out uint pack0, out uint pack1)
 		{
-			var s0 = PackFloatColorToUShort(v0);
-			var s1 = PackFloatColorToUShort(v1);
-			var s2 = PackFloatColorToUShort(v2);
-			var s3 = PackFloatColorToUShort(v3);
-			u0 = PackUShortsToUInt(s0, s1);
-			u1 = PackUShortsToUInt(s2, s3);
+			pack0 = PackUShortsToUInt(
+				PackFloatColorToUShort(v0),
+				PackFloatColorToUShort(v1));
+			pack1 = PackUShortsToUInt(
+				PackFloatColorToUShort(v2),
+				PackFloatColorToUShort(v3));
 		}
 
-		public static void UnpackColorFromUInts(uint u0, uint u1, out Color v) {
+		public static void UnpackColorFromUInts(
+			uint pack0, uint pack1,
+			out Color color)
+		{
 			ushort s0, s1, s2, s3;
-			UnpackUShortsFromUInt(u0, out s0, out s1);
-			UnpackUShortsFromUInt(u1, out s2, out s3);
-			v = new Color(
+			UnpackUShortsFromUInt(pack0, out s0, out s1);
+			UnpackUShortsFromUInt(pack1, out s2, out s3);
+			color = new Color(
 				UnpackFloatColorFromUShort(s0),
 				UnpackFloatColorFromUShort(s1),
 				UnpackFloatColorFromUShort(s2),
 				UnpackFloatColorFromUShort(s3));
 		}
 
-		public static void UnpackColorFromUInts(uint u0, uint u1, out Vector4 v) {
+		public static void UnpackColorFromUInts(
+			uint pack0, uint pack1,
+			out Vector4 color)
+		{
 			ushort s0, s1, s2, s3;
-			UnpackUShortsFromUInt(u0, out s0, out s1);
-			UnpackUShortsFromUInt(u1, out s2, out s3);
-			v = new Vector4(
+			UnpackUShortsFromUInt(pack0, out s0, out s1);
+			UnpackUShortsFromUInt(pack1, out s2, out s3);
+			color = new Vector4(
 				UnpackFloatColorFromUShort(s0),
 				UnpackFloatColorFromUShort(s1),
 				UnpackFloatColorFromUShort(s2),
 				UnpackFloatColorFromUShort(s3));
-		}
-
-		//
-		//
-		//
-
-		public static uint PackUShortsToUInt(ushort x, ushort y) {
-			var xx = (uint)x;
-			var yy = (uint)y;
-			return (xx << 16) + yy;
-		}
-
-		public static void UnpackUShortsFromUInt(uint v, out ushort x, out ushort y) {
-			var xx = ((v >> 16) & 0xFFFF);
-			var yy = (v & 0xFFFF);
-			x = (ushort)xx;
-			y = (ushort)yy;
 		}
 
 		//
@@ -109,26 +135,38 @@ namespace FlashTools.Internal {
 				ushort.MaxValue);
 		}
 
-		public static float UnpackFloatCoordFromUShort(ushort v) {
-			return v / (1.0f / CoordPrecision);
+		public static float UnpackFloatCoordFromUShort(ushort pack) {
+			return pack / (1.0f / CoordPrecision);
 		}
 
 		//
 		//
 		//
+
+		public static uint PackCoordsToUInt(float x, float y) {
+			return PackUShortsToUInt(
+				PackFloatCoordToUShort(x),
+				PackFloatCoordToUShort(y));
+		}
+
+		public static void UnpackCoordsFromUInt(
+			uint pack,
+			out float x, out float y)
+		{
+			ushort sx, sy;
+			UnpackUShortsFromUInt(pack, out sx, out sy);
+			x = SwfUtils.UnpackFloatCoordFromUShort(sx);
+			y = SwfUtils.UnpackFloatCoordFromUShort(sy);
+		}
 
 		public static uint PackCoordsToUInt(Vector2 v) {
-			return PackUShortsToUInt(
-				PackFloatCoordToUShort(v.x),
-				PackFloatCoordToUShort(v.y));
+			return PackCoordsToUInt(v.x, v.y);
 		}
 
-		public static Vector2 UnpackCoordsFromUInt(uint v) {
-			ushort sx, sy;
-			UnpackUShortsFromUInt(v, out sx, out sy);
-			return new Vector2(
-				SwfUtils.UnpackFloatCoordFromUShort(sx),
-				SwfUtils.UnpackFloatCoordFromUShort(sy));
+		public static Vector2 UnpackCoordsFromUInt(uint pack) {
+			float x, y;
+			UnpackCoordsFromUInt(pack, out x, out y);
+			return new Vector2(x, y);
 		}
 	}
 }

@@ -219,7 +219,7 @@ namespace FlashTools.Internal {
 
 					var matrix =
 						Matrix4x4.Scale(new Vector3(1.0f, -1.0f, 1.0f)) *
-						inst.Matrix.ToUnityMatrix();
+						inst.Matrix.ToUMatrix();
 
 					var p0 = matrix.MultiplyPoint3x4(v0);
 					var p1 = matrix.MultiplyPoint3x4(v1);
@@ -307,8 +307,8 @@ namespace FlashTools.Internal {
 			var mesh_data = new SwfClipAsset.MeshData{
 				SubMeshes = baked_groups
 					.Select(p => new SwfClipAsset.SubMeshData{
-						StartVertex   = p.StartVertex,
-						TriangleCount = p.TriangleCount})
+						StartVertex = p.StartVertex,
+						IndexCount  = p.TriangleCount})
 					.ToList(),
 				MeshMin   = baked_mesh_min,
 				MeshScale = asset.Settings.PixelsPerUnit,

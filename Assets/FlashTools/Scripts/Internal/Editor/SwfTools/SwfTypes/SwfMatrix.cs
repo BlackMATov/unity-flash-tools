@@ -59,7 +59,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				TranslateX, TranslateY);
 		}
 
-		public Matrix4x4 ToUnityMatrix() {
+		public Matrix4x4 ToUMatrix() {
 			var mat = Matrix4x4.identity;
 			mat.m00 = ScaleX;
 			mat.m10 = RotateSkew0;

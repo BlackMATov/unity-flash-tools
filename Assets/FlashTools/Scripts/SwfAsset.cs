@@ -5,44 +5,35 @@ using System.Collections.Generic;
 namespace FlashTools {
 	[System.Serializable]
 	public struct SwfMatrixData {
-		public float ScX;
-		public float ScY;
-		public float SkX;
-		public float SkY;
-		public float TrX;
-		public float TrY;
+		public Vector2 Sc;
+		public Vector2 Sk;
+		public Vector2 Tr;
 
 		public static SwfMatrixData identity {
 			get {
 				return new SwfMatrixData{
-					ScX = 1.0f,
-					ScY = 1.0f,
-					SkX = 0.0f,
-					SkY = 0.0f,
-					TrX = 0.0f,
-					TrY = 0.0f};
+					Sc = Vector2.one,
+					Sk = Vector2.zero,
+					Tr = Vector2.zero};
 			}
 		}
 
-		public static SwfMatrixData FromUnityMatrix(Matrix4x4 mat) {
-			return new SwfMatrixData{
-				ScX = mat.m00,
-				ScY = mat.m11,
-				SkX = mat.m10,
-				SkY = mat.m01,
-				TrX = mat.m03,
-				TrY = mat.m13};
+		public Matrix4x4 ToUMatrix() {
+			var mat = Matrix4x4.identity;
+			mat.m00 = Sc.x;
+			mat.m11 = Sc.y;
+			mat.m10 = Sk.x;
+			mat.m01 = Sk.y;
+			mat.m03 = Tr.x;
+			mat.m13 = Tr.y;
+			return mat;
 		}
 
-		public Matrix4x4 ToUnityMatrix() {
-			var mat = Matrix4x4.identity;
-			mat.m00 = ScX;
-			mat.m11 = ScY;
-			mat.m10 = SkX;
-			mat.m01 = SkY;
-			mat.m03 = TrX;
-			mat.m13 = TrY;
-			return mat;
+		public static SwfMatrixData FromUMatrix(Matrix4x4 mat) {
+			return new SwfMatrixData{
+				Sc = new Vector2(mat.m00, mat.m11),
+				Sk = new Vector2(mat.m10, mat.m01),
+				Tr = new Vector2(mat.m03, mat.m13)};
 		}
 	}
 

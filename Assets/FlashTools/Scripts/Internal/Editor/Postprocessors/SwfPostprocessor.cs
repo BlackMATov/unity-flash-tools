@@ -121,7 +121,7 @@ namespace FlashTools.Internal {
 			var self_masks = new List<SwfInstanceData>();
 			foreach ( var inst in display_list.Instances.Values.Where(p => p.Visible) ) {
 				CheckSelfMasks(self_masks, inst.Depth, frame);
-				var child_matrix          = parent_matrix * inst.Matrix.ToUnityMatrix();
+				var child_matrix          = parent_matrix * inst.Matrix.ToUMatrix();
 				var child_color_transform = parent_color_transform * inst.ColorTransform.ToColorTransData();
 				switch ( inst.Type ) {
 				case SwfDisplayInstanceType.Shape:
@@ -148,7 +148,7 @@ namespace FlashTools.Internal {
 									Type       = frame_inst_type,
 									ClipDepth  = (ushort)frame_inst_clip_depth,
 									Bitmap     = bitmap_id,
-									Matrix     = SwfMatrixData.FromUnityMatrix(child_matrix * bitmap_matrix.ToUnityMatrix()),
+									Matrix     = SwfMatrixData.FromUMatrix(child_matrix * bitmap_matrix.ToUMatrix()),
 									ColorTrans = child_color_transform});
 								if ( parent_mask > 0 ) {
 									parent_masks.Add(frame.Instances[frame.Instances.Count - 1]);
