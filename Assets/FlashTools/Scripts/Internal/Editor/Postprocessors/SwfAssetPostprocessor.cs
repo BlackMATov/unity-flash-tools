@@ -6,8 +6,6 @@ using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
-using FlashTools.Internal;
-
 namespace FlashTools.Internal {
 	public class SwfAssetPostprocessor : AssetPostprocessor {
 		static void OnPostprocessAllAssets(
@@ -33,10 +31,10 @@ namespace FlashTools.Internal {
 					asset.Atlas = atlas_asset;
 					ConfigureAtlas(asset);
 					ConfigureClips(asset);
-					ConfigureAssetClips(asset);
 					EditorUtility.SetDirty(asset);
 					AssetDatabase.SaveAssets();
 				}
+				ConfigureAssetClips(asset);
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
 					"Postprocess swf asset error: {0}",
@@ -231,17 +229,19 @@ namespace FlashTools.Internal {
 					baked_uvs.Add(SwfUtils.PackUV(source_rect.xMin, source_rect.yMin));
 					baked_uvs.Add(SwfUtils.PackUV(source_rect.xMax, source_rect.yMax));
 
-					uint mul_u0, mul_u1;
+					uint mul_pack0, mul_pack1;
 					SwfUtils.PackFColorToUInts(
-						inst.ColorTrans.Mul, out mul_u0, out mul_u1);
-					baked_mulcolors.Add(mul_u0);
-					baked_mulcolors.Add(mul_u1);
+						inst.ColorTrans.Mul,
+						out mul_pack0, out mul_pack1);
+					baked_mulcolors.Add(mul_pack0);
+					baked_mulcolors.Add(mul_pack1);
 
-					uint add_u0, add_u1;
+					uint add_pack0, add_pack1;
 					SwfUtils.PackFColorToUInts(
-						inst.ColorTrans.Add, out add_u0, out add_u1);
-					baked_addcolors.Add(add_u0);
-					baked_addcolors.Add(add_u1);
+						inst.ColorTrans.Add,
+						out add_pack0, out add_pack1);
+					baked_addcolors.Add(add_pack0);
+					baked_addcolors.Add(add_pack1);
 
 					if ( baked_groups.Count == 0 ||
 						baked_groups[baked_groups.Count - 1].Type      != inst.Type ||
