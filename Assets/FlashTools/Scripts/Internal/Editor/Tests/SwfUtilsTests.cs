@@ -27,6 +27,23 @@ namespace FlashTools.Internal.Tests {
 		//
 
 		[Test]
+		public static void PackBytesToUIntTests() {
+			byte b0 = 1, b1 = 10, b2 = 100, b3 = 255;
+			byte bb0, bb1, bb2, bb3;
+			SwfUtils.UnpackBytesFromUInt(
+				SwfUtils.PackBytesToUInt(b0, b1, b2, b3),
+				out bb0, out bb1, out bb2, out bb3);
+			Assert.AreEqual(b0, bb0);
+			Assert.AreEqual(b1, bb1);
+			Assert.AreEqual(b2, bb2);
+			Assert.AreEqual(b3, bb3);
+		}
+
+		//
+		//
+		//
+
+		[Test]
 		public static void PackUShortsToUIntTests() {
 			ushort v0 = 11, v1 = 99;
 			ushort o0, o1;
@@ -45,13 +62,13 @@ namespace FlashTools.Internal.Tests {
 
 		[Test]
 		public static void PackUVTests() {
-			var v0 = new Vector2(0.99f, 0.11f);
+			var v0 = new Vector2(0.9999f, 0.1111f);
 			AssertAreEqualVectors(
 				v0,
 				SwfUtils.UnpackUV(SwfUtils.PackUV(v0)),
 				SwfUtils.UVPrecision);
 
-			var v1 = new Vector2(0.09f, 0.01f);
+			var v1 = new Vector2(0.0987f, 0.0123f);
 			AssertAreEqualVectors(
 				v1,
 				SwfUtils.UnpackUV(SwfUtils.PackUV(v1)),
@@ -70,53 +87,38 @@ namespace FlashTools.Internal.Tests {
 			Assert.AreEqual(
 				v0,
 				SwfUtils.UnpackFloatColorFromUShort(SwfUtils.PackFloatColorToUShort(v0)),
-				SwfUtils.ColorPrecision);
+				SwfUtils.FColorPrecision);
 
 			float v1 = 60.678f;
 			Assert.AreEqual(
 				v1,
 				SwfUtils.UnpackFloatColorFromUShort(SwfUtils.PackFloatColorToUShort(v1)),
-				SwfUtils.ColorPrecision);
+				SwfUtils.FColorPrecision);
 
 			float v2 = 0.678f;
 			Assert.AreEqual(
 				v2,
 				SwfUtils.UnpackFloatColorFromUShort(SwfUtils.PackFloatColorToUShort(v2)),
-				SwfUtils.ColorPrecision);
+				SwfUtils.FColorPrecision);
 		}
 
 		[Test]
 		public static void PackColorToUIntsTests() {
 			var v0 = new Color(0.01f, 0.02f, 0.33f, 1.0f);
 			uint u0, u1;
-			SwfUtils.PackColorToUInts(v0, out u0, out u1);
+			SwfUtils.PackFColorToUInts(v0, out u0, out u1);
 			Color c0;
-			SwfUtils.UnpackColorFromUInts(u0, u1, out c0);
+			SwfUtils.UnpackFColorFromUInts(u0, u1, out c0);
 			AssertAreEqualVectors(
-				v0, c0, SwfUtils.ColorPrecision);
+				v0, c0, SwfUtils.FColorPrecision);
 
 			var v1 = new Vector4(0.01f, 0.02f, 0.33f, 1.0f);
 			uint u2, u3;
-			SwfUtils.PackColorToUInts(v1, out u2, out u3);
+			SwfUtils.PackFColorToUInts(v1, out u2, out u3);
 			Vector4 c1;
-			SwfUtils.UnpackColorFromUInts(u2, u3, out c1);
+			SwfUtils.UnpackFColorFromUInts(u2, u3, out c1);
 			AssertAreEqualVectors(
-				v1, c1, SwfUtils.ColorPrecision);
-		}
-
-		[Test]
-		public static void PackCoordsToUIntTests() {
-			var v0 = new Vector2(1.14f, 2.23f);
-			AssertAreEqualVectors(
-				v0,
-				SwfUtils.UnpackCoordsFromUInt(SwfUtils.PackCoordsToUInt(v0)),
-				SwfUtils.CoordPrecision);
-
-			var v1 = new Vector2(1234.14f, 3200.23f);
-			AssertAreEqualVectors(
-				v1,
-				SwfUtils.UnpackCoordsFromUInt(SwfUtils.PackCoordsToUInt(v1)),
-				SwfUtils.CoordPrecision);
+				v1, c1, SwfUtils.FColorPrecision);
 		}
 	}
 }

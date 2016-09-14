@@ -13,9 +13,7 @@ namespace FlashTools {
 		[System.Serializable]
 		public class MeshData {
 			public List<SubMeshData> SubMeshes = new List<SubMeshData>();
-			public Vector2           MeshMin   = Vector2.zero;
-			public float             MeshScale = 1.0f;
-			public List<uint>        Vertices  = new List<uint>();
+			public List<Vector2>     Vertices  = new List<Vector2>();
 			public List<uint>        UVs       = new List<uint>();
 			public List<uint>        AddColors = new List<uint>();
 			public List<uint>        MulColors = new List<uint>();
@@ -24,7 +22,7 @@ namespace FlashTools {
 				if ( SubMeshes.Count > 0 ) {
 					mesh.subMeshCount = SubMeshes.Count;
 
-					SwfClipAssetCache.FillVertices(MeshMin, MeshScale, Vertices);
+					SwfClipAssetCache.FillVertices(Vertices);
 					mesh.SetVertices(SwfClipAssetCache.Vertices);
 
 					for ( int i = 0, e = SubMeshes.Count; i < e; ++i ) {
@@ -103,7 +101,9 @@ namespace FlashTools {
 	// ---------------------------------------------------------------------
 
 	static class SwfClipAssetCache {
-		public static List<int> Indices = new List<int>();
+		const int PreallocatedVertices = 500;
+
+		public static List<int> Indices = new List<int>(PreallocatedVertices * 6 / 4);
 		public static void FillTriangles(int start_vertex, int index_count) {
 			Indices.Clear();
 			if ( Indices.Capacity < index_count ) {
@@ -120,22 +120,18 @@ namespace FlashTools {
 			}
 		}
 
-		public static List<Vector3> Vertices = new List<Vector3>();
-		public static void FillVertices(
-			Vector2 mesh_min, float mesh_scale, List<uint> vertices)
-		{
+		public static List<Vector3> Vertices = new List<Vector3>(PreallocatedVertices);
+		public static void FillVertices(List<Vector2> vertices) {
 			Vertices.Clear();
 			if ( Vertices.Capacity < vertices.Count ) {
 				Vertices.Capacity = vertices.Count * 2;
 			}
 			for ( int i = 0, e = vertices.Count; i < e; ++i ) {
-				Vertices.Add(
-					(mesh_min + SwfUtils.UnpackCoordsFromUInt(vertices[i])) /
-					mesh_scale);
+				Vertices.Add(vertices[i]);
 			}
 		}
 
-		public static List<Vector2> UVs = new List<Vector2>();
+		public static List<Vector2> UVs = new List<Vector2>(PreallocatedVertices);
 		public static void FillUVs(List<uint> uvs) {
 			UVs.Clear();
 			if ( UVs.Capacity < uvs.Count * 2 ) {
@@ -151,7 +147,7 @@ namespace FlashTools {
 			}
 		}
 
-		public static List<Vector4> AddColors = new List<Vector4>();
+		public static List<Vector4> AddColors = new List<Vector4>(PreallocatedVertices);
 		public static void FillAddColors(List<uint> colors) {
 			AddColors.Clear();
 			if ( AddColors.Capacity < colors.Count * 2 ) {
@@ -159,7 +155,7 @@ namespace FlashTools {
 			}
 			for ( int i = 0, e = colors.Count; i < e; i += 2 ) {
 				Vector4 color;
-				SwfUtils.UnpackColorFromUInts(
+				SwfUtils.UnpackFColorFromUInts(
 					colors[i+0], colors[i+1], out color);
 				AddColors.Add(color);
 				AddColors.Add(color);
@@ -168,7 +164,7 @@ namespace FlashTools {
 			}
 		}
 
-		public static List<Color> MulColors = new List<Color>();
+		public static List<Color> MulColors = new List<Color>(PreallocatedVertices);
 		public static void FillMulColors(List<uint> colors) {
 			MulColors.Clear();
 			if ( MulColors.Capacity < colors.Count * 2 ) {
@@ -176,7 +172,7 @@ namespace FlashTools {
 			}
 			for ( int i = 0, e = colors.Count; i < e; i += 2 ) {
 				Color color;
-				SwfUtils.UnpackColorFromUInts(
+				SwfUtils.UnpackFColorFromUInts(
 					colors[i+0], colors[i+1], out color);
 				MulColors.Add(color);
 				MulColors.Add(color);

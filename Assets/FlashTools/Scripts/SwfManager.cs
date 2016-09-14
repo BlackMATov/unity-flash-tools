@@ -101,6 +101,15 @@ namespace FlashTools {
 			}
 		}
 
+		void LateUpdateClips() {
+			for ( int i = 0, e = _clips.Count; i < e; ++i ) {
+				var clip = _clips[i];
+				if ( clip ) {
+					clip.InternalLateUpdate();
+				}
+			}
+		}
+
 		// ---------------------------------------------------------------------
 		//
 		// Messages
@@ -120,6 +129,10 @@ namespace FlashTools {
 		void Update() {
 			var dt = Time.deltaTime;
 			UpdateControllers(dt);
+		}
+
+		void LateUpdate() {
+			LateUpdateClips();
 		}
 	}
 }

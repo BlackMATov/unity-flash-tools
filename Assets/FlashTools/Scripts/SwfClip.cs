@@ -1,6 +1,10 @@
 ﻿using UnityEngine;
 using FlashTools.Internal;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
@@ -9,6 +13,7 @@ namespace FlashTools {
 		MeshFilter            _meshFilter   = null;
 		MeshRenderer          _meshRenderer = null;
 
+		bool                  _dirtyMesh    = true;
 		SwfClipAsset.Sequence _curSequence  = null;
 		MaterialPropertyBlock _curPropBlock = null;
 
@@ -132,6 +137,7 @@ namespace FlashTools {
 		void ClearCache() {
 			_meshFilter   = GetComponent<MeshFilter>();
 			_meshRenderer = GetComponent<MeshRenderer>();
+			_dirtyMesh    = true;
 			_curSequence  = null;
 			_curPropBlock = null;
 		}
@@ -172,7 +178,7 @@ namespace FlashTools {
 			_currentFrame = frameCount > 0
 				? Mathf.Clamp(currentFrame, 0, frameCount - 1)
 				: 0;
-			UpdateCurrentMesh();
+			SetDirtyCurrentMesh();
 		}
 
 		void ChangeSortingProperties() {
@@ -195,22 +201,37 @@ namespace FlashTools {
 			}
 		}
 
-		void UpdateCurrentMesh() {
-			if ( _meshFilter && _meshRenderer ) {
-				var baked_frame               = GetCurrentBakedFrame();
-				_meshFilter.sharedMesh        = baked_frame.CachedMesh;
-				_meshRenderer.sharedMaterials = baked_frame.Materials;
-			}
+		void SetDirtyCurrentMesh() {
+			_dirtyMesh = true;
+		#if UNITY_EDITOR
+			EditorUtility.SetDirty(this);
+		#endif
 		}
 
 		SwfClipAsset.Frame GetCurrentBakedFrame() {
 			var frames = _curSequence != null ? _curSequence.Frames : null;
-			var frame  = frames != null && currentFrame >= 0 && currentFrame < frames.Count
+			return frames != null && currentFrame >= 0 && currentFrame < frames.Count
 				? frames[currentFrame]
-				: new SwfClipAsset.Frame();
-			return frame != null
-				? frame
-				: new SwfClipAsset.Frame();
+				: null;
+		}
+
+		// ---------------------------------------------------------------------
+		//
+		// Internal
+		//
+		// ---------------------------------------------------------------------
+
+		public void InternalLateUpdate() {
+			if ( _meshFilter && _meshRenderer && _dirtyMesh ) {
+				var baked_frame = GetCurrentBakedFrame();
+				if ( baked_frame != null ) {
+					_meshFilter.sharedMesh        = baked_frame.CachedMesh;
+					_meshRenderer.sharedMaterials = baked_frame.Materials;
+				} else {
+					_meshFilter.sharedMesh        = null;
+					_meshRenderer.sharedMaterials = new Material[0];
+				}
+			}
 		}
 
 		// ---------------------------------------------------------------------

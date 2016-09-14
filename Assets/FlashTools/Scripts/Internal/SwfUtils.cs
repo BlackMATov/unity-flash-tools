@@ -3,9 +3,30 @@
 namespace FlashTools.Internal {
 	public static class SwfUtils {
 
-		public const float UVPrecision    = 0.0001f;
-		public const float CoordPrecision = 0.05f;
-		public const float ColorPrecision = 0.002f;
+		public const float UVPrecision     = 1.0f / 16384.0f;
+		public const float FColorPrecision = 1.0f / 512.0f;
+
+		//
+		//
+		//
+
+		public static uint PackBytesToUInt(byte b0, byte b1, byte b2, byte b3) {
+			var bb0 = (uint)b0;
+			var bb1 = (uint)b1;
+			var bb2 = (uint)b2;
+			var bb3 = (uint)b3;
+			return (bb0 << 24) + (bb1 << 16) + (bb2 << 8) + bb3;
+		}
+
+		public static void UnpackBytesFromUInt(
+			uint pack,
+			out byte b0, out byte b1, out byte b2, out byte b3)
+		{
+			b0 = (byte)((pack >> 24) & 0xFF);
+			b1 = (byte)((pack >> 16) & 0xFF);
+			b2 = (byte)((pack >>  8) & 0xFF);
+			b3 = (byte)((pack      ) & 0xFF);
+		}
 
 		//
 		//
@@ -57,34 +78,34 @@ namespace FlashTools.Internal {
 
 		public static ushort PackFloatColorToUShort(float v) {
 			return (ushort)Mathf.Clamp(
-				v * (1.0f / ColorPrecision),
+				v * (1.0f / FColorPrecision),
 				short.MinValue,
 				short.MaxValue);
 		}
 
 		public static float UnpackFloatColorFromUShort(ushort pack) {
-			return (short)pack / (1.0f / ColorPrecision);
+			return (short)pack / (1.0f / FColorPrecision);
 		}
 
 		//
 		//
 		//
 
-		public static void PackColorToUInts(
+		public static void PackFColorToUInts(
 			Color v,
 			out uint pack0, out uint pack1)
 		{
-			PackColorToUInts(v.r, v.g, v.b, v.a, out pack0, out pack1);
+			PackFColorToUInts(v.r, v.g, v.b, v.a, out pack0, out pack1);
 		}
 
-		public static void PackColorToUInts(
+		public static void PackFColorToUInts(
 			Vector4 v,
 			out uint pack0, out uint pack1)
 		{
-			PackColorToUInts(v.x, v.y, v.z, v.w, out pack0, out pack1);
+			PackFColorToUInts(v.x, v.y, v.z, v.w, out pack0, out pack1);
 		}
 
-		public static void PackColorToUInts(
+		public static void PackFColorToUInts(
 			float v0, float v1, float v2, float v3,
 			out uint pack0, out uint pack1)
 		{
@@ -96,7 +117,7 @@ namespace FlashTools.Internal {
 				PackFloatColorToUShort(v3));
 		}
 
-		public static void UnpackColorFromUInts(
+		public static void UnpackFColorFromUInts(
 			uint pack0, uint pack1,
 			out Color color)
 		{
@@ -110,7 +131,7 @@ namespace FlashTools.Internal {
 				UnpackFloatColorFromUShort(s3));
 		}
 
-		public static void UnpackColorFromUInts(
+		public static void UnpackFColorFromUInts(
 			uint pack0, uint pack1,
 			out Vector4 color)
 		{
@@ -122,51 +143,6 @@ namespace FlashTools.Internal {
 				UnpackFloatColorFromUShort(s1),
 				UnpackFloatColorFromUShort(s2),
 				UnpackFloatColorFromUShort(s3));
-		}
-
-		//
-		//
-		//
-
-		public static ushort PackFloatCoordToUShort(float v) {
-			return (ushort)Mathf.Clamp(
-				v * (1.0f / CoordPrecision),
-				0,
-				ushort.MaxValue);
-		}
-
-		public static float UnpackFloatCoordFromUShort(ushort pack) {
-			return pack / (1.0f / CoordPrecision);
-		}
-
-		//
-		//
-		//
-
-		public static uint PackCoordsToUInt(float x, float y) {
-			return PackUShortsToUInt(
-				PackFloatCoordToUShort(x),
-				PackFloatCoordToUShort(y));
-		}
-
-		public static void UnpackCoordsFromUInt(
-			uint pack,
-			out float x, out float y)
-		{
-			ushort sx, sy;
-			UnpackUShortsFromUInt(pack, out sx, out sy);
-			x = SwfUtils.UnpackFloatCoordFromUShort(sx);
-			y = SwfUtils.UnpackFloatCoordFromUShort(sy);
-		}
-
-		public static uint PackCoordsToUInt(Vector2 v) {
-			return PackCoordsToUInt(v.x, v.y);
-		}
-
-		public static Vector2 UnpackCoordsFromUInt(uint pack) {
-			float x, y;
-			UnpackCoordsFromUInt(pack, out x, out y);
-			return new Vector2(x, y);
 		}
 	}
 }
