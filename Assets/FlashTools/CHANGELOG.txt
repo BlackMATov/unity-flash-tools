@@ -1,4 +1,12 @@
 -----------------
+-- Version 0.3 --
+-----------------
+
+Preview for animation assets and clips
+Animation API improvements
+Memory optimizations
+
+-----------------
 -- Version 0.2 --
 -----------------
 
@@ -9,4 +17,4 @@ Export clips with export names
 -- Version 0.1 --
 -----------------
 
-Initial alpha version.
+Initial alpha version
