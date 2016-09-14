@@ -12,20 +12,20 @@ namespace FlashTools {
 
 		[System.Serializable]
 		public class MeshData {
-			public List<SubMeshData> SubMeshes = new List<SubMeshData>();
-			public List<Vector2>     Vertices  = new List<Vector2>();
-			public List<uint>        UVs       = new List<uint>();
-			public List<uint>        AddColors = new List<uint>();
-			public List<uint>        MulColors = new List<uint>();
+			public SubMeshData[] SubMeshes = new SubMeshData[0];
+			public Vector2[]     Vertices  = new Vector2[0];
+			public uint[]        UVs       = new uint[0];
+			public uint[]        AddColors = new uint[0];
+			public uint[]        MulColors = new uint[0];
 
 			public void FillMesh(Mesh mesh) {
-				if ( SubMeshes.Count > 0 ) {
-					mesh.subMeshCount = SubMeshes.Count;
+				if ( SubMeshes.Length > 0 ) {
+					mesh.subMeshCount = SubMeshes.Length;
 
 					SwfClipAssetCache.FillVertices(Vertices);
 					mesh.SetVertices(SwfClipAssetCache.Vertices);
 
-					for ( int i = 0, e = SubMeshes.Count; i < e; ++i ) {
+					for ( int i = 0, e = SubMeshes.Length; i < e; ++i ) {
 						SwfClipAssetCache.FillTriangles(
 							SubMeshes[i].StartVertex, SubMeshes[i].IndexCount);
 						mesh.SetTriangles(SwfClipAssetCache.Indices, i);
@@ -120,64 +120,83 @@ namespace FlashTools {
 			}
 		}
 
+		static        Vector3       Vertex   = Vector3.zero;
 		public static List<Vector3> Vertices = new List<Vector3>(PreallocatedVertices);
-		public static void FillVertices(List<Vector2> vertices) {
+		public static void FillVertices(Vector2[] vertices) {
 			Vertices.Clear();
-			if ( Vertices.Capacity < vertices.Count ) {
-				Vertices.Capacity = vertices.Count * 2;
+			if ( Vertices.Capacity < vertices.Length ) {
+				Vertices.Capacity = vertices.Length * 2;
 			}
-			for ( int i = 0, e = vertices.Count; i < e; ++i ) {
-				Vertices.Add(vertices[i]);
+			for ( int i = 0, e = vertices.Length; i < e; ++i ) {
+				var vert = vertices[i];
+				Vertex.x = vert.x;
+				Vertex.y = vert.y;
+				Vertices.Add(Vertex);
 			}
 		}
 
+		static        Vector2       UV0 = Vector2.zero;
+		static        Vector2       UV1 = Vector2.zero;
+		static        Vector2       UV2 = Vector2.zero;
+		static        Vector2       UV3 = Vector2.zero;
 		public static List<Vector2> UVs = new List<Vector2>(PreallocatedVertices);
-		public static void FillUVs(List<uint> uvs) {
+		public static void FillUVs(uint[] uvs) {
 			UVs.Clear();
-			if ( UVs.Capacity < uvs.Count * 2 ) {
-				UVs.Capacity = uvs.Count * 2 * 2;
+			if ( UVs.Capacity < uvs.Length * 2 ) {
+				UVs.Capacity = uvs.Length * 2 * 2;
 			}
-			for ( int i = 0, e = uvs.Count; i < e; i += 2 ) {
-				var min = SwfUtils.UnpackUV(uvs[i+0]);
-				var max = SwfUtils.UnpackUV(uvs[i+1]);
-				UVs.Add(new Vector2(min.x, min.y));
-				UVs.Add(new Vector2(max.x, min.y));
-				UVs.Add(new Vector2(max.x, max.y));
-				UVs.Add(new Vector2(min.x, max.y));
+			for ( int i = 0, e = uvs.Length; i < e; i += 2 ) {
+				float min_x, min_y, max_x, max_y;
+				SwfUtils.UnpackUV(uvs[i+0], out min_x, out min_y);
+				SwfUtils.UnpackUV(uvs[i+1], out max_x, out max_y);
+
+				UV0.x = min_x; UV0.y = min_y;
+				UV1.x = max_x; UV1.y = min_y;
+				UV2.x = max_x; UV2.y = max_y;
+				UV3.x = min_x; UV3.y = max_y;
+
+				UVs.Add(UV0);
+				UVs.Add(UV1);
+				UVs.Add(UV2);
+				UVs.Add(UV3);
 			}
 		}
 
+		static        Vector4       AddColor  = Vector4.one;
 		public static List<Vector4> AddColors = new List<Vector4>(PreallocatedVertices);
-		public static void FillAddColors(List<uint> colors) {
+		public static void FillAddColors(uint[] colors) {
 			AddColors.Clear();
-			if ( AddColors.Capacity < colors.Count * 2 ) {
-				AddColors.Capacity = colors.Count * 2 * 2;
+			if ( AddColors.Capacity < colors.Length * 2 ) {
+				AddColors.Capacity = colors.Length * 2 * 2;
 			}
-			for ( int i = 0, e = colors.Count; i < e; i += 2 ) {
-				Vector4 color;
+			for ( int i = 0, e = colors.Length; i < e; i += 2 ) {
 				SwfUtils.UnpackFColorFromUInts(
-					colors[i+0], colors[i+1], out color);
-				AddColors.Add(color);
-				AddColors.Add(color);
-				AddColors.Add(color);
-				AddColors.Add(color);
+					colors[i+0], colors[i+1],
+					out AddColor.x, out AddColor.y,
+					out AddColor.z, out AddColor.w);
+				AddColors.Add(AddColor);
+				AddColors.Add(AddColor);
+				AddColors.Add(AddColor);
+				AddColors.Add(AddColor);
 			}
 		}
 
+		static        Color       MulColor  = Color.white;
 		public static List<Color> MulColors = new List<Color>(PreallocatedVertices);
-		public static void FillMulColors(List<uint> colors) {
+		public static void FillMulColors(uint[] colors) {
 			MulColors.Clear();
-			if ( MulColors.Capacity < colors.Count * 2 ) {
-				MulColors.Capacity = colors.Count * 2 * 2;
+			if ( MulColors.Capacity < colors.Length * 2 ) {
+				MulColors.Capacity = colors.Length * 2 * 2;
 			}
-			for ( int i = 0, e = colors.Count; i < e; i += 2 ) {
-				Color color;
+			for ( int i = 0, e = colors.Length; i < e; i += 2 ) {
 				SwfUtils.UnpackFColorFromUInts(
-					colors[i+0], colors[i+1], out color);
-				MulColors.Add(color);
-				MulColors.Add(color);
-				MulColors.Add(color);
-				MulColors.Add(color);
+					colors[i+0], colors[i+1],
+					out MulColor.r, out MulColor.g,
+					out MulColor.b, out MulColor.a);
+				MulColors.Add(MulColor);
+				MulColors.Add(MulColor);
+				MulColors.Add(MulColor);
+				MulColors.Add(MulColor);
 			}
 		}
 	}

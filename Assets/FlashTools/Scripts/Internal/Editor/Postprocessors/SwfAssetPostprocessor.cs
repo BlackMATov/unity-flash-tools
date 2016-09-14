@@ -295,11 +295,11 @@ namespace FlashTools.Internal {
 					.Select(p => new SwfClipAsset.SubMeshData{
 						StartVertex = p.StartVertex,
 						IndexCount  = p.TriangleCount})
-					.ToList(),
-				Vertices  = baked_vertices,
-				UVs       = baked_uvs,
-				AddColors = baked_addcolors,
-				MulColors = baked_mulcolors};
+					.ToArray(),
+				Vertices  = baked_vertices .ToArray(),
+				UVs       = baked_uvs      .ToArray(),
+				AddColors = baked_addcolors.ToArray(),
+				MulColors = baked_mulcolors.ToArray()};
 
 			return new SwfClipAsset.Frame(
 				mesh_data,

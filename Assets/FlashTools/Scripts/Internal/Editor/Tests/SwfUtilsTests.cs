@@ -63,22 +63,19 @@ namespace FlashTools.Internal.Tests {
 		[Test]
 		public static void PackUVTests() {
 			var v0 = new Vector2(0.9999f, 0.1111f);
-			AssertAreEqualVectors(
-				v0,
-				SwfUtils.UnpackUV(SwfUtils.PackUV(v0)),
-				SwfUtils.UVPrecision);
+			float u0, u1;
+			SwfUtils.UnpackUV(SwfUtils.PackUV(v0), out u0, out u1);
+			AssertAreEqualVectors(v0, new Vector2(u0, u1), SwfUtils.UVPrecision);
 
 			var v1 = new Vector2(0.0987f, 0.0123f);
-			AssertAreEqualVectors(
-				v1,
-				SwfUtils.UnpackUV(SwfUtils.PackUV(v1)),
-				SwfUtils.UVPrecision);
+			float u2, u3;
+			SwfUtils.UnpackUV(SwfUtils.PackUV(v1), out u2, out u3);
+			AssertAreEqualVectors(v1, new Vector2(u2, u3), SwfUtils.UVPrecision);
 
 			var v2 = new Vector2(1.0f, 0.0f);
-			AssertAreEqualVectors(
-				v2,
-				SwfUtils.UnpackUV(SwfUtils.PackUV(v2)),
-				SwfUtils.UVPrecision);
+			float u4, u5;
+			SwfUtils.UnpackUV(SwfUtils.PackUV(v2), out u4, out u5);
+			AssertAreEqualVectors(v2, new Vector2(u4, u5), SwfUtils.UVPrecision);
 		}
 
 		[Test]
@@ -108,7 +105,9 @@ namespace FlashTools.Internal.Tests {
 			uint u0, u1;
 			SwfUtils.PackFColorToUInts(v0, out u0, out u1);
 			Color c0;
-			SwfUtils.UnpackFColorFromUInts(u0, u1, out c0);
+			SwfUtils.UnpackFColorFromUInts(
+				u0, u1,
+				out c0.r, out c0.g, out c0.b, out c0.a);
 			AssertAreEqualVectors(
 				v0, c0, SwfUtils.FColorPrecision);
 
@@ -116,7 +115,9 @@ namespace FlashTools.Internal.Tests {
 			uint u2, u3;
 			SwfUtils.PackFColorToUInts(v1, out u2, out u3);
 			Vector4 c1;
-			SwfUtils.UnpackFColorFromUInts(u2, u3, out c1);
+			SwfUtils.UnpackFColorFromUInts(
+				u2, u3,
+				out c1.x, out c1.y, out c1.z, out c1.w);
 			AssertAreEqualVectors(
 				v1, c1, SwfUtils.FColorPrecision);
 		}

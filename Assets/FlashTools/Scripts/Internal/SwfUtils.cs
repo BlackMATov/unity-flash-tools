@@ -3,14 +3,19 @@
 namespace FlashTools.Internal {
 	public static class SwfUtils {
 
-		public const float UVPrecision     = 1.0f / 16384.0f;
-		public const float FColorPrecision = 1.0f / 512.0f;
+		public const float UVPrecision        = 1.0f / 16384.0f;
+		public const float FColorPrecision    = 1.0f / 512.0f;
+
+		const ushort       UShortMax          = ushort.MaxValue;
+		const float        InvFColorPrecision = 1.0f / FColorPrecision;
 
 		//
 		//
 		//
 
-		public static uint PackBytesToUInt(byte b0, byte b1, byte b2, byte b3) {
+		public static uint PackBytesToUInt(
+			byte b0, byte b1, byte b2, byte b3)
+		{
 			var bb0 = (uint)b0;
 			var bb1 = (uint)b1;
 			var bb2 = (uint)b2;
@@ -38,38 +43,30 @@ namespace FlashTools.Internal {
 			return (xx << 16) + yy;
 		}
 
-		public static void UnpackUShortsFromUInt(uint pack, out ushort x, out ushort y) {
-			var xx = ((pack >> 16) & 0xFFFF);
-			var yy = (pack & 0xFFFF);
-			x = (ushort)xx;
-			y = (ushort)yy;
+		public static void UnpackUShortsFromUInt(
+			uint pack,
+			out ushort x, out ushort y)
+		{
+			x = (ushort)((pack >> 16) & 0xFFFF);
+			y = (ushort)((pack      ) & 0xFFFF);
 		}
 
 		//
 		//
 		//
-
-		public static uint PackUV(float u, float v) {
-			var uu = (uint)(Mathf.Clamp01(u) * ushort.MaxValue);
-			var vv = (uint)(Mathf.Clamp01(v) * ushort.MaxValue);
-			return (uu << 16) + vv;
-		}
-
-		public static void UnpackUV(uint pack, out float u, out float v) {
-			var uu = ((pack >> 16) & 0xFFFF);
-			var vv = (pack & 0xFFFF);
-			u = (float)uu / ushort.MaxValue;
-			v = (float)vv / ushort.MaxValue;
-		}
-
 		public static uint PackUV(Vector2 uv) {
 			return PackUV(uv.x, uv.y);
 		}
 
-		public static Vector2 UnpackUV(uint pack) {
-			float u, v;
-			UnpackUV(pack, out u, out v);
-			return new Vector2(u, v);
+		public static uint PackUV(float u, float v) {
+			var uu = (uint)(Mathf.Clamp01(u) * UShortMax);
+			var vv = (uint)(Mathf.Clamp01(v) * UShortMax);
+			return (uu << 16) + vv;
+		}
+
+		public static void UnpackUV(uint pack, out float u, out float v) {
+			u = (float)((pack >> 16) & 0xFFFF) / UShortMax;
+			v = (float)((pack      ) & 0xFFFF) / UShortMax;
 		}
 
 		//
@@ -84,7 +81,7 @@ namespace FlashTools.Internal {
 		}
 
 		public static float UnpackFloatColorFromUShort(ushort pack) {
-			return (short)pack / (1.0f / FColorPrecision);
+			return (short)pack / InvFColorPrecision;
 		}
 
 		//
@@ -119,30 +116,12 @@ namespace FlashTools.Internal {
 
 		public static void UnpackFColorFromUInts(
 			uint pack0, uint pack1,
-			out Color color)
+			out float c0, out float c1, out float c2, out float c3)
 		{
-			ushort s0, s1, s2, s3;
-			UnpackUShortsFromUInt(pack0, out s0, out s1);
-			UnpackUShortsFromUInt(pack1, out s2, out s3);
-			color = new Color(
-				UnpackFloatColorFromUShort(s0),
-				UnpackFloatColorFromUShort(s1),
-				UnpackFloatColorFromUShort(s2),
-				UnpackFloatColorFromUShort(s3));
-		}
-
-		public static void UnpackFColorFromUInts(
-			uint pack0, uint pack1,
-			out Vector4 color)
-		{
-			ushort s0, s1, s2, s3;
-			UnpackUShortsFromUInt(pack0, out s0, out s1);
-			UnpackUShortsFromUInt(pack1, out s2, out s3);
-			color = new Vector4(
-				UnpackFloatColorFromUShort(s0),
-				UnpackFloatColorFromUShort(s1),
-				UnpackFloatColorFromUShort(s2),
-				UnpackFloatColorFromUShort(s3));
+			c0 = (short)((pack0 >> 16) & 0xFFFF) / InvFColorPrecision;
+			c1 = (short)((pack0      ) & 0xFFFF) / InvFColorPrecision;
+			c2 = (short)((pack1 >> 16) & 0xFFFF) / InvFColorPrecision;
+			c3 = (short)((pack1      ) & 0xFFFF) / InvFColorPrecision;
 		}
 	}
 }
