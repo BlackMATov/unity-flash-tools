@@ -79,6 +79,20 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
+		public void GotoAndStop(int frame) {
+			if ( _clip ) {
+				_clip.currentFrame = frame;
+			}
+			Stop();
+		}
+
+		public void GotoAndPlay(int frame) {
+			if ( _clip ) {
+				_clip.currentFrame = frame;
+			}
+			Play();
+		}
+
 		public void Stop() {
 			var is_playing = isPlaying;
 			_isPlaying = false;

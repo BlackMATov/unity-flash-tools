@@ -121,9 +121,22 @@ namespace FlashTools {
 
 		// ---------------------------------------------------------------------
 		//
-		// Private
+		// Internal
 		//
 		// ---------------------------------------------------------------------
+
+		public void InternalLateUpdate() {
+			if ( _meshFilter && _meshRenderer && _dirtyMesh ) {
+				var baked_frame = GetCurrentBakedFrame();
+				if ( baked_frame != null ) {
+					_meshFilter.sharedMesh        = baked_frame.CachedMesh;
+					_meshRenderer.sharedMaterials = baked_frame.Materials;
+				} else {
+					_meshFilter.sharedMesh        = null;
+					_meshRenderer.sharedMaterials = new Material[0];
+				}
+			}
+		}
 
 		public void UpdateAllProperties() {
 			ClearCache();
@@ -140,6 +153,13 @@ namespace FlashTools {
 			_dirtyMesh    = true;
 			_curSequence  = null;
 			_curPropBlock = null;
+		}
+
+		void ChangeSortingProperties() {
+			if ( _meshRenderer ) {
+				_meshRenderer.sortingOrder     = sortingOrder;
+				_meshRenderer.sortingLayerName = sortingLayer;
+			}
 		}
 
 		void ChangeClip() {
@@ -181,13 +201,6 @@ namespace FlashTools {
 			SetDirtyCurrentMesh();
 		}
 
-		void ChangeSortingProperties() {
-			if ( _meshRenderer ) {
-				_meshRenderer.sortingOrder     = sortingOrder;
-				_meshRenderer.sortingLayerName = sortingLayer;
-			}
-		}
-
 		void UpdatePropBlock() {
 			if ( _meshRenderer ) {
 				if ( _curPropBlock == null ) {
@@ -213,25 +226,6 @@ namespace FlashTools {
 			return frames != null && currentFrame >= 0 && currentFrame < frames.Count
 				? frames[currentFrame]
 				: null;
-		}
-
-		// ---------------------------------------------------------------------
-		//
-		// Internal
-		//
-		// ---------------------------------------------------------------------
-
-		public void InternalLateUpdate() {
-			if ( _meshFilter && _meshRenderer && _dirtyMesh ) {
-				var baked_frame = GetCurrentBakedFrame();
-				if ( baked_frame != null ) {
-					_meshFilter.sharedMesh        = baked_frame.CachedMesh;
-					_meshRenderer.sharedMaterials = baked_frame.Materials;
-				} else {
-					_meshFilter.sharedMesh        = null;
-					_meshRenderer.sharedMaterials = new Material[0];
-				}
-			}
 		}
 
 		// ---------------------------------------------------------------------

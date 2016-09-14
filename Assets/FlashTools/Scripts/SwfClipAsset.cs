@@ -27,7 +27,8 @@ namespace FlashTools {
 
 					for ( int i = 0, e = SubMeshes.Length; i < e; ++i ) {
 						SwfClipAssetCache.FillTriangles(
-							SubMeshes[i].StartVertex, SubMeshes[i].IndexCount);
+							SubMeshes[i].StartVertex,
+							SubMeshes[i].IndexCount);
 						mesh.SetTriangles(SwfClipAssetCache.Indices, i);
 					}
 
