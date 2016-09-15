@@ -46,6 +46,16 @@ namespace FlashTools {
 
 		[Header("Animation")]
 		[SerializeField]
+		Color _tint = Color.white;
+		public Color tint {
+			get { return _tint; }
+			set {
+				_tint = value;
+				ChangeTint();
+			}
+		}
+
+		[SerializeField]
 		SwfClipAsset _clip = null;
 		public SwfClipAsset clip {
 			get { return _clip; }
@@ -147,6 +157,7 @@ namespace FlashTools {
 
 		public void UpdateAllProperties() {
 			ClearCache();
+			ChangeTint();
 			ChangeClip();
 			ChangeSequence();
 			ChangeCurrentFrame();
@@ -159,6 +170,10 @@ namespace FlashTools {
 			_dirtyMesh    = true;
 			_curSequence  = null;
 			_curPropBlock = null;
+		}
+
+		void ChangeTint() {
+			UpdatePropBlock();
 		}
 
 		void ChangeClip() {
@@ -220,6 +235,9 @@ namespace FlashTools {
 					_curPropBlock = new MaterialPropertyBlock();
 				}
 				_meshRenderer.GetPropertyBlock(_curPropBlock);
+				_curPropBlock.SetColor(
+					"_Color",
+					tint);
 				_curPropBlock.SetTexture(
 					"_MainTex",
 					clip && clip.Atlas ? clip.Atlas : Texture2D.whiteTexture);

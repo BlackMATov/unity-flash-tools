@@ -1,6 +1,7 @@
 Shader "FlashTools/SwfSimple" {
 	Properties {
-		[PerRendererData] _MainTex("Main Texture", 2D) = "white" {}
+		[PerRendererData] _MainTex("Main Texture", 2D   ) = "white" {}
+		[PerRendererData] _Color  ("Tint"        , Color) = (1,1,1,1)
 	}
 
 	SubShader {
@@ -37,11 +38,13 @@ Shader "FlashTools/SwfSimple" {
 				fixed4 addcolor : TEXCOORD1;
 			};
 
+			fixed4 _Color;
+
 			v2f vert(appdata_t IN) {
 				v2f OUT;
 				OUT.vertex   = mul(UNITY_MATRIX_MVP, IN.vertex);
 				OUT.uv       = IN.uv;
-				OUT.mulcolor = IN.mulcolor;
+				OUT.mulcolor = IN.mulcolor * _Color;
 				OUT.addcolor = IN.addcolor;
 				return OUT;
 			}
