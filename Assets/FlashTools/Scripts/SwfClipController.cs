@@ -65,6 +65,10 @@ namespace FlashTools {
 			set { _loopMode = value; }
 		}
 
+		public SwfClip clip {
+			get { return _clip; }
+		}
+
 		public bool isPlaying {
 			get { return _isPlaying; }
 		}
@@ -80,47 +84,101 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		public void GotoAndStop(int frame) {
-			if ( _clip ) {
-				_clip.currentFrame = frame;
+			if ( clip ) {
+				clip.currentFrame = frame;
 			}
-			Stop();
+			Stop(false);
 		}
+
+		public void GotoAndStop(string sequence, int frame) {
+			if ( clip ) {
+				clip.sequence = sequence;
+			}
+			GotoAndStop(frame);
+		}
+
+		//
+		//
+		//
 
 		public void GotoAndPlay(int frame) {
-			if ( _clip ) {
-				_clip.currentFrame = frame;
+			if ( clip ) {
+				clip.currentFrame = frame;
 			}
-			Play();
+			Play(false);
 		}
 
-		public void Stop() {
+		public void GotoAndPlay(string sequence, int frame) {
+			if ( clip ) {
+				clip.sequence = sequence;
+			}
+			GotoAndPlay(frame);
+		}
+
+		//
+		//
+		//
+
+		public void Stop(bool rewind) {
 			var is_playing = isPlaying;
-			_isPlaying = false;
-			_tickTimer = 0.0f;
+			if ( is_playing ) {
+				_isPlaying = false;
+				_tickTimer = 0.0f;
+			}
+			if ( rewind ) {
+				Rewind();
+			}
 			if ( is_playing && OnStopPlayingEvent != null ) {
 				OnStopPlayingEvent(this);
 			}
 		}
 
-		public void Play() {
+		public void Stop(string sequence) {
+			if ( clip ) {
+				clip.sequence = sequence;
+			}
+			Stop(true);
+		}
+
+		//
+		//
+		//
+
+		public void Play(bool rewind) {
 			var is_stopped = isStopped;
-			_isPlaying = true;
-			_tickTimer = 0.0f;
+			if ( is_stopped ) {
+				_isPlaying = true;
+				_tickTimer = 0.0f;
+			}
+			if ( rewind ) {
+				Rewind();
+			}
 			if ( is_stopped && OnPlayStoppedEvent != null ) {
 				OnPlayStoppedEvent(this);
 			}
 		}
 
+		public void Play(string sequence) {
+			if ( clip ) {
+				clip.sequence = sequence;
+			}
+			Play(true);
+		}
+
+		//
+		//
+		//
+
 		public void Rewind() {
 			switch ( playMode ) {
 			case PlayModes.Forward:
-				if ( _clip ) {
-					_clip.ToBeginFrame();
+				if ( clip ) {
+					clip.ToBeginFrame();
 				}
 				break;
 			case PlayModes.Backward:
-				if ( _clip ) {
-					_clip.ToEndFrame();
+				if ( clip ) {
+					clip.ToEndFrame();
 				}
 				break;
 			default:
@@ -146,7 +204,7 @@ namespace FlashTools {
 		}
 
 		void UpdateTimer(float dt) {
-			var frame_rate = _clip ? _clip.frameRate : 1.0f;
+			var frame_rate = clip ? clip.frameRate : 1.0f;
 			_tickTimer += frame_rate * rateScale * dt;
 			while ( _tickTimer > 1.0f ) {
 				_tickTimer -= 1.0f;
@@ -158,7 +216,7 @@ namespace FlashTools {
 			if ( !NextClipFrame() ) {
 				switch ( loopMode ) {
 				case LoopModes.Once:
-					Stop();
+					Stop(false);
 					break;
 				case LoopModes.Loop:
 					Rewind();
@@ -174,9 +232,9 @@ namespace FlashTools {
 		bool NextClipFrame() {
 			switch ( playMode ) {
 			case PlayModes.Forward:
-				return _clip ? _clip.ToNextFrame() : false;
+				return clip ? clip.ToNextFrame() : false;
 			case PlayModes.Backward:
-				return _clip ? _clip.ToPrevFrame() : false;
+				return clip ? clip.ToPrevFrame() : false;
 			default:
 				throw new UnityException(string.Format(
 					"SwfClipController. Incorrect play mode: {0}",
@@ -193,7 +251,7 @@ namespace FlashTools {
 		void Awake() {
 			_clip = GetComponent<SwfClip>();
 			if ( autoPlay && Application.isPlaying ) {
-				Play();
+				Play(false);
 			}
 		}
 

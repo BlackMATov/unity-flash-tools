@@ -25,7 +25,7 @@ namespace FlashTools {
 
 		[Header("Sorting")]
 		[SerializeField][SwfSortingLayer]
-		public string _sortingLayer = "Default";
+		public string _sortingLayer = string.Empty;
 		public string sortingLayer {
 			get { return _sortingLayer; }
 			set {
@@ -50,17 +50,20 @@ namespace FlashTools {
 		public SwfClipAsset clip {
 			get { return _clip; }
 			set {
-				_clip = value;
+				_clip         = value;
+				_sequence     = string.Empty;
+				_currentFrame = 0;
 				ChangeClip();
 			}
 		}
 
 		[SerializeField][HideInInspector]
-		string _sequence = "Default";
+		string _sequence = string.Empty;
 		public string sequence {
 			get { return _sequence; }
 			set {
-				_sequence = value;
+				_sequence     = value;
+				_currentFrame = 0;
 				ChangeSequence();
 			}
 		}
@@ -85,7 +88,9 @@ namespace FlashTools {
 
 		public float frameRate {
 			get {
-				return clip ? clip.FrameRate : 1.0f;
+				return clip
+					? clip.FrameRate
+					: 1.0f;
 			}
 		}
 
@@ -100,7 +105,9 @@ namespace FlashTools {
 		}
 
 		public void ToEndFrame() {
-			currentFrame = frameCount - 1;
+			currentFrame = frameCount > 0
+				? frameCount - 1
+				: 0;
 		}
 
 		public bool ToPrevFrame() {
@@ -129,10 +136,10 @@ namespace FlashTools {
 			if ( _meshFilter && _meshRenderer && _dirtyMesh ) {
 				var baked_frame = GetCurrentBakedFrame();
 				if ( baked_frame != null ) {
-					_meshFilter.sharedMesh        = baked_frame.CachedMesh;
+					_meshFilter  .sharedMesh      = baked_frame.CachedMesh;
 					_meshRenderer.sharedMaterials = baked_frame.Materials;
 				} else {
-					_meshFilter.sharedMesh        = null;
+					_meshFilter  .sharedMesh      = null;
 					_meshRenderer.sharedMaterials = new Material[0];
 				}
 			}
@@ -140,11 +147,10 @@ namespace FlashTools {
 
 		public void UpdateAllProperties() {
 			ClearCache();
-			clip         = _clip;
-			sequence     = _sequence;
-			currentFrame = _currentFrame;
-			sortingLayer = _sortingLayer;
-			sortingOrder = _sortingOrder;
+			ChangeClip();
+			ChangeSequence();
+			ChangeCurrentFrame();
+			ChangeSortingProperties();
 		}
 
 		void ClearCache() {
@@ -153,13 +159,6 @@ namespace FlashTools {
 			_dirtyMesh    = true;
 			_curSequence  = null;
 			_curPropBlock = null;
-		}
-
-		void ChangeSortingProperties() {
-			if ( _meshRenderer ) {
-				_meshRenderer.sortingOrder     = sortingOrder;
-				_meshRenderer.sortingLayerName = sortingLayer;
-			}
 		}
 
 		void ChangeClip() {
@@ -173,11 +172,18 @@ namespace FlashTools {
 		void ChangeSequence() {
 			_curSequence = null;
 			if ( clip && clip.Sequences != null ) {
-				for ( int i = 0, e = clip.Sequences.Count; i < e; ++i ) {
-					var clip_sequence = clip.Sequences[i];
-					if ( clip_sequence != null && clip_sequence.Name == sequence ) {
-						_curSequence = clip_sequence;
-						break;
+				if ( !string.IsNullOrEmpty(sequence) ) {
+					for ( int i = 0, e = clip.Sequences.Count; i < e; ++i ) {
+						var clip_sequence = clip.Sequences[i];
+						if ( clip_sequence != null && clip_sequence.Name == sequence ) {
+							_curSequence = clip_sequence;
+							break;
+						}
+					}
+					if ( _curSequence == null ) {
+						Debug.LogWarningFormat(this,
+							"SwfClip. Sequence '{0}' not found",
+							sequence);
 					}
 				}
 				if ( _curSequence == null ) {
@@ -199,6 +205,13 @@ namespace FlashTools {
 				? Mathf.Clamp(currentFrame, 0, frameCount - 1)
 				: 0;
 			SetDirtyCurrentMesh();
+		}
+
+		void ChangeSortingProperties() {
+			if ( _meshRenderer ) {
+				_meshRenderer.sortingOrder     = sortingOrder;
+				_meshRenderer.sortingLayerName = sortingLayer;
+			}
 		}
 
 		void UpdatePropBlock() {
