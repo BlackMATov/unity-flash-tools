@@ -4,7 +4,7 @@ using UnityEditor;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace FlashTools.Internal.SwfEditorTools {
+namespace FlashTools.Internal {
 
 	//
 	// SwfIntRange

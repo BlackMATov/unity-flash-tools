@@ -84,6 +84,12 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
+		[MenuItem("Tools/FlashTools/Open settings...")]
+		static void Tools_FlashTools_OpenSettings() {
+			var settings_holder = SwfSettings.GetHolder();
+			Selection.objects = new Object[]{settings_holder};
+		}
+
 		[MenuItem("Tools/FlashTools/Reimport all swf files")]
 		static void Tools_FlashTools_ReimportAllSwfFiles() {
 			var swf_paths = GetAllSwfFilePaths();
