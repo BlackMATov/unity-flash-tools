@@ -2,10 +2,18 @@
 using UnityEditor;
 
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace FlashTools.Internal {
 	public static class SwfEditorUtils {
+
+		// ---------------------------------------------------------------------
+		//
+		// Functions
+		//
+		// ---------------------------------------------------------------------
+
 		public static void DoWithMixedValue(bool mixed, System.Action act) {
 			var last_show_mixed_value = EditorGUI.showMixedValue;
 			EditorGUI.showMixedValue = mixed;
@@ -68,6 +76,32 @@ namespace FlashTools.Internal {
 		public static string GetAtlasPathFromAsset(SwfAsset asset) {
 			var asset_path = AssetDatabase.GetAssetPath(asset);
 			return Path.ChangeExtension(asset_path, "._Atlas_.png");
+		}
+
+		// ---------------------------------------------------------------------
+		//
+		// Internal
+		//
+		// ---------------------------------------------------------------------
+
+		[MenuItem("Tools/FlashTools/Reimport all swf files")]
+		static void Tools_FlashTools_ReimportAllSwfFiles() {
+			var swf_paths = GetAllSwfFilePaths();
+			var title     = "Reimport";
+			var message   = string.Format(
+				"Do you really want to reimport all ({0}) swf files?",
+				swf_paths.Length);
+			if ( EditorUtility.DisplayDialog(title, message, "Ok", "Cancel") ) {
+				foreach ( var swf_path in swf_paths ) {
+					AssetDatabase.ImportAsset(swf_path);
+				}
+			}
+		}
+
+		static string[] GetAllSwfFilePaths() {
+			return AssetDatabase.GetAllAssetPaths()
+				.Where(p => Path.GetExtension(p).ToLower().Equals(".swf"))
+				.ToArray();
 		}
 	}
 }
