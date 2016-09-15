@@ -6,12 +6,29 @@ namespace FlashTools.Internal {
 	public class SwfManagerEditor : Editor {
 		SwfManager _manager = null;
 
-		void DrawAnimationCount() {
+		void DrawCounts() {
 			SwfEditorUtils.DoWithEnabledGUI(false, () => {
 				EditorGUILayout.IntField(
 					"Clip count",
-					_manager.AllClipCount);
+					_manager.clipCount);
+				EditorGUILayout.IntField(
+					"Controller count",
+					_manager.controllerCount);
 			});
+		}
+
+		void DrawControls() {
+			GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			{
+				if ( _manager.isPaused && GUILayout.Button("Resume") ) {
+					_manager.Resume();
+				}
+				if ( _manager.isPlaying && GUILayout.Button("Pause") ) {
+					_manager.Pause();
+				}
+			}
+			GUILayout.EndHorizontal();
 		}
 
 		// ---------------------------------------------------------------------
@@ -25,8 +42,15 @@ namespace FlashTools.Internal {
 		}
 
 		public override void OnInspectorGUI() {
+			serializedObject.Update();
 			DrawDefaultInspector();
-			DrawAnimationCount();
+			DrawCounts();
+			if ( Application.isPlaying ) {
+				DrawControls();
+			}
+			if ( GUI.changed ) {
+				serializedObject.ApplyModifiedProperties();
+			}
 		}
 	}
 }

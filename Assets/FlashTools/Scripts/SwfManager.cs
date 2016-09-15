@@ -7,6 +7,8 @@ namespace FlashTools {
 
 		SwfAssocList<SwfClip>           _clips       = new SwfAssocList<SwfClip>();
 		SwfAssocList<SwfClipController> _controllers = new SwfAssocList<SwfClipController>();
+
+		bool                            _isPaused    = false;
 		SwfList<SwfClipController>      _safeUpdates = new SwfList<SwfClipController>();
 
 		// ---------------------------------------------------------------------
@@ -29,39 +31,69 @@ namespace FlashTools {
 
 		// ---------------------------------------------------------------------
 		//
+		// Properties
+		//
+		// ---------------------------------------------------------------------
+
+		[SerializeField]
+		[SwfFloatRange(0.0f, float.MaxValue)]
+		float _rateScale = 1.0f;
+		public float rateScale {
+			get { return _rateScale; }
+			set { _rateScale = Mathf.Clamp(value, 0.0f, float.MaxValue); }
+		}
+
+		public int clipCount {
+			get { return _clips.Count; }
+		}
+
+		public int controllerCount {
+			get { return _controllers.Count; }
+		}
+
+		public bool isPaused {
+			get { return _isPaused; }
+		}
+
+		public bool isPlaying {
+			get { return !isPaused; }
+		}
+
+		// ---------------------------------------------------------------------
+		//
+		// Functions
+		//
+		// ---------------------------------------------------------------------
+
+		public void Pause() {
+			_isPaused = true;
+		}
+
+		public void Resume() {
+			_isPaused = false;
+		}
+
+		// ---------------------------------------------------------------------
+		//
 		// Internal
 		//
 		// ---------------------------------------------------------------------
 
-		public int AllClipCount {
-			get { return _clips.Count; }
-		}
-
-		public void AddSwfClip(SwfClip clip) {
+		public void AddClip(SwfClip clip) {
 			_clips.Add(clip);
 		}
 
-		public void RemoveSwfClip(SwfClip clip) {
+		public void RemoveClip(SwfClip clip) {
 			_clips.Remove(clip);
 		}
 
-		public int AllClipControllerCount {
-			get { return _controllers.Count; }
-		}
-
-		public void AddSwfClipController(SwfClipController controller) {
+		public void AddController(SwfClipController controller) {
 			_controllers.Add(controller);
 		}
 
-		public void RemoveSwfClipController(SwfClipController controller) {
+		public void RemoveController(SwfClipController controller) {
 			_controllers.Remove(controller);
 		}
-
-		// ---------------------------------------------------------------------
-		//
-		// Private
-		//
-		// ---------------------------------------------------------------------
 
 		void GrabEnabledClips() {
 			var all_clips = FindObjectsOfType<SwfClip>();
@@ -99,6 +131,7 @@ namespace FlashTools {
 					ctrl.InternalUpdate(dt);
 				}
 			}
+			_safeUpdates.Clear();
 		}
 
 		void LateUpdateClips() {
@@ -127,8 +160,10 @@ namespace FlashTools {
 		}
 
 		void Update() {
-			var dt = Time.deltaTime;
-			UpdateControllers(dt);
+			if ( isPlaying ) {
+				var dt = Time.deltaTime;
+				UpdateControllers(rateScale * dt);
+			}
 		}
 
 		void LateUpdate() {

@@ -254,14 +254,14 @@ namespace FlashTools {
 		void OnEnable() {
 			var swf_manager = SwfManager.GetInstance(true);
 			if ( swf_manager ) {
-				swf_manager.AddSwfClip(this);
+				swf_manager.AddClip(this);
 			}
 		}
 
 		void OnDisable() {
 			var swf_manager = SwfManager.GetInstance(false);
 			if ( swf_manager ) {
-				swf_manager.RemoveSwfClip(this);
+				swf_manager.RemoveClip(this);
 			}
 		}
 

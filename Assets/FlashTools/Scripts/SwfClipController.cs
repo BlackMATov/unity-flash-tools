@@ -74,7 +74,7 @@ namespace FlashTools {
 		}
 
 		public bool isStopped {
-			get { return !_isPlaying; }
+			get { return !isPlaying; }
 		}
 
 		// ---------------------------------------------------------------------
@@ -258,14 +258,14 @@ namespace FlashTools {
 		void OnEnable() {
 			var swf_manager = SwfManager.GetInstance(true);
 			if ( swf_manager ) {
-				swf_manager.AddSwfClipController(this);
+				swf_manager.AddController(this);
 			}
 		}
 
 		void OnDisable() {
 			var swf_manager = SwfManager.GetInstance(false);
 			if ( swf_manager ) {
-				swf_manager.RemoveSwfClipController(this);
+				swf_manager.RemoveController(this);
 			}
 		}
 	}
