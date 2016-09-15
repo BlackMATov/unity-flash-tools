@@ -55,7 +55,7 @@ namespace FlashTools.Internal {
 				ReconvertAsset(asset);
 			} else {
 				Debug.LogErrorFormat(
-					"Swf source for asset not found: '{0}'",
+					"<b>[FlashTools]</b> Swf source for asset not found: '{0}'",
 					GetSwfPath(asset));
 				RevertOverriddenSettings(asset);
 			}

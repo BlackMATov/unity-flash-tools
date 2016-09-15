@@ -47,7 +47,9 @@ namespace FlashTools.Internal {
 					new SwfDecoder(swf_path));
 				return true;
 			} catch ( Exception e ) {
-				Debug.LogErrorFormat("Parsing swf error: {0}", e.Message);
+				Debug.LogErrorFormat(
+					"<b>[FlashTools]</b> Parsing swf error: {0}",
+					e.Message);
 				return false;
 			}
 		}

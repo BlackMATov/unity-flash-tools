@@ -182,7 +182,7 @@ namespace FlashTools {
 					}
 					if ( _curSequence == null ) {
 						Debug.LogWarningFormat(this,
-							"SwfClip. Sequence '{0}' not found",
+							"<b>[FlashTools]</b> Sequence '{0}' not found",
 							sequence);
 					}
 				}

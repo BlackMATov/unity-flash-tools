@@ -364,7 +364,9 @@ namespace FlashTools.Internal.SwfTools {
 
 		void TagToDebugLog(SwfTagBase tag) {
 			if ( tag is UnsupportedTag || tag is UnknownTag ) {
-				Debug.LogWarningFormat("SwfContextExecuter. {0}", tag);
+				Debug.LogWarningFormat(
+					"<b>[FlashTools]</b> SwfContextExecuter. {0}",
+					tag);
 			}
 		}
 	}

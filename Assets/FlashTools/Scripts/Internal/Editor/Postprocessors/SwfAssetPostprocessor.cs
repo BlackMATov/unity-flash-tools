@@ -37,7 +37,7 @@ namespace FlashTools.Internal {
 				ConfigureAssetClips(asset);
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
-					"Postprocess swf asset error: {0}",
+					"<b>[FlashTools]</b> Postprocess swf asset error: {0}",
 					e.Message);
 				SwfEditorUtils.DeleteAssetWithDepends(asset);
 			}

@@ -114,7 +114,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				fill_style.BitmapMatrix = SwfMatrix.Read(reader, true);
 			} else {
 				Debug.LogError(
-					"imported .swf file contains vector graphics. " +
+					"<b>[FlashTools]</b> Imported .swf file contains vector graphics. " +
 					"You should use Tools/FlashExport.jsfl script for prepare .fla file");
 			}
 			return fill_style;
