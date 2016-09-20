@@ -104,8 +104,11 @@ namespace FlashTools {
 
 	[System.Serializable]
 	public class SwfBitmapData {
-		public int                   Id         = 0;
-		public Vector2               RealSize   = Vector2.zero;
+		public ushort                Id         = 0;
+		public byte[]                ARGB32     = new byte[0];
+		public ushort                Redirect   = 0;
+		public int                   RealWidth  = 0;
+		public int                   RealHeight = 0;
 		public Rect                  SourceRect = new Rect();
 	}
 
@@ -117,6 +120,10 @@ namespace FlashTools {
 	}
 
 	public class SwfAsset : ScriptableObject {
+		[System.Serializable]
+		public struct ConvertingState {
+			public int Stage;
+		}
 		[HideInInspector]
 		public SwfAssetData       Data;
 		[SwfReadOnly]
@@ -125,8 +132,10 @@ namespace FlashTools {
 		public List<SwfClipAsset> Clips;
 		[HideInInspector]
 		public SwfSettingsData    Settings;
-		[HideInInspector]
+		[SwfDisplayName("Settings")]
 		public SwfSettingsData    Overridden;
+		[HideInInspector]
+		public ConvertingState    Converting;
 
 	#if UNITY_EDITOR
 		void Reset() {
@@ -135,6 +144,7 @@ namespace FlashTools {
 			Clips      = new List<SwfClipAsset>();
 			Settings   = SwfSettings.GetDefault();
 			Overridden = SwfSettings.GetDefault();
+			Converting = new ConvertingState();
 		}
 	#endif
 	}

@@ -271,4 +271,23 @@ namespace FlashTools.Internal {
 			}
 		}
 	}
+
+	//
+	// SwfDisplayNameDrawer
+	//
+
+	[CustomPropertyDrawer(typeof(SwfDisplayNameAttribute))]
+	public class SwfDisplayNameDrawer : PropertyDrawer {
+		public override void OnGUI(
+			Rect position, SerializedProperty property, GUIContent label)
+		{
+			var new_label  = new GUIContent(label);
+			new_label.text = (attribute as SwfDisplayNameAttribute).DisplayName;
+			if ( EditorGUI.PropertyField(position, property, new_label) ) {
+				foreach ( SerializedProperty child in property ) {
+					EditorGUILayout.PropertyField(child);
+				}
+			}
+		}
+	}
 }

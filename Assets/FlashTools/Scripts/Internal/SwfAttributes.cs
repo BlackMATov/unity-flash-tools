@@ -42,4 +42,11 @@ namespace FlashTools.Internal {
 			ReadOnly = read_only;
 		}
 	}
+
+	public class SwfDisplayNameAttribute : PropertyAttribute {
+		public string DisplayName;
+		public SwfDisplayNameAttribute(string display_name) {
+			DisplayName = display_name;
+		}
+	}
 }

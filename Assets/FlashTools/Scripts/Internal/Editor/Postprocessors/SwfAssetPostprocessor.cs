@@ -26,26 +26,153 @@ namespace FlashTools.Internal {
 
 		static void SwfAssetProcess(SwfAsset asset) {
 			try {
-				var atlas_asset = LoadAtlasAsset(asset);
-				if ( atlas_asset != asset.Atlas ) {
-					asset.Atlas = atlas_asset;
-					ConfigureAtlas(asset);
-					ConfigureClips(asset);
+				if ( asset.Converting.Stage == 0 ) {
+					ConfigureBitmaps(asset);
+					++asset.Converting.Stage;
 					EditorUtility.SetDirty(asset);
-					AssetDatabase.SaveAssets();
+					AssetDatabase.ImportAsset(
+						AssetDatabase.GetAssetPath(asset));
+				} else if ( asset.Converting.Stage == 1 ) {
+					asset.Atlas = LoadAssetAtlas(asset);
+					if ( asset.Atlas ) {
+						ConfigureAtlas(asset);
+						ConfigureClips(asset);
+					}
+					++asset.Converting.Stage;
+					EditorUtility.SetDirty(asset);
+					AssetDatabase.ImportAsset(
+						AssetDatabase.GetAssetPath(asset));
 				}
-				ConfigureAssetClips(asset);
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
 					"<b>[FlashTools]</b> Postprocess swf asset error: {0}",
 					e.Message);
-				SwfEditorUtils.DeleteAssetWithDepends(asset);
+				AssetDatabase.DeleteAsset(
+					AssetDatabase.GetAssetPath(asset));
+			} finally {
+				if ( asset ) {
+					UpdateAssetClips(asset);
+				}
 			}
 		}
 
-		static Texture2D LoadAtlasAsset(SwfAsset asset) {
+		static Texture2D LoadAssetAtlas(SwfAsset asset) {
 			return AssetDatabase.LoadAssetAtPath<Texture2D>(
-				SwfEditorUtils.GetAtlasPathFromAsset(asset));
+				GetAtlasPath(asset));
+		}
+
+		static string GetAtlasPath(SwfAsset asset) {
+			if ( asset.Atlas ) {
+				return AssetDatabase.GetAssetPath(asset.Atlas);
+			} else {
+				var asset_path = AssetDatabase.GetAssetPath(asset);
+				return Path.ChangeExtension(asset_path, "._Atlas_.png");
+			}
+		}
+
+		// ---------------------------------------------------------------------
+		//
+		// ConfigureBitmaps
+		//
+		// ---------------------------------------------------------------------
+
+		static void ConfigureBitmaps(SwfAsset asset) {
+			var textures = asset.Data.Bitmaps
+				.Where  (p => p.Redirect == 0)
+				.Select (p => new KeyValuePair<ushort, Texture2D>(
+					p.Id,
+					LoadTextureFromData(p)))
+				.ToList();
+			var rects = PackAndSaveBitmapsAtlas(
+				GetAtlasPath(asset),
+				textures.Select(p => p.Value).ToArray(),
+				asset.Settings);
+			for ( var i = 0; i < asset.Data.Bitmaps.Count; ++i ) {
+				var bitmap        = asset.Data.Bitmaps[i];
+				var texture_key   = bitmap.Redirect > 0 ? bitmap.Redirect : bitmap.Id;
+				bitmap.SourceRect = rects[textures.FindIndex(p => p.Key == texture_key)];
+			}
+		}
+
+		static Texture2D LoadTextureFromData(SwfBitmapData bitmap) {
+			var texture = new Texture2D(
+				bitmap.RealWidth, bitmap.RealHeight,
+				TextureFormat.ARGB32, false);
+			texture.LoadRawTextureData(bitmap.ARGB32);
+			RevertTexturePremultipliedAlpha(texture);
+			return texture;
+		}
+
+		static void RevertTexturePremultipliedAlpha(Texture2D texture) {
+			for ( int y = 0; y < texture.height; ++y ) {
+				for ( int x = 0; x < texture.width; ++x ) {
+					var c = texture.GetPixel(x, y);
+					if ( c.a > 0 ) {
+						c.r /= c.a;
+						c.g /= c.a;
+						c.b /= c.a;
+					}
+					texture.SetPixel(x, y, c);
+				}
+			}
+			texture.Apply();
+		}
+
+		struct BitmapsAtlasInfo {
+			public Texture2D Atlas;
+			public Rect[]    Rects;
+		}
+
+		static Rect[] PackAndSaveBitmapsAtlas(
+			string atlas_path, Texture2D[] textures, SwfSettingsData settings)
+		{
+			var atlas_info = PackBitmapsAtlas(textures, settings);
+			File.WriteAllBytes(atlas_path, atlas_info.Atlas.EncodeToPNG());
+			GameObject.DestroyImmediate(atlas_info.Atlas, true);
+			AssetDatabase.ImportAsset(atlas_path);
+			return atlas_info.Rects;
+		}
+
+		static BitmapsAtlasInfo PackBitmapsAtlas(
+			Texture2D[] textures, SwfSettingsData settings)
+		{
+			var atlas_padding  = Mathf.Max(0,  settings.AtlasPadding);
+			var max_atlas_size = Mathf.Max(32, settings.AtlasPowerOfTwo
+				? Mathf.ClosestPowerOfTwo(settings.MaxAtlasSize)
+				: settings.MaxAtlasSize);
+			var atlas = new Texture2D(0, 0);
+			var rects = atlas.PackTextures(textures, atlas_padding, max_atlas_size);
+			while ( rects == null ) {
+				max_atlas_size = Mathf.NextPowerOfTwo(max_atlas_size + 1);
+				rects = atlas.PackTextures(textures, atlas_padding, max_atlas_size);
+			}
+			return settings.AtlasForceSquare && atlas.width != atlas.height
+				? BitmapsAtlasToSquare(atlas, rects)
+				: new BitmapsAtlasInfo{Atlas = atlas, Rects = rects};
+		}
+
+		static BitmapsAtlasInfo BitmapsAtlasToSquare(Texture2D atlas, Rect[] rects) {
+			var atlas_size  = Mathf.Max(atlas.width, atlas.height);
+			var atlas_scale = new Vector2(atlas.width, atlas.height) / atlas_size;
+			var new_atlas   = new Texture2D(atlas_size, atlas_size, TextureFormat.ARGB32, false);
+			for ( var i = 0; i < rects.Length; ++i ) {
+				var new_position = rects[i].position;
+				new_position.Scale(atlas_scale);
+				var new_size = rects[i].size;
+				new_size.Scale(atlas_scale);
+				rects[i] = new Rect(new_position, new_size);
+			}
+			var fill_pixels = new Color32[atlas_size * atlas_size];
+			for ( var i = 0; i < atlas_size * atlas_size; ++i ) {
+				fill_pixels[i] = new Color(1,1,1,0);
+			}
+			new_atlas.SetPixels32(fill_pixels);
+			new_atlas.SetPixels32(0, 0, atlas.width, atlas.height, atlas.GetPixels32());
+			new_atlas.Apply();
+			GameObject.DestroyImmediate(atlas, true);
+			return new BitmapsAtlasInfo{
+				Atlas = new_atlas,
+				Rects = rects};
 		}
 
 		// ---------------------------------------------------------------------
@@ -55,28 +182,21 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		static void ConfigureAtlas(SwfAsset asset) {
-			var atlas_importer      = GetBitmapsAtlasImporter(asset);
-			var atlas_importer_size = GetSizeFromTextureImporter(atlas_importer);
-			atlas_importer.spritesheet = asset.Data.Bitmaps
-				.Select(bitmap => new SpriteMetaData{
-					name = bitmap.Id.ToString(),
-					rect = new Rect(
-						bitmap.SourceRect.xMin   * atlas_importer_size.x,
-						bitmap.SourceRect.yMin   * atlas_importer_size.y,
-						bitmap.SourceRect.width  * atlas_importer_size.x,
-						bitmap.SourceRect.height * atlas_importer_size.y)})
-				.ToArray();
+			var atlas_path                     = AssetDatabase.GetAssetPath(asset.Atlas);
+			var atlas_importer                 = GetBitmapsAtlasImporter(asset);
+			atlas_importer.spritesheet         = new SpriteMetaData[0];
 			atlas_importer.textureType         = TextureImporterType.Sprite;
 			atlas_importer.spriteImportMode    = SpriteImportMode.Multiple;
 			atlas_importer.spritePixelsPerUnit = asset.Settings.PixelsPerUnit;
 			atlas_importer.mipmapEnabled       = asset.Settings.GenerateMipMaps;
 			atlas_importer.filterMode          = SwfAtlasFilterToImporterFilter(asset.Settings.AtlasTextureFilter);
 			atlas_importer.textureFormat       = SwfAtlasFormatToImporterFormat(asset.Settings.AtlasTextureFormat);
-			AssetDatabase.ImportAsset(SwfEditorUtils.GetAtlasPathFromAsset(asset));
+			AssetDatabase.WriteImportSettingsIfDirty(atlas_path);
+			AssetDatabase.ImportAsset(atlas_path);
 		}
 
 		static TextureImporter GetBitmapsAtlasImporter(SwfAsset asset) {
-			var atlas_path     = SwfEditorUtils.GetAtlasPathFromAsset(asset);
+			var atlas_path     = AssetDatabase.GetAssetPath(asset.Atlas);
 			var atlas_importer = AssetImporter.GetAtPath(atlas_path) as TextureImporter;
 			if ( !atlas_importer ) {
 				throw new UnityException(string.Format(
@@ -84,14 +204,6 @@ namespace FlashTools.Internal {
 					atlas_path));
 			}
 			return atlas_importer;
-		}
-
-		static Vector2 GetSizeFromTextureImporter(TextureImporter importer) {
-			var method_args = new object[2]{0,0};
-			typeof(TextureImporter)
-				.GetMethod("GetWidthAndHeight", BindingFlags.NonPublic | BindingFlags.Instance)
-				.Invoke(importer, method_args);
-			return new Vector2((int)method_args[0], (int)method_args[1]);
 		}
 
 		static FilterMode SwfAtlasFilterToImporterFilter(
@@ -137,22 +249,34 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		static void ConfigureClips(SwfAsset asset) {
-			asset.Clips.Clear();
+			asset.Clips = asset.Clips.Where(p => !!p).ToList();
 			foreach ( var symbol in asset.Data.Symbols ) {
 				ConfigureClip(asset, symbol);
 			}
 		}
 
 		static void ConfigureClip(SwfAsset asset, SwfSymbolData symbol) {
-			var asset_path       = AssetDatabase.GetAssetPath(asset);
-			var clip_asset_path  = Path.ChangeExtension(asset_path, symbol.Name + ".asset");
-			var clip_asset       = SwfEditorUtils.LoadOrCreateAsset<SwfClipAsset>(clip_asset_path);
+			var clip_asset = asset.Clips.FirstOrDefault(p => p.Name == symbol.Name);
+			if ( clip_asset ) {
+				ConfigureClipAsset(clip_asset, asset, symbol);
+				AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(clip_asset));
+			} else {
+				var asset_path      = AssetDatabase.GetAssetPath(asset);
+				var clip_asset_path = Path.ChangeExtension(asset_path, symbol.Name + ".asset");
+				SwfEditorUtils.LoadOrCreateAsset<SwfClipAsset>(clip_asset_path, new_clip_asset => {
+					ConfigureClipAsset(new_clip_asset, asset, symbol);
+					asset.Clips.Add(new_clip_asset);
+				});
+			}
+		}
+
+		static void ConfigureClipAsset(
+			SwfClipAsset clip_asset, SwfAsset asset, SwfSymbolData symbol)
+		{
+			clip_asset.Name      = symbol.Name;
 			clip_asset.Atlas     = asset.Atlas;
-			clip_asset.Container = AssetDatabase.AssetPathToGUID(asset_path);
 			clip_asset.FrameRate = asset.Data.FrameRate;
 			clip_asset.Sequences = LoadClipSequences(asset, symbol);
-			EditorUtility.SetDirty(clip_asset);
-			asset.Clips.Add(clip_asset);
 		}
 
 		static List<SwfClipAsset.Sequence> LoadClipSequences(
@@ -206,8 +330,8 @@ namespace FlashTools.Internal {
 					? FindBitmapFromAssetData(asset.Data, inst.Bitmap)
 					: null;
 				if ( bitmap != null && IsVisibleInstance(inst) ) {
-					var width  = bitmap.RealSize.x / 20.0f;
-					var height = bitmap.RealSize.y / 20.0f;
+					var width  = bitmap.RealWidth  / 20.0f;
+					var height = bitmap.RealHeight / 20.0f;
 
 					var v0 = new Vector2(    0,      0);
 					var v1 = new Vector2(width,      0);
@@ -323,12 +447,12 @@ namespace FlashTools.Internal {
 
 		// ---------------------------------------------------------------------
 		//
-		// ConfigureAssetClips
+		// UpdateAssetClips
 		//
 		// ---------------------------------------------------------------------
 
-		static void ConfigureAssetClips(SwfAsset asset) {
-			var clips = GameObject.FindObjectsOfType<SwfClip>();
+		static void UpdateAssetClips(SwfAsset asset) {
+			var clips = Resources.FindObjectsOfTypeAll<SwfClip>();
 			foreach ( var clip in clips ) {
 				if ( clip && clip.clip && asset.Clips.Contains(clip.clip) ) {
 					clip.UpdateAllProperties();

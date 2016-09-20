@@ -8,26 +8,12 @@ using System.Collections.Generic;
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfAsset)), CanEditMultipleObjects]
 	public class SwfAssetEditor : Editor {
-		List<SwfAsset> _assets          = new List<SwfAsset>();
-		bool           _clipsFoldout    = false;
-		bool           _settingsFoldout = false;
+		List<SwfAsset> _assets       = new List<SwfAsset>();
+		bool           _clipsFoldout = false;
 
 		//
 		//
 		//
-
-		static string GetAssetPath(SwfAsset asset) {
-			return asset
-				? AssetDatabase.GetAssetPath(asset)
-				: string.Empty;
-		}
-
-		static string GetSwfPath(SwfAsset asset) {
-			var asset_path = GetAssetPath(asset);
-			return string.IsNullOrEmpty(asset_path)
-				? string.Empty
-				: Path.ChangeExtension(asset_path, ".swf");
-		}
 
 		static SwfSettings _defaultSettingsCache = null;
 		static SwfSettings GetDefaultSettings() {
@@ -50,19 +36,14 @@ namespace FlashTools.Internal {
 		}
 
 		static void ApplyOverriddenSettings(SwfAsset asset) {
-			if ( File.Exists(GetSwfPath(asset)) ) {
-				asset.Settings = asset.Overridden;
-				ReconvertAsset(asset);
-			} else {
-				Debug.LogErrorFormat(
-					"<b>[FlashTools]</b> Swf source for asset not found: '{0}'",
-					GetSwfPath(asset));
-				RevertOverriddenSettings(asset);
-			}
+			asset.Settings = asset.Overridden;
+			ReconvertAsset(asset);
 		}
 
 		static void ReconvertAsset(SwfAsset asset) {
-			AssetDatabase.ImportAsset(GetSwfPath(asset));
+			asset.Converting = new SwfAsset.ConvertingState();
+			AssetDatabase.ImportAsset(
+				AssetDatabase.GetAssetPath(asset));
 		}
 
 		//
@@ -113,14 +94,31 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		void DrawGUIDefaultSettings() {
-			SwfEditorUtils.DoWithEnabledGUI(false, () => {
-				EditorGUILayout.ObjectField(
-					"Default Settings",
-					GetDefaultSettings(),
-					typeof(SwfSettings),
-					false);
-			});
+		void DrawGUISettingsControls() {
+			var prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Overridden");
+			if ( prop.isExpanded ) {
+				GUILayout.BeginHorizontal();
+				GUILayout.FlexibleSpace();
+				{
+					var default_settings = GetDefaultSettings().Settings;
+					SwfEditorUtils.DoWithEnabledGUI(
+						_assets.Any(p => !p.Overridden.CheckEquals(default_settings)), () => {
+							if ( GUILayout.Button("Default") ) {
+								AllOverriddenSettingsToDefault();
+							}
+						});
+					SwfEditorUtils.DoWithEnabledGUI(
+						_assets.Any(p => !p.Overridden.CheckEquals(p.Settings)), () => {
+							if ( GUILayout.Button("Revert") ) {
+								RevertAllOverriddenSettings();
+							}
+							if ( GUILayout.Button("Apply") ) {
+								ApplyAllOverriddenSettings();
+							}
+						});
+				}
+				GUILayout.EndHorizontal();
+			}
 		}
 
 		void DrawGUIClips() {
@@ -155,41 +153,6 @@ namespace FlashTools.Internal {
 			GUILayout.EndHorizontal();
 		}
 
-		void DrawGUISettings() {
-			_settingsFoldout = EditorGUILayout.Foldout(_settingsFoldout, "Settings");
-			if ( _settingsFoldout ) {
-				var it = SwfEditorUtils.GetPropertyByName(serializedObject, "Overridden");
-				while ( it.Next(true) ) {
-					EditorGUILayout.PropertyField(it, true);
-				}
-				DrawGUISettingsControls();
-			}
-		}
-
-		void DrawGUISettingsControls() {
-			GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			{
-				var default_settings = GetDefaultSettings().Settings;
-				SwfEditorUtils.DoWithEnabledGUI(
-					_assets.Any(p => !p.Overridden.CheckEquals(default_settings)), () => {
-						if ( GUILayout.Button("Default") ) {
-							AllOverriddenSettingsToDefault();
-						}
-					});
-				SwfEditorUtils.DoWithEnabledGUI(
-					_assets.Any(p => !p.Overridden.CheckEquals(p.Settings)), () => {
-						if ( GUILayout.Button("Revert") ) {
-							RevertAllOverriddenSettings();
-						}
-						if ( GUILayout.Button("Apply") ) {
-							ApplyAllOverriddenSettings();
-						}
-					});
-			}
-			GUILayout.EndHorizontal();
-		}
-
 		// ---------------------------------------------------------------------
 		//
 		// Messages
@@ -197,9 +160,8 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_assets          = targets.OfType<SwfAsset>().ToList();
-			_clipsFoldout    = false;
-			_settingsFoldout = true;
+			_assets       = targets.OfType<SwfAsset>().ToList();
+			_clipsFoldout = false;
 		}
 
 		void OnDisable() {
@@ -209,9 +171,8 @@ namespace FlashTools.Internal {
 		public override void OnInspectorGUI() {
 			serializedObject.Update();
 			DrawDefaultInspector();
-			DrawGUIDefaultSettings();
+			DrawGUISettingsControls();
 			DrawGUIClips();
-			DrawGUISettings();
 			if ( GUI.changed ) {
 				serializedObject.ApplyModifiedProperties();
 			}

@@ -26,43 +26,37 @@ namespace FlashTools.Internal {
 
 		static void SwfFileProcess(string swf_path) {
 			var swf_asset_path = Path.ChangeExtension(swf_path, ".asset");
-			var swf_asset      = SwfEditorUtils.LoadOrCreateAsset<SwfAsset>(swf_asset_path);
-			if ( LoadSwfAsset(swf_path, swf_asset) ) {
-				EditorUtility.SetDirty(swf_asset);
-				AssetDatabase.SaveAssets();
-			} else {
-				SwfEditorUtils.DeleteAssetWithDepends(swf_asset);
-			}
+			SwfEditorUtils.LoadOrCreateAsset<SwfAsset>(swf_asset_path, swf_asset => {
+				SafeLoadSwfAsset(swf_path, swf_asset);
+			});
 		}
 
-		static bool LoadSwfAsset(string swf_path, SwfAsset swf_asset) {
+		static void SafeLoadSwfAsset(string swf_path, SwfAsset swf_asset) {
 			try {
-				if ( swf_asset.Atlas ) {
-					AssetDatabase.DeleteAsset(
-						AssetDatabase.GetAssetPath(swf_asset.Atlas));
-					swf_asset.Atlas = null;
-				}
-				swf_asset.Data = LoadSwfAssetData(
-					swf_asset,
-					new SwfDecoder(swf_path));
-				return true;
+				var new_data         = LoadSwfAssetData(swf_path);
+				swf_asset.Data       = new_data;
+				swf_asset.Converting = new SwfAsset.ConvertingState();
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
 					"<b>[FlashTools]</b> Parsing swf error: {0}",
 					e.Message);
-				return false;
 			}
 		}
 
-		static SwfAssetData LoadSwfAssetData(
-			SwfAsset swf_asset, SwfDecoder swf_decoder)
-		{
+		static SwfAssetData LoadSwfAssetData(string swf_path) {
 			var library = new SwfLibrary();
+			var decoder = new SwfDecoder(swf_path);
 			return new SwfAssetData{
-				FrameRate = swf_decoder.UncompressedHeader.FrameRate,
-				Symbols   = LoadSymbols(library, swf_decoder),
-				Bitmaps   = LoadBitmaps(library, swf_asset)};
+				FrameRate = decoder.UncompressedHeader.FrameRate,
+				Symbols   = LoadSymbols(library, decoder),
+				Bitmaps   = LoadBitmaps(library)};
 		}
+
+		// ---------------------------------------------------------------------
+		//
+		// LoadSymbols
+		//
+		// ---------------------------------------------------------------------
 
 		static List<SwfSymbolData> LoadSymbols(
 			SwfLibrary library, SwfDecoder decoder)
@@ -178,7 +172,7 @@ namespace FlashTools.Internal {
 					break;
 				default:
 					throw new UnityException(string.Format(
-						"Unsupported SwfDisplayInstanceType: {0}", inst.Type));
+						"unsupported SwfDisplayInstanceType: {0}", inst.Type));
 				}
 			}
 			CheckSelfMasks(self_masks, ushort.MaxValue, frame);
@@ -201,105 +195,23 @@ namespace FlashTools.Internal {
 			masks.RemoveAll(p => p.ClipDepth < depth);
 		}
 
-		static List<SwfBitmapData> LoadBitmaps(
-			SwfLibrary library, SwfAsset asset)
-		{
-			var bitmap_defines = library.Defines
+		// ---------------------------------------------------------------------
+		//
+		// LoadBitmaps
+		//
+		// ---------------------------------------------------------------------
+
+		static List<SwfBitmapData> LoadBitmaps(SwfLibrary library) {
+			return library.Defines
 				.Where       (p => p.Value.Type == SwfLibraryDefineType.Bitmap)
-				.ToDictionary(p => p.Key, p => p.Value as SwfLibraryBitmapDefine);
-			var textures = bitmap_defines
-				.Where  (p => p.Value.Redirect == 0)
-				.Select (p => new KeyValuePair<int, Texture2D>(
-					p.Key, LoadTextureFromBitmapDefine(p.Value)))
+				.ToDictionary(p => p.Key, p => p.Value as SwfLibraryBitmapDefine)
+				.Select      (p => new SwfBitmapData{
+					Id         = p.Key,
+					ARGB32     = p.Value.ARGB32,
+					Redirect   = p.Value.Redirect,
+					RealWidth  = p.Value.Width,
+					RealHeight = p.Value.Height})
 				.ToList();
-			var rects = PackAndSaveBitmapsAtlas(asset, textures.Select(p => p.Value).ToArray());
-			var bitmaps = new List<SwfBitmapData>(bitmap_defines.Count);
-			foreach ( var bitmap_define in bitmap_defines ) {
-				var texture_key = bitmap_define.Value.Redirect > 0
-					? bitmap_define.Value.Redirect
-					: bitmap_define.Key;
-				var bitmap_data = new SwfBitmapData{
-					Id         = bitmap_define.Key,
-					RealSize   = new Vector2(bitmap_define.Value.Width, bitmap_define.Value.Height),
-					SourceRect = rects[textures.FindIndex(p => p.Key == texture_key)]};
-				bitmaps.Add(bitmap_data);
-			}
-			return bitmaps;
-		}
-
-		static Texture2D LoadTextureFromBitmapDefine(SwfLibraryBitmapDefine bitmap) {
-			var texture = new Texture2D(
-				bitmap.Width, bitmap.Height,
-				TextureFormat.ARGB32, false);
-			texture.LoadRawTextureData(bitmap.ARGB32);
-			RevertTexturePremultipliedAlpha(texture);
-			return texture;
-		}
-
-		static void RevertTexturePremultipliedAlpha(Texture2D texture) {
-			for ( int y = 0; y < texture.height; ++y ) {
-				for ( int x = 0; x < texture.width; ++x ) {
-					var c = texture.GetPixel(x, y);
-					if ( c.a > 0 ) {
-						c.r /= c.a;
-						c.g /= c.a;
-						c.b /= c.a;
-					}
-					texture.SetPixel(x, y, c);
-				}
-			}
-			texture.Apply();
-		}
-
-		struct BitmapsAtlasInfo {
-			public Texture2D Atlas;
-			public Rect[]    Rects;
-		}
-
-		static Rect[] PackAndSaveBitmapsAtlas(SwfAsset asset, Texture2D[] textures) {
-			var atlas_info = PackBitmapsAtlas(textures, asset.Settings);
-			var atlas_path = SwfEditorUtils.GetAtlasPathFromAsset(asset);
-			File.WriteAllBytes(atlas_path, atlas_info.Atlas.EncodeToPNG());
-			GameObject.DestroyImmediate(atlas_info.Atlas, true);
-			AssetDatabase.ImportAsset(atlas_path);
-			return atlas_info.Rects;
-		}
-
-		static BitmapsAtlasInfo PackBitmapsAtlas(Texture2D[] textures, SwfSettingsData settings) {
-			var atlas_padding  = Mathf.Max(0,  settings.AtlasPadding);
-			var max_atlas_size = Mathf.Max(32, settings.AtlasPowerOfTwo
-				? Mathf.ClosestPowerOfTwo(settings.MaxAtlasSize)
-				: settings.MaxAtlasSize);
-			var atlas = new Texture2D(0, 0);
-			var rects = atlas.PackTextures(textures, atlas_padding, max_atlas_size);
-			if ( rects == null ) {
-				throw new UnityException("Pack textures to atlas error");
-			}
-			return settings.AtlasForceSquare && atlas.width != atlas.height
-				? BitmapsAtlasToSquare(atlas, rects)
-				: new BitmapsAtlasInfo{Atlas = atlas, Rects = rects};
-		}
-
-		static BitmapsAtlasInfo BitmapsAtlasToSquare(Texture2D atlas, Rect[] rects) {
-			var atlas_size  = Mathf.Max(atlas.width, atlas.height);
-			var atlas_scale = new Vector2(atlas.width, atlas.height) / atlas_size;
-			var new_atlas   = new Texture2D(atlas_size, atlas_size, TextureFormat.ARGB32, false);
-			for ( var i = 0; i < rects.Length; ++i ) {
-				var new_position = rects[i].position;
-				new_position.Scale(atlas_scale);
-				var new_size = rects[i].size;
-				new_size.Scale(atlas_scale);
-				rects[i] = new Rect(new_position, new_size);
-			}
-			var fill_pixels = new Color32[atlas_size * atlas_size];
-			for ( var i = 0; i < atlas_size * atlas_size; ++i ) {
-				fill_pixels[i] = new Color(1,1,1,0);
-			}
-			new_atlas.SetPixels32(fill_pixels);
-			new_atlas.SetPixels32(0, 0, atlas.width, atlas.height, atlas.GetPixels32());
-			new_atlas.Apply();
-			GameObject.DestroyImmediate(atlas, true);
-			return new BitmapsAtlasInfo{Atlas = new_atlas, Rects = rects};
 		}
 	}
 }

@@ -70,6 +70,7 @@ namespace FlashTools {
 				}
 			}
 		}
+
 		[System.Serializable]
 		public class Sequence {
 			public string      Name   = string.Empty;
@@ -77,9 +78,9 @@ namespace FlashTools {
 		}
 
 		[SwfReadOnly]
+		public string          Name;
+		[SwfReadOnly]
 		public Texture2D       Atlas;
-		[SwfAssetGUID(true)]
-		public string          Container;
 		[SwfReadOnly]
 		public float           FrameRate;
 		[HideInInspector]
@@ -87,8 +88,8 @@ namespace FlashTools {
 
 		#if UNITY_EDITOR
 		void Reset() {
+			Name      = string.Empty;
 			Atlas     = null;
-			Container = string.Empty;
 			FrameRate = 1.0f;
 			Sequences = new List<Sequence>();
 		}
