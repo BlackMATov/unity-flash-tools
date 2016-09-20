@@ -8,8 +8,7 @@ using System.Collections.Generic;
 namespace FlashTools.Internal {
 	[CustomEditor(typeof(SwfAsset)), CanEditMultipleObjects]
 	public class SwfAssetEditor : Editor {
-		List<SwfAsset> _assets       = new List<SwfAsset>();
-		bool           _clipsFoldout = false;
+		List<SwfAsset> _assets = new List<SwfAsset>();
 
 		//
 		//
@@ -121,38 +120,6 @@ namespace FlashTools.Internal {
 			}
 		}
 
-		void DrawGUIClips() {
-			var asset = _assets.Count == 1 ? _assets.First() : null;
-			if ( asset && asset.Clips != null && asset.Clips.Count > 0 ) {
-				_clipsFoldout = EditorGUILayout.Foldout(_clipsFoldout, "Clips");
-				if ( _clipsFoldout ) {
-					SwfEditorUtils.DoWithEnabledGUI(false, () => {
-						var clip_count = Mathf.Min(asset.Data.Symbols.Count, asset.Clips.Count);
-						for ( var i = 0; i < clip_count; ++i ) {
-							EditorGUILayout.ObjectField(
-								asset.Data.Symbols[i].Name,
-								asset.Clips[i],
-								typeof(SwfClipAsset),
-								false);
-						}
-					});
-					DrawGUIClipsControls();
-				}
-			}
-		}
-
-		void DrawGUIClipsControls() {
-			GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			{
-				if ( GUILayout.Button("Reimport all") ) {
-					RevertAllOverriddenSettings();
-					ApplyAllOverriddenSettings();
-				}
-			}
-			GUILayout.EndHorizontal();
-		}
-
 		// ---------------------------------------------------------------------
 		//
 		// Messages
@@ -160,8 +127,7 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_assets       = targets.OfType<SwfAsset>().ToList();
-			_clipsFoldout = false;
+			_assets = targets.OfType<SwfAsset>().ToList();
 		}
 
 		void OnDisable() {
@@ -172,7 +138,6 @@ namespace FlashTools.Internal {
 			serializedObject.Update();
 			DrawDefaultInspector();
 			DrawGUISettingsControls();
-			DrawGUIClips();
 			if ( GUI.changed ) {
 				serializedObject.ApplyModifiedProperties();
 			}

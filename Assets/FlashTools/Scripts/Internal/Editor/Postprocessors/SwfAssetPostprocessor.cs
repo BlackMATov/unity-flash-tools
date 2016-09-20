@@ -27,28 +27,30 @@ namespace FlashTools.Internal {
 		static void SwfAssetProcess(SwfAsset asset) {
 			try {
 				if ( asset.Converting.Stage == 0 ) {
-					ConfigureBitmaps(asset);
+					var new_data = ConfigureBitmaps(
+						asset,
+						SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data));
+					asset.Data = SwfEditorUtils.CompressAsset(new_data);
 					++asset.Converting.Stage;
 					EditorUtility.SetDirty(asset);
-					AssetDatabase.ImportAsset(
-						AssetDatabase.GetAssetPath(asset));
+					AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(asset));
 				} else if ( asset.Converting.Stage == 1 ) {
 					asset.Atlas = LoadAssetAtlas(asset);
 					if ( asset.Atlas ) {
 						ConfigureAtlas(asset);
-						ConfigureClips(asset);
+						ConfigureClips(
+							asset,
+							SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data));
 					}
 					++asset.Converting.Stage;
 					EditorUtility.SetDirty(asset);
-					AssetDatabase.ImportAsset(
-						AssetDatabase.GetAssetPath(asset));
+					AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(asset));
 				}
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
 					"<b>[FlashTools]</b> Postprocess swf asset error: {0}",
 					e.Message);
-				AssetDatabase.DeleteAsset(
-					AssetDatabase.GetAssetPath(asset));
+				AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(asset));
 			} finally {
 				if ( asset ) {
 					UpdateAssetClips(asset);
@@ -76,8 +78,8 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
-		static void ConfigureBitmaps(SwfAsset asset) {
-			var textures = asset.Data.Bitmaps
+		static SwfAssetData ConfigureBitmaps(SwfAsset asset, SwfAssetData data) {
+			var textures = data.Bitmaps
 				.Where  (p => p.Redirect == 0)
 				.Select (p => new KeyValuePair<ushort, Texture2D>(
 					p.Id,
@@ -87,11 +89,13 @@ namespace FlashTools.Internal {
 				GetAtlasPath(asset),
 				textures.Select(p => p.Value).ToArray(),
 				asset.Settings);
-			for ( var i = 0; i < asset.Data.Bitmaps.Count; ++i ) {
-				var bitmap        = asset.Data.Bitmaps[i];
+			for ( var i = 0; i < data.Bitmaps.Count; ++i ) {
+				var bitmap        = data.Bitmaps[i];
 				var texture_key   = bitmap.Redirect > 0 ? bitmap.Redirect : bitmap.Id;
-				bitmap.SourceRect = rects[textures.FindIndex(p => p.Key == texture_key)];
+				bitmap.SourceRect = SwfRectData.FromURect(
+					rects[textures.FindIndex(p => p.Key == texture_key)]);
 			}
+			return data;
 		}
 
 		static Texture2D LoadTextureFromData(SwfBitmapData bitmap) {
@@ -99,23 +103,7 @@ namespace FlashTools.Internal {
 				bitmap.RealWidth, bitmap.RealHeight,
 				TextureFormat.ARGB32, false);
 			texture.LoadRawTextureData(bitmap.ARGB32);
-			RevertTexturePremultipliedAlpha(texture);
 			return texture;
-		}
-
-		static void RevertTexturePremultipliedAlpha(Texture2D texture) {
-			for ( int y = 0; y < texture.height; ++y ) {
-				for ( int x = 0; x < texture.width; ++x ) {
-					var c = texture.GetPixel(x, y);
-					if ( c.a > 0 ) {
-						c.r /= c.a;
-						c.g /= c.a;
-						c.b /= c.a;
-					}
-					texture.SetPixel(x, y, c);
-				}
-			}
-			texture.Apply();
 		}
 
 		struct BitmapsAtlasInfo {
@@ -127,6 +115,7 @@ namespace FlashTools.Internal {
 			string atlas_path, Texture2D[] textures, SwfSettingsData settings)
 		{
 			var atlas_info = PackBitmapsAtlas(textures, settings);
+			RevertTexturePremultipliedAlpha(atlas_info.Atlas);
 			File.WriteAllBytes(atlas_path, atlas_info.Atlas.EncodeToPNG());
 			GameObject.DestroyImmediate(atlas_info.Atlas, true);
 			AssetDatabase.ImportAsset(atlas_path);
@@ -173,6 +162,21 @@ namespace FlashTools.Internal {
 			return new BitmapsAtlasInfo{
 				Atlas = new_atlas,
 				Rects = rects};
+		}
+
+		static void RevertTexturePremultipliedAlpha(Texture2D texture) {
+			var pixels = texture.GetPixels();
+			for ( var i = 0; i < pixels.Length; ++i ) {
+				var c = pixels[i];
+				if ( c.a > 0 ) {
+					c.r /= c.a;
+					c.g /= c.a;
+					c.b /= c.a;
+				}
+				pixels[i] = c;
+			}
+			texture.SetPixels(pixels);
+			texture.Apply();
 		}
 
 		// ---------------------------------------------------------------------
@@ -248,44 +252,45 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
-		static void ConfigureClips(SwfAsset asset) {
+		static SwfAssetData ConfigureClips(SwfAsset asset, SwfAssetData data) {
 			asset.Clips = asset.Clips.Where(p => !!p).ToList();
-			foreach ( var symbol in asset.Data.Symbols ) {
-				ConfigureClip(asset, symbol);
+			foreach ( var symbol in data.Symbols ) {
+				ConfigureClip(asset, data, symbol);
 			}
+			return data;
 		}
 
-		static void ConfigureClip(SwfAsset asset, SwfSymbolData symbol) {
+		static void ConfigureClip(SwfAsset asset, SwfAssetData data, SwfSymbolData symbol) {
 			var clip_asset = asset.Clips.FirstOrDefault(p => p.Name == symbol.Name);
 			if ( clip_asset ) {
-				ConfigureClipAsset(clip_asset, asset, symbol);
+				ConfigureClipAsset(clip_asset, asset, data, symbol);
 				AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(clip_asset));
 			} else {
 				var asset_path      = AssetDatabase.GetAssetPath(asset);
 				var clip_asset_path = Path.ChangeExtension(asset_path, symbol.Name + ".asset");
 				SwfEditorUtils.LoadOrCreateAsset<SwfClipAsset>(clip_asset_path, new_clip_asset => {
-					ConfigureClipAsset(new_clip_asset, asset, symbol);
+					ConfigureClipAsset(new_clip_asset, asset, data, symbol);
 					asset.Clips.Add(new_clip_asset);
 				});
 			}
 		}
 
 		static void ConfigureClipAsset(
-			SwfClipAsset clip_asset, SwfAsset asset, SwfSymbolData symbol)
+			SwfClipAsset clip_asset, SwfAsset asset, SwfAssetData data, SwfSymbolData symbol)
 		{
 			clip_asset.Name      = symbol.Name;
 			clip_asset.Atlas     = asset.Atlas;
-			clip_asset.FrameRate = asset.Data.FrameRate;
-			clip_asset.Sequences = LoadClipSequences(asset, symbol);
+			clip_asset.FrameRate = data.FrameRate;
+			clip_asset.Sequences = LoadClipSequences(asset, data, symbol);
 		}
 
 		static List<SwfClipAsset.Sequence> LoadClipSequences(
-			SwfAsset asset, SwfSymbolData symbol)
+			SwfAsset asset, SwfAssetData data, SwfSymbolData symbol)
 		{
 			var sequences = new List<SwfClipAsset.Sequence>();
 			if ( IsValidAssetsForFrame(asset, symbol) ) {
 				foreach ( var frame in symbol.Frames ) {
-					var baked_frame = BakeClipFrame(asset, frame);
+					var baked_frame = BakeClipFrame(asset, data, frame);
 					if ( !string.IsNullOrEmpty(frame.Name) &&
 						(sequences.Count < 1 || sequences.Last().Name != frame.Name) )
 					{
@@ -316,7 +321,7 @@ namespace FlashTools.Internal {
 		}
 
 		static SwfClipAsset.Frame BakeClipFrame(
-			SwfAsset asset, SwfFrameData frame)
+			SwfAsset asset, SwfAssetData data, SwfFrameData frame)
 		{
 			List<uint>       baked_uvs       = new List<uint>();
 			List<uint>       baked_mulcolors = new List<uint>();
@@ -327,7 +332,7 @@ namespace FlashTools.Internal {
 
 			foreach ( var inst in frame.Instances ) {
 				var bitmap = inst != null
-					? FindBitmapFromAssetData(asset.Data, inst.Bitmap)
+					? FindBitmapFromAssetData(data, inst.Bitmap)
 					: null;
 				if ( bitmap != null && IsVisibleInstance(inst) ) {
 					var width  = bitmap.RealWidth  / 20.0f;
@@ -355,14 +360,14 @@ namespace FlashTools.Internal {
 
 					uint mul_pack0, mul_pack1;
 					SwfUtils.PackFColorToUInts(
-						inst.ColorTrans.Mul,
+						inst.ColorTrans.mulColor,
 						out mul_pack0, out mul_pack1);
 					baked_mulcolors.Add(mul_pack0);
 					baked_mulcolors.Add(mul_pack1);
 
 					uint add_pack0, add_pack1;
 					SwfUtils.PackFColorToUInts(
-						inst.ColorTrans.Add,
+						inst.ColorTrans.addColor,
 						out add_pack0, out add_pack1);
 					baked_addcolors.Add(add_pack0);
 					baked_addcolors.Add(add_pack1);

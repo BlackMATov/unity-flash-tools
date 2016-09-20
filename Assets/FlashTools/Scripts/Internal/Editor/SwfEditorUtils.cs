@@ -4,6 +4,9 @@ using UnityEditor;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Runtime.Serialization.Formatters.Binary;
+
+using Ionic.Zlib;
 
 namespace FlashTools.Internal {
 	public static class SwfEditorUtils {
@@ -64,6 +67,33 @@ namespace FlashTools.Internal {
 			}
 			AssetDatabase.ImportAsset(asset_path);
 			return asset;
+		}
+
+		public static byte[] CompressAsset<T>(T asset) {
+			var bytes  = AssetToBytes(asset);
+			var result = ZlibStream.CompressBuffer(bytes);
+			return result;
+		}
+
+		public static T DecompressAsset<T>(byte[] data) {
+			var bytes  = ZlibStream.UncompressBuffer(data);
+			var result = BytesToAsset<T>(bytes);
+			return result;
+		}
+
+		static byte[] AssetToBytes<T>(T asset) {
+			var formatter = new BinaryFormatter();
+			using ( var stream = new MemoryStream() ) {
+				formatter.Serialize(stream, asset);
+				return stream.ToArray();
+			}
+		}
+
+		static T BytesToAsset<T>(byte[] bytes) {
+			var formatter = new BinaryFormatter();
+			using ( var stream = new MemoryStream(bytes) ) {
+				return (T)formatter.Deserialize(stream);
+			}
 		}
 
 		// ---------------------------------------------------------------------

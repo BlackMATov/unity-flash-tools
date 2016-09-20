@@ -34,7 +34,7 @@ namespace FlashTools.Internal {
 		static void SafeLoadSwfAsset(string swf_path, SwfAsset swf_asset) {
 			try {
 				var new_data         = LoadSwfAssetData(swf_path);
-				swf_asset.Data       = new_data;
+				swf_asset.Data       = SwfEditorUtils.CompressAsset(new_data);
 				swf_asset.Converting = new SwfAsset.ConvertingState();
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(

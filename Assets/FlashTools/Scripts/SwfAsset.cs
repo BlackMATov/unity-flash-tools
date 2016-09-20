@@ -4,57 +4,125 @@ using System.Collections.Generic;
 
 namespace FlashTools {
 	[System.Serializable]
+	public struct SwfVec2Data {
+		public float x;
+		public float y;
+
+		public SwfVec2Data(float x, float y) {
+			this.x = x;
+			this.y = y;
+		}
+
+		public static SwfVec2Data one {
+			get { return new SwfVec2Data(1.0f, 1.0f); }
+		}
+
+		public static SwfVec2Data zero {
+			get { return new SwfVec2Data(0.0f, 0.0f); }
+		}
+	}
+
+	[System.Serializable]
+	public struct SwfVec4Data {
+		public float x;
+		public float y;
+		public float z;
+		public float w;
+
+		public SwfVec4Data(float x, float y, float z, float w) {
+			this.x = x;
+			this.y = y;
+			this.z = z;
+			this.w = w;
+		}
+
+		public static SwfVec4Data one {
+			get { return new SwfVec4Data(1.0f, 1.0f, 1.0f, 1.0f); }
+		}
+
+		public static SwfVec4Data zero {
+			get { return new SwfVec4Data(0.0f, 0.0f, 0.0f, 0.0f); }
+		}
+	}
+
+	[System.Serializable]
+	public struct SwfRectData {
+		public float xMin;
+		public float xMax;
+		public float yMin;
+		public float yMax;
+
+		public static SwfRectData identity {
+			get {
+				return new SwfRectData{
+					xMin = 0.0f,
+					xMax = 0.0f,
+					yMin = 0.0f,
+					yMax = 0.0f};
+			}
+		}
+
+		public static SwfRectData FromURect(Rect rect) {
+			return new SwfRectData{
+				xMin = rect.xMin,
+				xMax = rect.xMax,
+				yMin = rect.yMin,
+				yMax = rect.yMax};
+		}
+	}
+
+	[System.Serializable]
 	public struct SwfMatrixData {
-		public Vector2 Sc;
-		public Vector2 Sk;
-		public Vector2 Tr;
+		public SwfVec2Data sc;
+		public SwfVec2Data sk;
+		public SwfVec2Data tr;
 
 		public static SwfMatrixData identity {
 			get {
 				return new SwfMatrixData{
-					Sc = Vector2.one,
-					Sk = Vector2.zero,
-					Tr = Vector2.zero};
+					sc = SwfVec2Data.one,
+					sk = SwfVec2Data.zero,
+					tr = SwfVec2Data.zero};
 			}
 		}
 
 		public Matrix4x4 ToUMatrix() {
 			var mat = Matrix4x4.identity;
-			mat.m00 = Sc.x;
-			mat.m11 = Sc.y;
-			mat.m10 = Sk.x;
-			mat.m01 = Sk.y;
-			mat.m03 = Tr.x;
-			mat.m13 = Tr.y;
+			mat.m00 = sc.x;
+			mat.m11 = sc.y;
+			mat.m10 = sk.x;
+			mat.m01 = sk.y;
+			mat.m03 = tr.x;
+			mat.m13 = tr.y;
 			return mat;
 		}
 
 		public static SwfMatrixData FromUMatrix(Matrix4x4 mat) {
 			return new SwfMatrixData{
-				Sc = new Vector2(mat.m00, mat.m11),
-				Sk = new Vector2(mat.m10, mat.m01),
-				Tr = new Vector2(mat.m03, mat.m13)};
+				sc = new SwfVec2Data(mat.m00, mat.m11),
+				sk = new SwfVec2Data(mat.m10, mat.m01),
+				tr = new SwfVec2Data(mat.m03, mat.m13)};
 		}
 	}
 
 	[System.Serializable]
 	public struct SwfColorTransData {
-		public Vector4 Mul;
-		public Vector4 Add;
+		public SwfVec4Data mulColor;
+		public SwfVec4Data addColor;
 
 		public Color ApplyToColor(Color color) {
 			return new Color(
-				Mathf.Clamp01(color.r * Mul.x + Add.x),
-				Mathf.Clamp01(color.g * Mul.y + Add.y),
-				Mathf.Clamp01(color.b * Mul.z + Add.z),
-				Mathf.Clamp01(color.a * Mul.w + Add.w));
+				Mathf.Clamp01(color.r * mulColor.x + addColor.x),
+				Mathf.Clamp01(color.g * mulColor.y + addColor.y),
+				Mathf.Clamp01(color.b * mulColor.z + addColor.z),
+				Mathf.Clamp01(color.a * mulColor.w + addColor.w));
 		}
 
 		public static SwfColorTransData identity {
 			get {
 				return new SwfColorTransData{
-					Mul = Vector4.one,
-					Add = Vector4.zero};
+					mulColor = SwfVec4Data.one,
+					addColor = SwfVec4Data.zero};
 			}
 		}
 
@@ -62,16 +130,16 @@ namespace FlashTools {
 			SwfColorTransData a, SwfColorTransData b)
 		{
 			return new SwfColorTransData{
-				Mul = new Vector4(
-					b.Mul.x * a.Mul.x,
-					b.Mul.y * a.Mul.y,
-					b.Mul.z * a.Mul.z,
-					b.Mul.w * a.Mul.w),
-				Add = new Vector4(
-					b.Add.x * a.Mul.x + a.Add.x,
-					b.Add.y * a.Mul.y + a.Add.y,
-					b.Add.z * a.Mul.z + a.Add.z,
-					b.Add.w * a.Mul.w + a.Add.w)};
+				mulColor = new SwfVec4Data(
+					b.mulColor.x * a.mulColor.x,
+					b.mulColor.y * a.mulColor.y,
+					b.mulColor.z * a.mulColor.z,
+					b.mulColor.w * a.mulColor.w),
+				addColor = new SwfVec4Data(
+					b.addColor.x * a.mulColor.x + a.addColor.x,
+					b.addColor.y * a.mulColor.y + a.addColor.y,
+					b.addColor.z * a.mulColor.z + a.addColor.z,
+					b.addColor.w * a.mulColor.w + a.addColor.w)};
 		}
 	}
 
@@ -109,7 +177,7 @@ namespace FlashTools {
 		public ushort                Redirect   = 0;
 		public int                   RealWidth  = 0;
 		public int                   RealHeight = 0;
-		public Rect                  SourceRect = new Rect();
+		public SwfRectData           SourceRect = SwfRectData.identity;
 	}
 
 	[System.Serializable]
@@ -125,7 +193,7 @@ namespace FlashTools {
 			public int Stage;
 		}
 		[HideInInspector]
-		public SwfAssetData       Data;
+		public byte[]             Data;
 		[SwfReadOnly]
 		public Texture2D          Atlas;
 		[HideInInspector]
@@ -139,7 +207,7 @@ namespace FlashTools {
 
 	#if UNITY_EDITOR
 		void Reset() {
-			Data       = new SwfAssetData();
+			Data       = new byte[0];
 			Atlas      = null;
 			Clips      = new List<SwfClipAsset>();
 			Settings   = SwfSettings.GetDefault();

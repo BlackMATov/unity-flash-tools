@@ -62,14 +62,14 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 		public SwfColorTransData ToColorTransData() {
 			var trans = SwfColorTransData.identity;
 			if ( HasAdd ) {
-				trans.Add = new Vector4(
+				trans.addColor = new SwfVec4Data(
 					RAdd / 256.0f,
 					GAdd / 256.0f,
 					BAdd / 256.0f,
 					AAdd / 256.0f);
 			}
 			if ( HasMul ) {
-				trans.Mul = new Vector4(
+				trans.mulColor = new SwfVec4Data(
 					RMul / 256.0f,
 					GMul / 256.0f,
 					BMul / 256.0f,

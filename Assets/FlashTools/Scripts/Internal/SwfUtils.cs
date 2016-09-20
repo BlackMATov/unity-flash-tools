@@ -96,7 +96,7 @@ namespace FlashTools.Internal {
 		}
 
 		public static void PackFColorToUInts(
-			Vector4 v,
+			SwfVec4Data v,
 			out uint pack0, out uint pack1)
 		{
 			PackFColorToUInts(v.x, v.y, v.z, v.w, out pack0, out pack1);
