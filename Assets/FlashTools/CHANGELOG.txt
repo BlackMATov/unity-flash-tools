@@ -1,4 +1,13 @@
 -----------------
+-- Version 0.4 --
+-----------------
+
+Clip groups
+Fix move assets bug
+Tint color for clips
+Animation API improvements
+
+-----------------
 -- Version 0.3 --
 -----------------
 
