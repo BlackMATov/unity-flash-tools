@@ -52,6 +52,13 @@ namespace FlashTools {
 		}
 
 		[SerializeField]
+		string _groupName = string.Empty;
+		public string groupName {
+			get { return _groupName; }
+			set { _groupName = value; }
+		}
+
+		[SerializeField]
 		PlayModes _playMode = PlayModes.Forward;
 		public PlayModes playMode {
 			get { return _playMode; }

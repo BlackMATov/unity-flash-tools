@@ -37,6 +37,36 @@ namespace FlashTools.Internal {
 			}
 		}
 
+		public static void DoHorizontalGUI(System.Action act) {
+			GUILayout.BeginHorizontal();
+			try {
+				act();
+			} finally {
+				GUILayout.EndHorizontal();
+			}
+		}
+
+		public static void DoRightHorizontalGUI(System.Action act) {
+			GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			try {
+				act();
+			} finally {
+				GUILayout.EndHorizontal();
+			}
+		}
+
+		public static void DoCenterHorizontalGUI(System.Action act) {
+			GUILayout.BeginHorizontal();
+			GUILayout.FlexibleSpace();
+			try {
+				act();
+			} finally {
+				GUILayout.FlexibleSpace();
+				GUILayout.EndHorizontal();
+			}
+		}
+
 		public static SerializedProperty GetPropertyByName(SerializedObject obj, string name) {
 			var prop = obj.FindProperty(name);
 			if ( prop == null ) {

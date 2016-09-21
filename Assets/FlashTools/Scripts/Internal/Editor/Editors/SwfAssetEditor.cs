@@ -96,9 +96,7 @@ namespace FlashTools.Internal {
 		void DrawGUISettingsControls() {
 			var prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Overridden");
 			if ( prop.isExpanded ) {
-				GUILayout.BeginHorizontal();
-				GUILayout.FlexibleSpace();
-				{
+				SwfEditorUtils.DoRightHorizontalGUI(() => {
 					var default_settings = GetDefaultSettings().Settings;
 					SwfEditorUtils.DoWithEnabledGUI(
 						_assets.Any(p => !p.Overridden.CheckEquals(default_settings)), () => {
@@ -115,8 +113,7 @@ namespace FlashTools.Internal {
 								ApplyAllOverriddenSettings();
 							}
 						});
-				}
-				GUILayout.EndHorizontal();
+				});
 			}
 		}
 

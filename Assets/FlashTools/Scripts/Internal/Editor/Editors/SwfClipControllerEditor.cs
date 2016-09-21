@@ -16,17 +16,14 @@ namespace FlashTools.Internal {
 		}
 
 		void DrawClipControls() {
-			GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			{
+			SwfEditorUtils.DoRightHorizontalGUI(() => {
 				if ( GUILayout.Button("Stop") ) {
 					AllControllersForeach(ctrl => ctrl.Stop(ctrl.isStopped));
 				}
 				if ( GUILayout.Button("Play") ) {
 					AllControllersForeach(ctrl => ctrl.Play(ctrl.isPlaying));
 				}
-			}
-			GUILayout.EndHorizontal();
+			});
 		}
 
 		// ---------------------------------------------------------------------

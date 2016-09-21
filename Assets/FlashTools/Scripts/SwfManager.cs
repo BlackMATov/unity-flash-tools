@@ -1,15 +1,18 @@
 ﻿using UnityEngine;
 using FlashTools.Internal;
+using System.Collections.Generic;
 
 namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	public class SwfManager : MonoBehaviour {
+		SwfAssocList<SwfClip>           _clips           = new SwfAssocList<SwfClip>();
+		SwfAssocList<SwfClipController> _controllers     = new SwfAssocList<SwfClipController>();
+		SwfList<SwfClipController>      _safeUpdates     = new SwfList<SwfClipController>();
 
-		SwfAssocList<SwfClip>           _clips       = new SwfAssocList<SwfClip>();
-		SwfAssocList<SwfClipController> _controllers = new SwfAssocList<SwfClipController>();
-
-		bool                            _isPaused    = false;
-		SwfList<SwfClipController>      _safeUpdates = new SwfList<SwfClipController>();
+		bool                            _isPaused        = false;
+		float                           _rateScale       = 1.0f;
+		HashSet<string>                 _groupPauses     = new HashSet<string>();
+		Dictionary<string, float>       _groupRateScales = new Dictionary<string, float>();
 
 		// ---------------------------------------------------------------------
 		//
@@ -35,14 +38,6 @@ namespace FlashTools {
 		//
 		// ---------------------------------------------------------------------
 
-		[SerializeField]
-		[SwfFloatRange(0.0f, float.MaxValue)]
-		float _rateScale = 1.0f;
-		public float rateScale {
-			get { return _rateScale; }
-			set { _rateScale = Mathf.Clamp(value, 0.0f, float.MaxValue); }
-		}
-
 		public int clipCount {
 			get { return _clips.Count; }
 		}
@@ -59,6 +54,11 @@ namespace FlashTools {
 			get { return !isPaused; }
 		}
 
+		public float rateScale {
+			get { return _rateScale; }
+			set { _rateScale = Mathf.Clamp(value, 0.0f, float.MaxValue); }
+		}
+
 		// ---------------------------------------------------------------------
 		//
 		// Functions
@@ -71,6 +71,39 @@ namespace FlashTools {
 
 		public void Resume() {
 			_isPaused = false;
+		}
+
+		public void PauseGroup(string group_name) {
+			if ( !string.IsNullOrEmpty(group_name) ) {
+				_groupPauses.Add(group_name);
+			}
+		}
+
+		public void ResumeGroup(string group_name) {
+			if ( !string.IsNullOrEmpty(group_name) ) {
+				_groupPauses.Remove(group_name);
+			}
+		}
+
+		public bool IsGroupPaused(string group_name) {
+			return _groupPauses.Contains(group_name);
+		}
+
+		public bool IsGroupPlaying(string group_name) {
+			return !IsGroupPaused(group_name);
+		}
+
+		public void SetGroupRateScale(string group_name, float rate_scale) {
+			if ( !string.IsNullOrEmpty(group_name) ) {
+				_groupRateScales[group_name] = Mathf.Clamp(rate_scale, 0.0f, float.MaxValue);
+			}
+		}
+
+		public float GetGroupRateScale(string group_name) {
+			float rate_scale;
+			return _groupRateScales.TryGetValue(group_name, out rate_scale)
+				? rate_scale
+				: 1.0f;
 		}
 
 		// ---------------------------------------------------------------------
@@ -87,6 +120,10 @@ namespace FlashTools {
 			_clips.Remove(clip);
 		}
 
+		public void GetAllClips(SwfList<SwfClip> clips) {
+			_clips.AssignTo(clips);
+		}
+
 		public void AddController(SwfClipController controller) {
 			_controllers.Add(controller);
 		}
@@ -95,10 +132,14 @@ namespace FlashTools {
 			_controllers.Remove(controller);
 		}
 
+		public void GetAllControllers(SwfList<SwfClipController> controllers) {
+			_controllers.AssignTo(controllers);
+		}
+
 		void GrabEnabledClips() {
-			var all_clips = FindObjectsOfType<SwfClip>();
-			for ( int i = 0, e = all_clips.Length; i < e; ++i ) {
-				var clip = all_clips[i];
+			var clips = FindObjectsOfType<SwfClip>();
+			for ( int i = 0, e = clips.Length; i < e; ++i ) {
+				var clip = clips[i];
 				if ( clip.enabled ) {
 					_clips.Add(clip);
 				}
@@ -106,9 +147,9 @@ namespace FlashTools {
 		}
 
 		void GrabEnabledControllers() {
-			var all_controllers = FindObjectsOfType<SwfClipController>();
-			for ( int i = 0, e = all_controllers.Length; i < e; ++i ) {
-				var controller = all_controllers[i];
+			var controllers = FindObjectsOfType<SwfClipController>();
+			for ( int i = 0, e = controllers.Length; i < e; ++i ) {
+				var controller = controllers[i];
 				if ( controller.enabled ) {
 					_controllers.Add(controller);
 				}
@@ -128,7 +169,13 @@ namespace FlashTools {
 			for ( int i = 0, e = _safeUpdates.Count; i < e; ++i ) {
 				var ctrl = _safeUpdates[i];
 				if ( ctrl ) {
-					ctrl.InternalUpdate(dt);
+					var group_name = ctrl.groupName;
+					if ( string.IsNullOrEmpty(group_name) ) {
+						ctrl.InternalUpdate(dt);
+					} else if ( !IsGroupPaused(group_name) ) {
+						var group_rate_scale = GetGroupRateScale(group_name);
+						ctrl.InternalUpdate(group_rate_scale * dt);
+					}
 				}
 			}
 			_safeUpdates.Clear();

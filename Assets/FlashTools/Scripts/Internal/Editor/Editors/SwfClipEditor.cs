@@ -109,9 +109,7 @@ namespace FlashTools.Internal {
 
 		void DrawClipControls() {
 			EditorGUILayout.Space();
-			GUILayout.BeginHorizontal();
-			GUILayout.FlexibleSpace();
-			{
+			SwfEditorUtils.DoCenterHorizontalGUI(() => {
 				if ( GUILayout.Button(new GUIContent("<<", "to begin frame")) ) {
 					AllClipsForeachWithUndo(p => p.ToBeginFrame());
 				}
@@ -127,9 +125,7 @@ namespace FlashTools.Internal {
 				if ( GUILayout.Button(new GUIContent(">>", "to end frame")) ) {
 					AllClipsForeachWithUndo(p => p.ToEndFrame());
 				}
-			}
-			GUILayout.FlexibleSpace();
-			GUILayout.EndHorizontal();
+			});
 		}
 
 		void HideMaterials() {

@@ -120,16 +120,14 @@ namespace FlashTools.Internal {
 		}
 
 		void DrawGUIControls() {
-			GUILayout.BeginHorizontal();
-			{
+			SwfEditorUtils.DoHorizontalGUI(() => {
 				if ( GUILayout.Button("Create prefab") ) {
 					CreateAllClipsPrefabs();
 				}
 				if ( GUILayout.Button("Instance to scene") ) {
 					CreateAllClipsOnScene();
 				}
-			}
-			GUILayout.EndHorizontal();
+			});
 		}
 
 		// ---------------------------------------------------------------------
