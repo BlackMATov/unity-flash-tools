@@ -13,30 +13,6 @@ namespace FlashTools.Internal {
 		//
 		//
 
-		public static uint PackBytesToUInt(
-			byte b0, byte b1, byte b2, byte b3)
-		{
-			var bb0 = (uint)b0;
-			var bb1 = (uint)b1;
-			var bb2 = (uint)b2;
-			var bb3 = (uint)b3;
-			return (bb0 << 24) + (bb1 << 16) + (bb2 << 8) + bb3;
-		}
-
-		public static void UnpackBytesFromUInt(
-			uint pack,
-			out byte b0, out byte b1, out byte b2, out byte b3)
-		{
-			b0 = (byte)((pack >> 24) & 0xFF);
-			b1 = (byte)((pack >> 16) & 0xFF);
-			b2 = (byte)((pack >>  8) & 0xFF);
-			b3 = (byte)((pack      ) & 0xFF);
-		}
-
-		//
-		//
-		//
-
 		public static uint PackUShortsToUInt(ushort x, ushort y) {
 			var xx = (uint)x;
 			var yy = (uint)y;
@@ -54,9 +30,6 @@ namespace FlashTools.Internal {
 		//
 		//
 		//
-		public static uint PackUV(Vector2 uv) {
-			return PackUV(uv.x, uv.y);
-		}
 
 		public static uint PackUV(float u, float v) {
 			var uu = (uint)(Mathf.Clamp01(u) * UShortMax);

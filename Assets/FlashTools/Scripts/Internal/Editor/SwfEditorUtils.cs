@@ -28,12 +28,11 @@ namespace FlashTools.Internal {
 		}
 
 		public static void DoWithEnabledGUI(bool enabled, System.Action act) {
-			var last_gui_enabled = GUI.enabled;
-			GUI.enabled = enabled;
+			EditorGUI.BeginDisabledGroup(true);
 			try {
 				act();
 			} finally {
-				GUI.enabled = last_gui_enabled;
+				EditorGUI.EndDisabledGroup();
 			}
 		}
 

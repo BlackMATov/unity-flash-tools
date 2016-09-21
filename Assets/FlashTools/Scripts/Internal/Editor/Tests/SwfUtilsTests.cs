@@ -9,34 +9,11 @@ namespace FlashTools.Internal.Tests {
 			Assert.AreEqual(v0.y, v1.y, delta);
 		}
 
-		static void AssertAreEqualVectors(Vector3 v0, Vector3 v1, float delta) {
-			Assert.AreEqual(v0.x, v1.x, delta);
-			Assert.AreEqual(v0.y, v1.y, delta);
-			Assert.AreEqual(v0.z, v1.z, delta);
-		}
-
 		static void AssertAreEqualVectors(Vector4 v0, Vector4 v1, float delta) {
 			Assert.AreEqual(v0.x, v1.x, delta);
 			Assert.AreEqual(v0.y, v1.y, delta);
 			Assert.AreEqual(v0.z, v1.z, delta);
 			Assert.AreEqual(v0.w, v1.w, delta);
-		}
-
-		//
-		//
-		//
-
-		[Test]
-		public static void PackBytesToUIntTests() {
-			byte b0 = 1, b1 = 10, b2 = 100, b3 = 255;
-			byte bb0, bb1, bb2, bb3;
-			SwfUtils.UnpackBytesFromUInt(
-				SwfUtils.PackBytesToUInt(b0, b1, b2, b3),
-				out bb0, out bb1, out bb2, out bb3);
-			Assert.AreEqual(b0, bb0);
-			Assert.AreEqual(b1, bb1);
-			Assert.AreEqual(b2, bb2);
-			Assert.AreEqual(b3, bb3);
 		}
 
 		//
@@ -64,17 +41,17 @@ namespace FlashTools.Internal.Tests {
 		public static void PackUVTests() {
 			var v0 = new Vector2(0.9999f, 0.1111f);
 			float u0, u1;
-			SwfUtils.UnpackUV(SwfUtils.PackUV(v0), out u0, out u1);
+			SwfUtils.UnpackUV(SwfUtils.PackUV(v0.x, v0.y), out u0, out u1);
 			AssertAreEqualVectors(v0, new Vector2(u0, u1), SwfUtils.UVPrecision);
 
 			var v1 = new Vector2(0.0987f, 0.0123f);
 			float u2, u3;
-			SwfUtils.UnpackUV(SwfUtils.PackUV(v1), out u2, out u3);
+			SwfUtils.UnpackUV(SwfUtils.PackUV(v1.x, v1.y), out u2, out u3);
 			AssertAreEqualVectors(v1, new Vector2(u2, u3), SwfUtils.UVPrecision);
 
 			var v2 = new Vector2(1.0f, 0.0f);
 			float u4, u5;
-			SwfUtils.UnpackUV(SwfUtils.PackUV(v2), out u4, out u5);
+			SwfUtils.UnpackUV(SwfUtils.PackUV(v2.x, v2.y), out u4, out u5);
 			AssertAreEqualVectors(v2, new Vector2(u4, u5), SwfUtils.UVPrecision);
 		}
 
