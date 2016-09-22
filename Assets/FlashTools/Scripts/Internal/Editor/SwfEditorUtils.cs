@@ -76,19 +76,11 @@ namespace FlashTools.Internal {
 			return prop;
 		}
 
-		public static void RemoveAllSubAssets(string asset_path) {
-			var assets = AssetDatabase.LoadAllAssetsAtPath(asset_path);
-			foreach ( var asset in assets ) {
-				if ( !AssetDatabase.IsMainAsset(asset) ) {
-					GameObject.DestroyImmediate(asset, true);
-				}
-			}
-		}
-
 		public static T LoadOrCreateAsset<T>(string asset_path, System.Action<T> act) where T : ScriptableObject {
 			var asset = AssetDatabase.LoadAssetAtPath<T>(asset_path);
 			if ( asset ) {
 				act(asset);
+				EditorUtility.SetDirty(asset);
 			} else {
 				asset = ScriptableObject.CreateInstance<T>();
 				act(asset);

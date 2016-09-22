@@ -67,6 +67,10 @@ namespace FlashTools.Internal {
 			AllAssetsForeach(p => ApplyOverriddenSettings(p));
 		}
 
+		void ReconvertAllAsset() {
+			AllAssetsForeach(p => ReconvertAsset(p));
+		}
+
 		//
 		//
 		//
@@ -96,7 +100,12 @@ namespace FlashTools.Internal {
 		void DrawGUISettingsControls() {
 			var prop = SwfEditorUtils.GetPropertyByName(serializedObject, "Overridden");
 			if ( prop.isExpanded ) {
-				SwfEditorUtils.DoRightHorizontalGUI(() => {
+				GUILayout.BeginHorizontal();
+				{
+					if ( GUILayout.Button("Reconvert") ) {
+						ReconvertAllAsset();
+					}
+					GUILayout.FlexibleSpace();
 					var default_settings = GetDefaultSettings().Settings;
 					SwfEditorUtils.DoWithEnabledGUI(
 						_assets.Any(p => !p.Overridden.CheckEquals(default_settings)), () => {
@@ -113,7 +122,8 @@ namespace FlashTools.Internal {
 								ApplyAllOverriddenSettings();
 							}
 						});
-				});
+				}
+				GUILayout.EndHorizontal();
 			}
 		}
 

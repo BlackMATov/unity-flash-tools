@@ -81,7 +81,7 @@ namespace FlashTools {
 		}
 
 		public bool isStopped {
-			get { return !isPlaying; }
+			get { return !_isPlaying; }
 		}
 
 		// ---------------------------------------------------------------------

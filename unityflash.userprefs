@@ -1,9 +1,13 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfAssetPostprocessor.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/CHANGELOG.txt">
     <Files>
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfAssetPostprocessor.cs" Line="160" Column="33" />
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Editors/SwfAssetEditor.cs" Line="1" Column="1" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfPostprocessor.cs" Line="38" Column="25" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfAssetPostprocessor.cs" Line="173" Column="17" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Tests/SwfUtilsTests.cs" Line="22" Column="3" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/SwfEditorUtils.cs" Line="109" Column="40" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/SwfPropertyDrawers.cs" Line="293" Column="2" />
+      <File FileName="Assets/FlashTools/CHANGELOG.txt" Line="7" Column="16" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

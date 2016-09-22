@@ -48,10 +48,12 @@ namespace FlashTools {
 
 		public bool isPaused {
 			get { return _isPaused; }
+			set { _isPaused = value; }
 		}
 
 		public bool isPlaying {
-			get { return !isPaused; }
+			get { return !_isPaused; }
+			set { _isPaused = !value; }
 		}
 
 		public float rateScale {
@@ -66,11 +68,11 @@ namespace FlashTools {
 		// ---------------------------------------------------------------------
 
 		public void Pause() {
-			_isPaused = true;
+			isPaused = true;
 		}
 
 		public void Resume() {
-			_isPaused = false;
+			isPlaying = true;
 		}
 
 		public void PauseGroup(string group_name) {
@@ -172,7 +174,7 @@ namespace FlashTools {
 					var group_name = ctrl.groupName;
 					if ( string.IsNullOrEmpty(group_name) ) {
 						ctrl.InternalUpdate(dt);
-					} else if ( !IsGroupPaused(group_name) ) {
+					} else if ( IsGroupPlaying(group_name) ) {
 						var group_rate_scale = GetGroupRateScale(group_name);
 						ctrl.InternalUpdate(group_rate_scale * dt);
 					}

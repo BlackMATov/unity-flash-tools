@@ -253,7 +253,7 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		static SwfAssetData ConfigureClips(SwfAsset asset, SwfAssetData data) {
-			asset.Clips = asset.Clips.Where(p => !!p).ToList();
+			asset.Clips = asset.Clips.Where(p => !!p).Distinct().ToList();
 			foreach ( var symbol in data.Symbols ) {
 				ConfigureClip(asset, data, symbol);
 			}
