@@ -20,65 +20,7 @@ MonoBehaviour:
     AtlasForceSquare: 1
     AtlasTextureFilter: 1
     AtlasTextureFormat: 0
-  IncrMaskMat: {fileID: 2100000, guid: e62e8efca5cac42c9a323961b58d05d6, type: 2}
-  DecrMaskMat: {fileID: 2100000, guid: d63a68532164d470d887fd2603e79ffa, type: 2}
-  SimpleMat_Add: {fileID: 2100000, guid: e91aa3fa30cdc49ca8cc752a0a224b22, type: 2}
-  SimpleMat_Normal: {fileID: 2100000, guid: e92fbe00d5b6d4a3aa9355a4b23f107d, type: 2}
-  SimpleMat_Multiply: {fileID: 2100000, guid: 9b40c31e7fb5d46f3b372525cda1aeaf, type: 2}
-  SimpleMat_Screen: {fileID: 2100000, guid: b150d30e479444b7c95263518f3745e6, type: 2}
-  SimpleMat_Subtract: {fileID: 2100000, guid: b31598d6c46394391a378a776cf13a68, type: 2}
-  MaskedMats_Add:
-  - {fileID: 2100000, guid: c0365155a72824192b8fa80364326f1a, type: 2}
-  - {fileID: 2100000, guid: 93946f3ec3bb54a1187aaf22005d2bb0, type: 2}
-  - {fileID: 2100000, guid: 1ae015b2b04b8406dafdd79ba1e7f372, type: 2}
-  - {fileID: 2100000, guid: f22dcb326b5a5453f87fcad603775bce, type: 2}
-  - {fileID: 2100000, guid: f70408d83452c458b9ef6ff2619cc6e9, type: 2}
-  - {fileID: 2100000, guid: 8a3a5f04eca2d4e27ad120824f102c18, type: 2}
-  - {fileID: 2100000, guid: ee45d6354b80c4d75abcfeac0600fe54, type: 2}
-  - {fileID: 2100000, guid: 456f3992082eb489a83630372020e772, type: 2}
-  - {fileID: 2100000, guid: 9fe31dbf79e8e4abdb3b9ecf2a65df33, type: 2}
-  - {fileID: 2100000, guid: f0187cf6493eb4657826dfceacf2b144, type: 2}
-  MaskedMats_Normal:
-  - {fileID: 2100000, guid: 3902e0561ba6046079e975f4b8340dbd, type: 2}
-  - {fileID: 2100000, guid: bf1671a075bc542cfa84edbe5c938c73, type: 2}
-  - {fileID: 2100000, guid: fa481a894d3f243b8ac23721f2b585df, type: 2}
-  - {fileID: 2100000, guid: ef5cc9802382f4f089f69076d34b0c93, type: 2}
-  - {fileID: 2100000, guid: 00ccbacd4251b426da05e60e317a9762, type: 2}
-  - {fileID: 2100000, guid: a4542f1ab17634d819f67cca9e4b1677, type: 2}
-  - {fileID: 2100000, guid: 80ab14f28dfbe480b90af63c90b9bcd3, type: 2}
-  - {fileID: 2100000, guid: ca39fec8a5c784c5083d341913cb7ac9, type: 2}
-  - {fileID: 2100000, guid: bf0247f75d46c4a8aaafc940d0bfa19a, type: 2}
-  - {fileID: 2100000, guid: f67383241d0f94085ba5e58dadd788ed, type: 2}
-  MaskedMats_Multiply:
-  - {fileID: 2100000, guid: f3286fc330f314ee7967f886b7690f62, type: 2}
-  - {fileID: 2100000, guid: cbc3669e6a7f84bd8a953481feb53a4c, type: 2}
-  - {fileID: 2100000, guid: 0a5ddc332417b4447a06954321142581, type: 2}
-  - {fileID: 2100000, guid: 0fc1097945b3347779df1e164150a37d, type: 2}
-  - {fileID: 2100000, guid: e688f40398fa84f6597e3ced948d4562, type: 2}
-  - {fileID: 2100000, guid: 2812e9cc4afc54b67a333444d3c6d738, type: 2}
-  - {fileID: 2100000, guid: 01e7b99a7e4514bc591a016771c16388, type: 2}
-  - {fileID: 2100000, guid: 090fefefe7c794a4f87eb0b6d5c22863, type: 2}
-  - {fileID: 2100000, guid: 5642224b6fe1248829946f48abf6b3c6, type: 2}
-  - {fileID: 2100000, guid: 40753316b1efb4d91ae9fcffad1fca48, type: 2}
-  MaskedMats_Screen:
-  - {fileID: 2100000, guid: e4939d588274b44b987bc6fbb8064f04, type: 2}
-  - {fileID: 2100000, guid: 68d7e750b4c084e97906e78381ef273c, type: 2}
-  - {fileID: 2100000, guid: ae9ae6555ec514d60bc46352ec700832, type: 2}
-  - {fileID: 2100000, guid: 4bfce7a7aa8d34d7692f73f4c37e6bb8, type: 2}
-  - {fileID: 2100000, guid: b4435e3c4211f4113b6d844c394af57a, type: 2}
-  - {fileID: 2100000, guid: ccd11b15cd6bb4cd9818e46f7d284512, type: 2}
-  - {fileID: 2100000, guid: 33755867cc6ac4327bfa1a916f636a16, type: 2}
-  - {fileID: 2100000, guid: 4e6a0747396b04d5c9f506006b6db5e0, type: 2}
-  - {fileID: 2100000, guid: b4998fe30d4d346fb9394bbd01089412, type: 2}
-  - {fileID: 2100000, guid: aa6a26a2c58384673b88c497cd2dbd67, type: 2}
-  MaskedMats_Subtract:
-  - {fileID: 2100000, guid: 2929c2f6b7dda49968de37a05c8eb474, type: 2}
-  - {fileID: 2100000, guid: fd7c9500f999041e5bf9465dcda3df0f, type: 2}
-  - {fileID: 2100000, guid: 92b90642fae9f44d286d3aa8a2e23b03, type: 2}
-  - {fileID: 2100000, guid: a9aee470ac54f4517b35dee81dae6880, type: 2}
-  - {fileID: 2100000, guid: 4283ca74e6c2845c9b98f50fef811ae8, type: 2}
-  - {fileID: 2100000, guid: bbf5582e3bc074bc1ae60724c6e5769f, type: 2}
-  - {fileID: 2100000, guid: 08b4921866b4d41c19c747c165c95776, type: 2}
-  - {fileID: 2100000, guid: 4138efbc8f8f44c68a6881bf4570ad6d, type: 2}
-  - {fileID: 2100000, guid: 858e4ed0cd95c4b71aa58270c866fb5a, type: 2}
-  - {fileID: 2100000, guid: ce300594fea484fb1a75c50c97725675, type: 2}
+  SimpleShader: {fileID: 4800000, guid: 71f5f783ce2ab4fc4bf826e4acb105dd, type: 3}
+  MaskedShader: {fileID: 4800000, guid: 2fb923af3a46a49fdb944d636b6f79e8, type: 3}
+  IncrMaskShader: {fileID: 4800000, guid: 86b3e29b378884f228862fd1170176b5, type: 3}
+  DecrMaskShader: {fileID: 4800000, guid: f1e8cd2344e824b6a9b12efcacde262c, type: 3}

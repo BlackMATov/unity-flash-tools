@@ -128,35 +128,6 @@ namespace FlashTools.Internal {
 			});
 		}
 
-		void HideMaterials() {
-			var settings_holder = SwfSettings.GetHolder();
-
-			settings_holder.IncrMaskMat       .hideFlags = HideFlags.HideInInspector;
-			settings_holder.DecrMaskMat       .hideFlags = HideFlags.HideInInspector;
-
-			settings_holder.SimpleMat_Add     .hideFlags = HideFlags.HideInInspector;
-			settings_holder.SimpleMat_Normal  .hideFlags = HideFlags.HideInInspector;
-			settings_holder.SimpleMat_Multiply.hideFlags = HideFlags.HideInInspector;
-			settings_holder.SimpleMat_Screen  .hideFlags = HideFlags.HideInInspector;
-			settings_holder.SimpleMat_Subtract.hideFlags = HideFlags.HideInInspector;
-
-			foreach ( var material in settings_holder.MaskedMats_Add ) {
-				material.hideFlags = HideFlags.HideInInspector;
-			}
-			foreach ( var material in settings_holder.MaskedMats_Normal ) {
-				material.hideFlags = HideFlags.HideInInspector;
-			}
-			foreach ( var material in settings_holder.MaskedMats_Multiply ) {
-				material.hideFlags = HideFlags.HideInInspector;
-			}
-			foreach ( var material in settings_holder.MaskedMats_Screen ) {
-				material.hideFlags = HideFlags.HideInInspector;
-			}
-			foreach ( var material in settings_holder.MaskedMats_Subtract ) {
-				material.hideFlags = HideFlags.HideInInspector;
-			}
-		}
-
 		void SetupPreviews() {
 			_previews.Clear();
 			foreach ( var clip in _clips.Where(p => !!p.clip) ) {
@@ -174,7 +145,6 @@ namespace FlashTools.Internal {
 
 		void OnEnable() {
 			_clips = targets.OfType<SwfClip>().ToList();
-			HideMaterials();
 			SetupPreviews();
 		}
 

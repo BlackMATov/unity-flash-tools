@@ -1,8 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
 
 #if UNITY_EDITOR
+using System.IO;
 using UnityEditor;
+using UnityEngine.Rendering;
 #endif
 
 namespace FlashTools.Internal {
@@ -64,20 +65,10 @@ namespace FlashTools.Internal {
 
 		public SwfSettingsData Settings;
 
-		[HideInInspector] public Material       IncrMaskMat;
-		[HideInInspector] public Material       DecrMaskMat;
-
-		[HideInInspector] public Material       SimpleMat_Add;
-		[HideInInspector] public Material       SimpleMat_Normal;
-		[HideInInspector] public Material       SimpleMat_Multiply;
-		[HideInInspector] public Material       SimpleMat_Screen;
-		[HideInInspector] public Material       SimpleMat_Subtract;
-
-		[HideInInspector] public List<Material> MaskedMats_Add;
-		[HideInInspector] public List<Material> MaskedMats_Normal;
-		[HideInInspector] public List<Material> MaskedMats_Multiply;
-		[HideInInspector] public List<Material> MaskedMats_Screen;
-		[HideInInspector] public List<Material> MaskedMats_Subtract;
+		[HideInInspector] public Shader SimpleShader;
+		[HideInInspector] public Shader MaskedShader;
+		[HideInInspector] public Shader IncrMaskShader;
+		[HideInInspector] public Shader DecrMaskShader;
 
 	#if UNITY_EDITOR
 
@@ -87,89 +78,41 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
-		const string SwfIncrMaskMatName          = "SwfIncrMaskMat";
-		const string SwfDecrMaskMatName          = "SwfDecrMaskMat";
+		const string SwfSimpleShaderName   = "SwfSimpleShader";
+		const string SwfMaskedShaderName   = "SwfMaskedShader";
+		const string SwfIncrMaskShaderName = "SwfIncrMaskShader";
+		const string SwfDecrMaskShaderName = "SwfDecrMaskShader";
 
-		const string SwfSimpleMatAddName         = "SwfSimpleMat_Add";
-		const string SwfSimpleMatNormalName      = "SwfSimpleMat_Normal";
-		const string SwfSimpleMatMultiplyName    = "SwfSimpleMat_Multiply";
-		const string SwfSimpleMatScreenName      = "SwfSimpleMat_Screen";
-		const string SwfSimpleMatSubtractName    = "SwfSimpleMat_Subtract";
-
-		const string SwfMaskedMatAddNameFmt      = "SwfMaskedMat_Add_{0}";
-		const string SwfMaskedMatNormalNameFmt   = "SwfMaskedMat_Normal_{0}";
-		const string SwfMaskedMatMultiplyNameFmt = "SwfMaskedMat_Multiply_{0}";
-		const string SwfMaskedMatScreenNameFmt   = "SwfMaskedMat_Screen_{0}";
-		const string SwfMaskedMatSubtractNameFmt = "SwfMaskedMat_Subtract_{0}";
-
-		void FillMaterialsCache() {
-			IncrMaskMat         = SafeLoadMaterial(SwfIncrMaskMatName, true);
-			DecrMaskMat         = SafeLoadMaterial(SwfDecrMaskMatName, true);
-
-			SimpleMat_Add       = SafeLoadMaterial(SwfSimpleMatAddName,      true);
-			SimpleMat_Normal    = SafeLoadMaterial(SwfSimpleMatNormalName,   true);
-			SimpleMat_Multiply  = SafeLoadMaterial(SwfSimpleMatMultiplyName, true);
-			SimpleMat_Screen    = SafeLoadMaterial(SwfSimpleMatScreenName,   true);
-			SimpleMat_Subtract  = SafeLoadMaterial(SwfSimpleMatSubtractName, true);
-
-			MaskedMats_Add      = SafeLoadMaterials(SwfMaskedMatAddNameFmt);
-			MaskedMats_Normal   = SafeLoadMaterials(SwfMaskedMatNormalNameFmt);
-			MaskedMats_Multiply = SafeLoadMaterials(SwfMaskedMatMultiplyNameFmt);
-			MaskedMats_Screen   = SafeLoadMaterials(SwfMaskedMatScreenNameFmt);
-			MaskedMats_Subtract = SafeLoadMaterials(SwfMaskedMatSubtractNameFmt);
-
+		void FillShadersCache() {
+			SimpleShader   = SafeLoadShader(SwfSimpleShaderName);
+			MaskedShader   = SafeLoadShader(SwfMaskedShaderName);
+			IncrMaskShader = SafeLoadShader(SwfIncrMaskShaderName);
+			DecrMaskShader = SafeLoadShader(SwfDecrMaskShaderName);
 			EditorUtility.SetDirty(this);
 			AssetDatabase.SaveAssets();
 		}
 
-		public Material CheckAndGetMaterial(Material material) {
-			if ( !material ) {
-				FillMaterialsCache();
-			}
-			return CheckExistsMaterial(material);
-		}
-
-		Material GetMaskedMaterial(List<Material> materials, int stencil_id) {
-			if ( materials == null || stencil_id >= materials.Count ) {
-				FillMaterialsCache();
-			}
-			if ( stencil_id < 0 || stencil_id >= materials.Count ) {
-				throw new UnityException(string.Format(
-					"SwfSettings. Unsupported stencil id: {0}",
-					stencil_id));
-			}
-			return CheckExistsMaterial(materials[stencil_id]);
-		}
-
-		static Material CheckExistsMaterial(Material material) {
-			if ( !material ) {
-				throw new UnityException("SwfSettings. Material not found");
-			}
-			return material;
-		}
-
-		static List<Material> SafeLoadMaterials(string name_fmt) {
-			var result = new List<Material>();
-			for ( var i = 0; i < int.MaxValue; ++i ) {
-				var mat = SafeLoadMaterial(string.Format(name_fmt, i), false);
-				if ( mat ) {
-					result.Add(mat);
-				} else {
-					break;
+		void PregenerateMaterials() {
+			var blend_types = System.Enum.GetValues(typeof(SwfBlendModeData.Types));
+			foreach ( SwfBlendModeData.Types blend_type in blend_types ) {
+				GetSimpleMaterial(blend_type);
+				for ( var i = 0; i < 10; ++i ) {
+					GetMaskedMaterial(blend_type, i);
 				}
 			}
-			return result;
+			GetIncrMaskMaterial();
+			GetDecrMaskMaterial();
 		}
 
-		static Material SafeLoadMaterial(string name, bool exception) {
-			var filter   = string.Format("t:Material {0}", name);
-			var material = LoadFirstAssetByFilter<Material>(filter);
-			if ( !material && exception ) {
+		static Shader SafeLoadShader(string shader_name) {
+			var filter = string.Format("t:Shader {0}", shader_name);
+			var shader = LoadFirstAssetByFilter<Shader>(filter);
+			if ( !shader ) {
 				throw new UnityException(string.Format(
-					"SwfSettings. Material not found: {0}",
-					name));
+					"SwfSettings. Shader not found: {0}",
+					shader_name));
 			}
-			return material;
+			return shader;
 		}
 
 		static T LoadFirstAssetByFilter<T>(string filter) where T : UnityEngine.Object {
@@ -184,58 +127,129 @@ namespace FlashTools.Internal {
 			return null;
 		}
 
+		static Material LoadOrCreateMaterial(
+			Shader                              shader,
+			System.Func<string, string, string> path_factory,
+			System.Func<Material, Material>     fill_material)
+		{
+			var shader_path   = AssetDatabase.GetAssetPath(shader);
+			var shader_dir    = Path.GetDirectoryName(shader_path);
+			var generated_dir = Path.Combine(shader_dir, "Generated");
+			if ( !AssetDatabase.IsValidFolder(generated_dir) ) {
+				AssetDatabase.CreateFolder(shader_dir, "Generated");
+			}
+			var material_path = path_factory(
+				generated_dir,
+				Path.GetFileNameWithoutExtension(shader_path));
+			var material = AssetDatabase.LoadAssetAtPath<Material>(material_path);
+			if ( !material ) {
+				material = fill_material(new Material(shader));
+				material.hideFlags = HideFlags.HideInInspector;
+				AssetDatabase.CreateAsset(material, material_path);
+			}
+			return material;
+		}
+
+		Shader CheckAndGetShader(Shader shader) {
+			if ( !shader ) {
+				FillShadersCache();
+			}
+			return CheckExistsShader(shader);
+		}
+
+		static Shader CheckExistsShader(Shader shader) {
+			if ( !shader ) {
+				throw new UnityException("SwfSettings. Shader not found");
+			}
+			return shader;
+		}
+
+		static Material FillMaterial(
+			Material material, SwfBlendModeData.Types blend_type, int stencil_id)
+		{
+			switch ( blend_type ) {
+			case SwfBlendModeData.Types.Normal:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				break;
+			case SwfBlendModeData.Types.Multiply:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.DstColor);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				break;
+			case SwfBlendModeData.Types.Screen:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.OneMinusDstColor);
+				material.SetInt("_DstBlend", (int)BlendMode.One);
+				break;
+			case SwfBlendModeData.Types.Add:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.One);
+				break;
+			case SwfBlendModeData.Types.Subtract:
+				material.SetInt("_BlendOp" , (int)BlendOp.ReverseSubtract);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.One);
+				break;
+			default:
+				throw new UnityException(string.Format(
+					"SwfSettings. Incorrect blend type: {0}",
+					blend_type));
+			}
+			material.SetInt("_StencilID", stencil_id);
+			return material;
+		}
+
 		// ---------------------------------------------------------------------
 		//
 		// Functions
 		//
 		// ---------------------------------------------------------------------
 
+		public Material GetSimpleMaterial(SwfBlendModeData.Types blend_type) {
+			return LoadOrCreateMaterial(
+				CheckAndGetShader(SimpleShader),
+				(dir_path, filename) => {
+					return string.Format(
+						"{0}/{1}_{2}.mat",
+						dir_path, filename, blend_type);
+				},
+				material => FillMaterial(material, blend_type, 0));
+		}
+
+		public Material GetMaskedMaterial(SwfBlendModeData.Types blend_type, int stencil_id) {
+			return LoadOrCreateMaterial(
+				CheckAndGetShader(MaskedShader),
+				(dir_path, filename) => {
+					return string.Format(
+						"{0}/{1}_{2}_{3}.mat",
+						dir_path, filename, blend_type, stencil_id);
+				},
+				material => FillMaterial(material, blend_type, stencil_id));
+		}
+
 		public Material GetIncrMaskMaterial() {
-			return CheckAndGetMaterial(IncrMaskMat);
+			return LoadOrCreateMaterial(
+				CheckAndGetShader(IncrMaskShader),
+				(dir_path, filename) => {
+					return string.Format(
+						"{0}/{1}.mat",
+						dir_path, filename);
+				},
+				material => material);
 		}
 
 		public Material GetDecrMaskMaterial() {
-			return CheckAndGetMaterial(DecrMaskMat);
-		}
-
-		public Material GetSimpleAddMaterial() {
-			return CheckAndGetMaterial(SimpleMat_Add);
-		}
-
-		public Material GetSimpleNormalMaterial() {
-			return CheckAndGetMaterial(SimpleMat_Normal);
-		}
-
-		public Material GetSimpleMultiplyMaterial() {
-			return CheckAndGetMaterial(SimpleMat_Multiply);
-		}
-
-		public Material GetSimpleScreenMaterial() {
-			return CheckAndGetMaterial(SimpleMat_Screen);
-		}
-
-		public Material GetSimpleSubtractMaterial() {
-			return CheckAndGetMaterial(SimpleMat_Subtract);
-		}
-
-		public Material GetMaskedAddMaterial(int stencil_id) {
-			return GetMaskedMaterial(MaskedMats_Add, stencil_id);
-		}
-
-		public Material GetMaskedNormalMaterial(int stencil_id) {
-			return GetMaskedMaterial(MaskedMats_Normal, stencil_id);
-		}
-
-		public Material GetMaskedMultiplyMaterial(int stencil_id) {
-			return GetMaskedMaterial(MaskedMats_Multiply, stencil_id);
-		}
-
-		public Material GetMaskedScreenMaterial(int stencil_id) {
-			return GetMaskedMaterial(MaskedMats_Screen, stencil_id);
-		}
-
-		public Material GetMaskedSubtractMaterial(int stencil_id) {
-			return GetMaskedMaterial(MaskedMats_Subtract, stencil_id);
+			return LoadOrCreateMaterial(
+				CheckAndGetShader(DecrMaskShader),
+				(dir_path, filename) => {
+					return string.Format(
+						"{0}/{1}.mat",
+						dir_path, filename);
+				},
+				material => material);
 		}
 
 		// ---------------------------------------------------------------------
@@ -246,7 +260,8 @@ namespace FlashTools.Internal {
 
 		void Reset() {
 			Settings = SwfSettingsData.identity;
-			FillMaterialsCache();
+			FillShadersCache();
+			PregenerateMaterials();
 		}
 
 		public static SwfSettings GetHolder() {

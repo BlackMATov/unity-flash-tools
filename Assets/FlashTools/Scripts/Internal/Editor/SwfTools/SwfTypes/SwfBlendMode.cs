@@ -43,12 +43,12 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			switch ( Value ) {
 			case Mode.Normal:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Normal);
-			case Mode.Add:
-				return new SwfBlendModeData(SwfBlendModeData.Types.Add);
 			case Mode.Multiply:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Multiply);
 			case Mode.Screen:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Screen);
+			case Mode.Add:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Add);
 			case Mode.Subtract:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Subtract);
 			default:

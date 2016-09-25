@@ -104,11 +104,11 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfShortHeader.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfTools\SwfTypes\SwfSurfaceFilters.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\Tests\SwfUtilsTests.cs" />
-     <None Include="Assets\FlashTools\Resources\Shaders\SwfDecrMask.shader" />
-     <None Include="Assets\FlashTools\Resources\Shaders\SwfSimple.shader" />
+     <None Include="Assets\FlashTools\Resources\Materials\SwfDecrMaskShader.shader" />
+     <None Include="Assets\FlashTools\Resources\Materials\SwfSimpleShader.shader" />
      <None Include="Assets\FlashTools\CHANGELOG.txt" />
-     <None Include="Assets\FlashTools\Resources\Shaders\SwfIncrMask.shader" />
-     <None Include="Assets\FlashTools\Resources\Shaders\SwfMasked.shader" />
+     <None Include="Assets\FlashTools\Resources\Materials\SwfIncrMaskShader.shader" />
+     <None Include="Assets\FlashTools\Resources\Materials\SwfMaskedShader.shader" />
  <Reference Include="UnityEditor.Advertisements">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Advertisements/Editor/UnityEditor.Advertisements.dll</HintPath>
  </Reference>

@@ -107,11 +107,11 @@ namespace FlashTools {
 
 	[System.Serializable]
 	public struct SwfBlendModeData {
-		public enum Types {
+		public enum Types : byte {
 			Normal,
-			Add,
 			Multiply,
 			Screen,
+			Add,
 			Subtract
 		}
 		public Types type;

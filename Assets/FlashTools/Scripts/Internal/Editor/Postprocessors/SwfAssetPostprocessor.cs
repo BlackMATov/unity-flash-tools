@@ -400,10 +400,10 @@ namespace FlashTools.Internal {
 					group.Material = settings_holder.GetIncrMaskMaterial();
 					break;
 				case SwfInstanceData.Types.Group:
-					group.Material = FindGroupMaterial(settings_holder, group.BlendType);
+					group.Material = settings_holder.GetSimpleMaterial(group.BlendType);
 					break;
 				case SwfInstanceData.Types.Masked:
-					group.Material = FindMaskedMaterial(settings_holder, group.BlendType, group.ClipDepth);
+					group.Material = settings_holder.GetMaskedMaterial(group.BlendType, group.ClipDepth);
 					break;
 				case SwfInstanceData.Types.MaskReset:
 					group.Material = settings_holder.GetDecrMaskMaterial();
@@ -446,48 +446,6 @@ namespace FlashTools.Internal {
 				}
 			}
 			return null;
-		}
-
-		static Material FindGroupMaterial(
-			SwfSettings settings_holder, SwfBlendModeData.Types blend_type)
-		{
-			switch ( blend_type ) {
-			case SwfBlendModeData.Types.Add:
-				return settings_holder.GetSimpleAddMaterial();
-			case SwfBlendModeData.Types.Normal:
-				return settings_holder.GetSimpleNormalMaterial();
-			case SwfBlendModeData.Types.Multiply:
-				return settings_holder.GetSimpleMultiplyMaterial();
-			case SwfBlendModeData.Types.Screen:
-				return settings_holder.GetSimpleScreenMaterial();
-			case SwfBlendModeData.Types.Subtract:
-				return settings_holder.GetSimpleSubtractMaterial();
-			default:
-				throw new UnityException(string.Format(
-					"SwfAssetPostprocessor. Incorrect blend type: {0}",
-					blend_type));
-			}
-		}
-
-		static Material FindMaskedMaterial(
-			SwfSettings settings_holder, SwfBlendModeData.Types blend_type, int stencil_id)
-		{
-			switch ( blend_type ) {
-			case SwfBlendModeData.Types.Add:
-				return settings_holder.GetMaskedAddMaterial(stencil_id);
-			case SwfBlendModeData.Types.Normal:
-				return settings_holder.GetMaskedNormalMaterial(stencil_id);
-			case SwfBlendModeData.Types.Multiply:
-				return settings_holder.GetMaskedMultiplyMaterial(stencil_id);
-			case SwfBlendModeData.Types.Screen:
-				return settings_holder.GetMaskedScreenMaterial(stencil_id);
-			case SwfBlendModeData.Types.Subtract:
-				return settings_holder.GetMaskedSubtractMaterial(stencil_id);
-			default:
-				throw new UnityException(string.Format(
-					"SwfAssetPostprocessor. Incorrect blend type: {0}",
-					blend_type));
-			}
 		}
 
 		static bool IsVisibleInstance(SwfInstanceData inst) {
