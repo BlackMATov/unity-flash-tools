@@ -458,6 +458,10 @@ namespace FlashTools.Internal {
 				return settings_holder.GetSimpleNormalMaterial();
 			case SwfBlendModeData.Types.Multiply:
 				return settings_holder.GetSimpleMultiplyMaterial();
+			case SwfBlendModeData.Types.Screen:
+				return settings_holder.GetSimpleScreenMaterial();
+			case SwfBlendModeData.Types.Subtract:
+				return settings_holder.GetSimpleSubtractMaterial();
 			default:
 				throw new UnityException(string.Format(
 					"SwfAssetPostprocessor. Incorrect blend type: {0}",
@@ -475,6 +479,10 @@ namespace FlashTools.Internal {
 				return settings_holder.GetMaskedNormalMaterial(stencil_id);
 			case SwfBlendModeData.Types.Multiply:
 				return settings_holder.GetMaskedMultiplyMaterial(stencil_id);
+			case SwfBlendModeData.Types.Screen:
+				return settings_holder.GetMaskedScreenMaterial(stencil_id);
+			case SwfBlendModeData.Types.Subtract:
+				return settings_holder.GetMaskedSubtractMaterial(stencil_id);
 			default:
 				throw new UnityException(string.Format(
 					"SwfAssetPostprocessor. Incorrect blend type: {0}",

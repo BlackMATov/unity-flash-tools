@@ -47,6 +47,10 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				return new SwfBlendModeData(SwfBlendModeData.Types.Add);
 			case Mode.Multiply:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Multiply);
+			case Mode.Screen:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Screen);
+			case Mode.Subtract:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Subtract);
 			default:
 				Debug.LogWarningFormat(
 					"<b>[FlashTools]</b> SwfBlendMode. Unsupported blend mode {0}",

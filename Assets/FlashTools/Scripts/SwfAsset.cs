@@ -110,7 +110,9 @@ namespace FlashTools {
 		public enum Types {
 			Normal,
 			Add,
-			Multiply
+			Multiply,
+			Screen,
+			Subtract
 		}
 		public Types type;
 

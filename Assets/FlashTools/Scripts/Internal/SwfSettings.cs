@@ -70,10 +70,14 @@ namespace FlashTools.Internal {
 		[HideInInspector] public Material       SimpleMat_Add;
 		[HideInInspector] public Material       SimpleMat_Normal;
 		[HideInInspector] public Material       SimpleMat_Multiply;
+		[HideInInspector] public Material       SimpleMat_Screen;
+		[HideInInspector] public Material       SimpleMat_Subtract;
 
 		[HideInInspector] public List<Material> MaskedMats_Add;
 		[HideInInspector] public List<Material> MaskedMats_Normal;
 		[HideInInspector] public List<Material> MaskedMats_Multiply;
+		[HideInInspector] public List<Material> MaskedMats_Screen;
+		[HideInInspector] public List<Material> MaskedMats_Subtract;
 
 	#if UNITY_EDITOR
 
@@ -89,10 +93,14 @@ namespace FlashTools.Internal {
 		const string SwfSimpleMatAddName         = "SwfSimpleMat_Add";
 		const string SwfSimpleMatNormalName      = "SwfSimpleMat_Normal";
 		const string SwfSimpleMatMultiplyName    = "SwfSimpleMat_Multiply";
+		const string SwfSimpleMatScreenName      = "SwfSimpleMat_Screen";
+		const string SwfSimpleMatSubtractName    = "SwfSimpleMat_Subtract";
 
 		const string SwfMaskedMatAddNameFmt      = "SwfMaskedMat_Add_{0}";
 		const string SwfMaskedMatNormalNameFmt   = "SwfMaskedMat_Normal_{0}";
 		const string SwfMaskedMatMultiplyNameFmt = "SwfMaskedMat_Multiply_{0}";
+		const string SwfMaskedMatScreenNameFmt   = "SwfMaskedMat_Screen_{0}";
+		const string SwfMaskedMatSubtractNameFmt = "SwfMaskedMat_Subtract_{0}";
 
 		void FillMaterialsCache() {
 			IncrMaskMat         = SafeLoadMaterial(SwfIncrMaskMatName, true);
@@ -101,10 +109,14 @@ namespace FlashTools.Internal {
 			SimpleMat_Add       = SafeLoadMaterial(SwfSimpleMatAddName,      true);
 			SimpleMat_Normal    = SafeLoadMaterial(SwfSimpleMatNormalName,   true);
 			SimpleMat_Multiply  = SafeLoadMaterial(SwfSimpleMatMultiplyName, true);
+			SimpleMat_Screen    = SafeLoadMaterial(SwfSimpleMatScreenName,   true);
+			SimpleMat_Subtract  = SafeLoadMaterial(SwfSimpleMatSubtractName, true);
 
 			MaskedMats_Add      = SafeLoadMaterials(SwfMaskedMatAddNameFmt);
 			MaskedMats_Normal   = SafeLoadMaterials(SwfMaskedMatNormalNameFmt);
 			MaskedMats_Multiply = SafeLoadMaterials(SwfMaskedMatMultiplyNameFmt);
+			MaskedMats_Screen   = SafeLoadMaterials(SwfMaskedMatScreenNameFmt);
+			MaskedMats_Subtract = SafeLoadMaterials(SwfMaskedMatSubtractNameFmt);
 
 			EditorUtility.SetDirty(this);
 			AssetDatabase.SaveAssets();
@@ -198,6 +210,14 @@ namespace FlashTools.Internal {
 			return CheckAndGetMaterial(SimpleMat_Multiply);
 		}
 
+		public Material GetSimpleScreenMaterial() {
+			return CheckAndGetMaterial(SimpleMat_Screen);
+		}
+
+		public Material GetSimpleSubtractMaterial() {
+			return CheckAndGetMaterial(SimpleMat_Subtract);
+		}
+
 		public Material GetMaskedAddMaterial(int stencil_id) {
 			return GetMaskedMaterial(MaskedMats_Add, stencil_id);
 		}
@@ -208,6 +228,14 @@ namespace FlashTools.Internal {
 
 		public Material GetMaskedMultiplyMaterial(int stencil_id) {
 			return GetMaskedMaterial(MaskedMats_Multiply, stencil_id);
+		}
+
+		public Material GetMaskedScreenMaterial(int stencil_id) {
+			return GetMaskedMaterial(MaskedMats_Screen, stencil_id);
+		}
+
+		public Material GetMaskedSubtractMaterial(int stencil_id) {
+			return GetMaskedMaterial(MaskedMats_Subtract, stencil_id);
 		}
 
 		// ---------------------------------------------------------------------

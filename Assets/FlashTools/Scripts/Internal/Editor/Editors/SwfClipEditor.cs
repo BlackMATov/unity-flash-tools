@@ -137,6 +137,8 @@ namespace FlashTools.Internal {
 			settings_holder.SimpleMat_Add     .hideFlags = HideFlags.HideInInspector;
 			settings_holder.SimpleMat_Normal  .hideFlags = HideFlags.HideInInspector;
 			settings_holder.SimpleMat_Multiply.hideFlags = HideFlags.HideInInspector;
+			settings_holder.SimpleMat_Screen  .hideFlags = HideFlags.HideInInspector;
+			settings_holder.SimpleMat_Subtract.hideFlags = HideFlags.HideInInspector;
 
 			foreach ( var material in settings_holder.MaskedMats_Add ) {
 				material.hideFlags = HideFlags.HideInInspector;
@@ -145,6 +147,12 @@ namespace FlashTools.Internal {
 				material.hideFlags = HideFlags.HideInInspector;
 			}
 			foreach ( var material in settings_holder.MaskedMats_Multiply ) {
+				material.hideFlags = HideFlags.HideInInspector;
+			}
+			foreach ( var material in settings_holder.MaskedMats_Screen ) {
+				material.hideFlags = HideFlags.HideInInspector;
+			}
+			foreach ( var material in settings_holder.MaskedMats_Subtract ) {
 				material.hideFlags = HideFlags.HideInInspector;
 			}
 		}
