@@ -44,6 +44,7 @@ namespace FlashTools.Internal.SwfTools {
 				new_inst.ClipDepth      = 0;
 				new_inst.Visible        = true;
 				new_inst.Matrix         = tag.Matrix;
+				new_inst.BlendMode      = SwfBlendMode.identity;
 				new_inst.ColorTransform = tag.ColorTransform;
 				dl.Instances.Add(new_inst.Depth, new_inst);
 			}
@@ -77,6 +78,7 @@ namespace FlashTools.Internal.SwfTools {
 					new_inst.ClipDepth      = tag.HasClipDepth      ? tag.ClipDepth      : (old_inst != null ? old_inst.ClipDepth      : (ushort)0);
 					new_inst.Visible        = true;
 					new_inst.Matrix         = tag.HasMatrix         ? tag.Matrix         : (old_inst != null ? old_inst.Matrix         : SwfMatrix.identity);
+					new_inst.BlendMode      = SwfBlendMode.identity;
 					new_inst.ColorTransform = tag.HasColorTransform ? tag.ColorTransform : (old_inst != null ? old_inst.ColorTransform : SwfColorTransform.identity);
 					dl.Instances.Add(new_inst.Depth, new_inst);
 				}
@@ -124,6 +126,7 @@ namespace FlashTools.Internal.SwfTools {
 					new_inst.ClipDepth      = tag.HasClipDepth      ? tag.ClipDepth      : (old_inst != null ? old_inst.ClipDepth      : (ushort)0);
 					new_inst.Visible        = tag.HasVisible        ? tag.Visible        : (old_inst != null ? old_inst.Visible        : true);
 					new_inst.Matrix         = tag.HasMatrix         ? tag.Matrix         : (old_inst != null ? old_inst.Matrix         : SwfMatrix.identity);
+					new_inst.BlendMode      = tag.HasBlendMode      ? tag.BlendMode      : (old_inst != null ? old_inst.BlendMode      : SwfBlendMode.identity);
 					new_inst.ColorTransform = tag.HasColorTransform ? tag.ColorTransform : (old_inst != null ? old_inst.ColorTransform : SwfColorTransform.identity);
 					dl.Instances.Add(new_inst.Depth, new_inst);
 				}
@@ -138,6 +141,9 @@ namespace FlashTools.Internal.SwfTools {
 					}
 					if ( tag.HasMatrix ) {
 						inst.Matrix = tag.Matrix;
+					}
+					if ( tag.HasBlendMode ) {
+						inst.BlendMode = tag.BlendMode;
 					}
 					if ( tag.HasColorTransform ) {
 						inst.ColorTransform = tag.ColorTransform;

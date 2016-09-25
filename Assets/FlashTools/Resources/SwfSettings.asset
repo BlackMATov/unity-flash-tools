@@ -20,17 +20,41 @@ MonoBehaviour:
     AtlasForceSquare: 1
     AtlasTextureFilter: 1
     AtlasTextureFormat: 0
-  SimpleMaterial: {fileID: 2100000, guid: e92fbe00d5b6d4a3aa9355a4b23f107d, type: 2}
-  IncrMaskMaterial: {fileID: 2100000, guid: e62e8efca5cac42c9a323961b58d05d6, type: 2}
-  DecrMaskMaterial: {fileID: 2100000, guid: d63a68532164d470d887fd2603e79ffa, type: 2}
-  MaskedMaterials:
+  IncrMaskMat: {fileID: 2100000, guid: e62e8efca5cac42c9a323961b58d05d6, type: 2}
+  DecrMaskMat: {fileID: 2100000, guid: d63a68532164d470d887fd2603e79ffa, type: 2}
+  SimpleMat_Add: {fileID: 2100000, guid: e91aa3fa30cdc49ca8cc752a0a224b22, type: 2}
+  SimpleMat_Normal: {fileID: 2100000, guid: e92fbe00d5b6d4a3aa9355a4b23f107d, type: 2}
+  SimpleMat_Multiply: {fileID: 2100000, guid: 9b40c31e7fb5d46f3b372525cda1aeaf, type: 2}
+  MaskedMats_Add:
+  - {fileID: 2100000, guid: c0365155a72824192b8fa80364326f1a, type: 2}
+  - {fileID: 2100000, guid: 93946f3ec3bb54a1187aaf22005d2bb0, type: 2}
+  - {fileID: 2100000, guid: 1ae015b2b04b8406dafdd79ba1e7f372, type: 2}
+  - {fileID: 2100000, guid: f22dcb326b5a5453f87fcad603775bce, type: 2}
+  - {fileID: 2100000, guid: f70408d83452c458b9ef6ff2619cc6e9, type: 2}
+  - {fileID: 2100000, guid: 8a3a5f04eca2d4e27ad120824f102c18, type: 2}
+  - {fileID: 2100000, guid: ee45d6354b80c4d75abcfeac0600fe54, type: 2}
+  - {fileID: 2100000, guid: 456f3992082eb489a83630372020e772, type: 2}
+  - {fileID: 2100000, guid: 9fe31dbf79e8e4abdb3b9ecf2a65df33, type: 2}
+  - {fileID: 2100000, guid: f0187cf6493eb4657826dfceacf2b144, type: 2}
+  MaskedMats_Normal:
   - {fileID: 2100000, guid: 3902e0561ba6046079e975f4b8340dbd, type: 2}
-  - {fileID: 2100000, guid: 362db403211244f70830b07296318936, type: 2}
-  - {fileID: 2100000, guid: 43234b460d10f41088cbd327c045074b, type: 2}
-  - {fileID: 2100000, guid: f9e8b8b157ffa4866812a11237c48758, type: 2}
-  - {fileID: 2100000, guid: 04597a59523be4b939c0a5dfd05b973e, type: 2}
-  - {fileID: 2100000, guid: 502586963b8c243d48808238fb1210ef, type: 2}
-  - {fileID: 2100000, guid: dfbc0da8152b047b58270d40b138b36c, type: 2}
-  - {fileID: 2100000, guid: efeaba40d10a4417eb27036131ba80b1, type: 2}
-  - {fileID: 2100000, guid: 0f131b0532a4e4feaba67826153a42b7, type: 2}
-  - {fileID: 2100000, guid: ccd8fc1b2c96543ff9dc43ed384704a2, type: 2}
+  - {fileID: 2100000, guid: bf1671a075bc542cfa84edbe5c938c73, type: 2}
+  - {fileID: 2100000, guid: fa481a894d3f243b8ac23721f2b585df, type: 2}
+  - {fileID: 2100000, guid: ef5cc9802382f4f089f69076d34b0c93, type: 2}
+  - {fileID: 2100000, guid: 00ccbacd4251b426da05e60e317a9762, type: 2}
+  - {fileID: 2100000, guid: a4542f1ab17634d819f67cca9e4b1677, type: 2}
+  - {fileID: 2100000, guid: 80ab14f28dfbe480b90af63c90b9bcd3, type: 2}
+  - {fileID: 2100000, guid: ca39fec8a5c784c5083d341913cb7ac9, type: 2}
+  - {fileID: 2100000, guid: bf0247f75d46c4a8aaafc940d0bfa19a, type: 2}
+  - {fileID: 2100000, guid: f67383241d0f94085ba5e58dadd788ed, type: 2}
+  MaskedMats_Multiply:
+  - {fileID: 2100000, guid: f3286fc330f314ee7967f886b7690f62, type: 2}
+  - {fileID: 2100000, guid: cbc3669e6a7f84bd8a953481feb53a4c, type: 2}
+  - {fileID: 2100000, guid: 0a5ddc332417b4447a06954321142581, type: 2}
+  - {fileID: 2100000, guid: 0fc1097945b3347779df1e164150a37d, type: 2}
+  - {fileID: 2100000, guid: e688f40398fa84f6597e3ced948d4562, type: 2}
+  - {fileID: 2100000, guid: 2812e9cc4afc54b67a333444d3c6d738, type: 2}
+  - {fileID: 2100000, guid: 01e7b99a7e4514bc591a016771c16388, type: 2}
+  - {fileID: 2100000, guid: 090fefefe7c794a4f87eb0b6d5c22863, type: 2}
+  - {fileID: 2100000, guid: 5642224b6fe1248829946f48abf6b3c6, type: 2}
+  - {fileID: 2100000, guid: 40753316b1efb4d91ae9fcffad1fca48, type: 2}

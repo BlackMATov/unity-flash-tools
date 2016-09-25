@@ -39,6 +39,22 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				Value);
 		}
 
+		public SwfBlendModeData ToBlendModeData() {
+			switch ( Value ) {
+			case Mode.Normal:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Normal);
+			case Mode.Add:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Add);
+			case Mode.Multiply:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Multiply);
+			default:
+				Debug.LogWarningFormat(
+					"<b>[FlashTools]</b> SwfBlendMode. Unsupported blend mode {0}",
+					Value);
+				return new SwfBlendModeData(SwfBlendModeData.Types.Normal);
+			}
+		}
+
 		static Mode ModeFromByte(byte mode_id) {
 			switch ( mode_id ) {
 			case  0: // Mode.Normal too

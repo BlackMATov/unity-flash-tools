@@ -313,11 +313,12 @@ namespace FlashTools.Internal {
 		}
 
 		class BakedGroup {
-			public SwfInstanceData.Types Type;
-			public int                   ClipDepth;
-			public int                   StartVertex;
-			public int                   TriangleCount;
-			public Material              Material;
+			public SwfInstanceData.Types  Type;
+			public SwfBlendModeData.Types BlendType;
+			public int                    ClipDepth;
+			public int                    StartVertex;
+			public int                    TriangleCount;
+			public Material               Material;
 		}
 
 		static SwfClipAsset.Frame BakeClipFrame(
@@ -373,11 +374,13 @@ namespace FlashTools.Internal {
 					baked_addcolors.Add(add_pack1);
 
 					if ( baked_groups.Count == 0 ||
-						baked_groups[baked_groups.Count - 1].Type      != inst.Type ||
+						baked_groups[baked_groups.Count - 1].Type      != inst.Type           ||
+						baked_groups[baked_groups.Count - 1].BlendType != inst.BlendMode.type ||
 						baked_groups[baked_groups.Count - 1].ClipDepth != inst.ClipDepth )
 					{
 						baked_groups.Add(new BakedGroup{
 							Type          = inst.Type,
+							BlendType     = inst.BlendMode.type,
 							ClipDepth     = inst.ClipDepth,
 							StartVertex   = baked_vertices.Count - 4,
 							TriangleCount = 0,
@@ -397,10 +400,10 @@ namespace FlashTools.Internal {
 					group.Material = settings_holder.GetIncrMaskMaterial();
 					break;
 				case SwfInstanceData.Types.Group:
-					group.Material = settings_holder.GetSimpleMaterial();
+					group.Material = FindGroupMaterial(settings_holder, group.BlendType);
 					break;
 				case SwfInstanceData.Types.Masked:
-					group.Material = settings_holder.GetMaskedMaterial(group.ClipDepth);
+					group.Material = FindMaskedMaterial(settings_holder, group.BlendType, group.ClipDepth);
 					break;
 				case SwfInstanceData.Types.MaskReset:
 					group.Material = settings_holder.GetDecrMaskMaterial();
@@ -445,6 +448,40 @@ namespace FlashTools.Internal {
 			return null;
 		}
 
+		static Material FindGroupMaterial(
+			SwfSettings settings_holder, SwfBlendModeData.Types blend_type)
+		{
+			switch ( blend_type ) {
+			case SwfBlendModeData.Types.Add:
+				return settings_holder.GetSimpleAddMaterial();
+			case SwfBlendModeData.Types.Normal:
+				return settings_holder.GetSimpleNormalMaterial();
+			case SwfBlendModeData.Types.Multiply:
+				return settings_holder.GetSimpleMultiplyMaterial();
+			default:
+				throw new UnityException(string.Format(
+					"SwfAssetPostprocessor. Incorrect blend type: {0}",
+					blend_type));
+			}
+		}
+
+		static Material FindMaskedMaterial(
+			SwfSettings settings_holder, SwfBlendModeData.Types blend_type, int stencil_id)
+		{
+			switch ( blend_type ) {
+			case SwfBlendModeData.Types.Add:
+				return settings_holder.GetMaskedAddMaterial(stencil_id);
+			case SwfBlendModeData.Types.Normal:
+				return settings_holder.GetMaskedNormalMaterial(stencil_id);
+			case SwfBlendModeData.Types.Multiply:
+				return settings_holder.GetMaskedMultiplyMaterial(stencil_id);
+			default:
+				throw new UnityException(string.Format(
+					"SwfAssetPostprocessor. Incorrect blend type: {0}",
+					blend_type));
+			}
+		}
+
 		static bool IsVisibleInstance(SwfInstanceData inst) {
 			var result_color = inst.ColorTrans.ApplyToColor(Color.white);
 			return result_color.a >= 0.01f;
@@ -457,7 +494,7 @@ namespace FlashTools.Internal {
 		// ---------------------------------------------------------------------
 
 		static void UpdateAssetClips(SwfAsset asset) {
-			var clips = Resources.FindObjectsOfTypeAll<SwfClip>();
+			var clips = GameObject.FindObjectsOfType<SwfClip>();
 			foreach ( var clip in clips ) {
 				if ( clip && clip.clip && asset.Clips.Contains(clip.clip) ) {
 					clip.UpdateAllProperties();

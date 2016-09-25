@@ -82,6 +82,7 @@ namespace FlashTools.Internal.SwfTools {
 		public ushort            ClipDepth;
 		public bool              Visible;
 		public SwfMatrix         Matrix;
+		public SwfBlendMode      BlendMode;
 		public SwfColorTransform ColorTransform;
 	}
 

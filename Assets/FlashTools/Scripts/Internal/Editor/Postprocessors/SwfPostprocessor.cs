@@ -100,6 +100,7 @@ namespace FlashTools.Internal {
 				0,
 				null,
 				Matrix4x4.identity,
+				SwfBlendModeData.identity,
 				SwfColorTransData.identity,
 				frame);
 		}
@@ -111,13 +112,15 @@ namespace FlashTools.Internal {
 			ushort                parent_mask,
 			List<SwfInstanceData> parent_masks,
 			Matrix4x4             parent_matrix,
+			SwfBlendModeData      parent_blend_mode,
 			SwfColorTransData     parent_color_transform,
 			SwfFrameData          frame)
 		{
 			var self_masks = new List<SwfInstanceData>();
 			foreach ( var inst in display_list.Instances.Values.Where(p => p.Visible) ) {
 				CheckSelfMasks(self_masks, inst.Depth, frame);
-				var child_matrix          = parent_matrix * inst.Matrix.ToUMatrix();
+				var child_matrix          = parent_matrix          * inst.Matrix        .ToUMatrix();
+				var child_blend_mode      = parent_blend_mode      * inst.BlendMode     .ToBlendModeData();
 				var child_color_transform = parent_color_transform * inst.ColorTransform.ToColorTransData();
 				switch ( inst.Type ) {
 				case SwfDisplayInstanceType.Shape:
@@ -145,6 +148,7 @@ namespace FlashTools.Internal {
 									ClipDepth  = (ushort)frame_inst_clip_depth,
 									Bitmap     = bitmap_id,
 									Matrix     = SwfMatrixData.FromUMatrix(child_matrix * bitmap_matrix.ToUMatrix()),
+									BlendMode  = child_blend_mode,
 									ColorTrans = child_color_transform});
 								if ( parent_mask > 0 ) {
 									parent_masks.Add(frame.Instances[frame.Instances.Count - 1]);
@@ -166,6 +170,7 @@ namespace FlashTools.Internal {
 							(ushort)(parent_mask > 0 ? parent_mask : (inst.ClipDepth > 0 ? inst.ClipDepth : (ushort)0)),
 							parent_mask > 0 ? parent_masks : (inst.ClipDepth > 0 ? self_masks : null),
 							child_matrix,
+							child_blend_mode,
 							child_color_transform,
 							frame);
 					}
@@ -189,6 +194,7 @@ namespace FlashTools.Internal {
 						ClipDepth  = 0,
 						Bitmap     = mask.Bitmap,
 						Matrix     = mask.Matrix,
+						BlendMode  = mask.BlendMode,
 						ColorTrans = mask.ColorTrans});
 				}
 			}

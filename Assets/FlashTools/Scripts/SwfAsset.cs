@@ -106,6 +106,34 @@ namespace FlashTools {
 	}
 
 	[System.Serializable]
+	public struct SwfBlendModeData {
+		public enum Types {
+			Normal,
+			Add,
+			Multiply
+		}
+		public Types type;
+
+		public SwfBlendModeData(Types type) {
+			this.type = type;
+		}
+
+		public static SwfBlendModeData identity {
+			get {
+				return new SwfBlendModeData{
+					type = Types.Normal};
+			}
+		}
+
+		public static SwfBlendModeData operator*(
+			SwfBlendModeData a, SwfBlendModeData b)
+		{
+			return new SwfBlendModeData{
+				type = (a.type == Types.Normal ? b.type : a.type)};
+		}
+	}
+
+	[System.Serializable]
 	public struct SwfColorTransData {
 		public SwfVec4Data mulColor;
 		public SwfVec4Data addColor;
@@ -155,6 +183,7 @@ namespace FlashTools {
 		public ushort                ClipDepth  = 0;
 		public ushort                Bitmap     = 0;
 		public SwfMatrixData         Matrix     = SwfMatrixData.identity;
+		public SwfBlendModeData      BlendMode  = SwfBlendModeData.identity;
 		public SwfColorTransData     ColorTrans = SwfColorTransData.identity;
 	}
 

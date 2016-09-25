@@ -64,10 +64,16 @@ namespace FlashTools.Internal {
 
 		public SwfSettingsData Settings;
 
-		[HideInInspector] public Material       SimpleMaterial;
-		[HideInInspector] public Material       IncrMaskMaterial;
-		[HideInInspector] public Material       DecrMaskMaterial;
-		[HideInInspector] public List<Material> MaskedMaterials;
+		[HideInInspector] public Material       IncrMaskMat;
+		[HideInInspector] public Material       DecrMaskMat;
+
+		[HideInInspector] public Material       SimpleMat_Add;
+		[HideInInspector] public Material       SimpleMat_Normal;
+		[HideInInspector] public Material       SimpleMat_Multiply;
+
+		[HideInInspector] public List<Material> MaskedMats_Add;
+		[HideInInspector] public List<Material> MaskedMats_Normal;
+		[HideInInspector] public List<Material> MaskedMats_Multiply;
 
 	#if UNITY_EDITOR
 
@@ -77,42 +83,79 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
-		const string SwfSimpleMatName    = "SwfSimpleMat";
-		const string SwfIncrMaskMatName  = "SwfIncrMaskMat";
-		const string SwfDecrMaskMatName  = "SwfDecrMaskMat";
-		const string SwfMaskedMatNameFmt = "SwfMaskedMat_{0}";
+		const string SwfIncrMaskMatName          = "SwfIncrMaskMat";
+		const string SwfDecrMaskMatName          = "SwfDecrMaskMat";
+
+		const string SwfSimpleMatAddName         = "SwfSimpleMat_Add";
+		const string SwfSimpleMatNormalName      = "SwfSimpleMat_Normal";
+		const string SwfSimpleMatMultiplyName    = "SwfSimpleMat_Multiply";
+
+		const string SwfMaskedMatAddNameFmt      = "SwfMaskedMat_Add_{0}";
+		const string SwfMaskedMatNormalNameFmt   = "SwfMaskedMat_Normal_{0}";
+		const string SwfMaskedMatMultiplyNameFmt = "SwfMaskedMat_Multiply_{0}";
 
 		void FillMaterialsCache() {
-			SimpleMaterial   = SafeLoadMaterial(SwfSimpleMatName,   true);
-			IncrMaskMaterial = SafeLoadMaterial(SwfIncrMaskMatName, true);
-			DecrMaskMaterial = SafeLoadMaterial(SwfDecrMaskMatName, true);
-			MaskedMaterials  = new List<Material>();
-			for ( var i = 0; i < int.MaxValue; ++i ) {
-				var mat = SafeLoadMaterial(string.Format(SwfMaskedMatNameFmt, i), false);
-				if ( mat ) {
-					MaskedMaterials.Add(mat);
-				} else {
-					break;
-				}
-			}
+			IncrMaskMat         = SafeLoadMaterial(SwfIncrMaskMatName, true);
+			DecrMaskMat         = SafeLoadMaterial(SwfDecrMaskMatName, true);
+
+			SimpleMat_Add       = SafeLoadMaterial(SwfSimpleMatAddName,      true);
+			SimpleMat_Normal    = SafeLoadMaterial(SwfSimpleMatNormalName,   true);
+			SimpleMat_Multiply  = SafeLoadMaterial(SwfSimpleMatMultiplyName, true);
+
+			MaskedMats_Add      = SafeLoadMaterials(SwfMaskedMatAddNameFmt);
+			MaskedMats_Normal   = SafeLoadMaterials(SwfMaskedMatNormalNameFmt);
+			MaskedMats_Multiply = SafeLoadMaterials(SwfMaskedMatMultiplyNameFmt);
+
 			EditorUtility.SetDirty(this);
 			AssetDatabase.SaveAssets();
 		}
 
-		Material SafeLoadMaterial(string name, bool exception) {
+		public Material CheckAndGetMaterial(Material material) {
+			if ( !material ) {
+				FillMaterialsCache();
+			}
+			return CheckExistsMaterial(material);
+		}
+
+		Material GetMaskedMaterial(List<Material> materials, int stencil_id) {
+			if ( materials == null || stencil_id >= materials.Count ) {
+				FillMaterialsCache();
+			}
+			if ( stencil_id < 0 || stencil_id >= materials.Count ) {
+				throw new UnityException(string.Format(
+					"SwfSettings. Unsupported stencil id: {0}",
+					stencil_id));
+			}
+			return CheckExistsMaterial(materials[stencil_id]);
+		}
+
+		static Material CheckExistsMaterial(Material material) {
+			if ( !material ) {
+				throw new UnityException("SwfSettings. Material not found");
+			}
+			return material;
+		}
+
+		static List<Material> SafeLoadMaterials(string name_fmt) {
+			var result = new List<Material>();
+			for ( var i = 0; i < int.MaxValue; ++i ) {
+				var mat = SafeLoadMaterial(string.Format(name_fmt, i), false);
+				if ( mat ) {
+					result.Add(mat);
+				} else {
+					break;
+				}
+			}
+			return result;
+		}
+
+		static Material SafeLoadMaterial(string name, bool exception) {
 			var filter   = string.Format("t:Material {0}", name);
 			var material = LoadFirstAssetByFilter<Material>(filter);
 			if ( !material && exception ) {
 				throw new UnityException(string.Format(
 					"SwfSettings. Material not found: {0}",
 					name));
-			}
-			return material;
-		}
-
-		Material CheckExistsMaterial(Material material) {
-			if ( !material ) {
-				throw new UnityException("SwfSettings. Material not found");
 			}
 			return material;
 		}
@@ -135,37 +178,36 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
-		public Material GetMaskedMaterial(int stencil_id) {
-			if ( MaskedMaterials == null || stencil_id >= MaskedMaterials.Count ) {
-				FillMaterialsCache();
-			}
-			if ( stencil_id < 0 || stencil_id >= MaskedMaterials.Count ) {
-				throw new UnityException(string.Format(
-					"SwfSettings. Unsupported stencil id: {0}",
-					stencil_id));
-			}
-			return CheckExistsMaterial(MaskedMaterials[stencil_id]);
-		}
-
-		public Material GetSimpleMaterial() {
-			if ( !SimpleMaterial ) {
-				FillMaterialsCache();
-			}
-			return CheckExistsMaterial(SimpleMaterial);
-		}
-
 		public Material GetIncrMaskMaterial() {
-			if ( !IncrMaskMaterial ) {
-				FillMaterialsCache();
-			}
-			return CheckExistsMaterial(IncrMaskMaterial);
+			return CheckAndGetMaterial(IncrMaskMat);
 		}
 
 		public Material GetDecrMaskMaterial() {
-			if ( !DecrMaskMaterial ) {
-				FillMaterialsCache();
-			}
-			return CheckExistsMaterial(DecrMaskMaterial);
+			return CheckAndGetMaterial(DecrMaskMat);
+		}
+
+		public Material GetSimpleAddMaterial() {
+			return CheckAndGetMaterial(SimpleMat_Add);
+		}
+
+		public Material GetSimpleNormalMaterial() {
+			return CheckAndGetMaterial(SimpleMat_Normal);
+		}
+
+		public Material GetSimpleMultiplyMaterial() {
+			return CheckAndGetMaterial(SimpleMat_Multiply);
+		}
+
+		public Material GetMaskedAddMaterial(int stencil_id) {
+			return GetMaskedMaterial(MaskedMats_Add, stencil_id);
+		}
+
+		public Material GetMaskedNormalMaterial(int stencil_id) {
+			return GetMaskedMaterial(MaskedMats_Normal, stencil_id);
+		}
+
+		public Material GetMaskedMultiplyMaterial(int stencil_id) {
+			return GetMaskedMaterial(MaskedMats_Multiply, stencil_id);
 		}
 
 		// ---------------------------------------------------------------------

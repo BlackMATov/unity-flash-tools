@@ -130,11 +130,22 @@ namespace FlashTools.Internal {
 
 		void HideMaterials() {
 			var settings_holder = SwfSettings.GetHolder();
-			settings_holder.SimpleMaterial  .hideFlags = HideFlags.HideInInspector;
-			settings_holder.IncrMaskMaterial.hideFlags = HideFlags.HideInInspector;
-			settings_holder.DecrMaskMaterial.hideFlags = HideFlags.HideInInspector;
-			foreach ( var masked_material in settings_holder.MaskedMaterials ) {
-				masked_material.hideFlags = HideFlags.HideInInspector;
+
+			settings_holder.IncrMaskMat       .hideFlags = HideFlags.HideInInspector;
+			settings_holder.DecrMaskMat       .hideFlags = HideFlags.HideInInspector;
+
+			settings_holder.SimpleMat_Add     .hideFlags = HideFlags.HideInInspector;
+			settings_holder.SimpleMat_Normal  .hideFlags = HideFlags.HideInInspector;
+			settings_holder.SimpleMat_Multiply.hideFlags = HideFlags.HideInInspector;
+
+			foreach ( var material in settings_holder.MaskedMats_Add ) {
+				material.hideFlags = HideFlags.HideInInspector;
+			}
+			foreach ( var material in settings_holder.MaskedMats_Normal ) {
+				material.hideFlags = HideFlags.HideInInspector;
+			}
+			foreach ( var material in settings_holder.MaskedMats_Multiply ) {
+				material.hideFlags = HideFlags.HideInInspector;
 			}
 		}
 

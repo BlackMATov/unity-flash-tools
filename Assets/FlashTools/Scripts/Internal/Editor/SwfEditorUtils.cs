@@ -28,7 +28,7 @@ namespace FlashTools.Internal {
 		}
 
 		public static void DoWithEnabledGUI(bool enabled, System.Action act) {
-			EditorGUI.BeginDisabledGroup(true);
+			EditorGUI.BeginDisabledGroup(!enabled);
 			try {
 				act();
 			} finally {

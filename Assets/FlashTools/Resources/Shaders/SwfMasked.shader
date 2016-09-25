@@ -1,8 +1,12 @@
 Shader "FlashTools/SwfMasked" {
 	Properties {
-		[PerRendererData] _MainTex("Main Texture", 2D   ) = "white" {}
-		[PerRendererData] _Color  ("Tint"        , Color) = (1,1,1,1)
+		[PerRendererData] _MainTex ("Main Texture", 2D   ) = "white" {}
+		[PerRendererData] _Color   ("Tint"        , Color) = (1,1,1,1)
+
 		_StencilID ("Stencil ID", Int) = 0
+		[Enum(UnityEngine.Rendering.BlendOp  )] _BlendOp   ("BlendOp"   , Int) = 0
+		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend  ("SrcBlend"  , Int) = 1
+		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend  ("DstBlend"  , Int) = 10
 	}
 
 	SubShader {
@@ -17,7 +21,9 @@ Shader "FlashTools/SwfMasked" {
 		Cull     Off
 		Lighting Off
 		ZWrite   Off
-		Blend    One OneMinusSrcAlpha
+
+		BlendOp [_BlendOp]
+		Blend [_SrcBlend] [_DstBlend]
 
 		Pass {
 			Stencil {
