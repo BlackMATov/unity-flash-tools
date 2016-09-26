@@ -517,7 +517,7 @@ if (!Function.prototype.bind) {
 			return ft.array_foldl(layer.frames, function(frame, acc2) {
 				return ft.array_foldl(frame.elements, function(elem, acc3) {
 					return acc3 && fttim.is_symbol_instance(elem)
-						? fttim.is_symbol_graphic_single_frame_instance(elem) || fttim.is_static(elem.libraryItem.timeline)
+						? elem.blendMode != "erase" && (fttim.is_symbol_graphic_single_frame_instance(elem) || fttim.is_static(elem.libraryItem.timeline))
 						: acc3;
 				}, acc2);
 			}, acc);
