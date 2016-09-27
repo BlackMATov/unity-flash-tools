@@ -236,7 +236,7 @@ namespace FlashTools {
 				}
 				_meshRenderer.GetPropertyBlock(_curPropBlock);
 				_curPropBlock.SetColor(
-					"_Color",
+					"_Tint",
 					tint);
 				_curPropBlock.SetTexture(
 					"_MainTex",

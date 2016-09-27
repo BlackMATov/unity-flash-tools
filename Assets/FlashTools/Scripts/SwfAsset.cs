@@ -112,8 +112,13 @@ namespace FlashTools {
 			Multiply,
 			Screen,
 			Lighten,
+			Darken,
+			Difference,
 			Add,
-			Subtract
+			Subtract,
+			Invert,
+			Overlay,
+			Hardlight
 		}
 		public Types type;
 

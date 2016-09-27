@@ -1,8 +1,9 @@
-Shader "FlashTools/SwfSimple" {
+Shader "FlashTools/SwfGrabMasked" {
 	Properties {
 		[PerRendererData] _MainTex ("Main Texture", 2D   ) = "white" {}
 		[PerRendererData] _Tint    ("Tint"        , Color) = (1,1,1,1)
 
+		_StencilID ("Stencil ID", Int) = 0
 		[Enum(UnityEngine.Rendering.BlendOp  )] _BlendOp  ("BlendOp" , Int) = 0
 		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("SrcBlend", Int) = 1
 		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("DstBlend", Int) = 10
@@ -24,7 +25,13 @@ Shader "FlashTools/SwfSimple" {
 		BlendOp [_BlendOp]
 		Blend [_SrcBlend] [_DstBlend]
 
+		GrabPass { }
+
 		Pass {
+			Stencil {
+				Ref  [_StencilID]
+				Comp Equal
+			}
 		CGPROGRAM
 			fixed4    _Tint;
 			sampler2D _MainTex;
@@ -32,11 +39,13 @@ Shader "FlashTools/SwfSimple" {
 			sampler2D _AlphaTex;
 			float     _AlphaSplitEnabled;
 
+			#pragma multi_compile FT_DARKEN_BLEND FT_DIFFERENCE_BLEND FT_INVERT_BLEND FT_OVERLAY_BLEND FT_HARDLIGHT_BLEND
+
 			#include "UnityCG.cginc"
 			#include "SwfBaseCG.cginc"
 
-			#pragma vertex swf_vert
-			#pragma fragment swf_frag
+			#pragma vertex swf_grab_vert
+			#pragma fragment swf_grab_frag
 		ENDCG
 		}
 	}

@@ -67,6 +67,8 @@ namespace FlashTools.Internal {
 
 		[HideInInspector] public Shader SimpleShader;
 		[HideInInspector] public Shader MaskedShader;
+		[HideInInspector] public Shader SimpleGrabShader;
+		[HideInInspector] public Shader MaskedGrabShader;
 		[HideInInspector] public Shader IncrMaskShader;
 		[HideInInspector] public Shader DecrMaskShader;
 
@@ -78,16 +80,20 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
-		const string SwfSimpleShaderName   = "SwfSimpleShader";
-		const string SwfMaskedShaderName   = "SwfMaskedShader";
-		const string SwfIncrMaskShaderName = "SwfIncrMaskShader";
-		const string SwfDecrMaskShaderName = "SwfDecrMaskShader";
+		const string SwfSimpleShaderName     = "SwfSimpleShader";
+		const string SwfMaskedShaderName     = "SwfMaskedShader";
+		const string SwfSimpleGrabShaderName = "SwfSimpleGrabShader";
+		const string SwfMaskedGrabShaderName = "SwfMaskedGrabShader";
+		const string SwfIncrMaskShaderName   = "SwfIncrMaskShader";
+		const string SwfDecrMaskShaderName   = "SwfDecrMaskShader";
 
 		void FillShadersCache() {
-			SimpleShader   = SafeLoadShader(SwfSimpleShaderName);
-			MaskedShader   = SafeLoadShader(SwfMaskedShaderName);
-			IncrMaskShader = SafeLoadShader(SwfIncrMaskShaderName);
-			DecrMaskShader = SafeLoadShader(SwfDecrMaskShaderName);
+			SimpleShader     = SafeLoadShader(SwfSimpleShaderName);
+			MaskedShader     = SafeLoadShader(SwfMaskedShaderName);
+			SimpleGrabShader = SafeLoadShader(SwfSimpleGrabShaderName);
+			MaskedGrabShader = SafeLoadShader(SwfMaskedGrabShaderName);
+			IncrMaskShader   = SafeLoadShader(SwfIncrMaskShaderName);
+			DecrMaskShader   = SafeLoadShader(SwfDecrMaskShaderName);
 			EditorUtility.SetDirty(this);
 			AssetDatabase.SaveAssets();
 		}
@@ -150,6 +156,28 @@ namespace FlashTools.Internal {
 			return material;
 		}
 
+		Shader SelectShader(bool masked, SwfBlendModeData.Types blend_type) {
+			switch ( blend_type ) {
+			case SwfBlendModeData.Types.Normal:
+			case SwfBlendModeData.Types.Multiply:
+			case SwfBlendModeData.Types.Screen:
+			case SwfBlendModeData.Types.Lighten:
+			case SwfBlendModeData.Types.Add:
+			case SwfBlendModeData.Types.Subtract:
+				return CheckAndGetShader(masked ? MaskedShader : SimpleShader);
+			case SwfBlendModeData.Types.Darken:
+			case SwfBlendModeData.Types.Difference:
+			case SwfBlendModeData.Types.Invert:
+			case SwfBlendModeData.Types.Overlay:
+			case SwfBlendModeData.Types.Hardlight:
+				return CheckAndGetShader(masked ? MaskedGrabShader : SimpleGrabShader);
+			default:
+				throw new UnityException(string.Format(
+					"SwfSettings. Incorrect blend type: {0}",
+					blend_type));
+			}
+		}
+
 		Shader CheckAndGetShader(Shader shader) {
 			if ( !shader ) {
 				FillShadersCache();
@@ -188,6 +216,18 @@ namespace FlashTools.Internal {
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
 				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
 				break;
+			case SwfBlendModeData.Types.Darken:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				material.EnableKeyword("FT_DARKEN_BLEND");
+				break;
+			case SwfBlendModeData.Types.Difference:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				material.EnableKeyword("FT_DIFFERENCE_BLEND");
+				break;
 			case SwfBlendModeData.Types.Add:
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
@@ -197,6 +237,24 @@ namespace FlashTools.Internal {
 				material.SetInt("_BlendOp" , (int)BlendOp.ReverseSubtract);
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
 				material.SetInt("_DstBlend", (int)BlendMode.One);
+				break;
+			case SwfBlendModeData.Types.Invert:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				material.EnableKeyword("FT_INVERT_BLEND");
+				break;
+			case SwfBlendModeData.Types.Overlay:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				material.EnableKeyword("FT_OVERLAY_BLEND");
+				break;
+			case SwfBlendModeData.Types.Hardlight:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				material.EnableKeyword("FT_HARDLIGHT_BLEND");
 				break;
 			default:
 				throw new UnityException(string.Format(
@@ -215,7 +273,7 @@ namespace FlashTools.Internal {
 
 		public Material GetSimpleMaterial(SwfBlendModeData.Types blend_type) {
 			return LoadOrCreateMaterial(
-				CheckAndGetShader(SimpleShader),
+				CheckAndGetShader(SelectShader(false, blend_type)),
 				(dir_path, filename) => {
 					return string.Format(
 						"{0}/{1}_{2}.mat",
@@ -226,7 +284,7 @@ namespace FlashTools.Internal {
 
 		public Material GetMaskedMaterial(SwfBlendModeData.Types blend_type, int stencil_id) {
 			return LoadOrCreateMaterial(
-				CheckAndGetShader(MaskedShader),
+				CheckAndGetShader(SelectShader(true, blend_type)),
 				(dir_path, filename) => {
 					return string.Format(
 						"{0}/{1}_{2}_{3}.mat",

@@ -1,12 +1,12 @@
 Shader "FlashTools/SwfMasked" {
 	Properties {
 		[PerRendererData] _MainTex ("Main Texture", 2D   ) = "white" {}
-		[PerRendererData] _Color   ("Tint"        , Color) = (1,1,1,1)
+		[PerRendererData] _Tint    ("Tint"        , Color) = (1,1,1,1)
 
 		_StencilID ("Stencil ID", Int) = 0
-		[Enum(UnityEngine.Rendering.BlendOp  )] _BlendOp   ("BlendOp"   , Int) = 0
-		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend  ("SrcBlend"  , Int) = 1
-		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend  ("DstBlend"  , Int) = 10
+		[Enum(UnityEngine.Rendering.BlendOp  )] _BlendOp  ("BlendOp" , Int) = 0
+		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("SrcBlend", Int) = 1
+		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("DstBlend", Int) = 10
 	}
 
 	SubShader {
@@ -31,56 +31,17 @@ Shader "FlashTools/SwfMasked" {
 				Comp Equal
 			}
 		CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
-			#include "UnityCG.cginc"
-			
-			struct appdata_t {
-				float4 vertex   : POSITION;
-				float2 uv       : TEXCOORD0;
-				float4 mulcolor : COLOR;
-				float4 addcolor : TEXCOORD1;
-			};
-
-			struct v2f {
-				float4 vertex   : SV_POSITION;
-				float2 uv       : TEXCOORD0;
-				fixed4 mulcolor : COLOR;
-				fixed4 addcolor : TEXCOORD1;
-			};
-
-			fixed4 _Color;
-
-			v2f vert(appdata_t IN) {
-				v2f OUT;
-				OUT.vertex   = mul(UNITY_MATRIX_MVP, IN.vertex);
-				OUT.uv       = IN.uv;
-				OUT.mulcolor = IN.mulcolor * _Color;
-				OUT.addcolor = IN.addcolor;
-				return OUT;
-			}
-
+			fixed4    _Tint;
 			sampler2D _MainTex;
+			sampler2D _GrabTexture;
 			sampler2D _AlphaTex;
 			float     _AlphaSplitEnabled;
 
-			fixed4 SampleSpriteTexture(float2 uv) {
-				fixed4 color = tex2D(_MainTex, uv);
-			#if UNITY_TEXTURE_ALPHASPLIT_ALLOWED
-				if (_AlphaSplitEnabled)
-					color.a = tex2D(_AlphaTex, uv).r;
-			#endif //UNITY_TEXTURE_ALPHASPLIT_ALLOWED
-				return color;
-			}
+			#include "UnityCG.cginc"
+			#include "SwfBaseCG.cginc"
 
-			fixed4 frag(v2f IN) : SV_Target {
-				fixed4 c = SampleSpriteTexture(IN.uv);
-				if ( c.a > 0.01 ) {
-					c = c * IN.mulcolor + IN.addcolor;
-				}
-				c.rgb *= c.a;
-				return c;
-			}
+			#pragma vertex swf_vert
+			#pragma fragment swf_frag
 		ENDCG
 		}
 	}

@@ -55,9 +55,12 @@
      <Compile Include="Assets\FlashTools\Scripts\SwfClipAsset.cs" />
      <Compile Include="Assets\FlashTools\Scripts\SwfClipController.cs" />
      <Compile Include="Assets\FlashTools\Scripts\SwfManager.cs" />
+     <None Include="Assets\FlashTools\Resources\Materials\SwfBaseCG.cginc" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfDecrMaskShader.shader" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfSimpleShader.shader" />
+     <None Include="Assets\FlashTools\Resources\Materials\SwfMaskedGrabShader.shader" />
      <None Include="Assets\FlashTools\CHANGELOG.txt" />
+     <None Include="Assets\FlashTools\Resources\Materials\SwfSimpleGrabShader.shader" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfIncrMaskShader.shader" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfMaskedShader.shader" />
  <Reference Include="UnityEngine.UI">

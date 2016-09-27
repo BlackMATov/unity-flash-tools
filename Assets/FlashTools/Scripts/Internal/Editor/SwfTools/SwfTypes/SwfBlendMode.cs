@@ -3,20 +3,20 @@
 namespace FlashTools.Internal.SwfTools.SwfTypes {
 	public struct SwfBlendMode {
 		public enum Mode {
-			Normal,
-			Layer,
-			Multiply,
-			Screen,
-			Lighten,
-			Darken,
-			Difference,
-			Add,
-			Subtract,
-			Invert,
-			Alpha,
-			Erase,
-			Overlay,
-			Hardlight
+			Normal,      // +
+			Layer,       // -
+			Multiply,    // +
+			Screen,      // +
+			Lighten,     // +
+			Darken,      // + GrabPass
+			Difference,  // + GrabPass
+			Add,         // +
+			Subtract,    // +
+			Invert,      // + GrabPass
+			Alpha,       // -
+			Erase,       // -
+			Overlay,     // + GrabPass
+			Hardlight    // + GrabPass
 		}
 		public Mode Value;
 
@@ -49,10 +49,20 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				return new SwfBlendModeData(SwfBlendModeData.Types.Screen);
 			case Mode.Lighten:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Lighten);
+			case Mode.Darken:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Darken);
+			case Mode.Difference:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Difference);
 			case Mode.Add:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Add);
 			case Mode.Subtract:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Subtract);
+			case Mode.Invert:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Invert);
+			case Mode.Overlay:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Overlay);
+			case Mode.Hardlight:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Hardlight);
 			default:
 				Debug.LogWarningFormat(
 					"<b>[FlashTools]</b> SwfBlendMode. Unsupported blend mode {0}",

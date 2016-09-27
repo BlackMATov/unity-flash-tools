@@ -22,5 +22,7 @@ MonoBehaviour:
     AtlasTextureFormat: 0
   SimpleShader: {fileID: 4800000, guid: 71f5f783ce2ab4fc4bf826e4acb105dd, type: 3}
   MaskedShader: {fileID: 4800000, guid: 2fb923af3a46a49fdb944d636b6f79e8, type: 3}
+  SimpleGrabShader: {fileID: 4800000, guid: 75e1212bdbac941a4a085c1aecfc6bef, type: 3}
+  MaskedGrabShader: {fileID: 4800000, guid: 1fe2c789c6a584e829f4c364674513b9, type: 3}
   IncrMaskShader: {fileID: 4800000, guid: 86b3e29b378884f228862fd1170176b5, type: 3}
   DecrMaskShader: {fileID: 4800000, guid: f1e8cd2344e824b6a9b12efcacde262c, type: 3}
