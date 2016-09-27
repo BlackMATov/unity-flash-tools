@@ -8,15 +8,15 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			Multiply,    // +
 			Screen,      // +
 			Lighten,     // +
-			Darken,      // + GrabPass
-			Difference,  // + GrabPass
+			Darken,      // +
+			Difference,  // +
 			Add,         // +
 			Subtract,    // +
-			Invert,      // + GrabPass
+			Invert,      // +
 			Alpha,       // -
 			Erase,       // -
-			Overlay,     // + GrabPass
-			Hardlight    // + GrabPass
+			Overlay,     // +
+			Hardlight    // +
 		}
 		public Mode Value;
 

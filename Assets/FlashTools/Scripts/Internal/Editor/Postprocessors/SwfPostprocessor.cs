@@ -145,6 +145,7 @@ namespace FlashTools.Internal {
 											: parent_masked + self_masks.Count;
 								frame.Instances.Add(new SwfInstanceData{
 									Type       = frame_inst_type,
+									ColorMode  = SwfInstanceData.ColorModes.RGBA,
 									ClipDepth  = (ushort)frame_inst_clip_depth,
 									Bitmap     = bitmap_id,
 									Matrix     = SwfMatrixData.FromUMatrix(child_matrix * bitmap_matrix.ToUMatrix()),
@@ -191,6 +192,7 @@ namespace FlashTools.Internal {
 				if ( mask.ClipDepth < depth ) {
 					frame.Instances.Add(new SwfInstanceData{
 						Type       = SwfInstanceData.Types.MaskReset,
+						ColorMode  = SwfInstanceData.ColorModes.RGBA,
 						ClipDepth  = 0,
 						Bitmap     = mask.Bitmap,
 						Matrix     = mask.Matrix,

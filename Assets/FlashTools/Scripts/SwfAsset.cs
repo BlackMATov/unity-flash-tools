@@ -112,13 +112,13 @@ namespace FlashTools {
 			Multiply,
 			Screen,
 			Lighten,
-			Darken,
-			Difference,
+			Darken,     // GrabPass
+			Difference, // GrabPass
 			Add,
 			Subtract,
-			Invert,
-			Overlay,
-			Hardlight
+			Invert,     // GrabPass
+			Overlay,    // GrabPass
+			Hardlight   // GrabPass
 		}
 		public Types type;
 
@@ -137,7 +137,7 @@ namespace FlashTools {
 			SwfBlendModeData a, SwfBlendModeData b)
 		{
 			return new SwfBlendModeData{
-				type = (a.type == Types.Normal ? b.type : a.type)};
+				type = a.type == Types.Normal ? b.type : a.type};
 		}
 	}
 
@@ -187,7 +187,12 @@ namespace FlashTools {
 			Masked,
 			MaskReset
 		}
+		public enum ColorModes {
+			RGBA,
+			A
+		}
 		public Types                 Type       = Types.Group;
+		public ColorModes            ColorMode  = ColorModes.RGBA;
 		public ushort                ClipDepth  = 0;
 		public ushort                Bitmap     = 0;
 		public SwfMatrixData         Matrix     = SwfMatrixData.identity;

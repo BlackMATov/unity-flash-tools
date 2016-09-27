@@ -99,11 +99,14 @@ namespace FlashTools.Internal {
 		}
 
 		void PregenerateMaterials() {
-			var blend_types = System.Enum.GetValues(typeof(SwfBlendModeData.Types));
-			foreach ( SwfBlendModeData.Types blend_type in blend_types ) {
-				GetSimpleMaterial(blend_type);
-				for ( var i = 0; i < 10; ++i ) {
-					GetMaskedMaterial(blend_type, i);
+			var color_modes = System.Enum.GetValues(typeof(SwfInstanceData.ColorModes));
+			var blend_modes = System.Enum.GetValues(typeof(SwfBlendModeData.Types));
+			foreach ( SwfInstanceData.ColorModes color_mode in color_modes ) {
+				foreach ( SwfBlendModeData.Types blend_mode in blend_modes ) {
+					GetSimpleMaterial(color_mode, blend_mode);
+					for ( var i = 0; i < 10; ++i ) {
+						GetMaskedMaterial(color_mode, blend_mode, i);
+					}
 				}
 			}
 			GetIncrMaskMaterial();
@@ -193,9 +196,21 @@ namespace FlashTools.Internal {
 		}
 
 		static Material FillMaterial(
-			Material material, SwfBlendModeData.Types blend_type, int stencil_id)
+			Material material, SwfInstanceData.ColorModes color_mode, SwfBlendModeData.Types blend_mode, int stencil_id)
 		{
-			switch ( blend_type ) {
+			switch ( color_mode ) {
+			case SwfInstanceData.ColorModes.RGBA:
+				material.SetInt("_ColorMask", (int)ColorWriteMask.All);
+				break;
+			case SwfInstanceData.ColorModes.A:
+				material.SetInt("_ColorMask", (int)ColorWriteMask.Alpha);
+				break;
+			default:
+				throw new UnityException(string.Format(
+					"SwfSettings. Incorrect color mode: {0}",
+					color_mode));
+			}
+			switch ( blend_mode ) {
 			case SwfBlendModeData.Types.Normal:
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
@@ -258,8 +273,8 @@ namespace FlashTools.Internal {
 				break;
 			default:
 				throw new UnityException(string.Format(
-					"SwfSettings. Incorrect blend type: {0}",
-					blend_type));
+					"SwfSettings. Incorrect blend mode: {0}",
+					blend_mode));
 			}
 			material.SetInt("_StencilID", stencil_id);
 			return material;
@@ -271,26 +286,33 @@ namespace FlashTools.Internal {
 		//
 		// ---------------------------------------------------------------------
 
-		public Material GetSimpleMaterial(SwfBlendModeData.Types blend_type) {
+		public Material GetSimpleMaterial(
+			SwfInstanceData.ColorModes color_mode,
+			SwfBlendModeData.Types     blend_mode)
+		{
 			return LoadOrCreateMaterial(
-				CheckAndGetShader(SelectShader(false, blend_type)),
-				(dir_path, filename) => {
-					return string.Format(
-						"{0}/{1}_{2}.mat",
-						dir_path, filename, blend_type);
-				},
-				material => FillMaterial(material, blend_type, 0));
-		}
-
-		public Material GetMaskedMaterial(SwfBlendModeData.Types blend_type, int stencil_id) {
-			return LoadOrCreateMaterial(
-				CheckAndGetShader(SelectShader(true, blend_type)),
+				CheckAndGetShader(SelectShader(false, blend_mode)),
 				(dir_path, filename) => {
 					return string.Format(
 						"{0}/{1}_{2}_{3}.mat",
-						dir_path, filename, blend_type, stencil_id);
+						dir_path, filename, color_mode, blend_mode);
 				},
-				material => FillMaterial(material, blend_type, stencil_id));
+				material => FillMaterial(material, color_mode, blend_mode, 0));
+		}
+
+		public Material GetMaskedMaterial(
+			SwfInstanceData.ColorModes color_mode,
+			SwfBlendModeData.Types     blend_mode,
+			int                        stencil_id)
+		{
+			return LoadOrCreateMaterial(
+				CheckAndGetShader(SelectShader(true, blend_mode)),
+				(dir_path, filename) => {
+					return string.Format(
+						"{0}/{1}_{2}_{3}_{4}.mat",
+						dir_path, filename, color_mode, blend_mode, stencil_id);
+				},
+				material => FillMaterial(material, color_mode, blend_mode, stencil_id));
 		}
 
 		public Material GetIncrMaskMaterial() {
