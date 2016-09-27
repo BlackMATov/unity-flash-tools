@@ -5,40 +5,39 @@
 // blending functions
 //
 
-inline fixed4 swf_darken(fixed4 a, fixed4 b) {
-	fixed4 r = min(a, b);
-	r.a = b.a;
+inline fixed4 swf_darken(fixed4 ca, fixed4 cb) {
+	fixed4 r = min(ca, cb);
+	r.a = cb.a;
 	return r;
 }
 
-inline fixed4 swf_difference(fixed4 a, fixed4 b) {
-	fixed4 r = abs(a - b);
-	r.a = b.a;
+inline fixed4 swf_difference(fixed4 ca, fixed4 cb) {
+	fixed4 r = abs(ca - cb);
+	r.a = cb.a;
 	return r;
 }
 
-inline fixed4 swf_invert(fixed4 a, fixed4 b) {
-	fixed4 r = 1 - a;
-	r.a = b.a;
+inline fixed4 swf_invert(fixed4 ca, fixed4 cb) {
+	fixed4 r = 1.0 - ca;
+	r.a = cb.a;
 	return r;
 }
 
-inline fixed4 swf_overlay(fixed4 a, fixed4 b) {
-	fixed4 r = a > 0.5 ? 1.0 - 2.0 * (1.0 - a) * (1.0 - b) : 2.0 * a * b;
-	r.a = b.a;
+inline fixed4 swf_overlay(fixed4 ca, fixed4 cb) {
+	fixed4 r = ca > 0.5 ? 1.0 - 2.0 * (1.0 - ca) * (1.0 - cb) : 2.0 * ca * cb;
+	r.a = cb.a;
 	return r;
 }
 
-inline fixed4 swf_hardlight(fixed4 a, fixed4 b) {
-	fixed4 r = b > 0.5 ? 1.0 - (1.0 - a) * (1.0 - 2.0 * (b - 0.5)) : a * (2.0 * b);
-	r.a = b.a;
+inline fixed4 swf_hardlight(fixed4 ca, fixed4 cb) {
+	fixed4 r = cb > 0.5 ? 1.0 - (1.0 - ca) * (1.0 - 2.0 * (cb - 0.5)) : ca * (2.0 * cb);
+	r.a = cb.a;
 	return r;
 }
 
 inline fixed4 grab_blend(sampler2D grab_tex, float4 screenpos, fixed4 c) {
 	float2 grab_uv = screenpos.xy / screenpos.w;
-	grab_uv.x = (grab_uv.x + 1.0) * .5;
-	grab_uv.y = (grab_uv.y + 1.0) * .5;
+	grab_uv = (grab_uv + 1.0) * 0.5;
 #if UNITY_UV_STARTS_AT_TOP
 	grab_uv.y = 1.0 - grab_uv.y;
 #endif
@@ -68,6 +67,18 @@ struct swf_appdata_t {
 	float4 addcolor  : TEXCOORD1;
 };
 
+struct swf_grab_appdata_t {
+	float4 vertex    : POSITION;
+	float2 uv        : TEXCOORD0;
+	float4 mulcolor  : COLOR;
+	float4 addcolor  : TEXCOORD1;
+};
+
+struct swf_mask_appdata_t {
+	float4 vertex    : POSITION;
+	float2 uv        : TEXCOORD0;
+};
+
 struct swf_v2f_t {
 	float4 vertex    : SV_POSITION;
 	float2 uv        : TEXCOORD0;
@@ -83,6 +94,11 @@ struct swf_grab_v2f_t {
 	float4 screenpos : TEXCOORD2;
 };
 
+struct swf_mask_v2f_t {
+	float4 vertex    : SV_POSITION;
+	float2 uv        : TEXCOORD0;
+};
+
 //
 // vert functions
 //
@@ -96,13 +112,20 @@ inline swf_v2f_t swf_vert(swf_appdata_t IN) {
 	return OUT;
 }
 
-inline swf_grab_v2f_t swf_grab_vert(swf_appdata_t IN) {
+inline swf_grab_v2f_t swf_grab_vert(swf_grab_appdata_t IN) {
 	swf_grab_v2f_t OUT;
 	OUT.vertex    = mul(UNITY_MATRIX_MVP, IN.vertex);
 	OUT.uv        = IN.uv;
 	OUT.mulcolor  = IN.mulcolor * _Tint;
 	OUT.addcolor  = IN.addcolor;
 	OUT.screenpos = OUT.vertex;
+	return OUT;
+}
+
+inline swf_mask_v2f_t swf_mask_vert(swf_mask_appdata_t IN) {
+	swf_mask_v2f_t OUT;
+	OUT.vertex    = mul(UNITY_MATRIX_MVP, IN.vertex);
+	OUT.uv        = IN.uv;
 	return OUT;
 }
 
@@ -123,9 +146,17 @@ inline fixed4 swf_grab_frag(swf_grab_v2f_t IN) : SV_Target {
 	fixed4 c = tex2D(_MainTex, IN.uv);
 	if ( c.a > 0.01 ) {
 		c = c * IN.mulcolor + IN.addcolor;
+		c = grab_blend(_GrabTexture, IN.screenpos, c);
 	}
-	c = grab_blend(_GrabTexture, IN.screenpos, c);
 	c.rgb *= c.a;
+	return c;
+}
+
+inline fixed4 swf_mask_frag(swf_mask_v2f_t IN) : SV_Target {
+	fixed4 c = tex2D(_MainTex, IN.uv);
+	if ( c.a < 0.01 ) {
+		discard;
+	}
 	return c;
 }
 

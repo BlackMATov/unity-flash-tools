@@ -1,10 +1,12 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfPostprocessor.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/Resources/Materials/SwfMaskedGrabShader.shader">
     <Files>
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfAssetPostprocessor.cs" Line="380" Column="7" />
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfPostprocessor.cs" Line="138" Column="21" />
-      <File FileName="Assets/FlashTools/Scripts/SwfAsset.cs" Line="121" Column="3" />
+      <File FileName="Assets/FlashTools/Resources/Materials/SwfBaseCG.cginc" Line="132" Column="18" />
+      <File FileName="Assets/FlashTools/Resources/Materials/SwfSimpleGrabShader.shader" Line="45" Column="2" />
+      <File FileName="Assets/FlashTools/Resources/Materials/SwfMaskedGrabShader.shader" Line="5" Column="3" />
+      <File FileName="Assets/FlashTools/Resources/Materials/SwfSimpleShader.shader" Line="23" Column="3" NotebookId="1" />
+      <File FileName="Assets/FlashTools/Resources/Materials/SwfMaskedShader.shader" Line="36" Column="27" NotebookId="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

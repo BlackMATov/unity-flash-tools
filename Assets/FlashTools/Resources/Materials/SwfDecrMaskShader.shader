@@ -12,10 +12,11 @@ Shader "FlashTools/SwfDecrMask" {
 			"CanUseSpriteAtlas" = "True"
 		}
 
-		ColorMask 0
 		Cull      Off
 		Lighting  Off
 		ZWrite    Off
+
+		ColorMask 0
 		Blend     One OneMinusSrcAlpha
 
 		Pass {
@@ -25,47 +26,15 @@ Shader "FlashTools/SwfDecrMask" {
 				Pass DecrSat
 			}
 		CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
-			#include "UnityCG.cginc"
-
-			struct appdata_t {
-				float4 vertex : POSITION;
-				float2 uv     : TEXCOORD0;
-			};
-
-			struct v2f {
-				float4 vertex : SV_POSITION;
-				float2 uv     : TEXCOORD0;
-			};
-
-			v2f vert(appdata_t IN) {
-				v2f OUT;
-				OUT.vertex = mul(UNITY_MATRIX_MVP, IN.vertex);
-				OUT.uv     = IN.uv;
-				return OUT;
-			}
-
+			fixed4    _Tint;
 			sampler2D _MainTex;
-			sampler2D _AlphaTex;
-			float     _AlphaSplitEnabled;
+			sampler2D _GrabTexture;
 
-			fixed4 SampleSpriteTexture(float2 uv) {
-				fixed4 color = tex2D(_MainTex, uv);
-			#if UNITY_TEXTURE_ALPHASPLIT_ALLOWED
-				if (_AlphaSplitEnabled)
-					color.a = tex2D(_AlphaTex, uv).r;
-			#endif //UNITY_TEXTURE_ALPHASPLIT_ALLOWED
-				return color;
-			}
+			#include "UnityCG.cginc"
+			#include "SwfBaseCG.cginc"
 
-			fixed4 frag(v2f IN) : SV_Target {
-				fixed4 c = SampleSpriteTexture(IN.uv);
-				if ( c.a < 0.01 ) {
-					discard;
-				}
-				return c;
-			}
+			#pragma vertex swf_mask_vert
+			#pragma fragment swf_mask_frag
 		ENDCG
 		}
 	}
