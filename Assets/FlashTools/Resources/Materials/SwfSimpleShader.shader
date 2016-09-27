@@ -29,8 +29,6 @@ Shader "FlashTools/SwfSimple" {
 			fixed4    _Tint;
 			sampler2D _MainTex;
 			sampler2D _GrabTexture;
-			sampler2D _AlphaTex;
-			float     _AlphaSplitEnabled;
 
 			#include "UnityCG.cginc"
 			#include "SwfBaseCG.cginc"

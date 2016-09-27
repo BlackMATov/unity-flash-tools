@@ -220,13 +220,13 @@ namespace FlashTools.Internal {
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
 				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
-				material.EnableKeyword("FT_DARKEN_BLEND");
+				material.EnableKeyword("SWF_DARKEN_BLEND");
 				break;
 			case SwfBlendModeData.Types.Difference:
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
 				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
-				material.EnableKeyword("FT_DIFFERENCE_BLEND");
+				material.EnableKeyword("SWF_DIFFERENCE_BLEND");
 				break;
 			case SwfBlendModeData.Types.Add:
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);
@@ -242,19 +242,19 @@ namespace FlashTools.Internal {
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
 				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
-				material.EnableKeyword("FT_INVERT_BLEND");
+				material.EnableKeyword("SWF_INVERT_BLEND");
 				break;
 			case SwfBlendModeData.Types.Overlay:
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
 				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
-				material.EnableKeyword("FT_OVERLAY_BLEND");
+				material.EnableKeyword("SWF_OVERLAY_BLEND");
 				break;
 			case SwfBlendModeData.Types.Hardlight:
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
 				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
-				material.EnableKeyword("FT_HARDLIGHT_BLEND");
+				material.EnableKeyword("SWF_HARDLIGHT_BLEND");
 				break;
 			default:
 				throw new UnityException(string.Format(

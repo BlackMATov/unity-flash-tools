@@ -31,10 +31,8 @@ Shader "FlashTools/SwfGrabSimple" {
 			fixed4    _Tint;
 			sampler2D _MainTex;
 			sampler2D _GrabTexture;
-			sampler2D _AlphaTex;
-			float     _AlphaSplitEnabled;
 
-			#pragma multi_compile FT_DARKEN_BLEND FT_DIFFERENCE_BLEND FT_INVERT_BLEND FT_OVERLAY_BLEND FT_HARDLIGHT_BLEND
+			#pragma multi_compile SWF_DARKEN_BLEND SWF_DIFFERENCE_BLEND SWF_INVERT_BLEND SWF_OVERLAY_BLEND SWF_HARDLIGHT_BLEND
 
 			#include "UnityCG.cginc"
 			#include "SwfBaseCG.cginc"

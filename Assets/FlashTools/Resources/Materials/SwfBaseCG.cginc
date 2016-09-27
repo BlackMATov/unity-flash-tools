@@ -2,41 +2,60 @@
 #define SWF_BASE_CG_INCLUDED
 
 //
-//
+// blending functions
 //
 
-fixed4 swf_darken(fixed4 a, fixed4 b) {
+inline fixed4 swf_darken(fixed4 a, fixed4 b) {
 	fixed4 r = min(a, b);
 	r.a = b.a;
 	return r;
 }
 
-fixed4 swf_difference(fixed4 a, fixed4 b) {
+inline fixed4 swf_difference(fixed4 a, fixed4 b) {
 	fixed4 r = abs(a - b);
 	r.a = b.a;
 	return r;
 }
 
-fixed4 swf_invert(fixed4 a, fixed4 b) {
+inline fixed4 swf_invert(fixed4 a, fixed4 b) {
 	fixed4 r = 1 - a;
 	r.a = b.a;
 	return r;
 }
 
-fixed4 swf_overlay(fixed4 a, fixed4 b) {
+inline fixed4 swf_overlay(fixed4 a, fixed4 b) {
 	fixed4 r = a > 0.5 ? 1.0 - 2.0 * (1.0 - a) * (1.0 - b) : 2.0 * a * b;
 	r.a = b.a;
 	return r;
 }
 
-fixed4 swf_hardlight(fixed4 a, fixed4 b) {
+inline fixed4 swf_hardlight(fixed4 a, fixed4 b) {
 	fixed4 r = b > 0.5 ? 1.0 - (1.0 - a) * (1.0 - 2.0 * (b - 0.5)) : a * (2.0 * b);
 	r.a = b.a;
 	return r;
 }
 
+inline fixed4 grab_blend(sampler2D grab_tex, float4 screenpos, fixed4 c) {
+	float2 grab_uv = screenpos.xy / screenpos.w;
+	grab_uv.x = (grab_uv.x + 1.0) * .5;
+	grab_uv.y = (grab_uv.y + 1.0) * .5;
+	fixed4 grab_c = tex2D(grab_tex, grab_uv);
+	#if SWF_DARKEN_BLEND
+		c = swf_darken(grab_c, c);
+	#elif SWF_DIFFERENCE_BLEND
+		c = swf_difference(grab_c, c);
+	#elif SWF_INVERT_BLEND
+		c = swf_invert(grab_c, c);
+	#elif SWF_OVERLAY_BLEND
+		c = swf_overlay(grab_c, c);
+	#elif SWF_HARDLIGHT_BLEND
+		c = swf_hardlight(grab_c, c);
+	#endif
+	return c;
+}
+
 //
-//
+// structs
 //
 
 struct swf_appdata_t {
@@ -62,18 +81,8 @@ struct swf_grab_v2f_t {
 };
 
 //
+// vert functions
 //
-//
-
-inline fixed4 swf_sample_sprite_texture(sampler2D main_tex, float2 uv) {
-	fixed4 c = tex2D(main_tex, uv);
-#if UNITY_TEXTURE_ALPHASPLIT_ALLOWED
-	if ( _AlphaSplitEnabled ) {
-		c.a = tex2D(_AlphaTex, uv).r;
-	}
-#endif
-	return c;
-}
 
 inline swf_v2f_t swf_vert(swf_appdata_t IN) {
 	swf_v2f_t OUT;
@@ -94,8 +103,12 @@ inline swf_grab_v2f_t swf_grab_vert(swf_appdata_t IN) {
 	return OUT;
 }
 
+//
+// frag functions
+//
+
 inline fixed4 swf_frag(swf_v2f_t IN) : SV_Target {
-	fixed4 c = swf_sample_sprite_texture(_MainTex, IN.uv);
+	fixed4 c = tex2D(_MainTex, IN.uv);
 	if ( c.a > 0.01 ) {
 		c = c * IN.mulcolor + IN.addcolor;
 	}
@@ -104,28 +117,11 @@ inline fixed4 swf_frag(swf_v2f_t IN) : SV_Target {
 }
 
 inline fixed4 swf_grab_frag(swf_grab_v2f_t IN) : SV_Target {
-	fixed4 c = swf_sample_sprite_texture(_MainTex, IN.uv);
+	fixed4 c = tex2D(_MainTex, IN.uv);
 	if ( c.a > 0.01 ) {
 		c = c * IN.mulcolor + IN.addcolor;
 	}
-
-	float2 grabTexcoord = IN.screenpos.xy / IN.screenpos.w;
-	grabTexcoord.x = (grabTexcoord.x + 1.0) * .5;
-	grabTexcoord.y = (grabTexcoord.y + 1.0) * .5;
-	fixed4 grabColor = tex2D(_GrabTexture, grabTexcoord);
-
-	#if FT_DARKEN_BLEND
-		c = swf_darken(grabColor, c);
-	#elif FT_DIFFERENCE_BLEND
-		c = swf_difference(grabColor, c);
-	#elif FT_INVERT_BLEND
-		c = swf_invert(grabColor, c);
-	#elif FT_OVERLAY_BLEND
-		c = swf_overlay(grabColor, c);
-	#elif FT_HARDLIGHT_BLEND
-		c = swf_hardlight(grabColor, c);
-	#endif
-
+	c = grab_blend(_GrabTexture, IN.screenpos, c);
 	c.rgb *= c.a;
 	return c;
 }
