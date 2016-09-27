@@ -47,6 +47,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				return new SwfBlendModeData(SwfBlendModeData.Types.Multiply);
 			case Mode.Screen:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Screen);
+			case Mode.Lighten:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Lighten);
 			case Mode.Add:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Add);
 			case Mode.Subtract:

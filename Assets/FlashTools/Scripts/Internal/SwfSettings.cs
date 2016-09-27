@@ -183,6 +183,11 @@ namespace FlashTools.Internal {
 				material.SetInt("_SrcBlend", (int)BlendMode.OneMinusDstColor);
 				material.SetInt("_DstBlend", (int)BlendMode.One);
 				break;
+			case SwfBlendModeData.Types.Lighten:
+				material.SetInt("_BlendOp" , (int)BlendOp.Max);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				break;
 			case SwfBlendModeData.Types.Add:
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);
 				material.SetInt("_SrcBlend", (int)BlendMode.One);

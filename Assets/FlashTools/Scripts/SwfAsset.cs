@@ -111,6 +111,7 @@ namespace FlashTools {
 			Normal,
 			Multiply,
 			Screen,
+			Lighten,
 			Add,
 			Subtract
 		}
