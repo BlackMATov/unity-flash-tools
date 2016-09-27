@@ -39,6 +39,9 @@ inline fixed4 grab_blend(sampler2D grab_tex, float4 screenpos, fixed4 c) {
 	float2 grab_uv = screenpos.xy / screenpos.w;
 	grab_uv.x = (grab_uv.x + 1.0) * .5;
 	grab_uv.y = (grab_uv.y + 1.0) * .5;
+#if UNITY_UV_STARTS_AT_TOP
+	grab_uv.y = 1.0 - grab_uv.y;
+#endif
 	fixed4 grab_c = tex2D(grab_tex, grab_uv);
 	#if SWF_DARKEN_BLEND
 		c = swf_darken(grab_c, c);
