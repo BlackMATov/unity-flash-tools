@@ -159,6 +159,7 @@ namespace FlashTools.Internal {
 		Shader SelectShader(bool masked, SwfBlendModeData.Types blend_type) {
 			switch ( blend_type ) {
 			case SwfBlendModeData.Types.Normal:
+			case SwfBlendModeData.Types.Layer:
 			case SwfBlendModeData.Types.Multiply:
 			case SwfBlendModeData.Types.Screen:
 			case SwfBlendModeData.Types.Lighten:
@@ -197,6 +198,11 @@ namespace FlashTools.Internal {
 		{
 			switch ( blend_mode ) {
 			case SwfBlendModeData.Types.Normal:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				break;
+			case SwfBlendModeData.Types.Layer:
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
 				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);

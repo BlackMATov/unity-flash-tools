@@ -109,6 +109,7 @@ namespace FlashTools {
 	public struct SwfBlendModeData {
 		public enum Types : byte {
 			Normal,
+			Layer,
 			Multiply,
 			Screen,
 			Lighten,
@@ -136,7 +137,7 @@ namespace FlashTools {
 		public static SwfBlendModeData operator*(
 			SwfBlendModeData a, SwfBlendModeData b)
 		{
-			return a.type == Types.Normal ? b : a;
+			return (a.type == Types.Normal || a.type == Types.Layer) ? b : a;
 		}
 	}
 

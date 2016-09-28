@@ -4,7 +4,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 	public struct SwfBlendMode {
 		public enum Mode {
 			Normal,      // +
-			Layer,       // -
+			Layer,       // +
 			Multiply,    // +
 			Screen,      // +
 			Lighten,     // +
@@ -43,6 +43,8 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 			switch ( Value ) {
 			case Mode.Normal:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Normal);
+			case Mode.Layer:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Layer);
 			case Mode.Multiply:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Multiply);
 			case Mode.Screen:
