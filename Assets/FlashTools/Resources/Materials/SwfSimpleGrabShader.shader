@@ -1,12 +1,11 @@
-Shader "FlashTools/SwfGrabSimple" {
+Shader "FlashTools/SwfSimpleGrab" {
 	Properties {
 		[PerRendererData] _MainTex ("Main Texture", 2D   ) = "white" {}
 		[PerRendererData] _Tint    ("Tint"        , Color) = (1,1,1,1)
 
-		[Enum(UnityEngine.Rendering.BlendOp       )] _BlendOp   ("BlendOp"  , Int) = 0
-		[Enum(UnityEngine.Rendering.BlendMode     )] _SrcBlend  ("SrcBlend" , Int) = 1
-		[Enum(UnityEngine.Rendering.BlendMode     )] _DstBlend  ("DstBlend" , Int) = 10
-		[Enum(UnityEngine.Rendering.ColorWriteMask)] _ColorMask ("ColorMask", Int) = 15
+		[Enum(UnityEngine.Rendering.BlendOp  )] _BlendOp  ("BlendOp" , Int) = 0
+		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("SrcBlend", Int) = 1
+		[Enum(UnityEngine.Rendering.BlendMode)] _DstBlend ("DstBlend", Int) = 10
 	}
 
 	SubShader {
@@ -18,10 +17,9 @@ Shader "FlashTools/SwfGrabSimple" {
 			"CanUseSpriteAtlas" = "True"
 		}
 
-		Cull      Off
-		Lighting  Off
-		ZWrite    Off
-		ColorMask [_ColorMask]
+		Cull     Off
+		Lighting Off
+		ZWrite   Off
 
 		BlendOp [_BlendOp]
 		Blend [_SrcBlend] [_DstBlend]

@@ -136,8 +136,7 @@ namespace FlashTools {
 		public static SwfBlendModeData operator*(
 			SwfBlendModeData a, SwfBlendModeData b)
 		{
-			return new SwfBlendModeData{
-				type = a.type == Types.Normal ? b.type : a.type};
+			return a.type == Types.Normal ? b : a;
 		}
 	}
 
@@ -187,12 +186,7 @@ namespace FlashTools {
 			Masked,
 			MaskReset
 		}
-		public enum ColorModes {
-			RGBA,
-			A
-		}
 		public Types                 Type       = Types.Group;
-		public ColorModes            ColorMode  = ColorModes.RGBA;
 		public ushort                ClipDepth  = 0;
 		public ushort                Bitmap     = 0;
 		public SwfMatrixData         Matrix     = SwfMatrixData.identity;
