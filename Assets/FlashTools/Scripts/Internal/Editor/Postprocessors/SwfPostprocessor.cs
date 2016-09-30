@@ -194,7 +194,6 @@ namespace FlashTools.Internal {
 							ClipDepth  = (ushort)frame_inst_clip_depth,
 							Bitmap     = bitmap_id,
 							Matrix     = SwfMatrixData.FromUMatrix(inst_matrix * bitmap_matrix.ToUMatrix()),
-							ColorMode  = SwfColorModeData.identity,
 							BlendMode  = inst_blend_mode,
 							ColorTrans = inst_color_transform});
 						if ( parent_mask > 0 ) {
@@ -254,7 +253,6 @@ namespace FlashTools.Internal {
 						ClipDepth  = 0,
 						Bitmap     = mask.Bitmap,
 						Matrix     = mask.Matrix,
-						ColorMode  = mask.ColorMode,
 						BlendMode  = mask.BlendMode,
 						ColorTrans = mask.ColorTrans});
 				}

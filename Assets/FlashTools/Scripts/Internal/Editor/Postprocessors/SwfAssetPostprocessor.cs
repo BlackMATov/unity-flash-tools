@@ -314,7 +314,6 @@ namespace FlashTools.Internal {
 
 		class BakedGroup {
 			public SwfInstanceData.Types  Type;
-			public SwfColorModeData.Types ColorMode;
 			public SwfBlendModeData.Types BlendMode;
 			public int                    ClipDepth;
 			public int                    StartVertex;
@@ -376,13 +375,11 @@ namespace FlashTools.Internal {
 
 					if ( baked_groups.Count == 0 ||
 						baked_groups[baked_groups.Count - 1].Type      != inst.Type           ||
-						baked_groups[baked_groups.Count - 1].ColorMode != inst.ColorMode.type ||
 						baked_groups[baked_groups.Count - 1].BlendMode != inst.BlendMode.type ||
 						baked_groups[baked_groups.Count - 1].ClipDepth != inst.ClipDepth )
 					{
 						baked_groups.Add(new BakedGroup{
 							Type          = inst.Type,
-							ColorMode     = inst.ColorMode.type,
 							BlendMode     = inst.BlendMode.type,
 							ClipDepth     = inst.ClipDepth,
 							StartVertex   = baked_vertices.Count - 4,
@@ -403,10 +400,10 @@ namespace FlashTools.Internal {
 					group.Material = settings_holder.GetIncrMaskMaterial();
 					break;
 				case SwfInstanceData.Types.Group:
-					group.Material = settings_holder.GetSimpleMaterial(group.ColorMode, group.BlendMode);
+					group.Material = settings_holder.GetSimpleMaterial(group.BlendMode);
 					break;
 				case SwfInstanceData.Types.Masked:
-					group.Material = settings_holder.GetMaskedMaterial(group.ColorMode, group.BlendMode, group.ClipDepth);
+					group.Material = settings_holder.GetMaskedMaterial(group.BlendMode, group.ClipDepth);
 					break;
 				case SwfInstanceData.Types.MaskReset:
 					group.Material = settings_holder.GetDecrMaskMaterial();
