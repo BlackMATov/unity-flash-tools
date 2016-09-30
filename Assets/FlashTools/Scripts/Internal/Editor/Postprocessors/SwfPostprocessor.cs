@@ -97,6 +97,7 @@ namespace FlashTools.Internal {
 				library,
 				display_list,
 				Matrix4x4.identity,
+				SwfColorModeData.identity,
 				SwfBlendModeData.identity,
 				SwfColorTransData.identity,
 				0,
@@ -109,6 +110,7 @@ namespace FlashTools.Internal {
 			SwfLibrary            library,
 			SwfDisplayList        display_list,
 			Matrix4x4             parent_matrix,
+			SwfColorModeData      parent_color_mode,
 			SwfBlendModeData      parent_blend_mode,
 			SwfColorTransData     parent_color_transform,
 			ushort                parent_masked,
@@ -120,6 +122,7 @@ namespace FlashTools.Internal {
 			foreach ( var inst in display_list.Instances.Values.Where(p => p.Visible) ) {
 				CheckSelfMasks(self_masks, inst.Depth, frame);
 				var child_matrix          = parent_matrix          * inst.Matrix        .ToUMatrix();
+				var child_color_mode      = parent_color_mode;
 				var child_blend_mode      = parent_blend_mode      * inst.BlendMode     .ToBlendModeData();
 				var child_color_transform = parent_color_transform * inst.ColorTransform.ToColorTransData();
 				switch ( inst.Type ) {
@@ -128,6 +131,7 @@ namespace FlashTools.Internal {
 						library,
 						inst as SwfDisplayShapeInstance,
 						child_matrix,
+						child_color_mode,
 						child_blend_mode,
 						child_color_transform,
 						parent_masked,
@@ -141,6 +145,7 @@ namespace FlashTools.Internal {
 						library,
 						inst as SwfDisplaySpriteInstance,
 						child_matrix,
+						child_color_mode,
 						child_blend_mode,
 						child_color_transform,
 						parent_masked,
@@ -162,6 +167,7 @@ namespace FlashTools.Internal {
 			SwfLibrary              library,
 			SwfDisplayShapeInstance inst,
 			Matrix4x4               inst_matrix,
+			SwfColorModeData        inst_color_mode,
 			SwfBlendModeData        inst_blend_mode,
 			SwfColorTransData       inst_color_transform,
 			ushort                  parent_masked,
@@ -194,6 +200,7 @@ namespace FlashTools.Internal {
 							ClipDepth  = (ushort)frame_inst_clip_depth,
 							Bitmap     = bitmap_id,
 							Matrix     = SwfMatrixData.FromUMatrix(inst_matrix * bitmap_matrix.ToUMatrix()),
+							ColorMode  = inst_color_mode,
 							BlendMode  = inst_blend_mode,
 							ColorTrans = inst_color_transform});
 						if ( parent_mask > 0 ) {
@@ -210,6 +217,7 @@ namespace FlashTools.Internal {
 			SwfLibrary               library,
 			SwfDisplaySpriteInstance inst,
 			Matrix4x4                inst_matrix,
+			SwfColorModeData         inst_color_mode,
 			SwfBlendModeData         inst_blend_mode,
 			SwfColorTransData        inst_color_transform,
 			ushort                   parent_masked,
@@ -224,6 +232,7 @@ namespace FlashTools.Internal {
 					library,
 					inst.DisplayList,
 					inst_matrix,
+					inst_color_mode,
 					inst_blend_mode,
 					inst_color_transform,
 					(ushort)(parent_masked + self_masks.Count),
@@ -253,6 +262,7 @@ namespace FlashTools.Internal {
 						ClipDepth  = 0,
 						Bitmap     = mask.Bitmap,
 						Matrix     = mask.Matrix,
+						ColorMode  = mask.ColorMode,
 						BlendMode  = mask.BlendMode,
 						ColorTrans = mask.ColorTrans});
 				}

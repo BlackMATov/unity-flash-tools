@@ -106,6 +106,26 @@ namespace FlashTools {
 	}
 
 	[System.Serializable]
+	public struct SwfColorModeData {
+		public enum Types : byte {
+			RGBA,
+			A
+		}
+		public Types type;
+
+		public SwfColorModeData(Types type) {
+			this.type = type;
+		}
+
+		public static SwfColorModeData identity {
+			get {
+				return new SwfColorModeData{
+					type = Types.RGBA};
+			}
+		}
+	}
+
+	[System.Serializable]
 	public struct SwfBlendModeData {
 		public enum Types : byte {
 			Normal,
@@ -191,6 +211,7 @@ namespace FlashTools {
 		public ushort                ClipDepth  = 0;
 		public ushort                Bitmap     = 0;
 		public SwfMatrixData         Matrix     = SwfMatrixData.identity;
+		public SwfColorModeData      ColorMode  = SwfColorModeData.identity;
 		public SwfBlendModeData      BlendMode  = SwfBlendModeData.identity;
 		public SwfColorTransData     ColorTrans = SwfColorTransData.identity;
 	}
