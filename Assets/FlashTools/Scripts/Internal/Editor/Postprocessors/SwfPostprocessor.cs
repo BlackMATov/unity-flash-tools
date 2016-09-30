@@ -102,7 +102,6 @@ namespace FlashTools.Internal {
 				0,
 				0,
 				null,
-				false,
 				frame);
 		}
 
@@ -115,7 +114,6 @@ namespace FlashTools.Internal {
 			ushort                parent_masked,
 			ushort                parent_mask,
 			List<SwfInstanceData> parent_masks,
-			bool                  erasable,
 			SwfFrameData          frame)
 		{
 			var self_masks = new List<SwfInstanceData>();
@@ -124,7 +122,6 @@ namespace FlashTools.Internal {
 				var child_matrix          = parent_matrix          * inst.Matrix        .ToUMatrix();
 				var child_blend_mode      = parent_blend_mode      * inst.BlendMode     .ToBlendModeData();
 				var child_color_transform = parent_color_transform * inst.ColorTransform.ToColorTransData();
-				var child_erasable        = (erasable || inst.BlendMode.Value != SwfBlendMode.Mode.Normal);
 				switch ( inst.Type ) {
 				case SwfDisplayInstanceType.Shape:
 					AddShapeInstanceToFrame(
@@ -137,7 +134,6 @@ namespace FlashTools.Internal {
 						parent_mask,
 						parent_masks,
 						self_masks,
-						child_erasable,
 						frame);
 					break;
 				case SwfDisplayInstanceType.Sprite:
@@ -151,7 +147,6 @@ namespace FlashTools.Internal {
 						parent_mask,
 						parent_masks,
 						self_masks,
-						child_erasable,
 						frame);
 					break;
 				default:
@@ -173,7 +168,6 @@ namespace FlashTools.Internal {
 			ushort                  parent_mask,
 			List<SwfInstanceData>   parent_masks,
 			List<SwfInstanceData>   self_masks,
-			bool                    erasable,
 			SwfFrameData            frame)
 		{
 			var shape_def = library.FindDefine<SwfLibraryShapeDefine>(inst.Id);
@@ -223,7 +217,6 @@ namespace FlashTools.Internal {
 			ushort                   parent_mask,
 			List<SwfInstanceData>    parent_masks,
 			List<SwfInstanceData>    self_masks,
-			bool                     erasable,
 			SwfFrameData             frame)
 		{
 			var sprite_def = library.FindDefine<SwfLibrarySpriteDefine>(inst.Id);
@@ -245,7 +238,6 @@ namespace FlashTools.Internal {
 						: (inst.ClipDepth > 0
 							? self_masks
 							: null),
-					erasable,
 					frame);
 			}
 		}

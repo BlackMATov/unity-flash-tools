@@ -39,7 +39,7 @@ Shader "FlashTools/SwfMaskedGrab" {
 			sampler2D _MainTex;
 			sampler2D _GrabTexture;
 
-			#pragma multi_compile SWF_DARKEN_BLEND SWF_DIFFERENCE_BLEND SWF_INVERT_BLEND SWF_ALPHA_BLEND SWF_ERASE_BLEND SWF_OVERLAY_BLEND SWF_HARDLIGHT_BLEND
+			#pragma multi_compile SWF_DARKEN_BLEND SWF_DIFFERENCE_BLEND SWF_INVERT_BLEND SWF_OVERLAY_BLEND SWF_HARDLIGHT_BLEND
 
 			#include "UnityCG.cginc"
 			#include "SwfBaseCG.cginc"
