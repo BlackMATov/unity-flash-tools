@@ -172,6 +172,8 @@ namespace FlashTools.Internal {
 			case SwfBlendModeData.Types.Darken:
 			case SwfBlendModeData.Types.Difference:
 			case SwfBlendModeData.Types.Invert:
+			case SwfBlendModeData.Types.Alpha:
+			case SwfBlendModeData.Types.Erase:
 			case SwfBlendModeData.Types.Overlay:
 			case SwfBlendModeData.Types.Hardlight:
 				return CheckAndGetShader(masked ? MaskedGrabShader : SimpleGrabShader);
@@ -267,6 +269,18 @@ namespace FlashTools.Internal {
 				material.SetInt("_SrcBlend", (int)BlendMode.One);
 				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
 				material.EnableKeyword("SWF_INVERT_BLEND");
+				break;
+			case SwfBlendModeData.Types.Alpha:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				material.EnableKeyword("SWF_ALPHA_BLEND");
+				break;
+			case SwfBlendModeData.Types.Erase:
+				material.SetInt("_BlendOp" , (int)BlendOp.Add);
+				material.SetInt("_SrcBlend", (int)BlendMode.One);
+				material.SetInt("_DstBlend", (int)BlendMode.OneMinusSrcAlpha);
+				material.EnableKeyword("SWF_ERASE_BLEND");
 				break;
 			case SwfBlendModeData.Types.Overlay:
 				material.SetInt("_BlendOp" , (int)BlendOp.Add);

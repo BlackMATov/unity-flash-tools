@@ -23,6 +23,14 @@ inline fixed4 swf_invert(fixed4 ca, fixed4 cb) {
 	return r;
 }
 
+inline fixed4 swf_alpha(fixed4 ca, fixed4 cb) {
+	return cb;
+}
+
+inline fixed4 swf_erase(fixed4 ca, fixed4 cb) {
+	return cb;
+}
+
 inline fixed4 swf_overlay(fixed4 ca, fixed4 cb) {
 	fixed4 r = ca > 0.5 ? 1.0 - 2.0 * (1.0 - ca) * (1.0 - cb) : 2.0 * ca * cb;
 	r.a = cb.a;
@@ -48,6 +56,10 @@ inline fixed4 grab_blend(sampler2D grab_tex, float4 screenpos, fixed4 c) {
 		c = swf_difference(grab_c, c);
 	#elif SWF_INVERT_BLEND
 		c = swf_invert(grab_c, c);
+	#elif SWF_ALPHA_BLEND
+		c = swf_alpha(grab_c, c);
+	#elif SWF_ERASE_BLEND
+		c = swf_erase(grab_c, c);
 	#elif SWF_OVERLAY_BLEND
 		c = swf_overlay(grab_c, c);
 	#elif SWF_HARDLIGHT_BLEND

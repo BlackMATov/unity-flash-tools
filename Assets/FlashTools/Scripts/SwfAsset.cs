@@ -138,6 +138,8 @@ namespace FlashTools {
 			Add,
 			Subtract,
 			Invert,     // GrabPass
+			Alpha,      // GrabPass
+			Erase,      // GrabPass
 			Overlay,    // GrabPass
 			Hardlight   // GrabPass
 		}
@@ -157,6 +159,9 @@ namespace FlashTools {
 		public static SwfBlendModeData operator*(
 			SwfBlendModeData a, SwfBlendModeData b)
 		{
+			if ( b.type == Types.Alpha || b.type == Types.Erase ) {
+				return b;
+			}
 			return (a.type == Types.Normal || a.type == Types.Layer) ? b : a;
 		}
 	}

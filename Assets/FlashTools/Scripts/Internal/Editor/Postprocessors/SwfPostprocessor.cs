@@ -97,12 +97,12 @@ namespace FlashTools.Internal {
 				library,
 				display_list,
 				Matrix4x4.identity,
-				SwfColorModeData.identity,
 				SwfBlendModeData.identity,
 				SwfColorTransData.identity,
 				0,
 				0,
 				null,
+				false,
 				frame);
 		}
 
@@ -110,34 +110,34 @@ namespace FlashTools.Internal {
 			SwfLibrary            library,
 			SwfDisplayList        display_list,
 			Matrix4x4             parent_matrix,
-			SwfColorModeData      parent_color_mode,
 			SwfBlendModeData      parent_blend_mode,
 			SwfColorTransData     parent_color_transform,
 			ushort                parent_masked,
 			ushort                parent_mask,
 			List<SwfInstanceData> parent_masks,
+			bool                  erasable,
 			SwfFrameData          frame)
 		{
 			var self_masks = new List<SwfInstanceData>();
 			foreach ( var inst in display_list.Instances.Values.Where(p => p.Visible) ) {
 				CheckSelfMasks(self_masks, inst.Depth, frame);
 				var child_matrix          = parent_matrix          * inst.Matrix        .ToUMatrix();
-				var child_color_mode      = parent_color_mode;
 				var child_blend_mode      = parent_blend_mode      * inst.BlendMode     .ToBlendModeData();
 				var child_color_transform = parent_color_transform * inst.ColorTransform.ToColorTransData();
+				var child_erasable        = (erasable || inst.BlendMode.Value != SwfBlendMode.Mode.Normal);
 				switch ( inst.Type ) {
 				case SwfDisplayInstanceType.Shape:
 					AddShapeInstanceToFrame(
 						library,
 						inst as SwfDisplayShapeInstance,
 						child_matrix,
-						child_color_mode,
 						child_blend_mode,
 						child_color_transform,
 						parent_masked,
 						parent_mask,
 						parent_masks,
 						self_masks,
+						child_erasable,
 						frame);
 					break;
 				case SwfDisplayInstanceType.Sprite:
@@ -145,13 +145,13 @@ namespace FlashTools.Internal {
 						library,
 						inst as SwfDisplaySpriteInstance,
 						child_matrix,
-						child_color_mode,
 						child_blend_mode,
 						child_color_transform,
 						parent_masked,
 						parent_mask,
 						parent_masks,
 						self_masks,
+						child_erasable,
 						frame);
 					break;
 				default:
@@ -167,13 +167,13 @@ namespace FlashTools.Internal {
 			SwfLibrary              library,
 			SwfDisplayShapeInstance inst,
 			Matrix4x4               inst_matrix,
-			SwfColorModeData        inst_color_mode,
 			SwfBlendModeData        inst_blend_mode,
 			SwfColorTransData       inst_color_transform,
 			ushort                  parent_masked,
 			ushort                  parent_mask,
 			List<SwfInstanceData>   parent_masks,
 			List<SwfInstanceData>   self_masks,
+			bool                    erasable,
 			SwfFrameData            frame)
 		{
 			var shape_def = library.FindDefine<SwfLibraryShapeDefine>(inst.Id);
@@ -200,7 +200,7 @@ namespace FlashTools.Internal {
 							ClipDepth  = (ushort)frame_inst_clip_depth,
 							Bitmap     = bitmap_id,
 							Matrix     = SwfMatrixData.FromUMatrix(inst_matrix * bitmap_matrix.ToUMatrix()),
-							ColorMode  = inst_color_mode,
+							ColorMode  = SwfColorModeData.identity,
 							BlendMode  = inst_blend_mode,
 							ColorTrans = inst_color_transform});
 						if ( parent_mask > 0 ) {
@@ -217,13 +217,13 @@ namespace FlashTools.Internal {
 			SwfLibrary               library,
 			SwfDisplaySpriteInstance inst,
 			Matrix4x4                inst_matrix,
-			SwfColorModeData         inst_color_mode,
 			SwfBlendModeData         inst_blend_mode,
 			SwfColorTransData        inst_color_transform,
 			ushort                   parent_masked,
 			ushort                   parent_mask,
 			List<SwfInstanceData>    parent_masks,
 			List<SwfInstanceData>    self_masks,
+			bool                     erasable,
 			SwfFrameData             frame)
 		{
 			var sprite_def = library.FindDefine<SwfLibrarySpriteDefine>(inst.Id);
@@ -232,7 +232,6 @@ namespace FlashTools.Internal {
 					library,
 					inst.DisplayList,
 					inst_matrix,
-					inst_color_mode,
 					inst_blend_mode,
 					inst_color_transform,
 					(ushort)(parent_masked + self_masks.Count),
@@ -246,6 +245,7 @@ namespace FlashTools.Internal {
 						: (inst.ClipDepth > 0
 							? self_masks
 							: null),
+					erasable,
 					frame);
 			}
 		}

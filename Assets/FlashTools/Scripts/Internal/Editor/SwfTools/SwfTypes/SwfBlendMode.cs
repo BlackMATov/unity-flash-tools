@@ -61,8 +61,10 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				return new SwfBlendModeData(SwfBlendModeData.Types.Subtract);
 			case Mode.Invert:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Invert);
-			case Mode.Overlay:
-				return new SwfBlendModeData(SwfBlendModeData.Types.Overlay);
+			case Mode.Alpha:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Alpha);
+			case Mode.Erase:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Erase);
 			case Mode.Hardlight:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Hardlight);
 			default:
