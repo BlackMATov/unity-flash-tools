@@ -83,6 +83,7 @@ namespace FlashTools.Internal.SwfTools {
 		public bool              Visible;
 		public SwfMatrix         Matrix;
 		public SwfBlendMode      BlendMode;
+		public SwfSurfaceFilters FilterList;
 		public SwfColorTransform ColorTransform;
 	}
 

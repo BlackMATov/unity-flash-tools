@@ -116,6 +116,16 @@ namespace FlashTools.Internal {
 			List<SwfInstanceData> parent_masks,
 			SwfFrameData          frame)
 		{
+			var inst_filter_types = display_list.Instances.Values
+				.Where(p => p.Visible && p.FilterList.Filters.Count > 0)
+				.SelectMany(p => p.FilterList.Filters)
+				.Select(p => p.Type)
+				.Distinct();
+			foreach ( var filter_type in inst_filter_types ) {
+				Debug.LogWarningFormat(
+					"<b>[FlashTools]</b> SwfSurfaceFilters. Unsupported filter type '{0}'",
+					filter_type);
+			}
 			var self_masks = new List<SwfInstanceData>();
 			foreach ( var inst in display_list.Instances.Values.Where(p => p.Visible) ) {
 				CheckSelfMasks(self_masks, inst.Depth, frame);

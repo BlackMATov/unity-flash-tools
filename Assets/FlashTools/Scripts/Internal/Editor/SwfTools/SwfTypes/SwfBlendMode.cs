@@ -65,7 +65,7 @@ namespace FlashTools.Internal.SwfTools.SwfTypes {
 				return new SwfBlendModeData(SwfBlendModeData.Types.Hardlight);
 			default:
 				Debug.LogWarningFormat(
-					"<b>[FlashTools]</b> SwfBlendMode. Unsupported blend mode {0}",
+					"<b>[FlashTools]</b> SwfBlendMode. Unsupported blend mode '{0}'",
 					Value);
 				return new SwfBlendModeData(SwfBlendModeData.Types.Normal);
 			}
