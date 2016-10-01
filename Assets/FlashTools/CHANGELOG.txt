@@ -1,4 +1,11 @@
 -----------------
+-- Version 0.5 --
+-----------------
+
+Flash optimizer twicks
+Blending modes (except Alpha and Erase)
+
+-----------------
 -- Version 0.4 --
 -----------------
 
