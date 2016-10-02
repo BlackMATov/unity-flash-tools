@@ -2,11 +2,7 @@
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfPostprocessor.cs">
     <Files>
-      <File FileName="FTSources/SwfTools/Sources/SwfContext.cs" Line="2" Column="25" />
-      <File FileName="FTSources/SwfTools/Sources/SwfContextExecuter.cs" Line="5" Column="25" />
-      <File FileName="FTSources/SwfTools/Sources/SwfDecoder.cs" Line="16" Column="56" />
-      <File FileName="FTSources/SwfTools/Sources/SwfStreamReader.cs" Line="19" Column="3" />
-      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfPostprocessor.cs" Line="22" Column="40" />
+      <File FileName="Assets/FlashTools/Scripts/Internal/Editor/Postprocessors/SwfPostprocessor.cs" Line="30" Column="24" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

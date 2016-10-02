@@ -6,36 +6,33 @@
     <ProjectGuid>{4EB8756F-398B-4356-90FB-0ED056B3E6E9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FlashTools</RootNamespace>
-    <AssemblyName>SwfTools</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <ReleaseVersion>0.5</ReleaseVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\Assets\FlashTools\Plugins\Editor\Debug</OutputPath>
+    <OutputPath>..\..\Assets\FlashTools\Plugins\Editor</OutputPath>
     <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
+    <NoStdLib>true</NoStdLib>
+    <AssemblyName>SwfTools_Debug</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <Optimize>true</Optimize>
-    <OutputPath>..\..\Assets\FlashTools\Plugins\Editor\Release</OutputPath>
+    <OutputPath>..\..\Assets\FlashTools\Plugins\Editor</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
+    <NoStdLib>true</NoStdLib>
+    <AssemblyName>SwfTools_Release</AssemblyName>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="Ionic.Zip.Unity">
-      <HintPath>..\..\Assets\FlashTools\Plugins\Editor\Ionic.Zip.Unity.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
   <ItemGroup>
     <Folder Include="Sources\" />
   </ItemGroup>
@@ -88,5 +85,19 @@
     <Compile Include="Sources\SwfTypes\SwfShapesWithStyle.cs" />
     <Compile Include="Sources\SwfTypes\SwfShortHeader.cs" />
     <Compile Include="Sources\SwfTypes\SwfSurfaceFilters.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib">
+      <HintPath>..\..\..\..\..\..\..\Applications\Unity\Unity.app\Contents\Frameworks\Mono\lib\mono\unity\mscorlib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Ionic.Zip.Unity">
+      <HintPath>..\..\Assets\FlashTools\Plugins\Editor\Ionic.Zip.Unity.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>..\..\..\..\..\..\..\Applications\Unity\Unity.app\Contents\Frameworks\Mono\lib\mono\unity\System.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
 </Project>
