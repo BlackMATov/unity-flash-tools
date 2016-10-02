@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{4EB8756F-398B-4356-90FB-0ED056B3E6E9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FlashTools</RootNamespace>
+    <AssemblyName>SwfTools</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Assets\FlashTools\Plugins\Editor\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Assets\FlashTools\Plugins\Editor\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Ionic.Zip.Unity">
+      <HintPath>..\..\Assets\FlashTools\Plugins\Editor\Ionic.Zip.Unity.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Sources\SwfContext.cs" />
+    <Compile Include="Sources\SwfContextExecuter.cs" />
+    <Compile Include="Sources\SwfDecoder.cs" />
+    <Compile Include="Sources\SwfStreamReader.cs" />
+    <Compile Include="Sources\SwfTags\DefineBinaryDataTag.cs" />
+    <Compile Include="Sources\SwfTags\DefineBitsLossless2Tag.cs" />
+    <Compile Include="Sources\SwfTags\DefineBitsLosslessTag.cs" />
+    <Compile Include="Sources\SwfTags\DefineSceneAndFrameLabelDataTag.cs" />
+    <Compile Include="Sources\SwfTags\DefineShape2Tag.cs" />
+    <Compile Include="Sources\SwfTags\DefineShape3Tag.cs" />
+    <Compile Include="Sources\SwfTags\DefineShape4Tag.cs" />
+    <Compile Include="Sources\SwfTags\DefineShapeTag.cs" />
+    <Compile Include="Sources\SwfTags\DefineSpriteTag.cs" />
+    <Compile Include="Sources\SwfTags\DoABCTag.cs" />
+    <Compile Include="Sources\SwfTags\EnableDebugger2Tag.cs" />
+    <Compile Include="Sources\SwfTags\EnableDebuggerTag.cs" />
+    <Compile Include="Sources\SwfTags\EnableTelemetryTag.cs" />
+    <Compile Include="Sources\SwfTags\EndTag.cs" />
+    <Compile Include="Sources\SwfTags\ExportAssetsTag.cs" />
+    <Compile Include="Sources\SwfTags\FileAttributesTag.cs" />
+    <Compile Include="Sources\SwfTags\FrameLabelTag.cs" />
+    <Compile Include="Sources\SwfTags\MetadataTag.cs" />
+    <Compile Include="Sources\SwfTags\PlaceObject2Tag.cs" />
+    <Compile Include="Sources\SwfTags\PlaceObject3Tag.cs" />
+    <Compile Include="Sources\SwfTags\PlaceObjectTag.cs" />
+    <Compile Include="Sources\SwfTags\ProtectTag.cs" />
+    <Compile Include="Sources\SwfTags\RemoveObject2Tag.cs" />
+    <Compile Include="Sources\SwfTags\RemoveObjectTag.cs" />
+    <Compile Include="Sources\SwfTags\ScriptLimitsTag.cs" />
+    <Compile Include="Sources\SwfTags\SetBackgroundColorTag.cs" />
+    <Compile Include="Sources\SwfTags\ShowFrameTag.cs" />
+    <Compile Include="Sources\SwfTags\SwfTagBase.cs" />
+    <Compile Include="Sources\SwfTags\SwfTagVisitor.cs" />
+    <Compile Include="Sources\SwfTags\SymbolClassTag.cs" />
+    <Compile Include="Sources\SwfTags\UnknownTag.cs" />
+    <Compile Include="Sources\SwfTags\UnsupportedTag.cs" />
+    <Compile Include="Sources\SwfTypes\SwfBlendMode.cs" />
+    <Compile Include="Sources\SwfTypes\SwfClipActions.cs" />
+    <Compile Include="Sources\SwfTypes\SwfColor.cs" />
+    <Compile Include="Sources\SwfTypes\SwfColorTransform.cs" />
+    <Compile Include="Sources\SwfTypes\SwfControlTags.cs" />
+    <Compile Include="Sources\SwfTypes\SwfFillStyleType.cs" />
+    <Compile Include="Sources\SwfTypes\SwfLongHeader.cs" />
+    <Compile Include="Sources\SwfTypes\SwfMatrix.cs" />
+    <Compile Include="Sources\SwfTypes\SwfRect.cs" />
+    <Compile Include="Sources\SwfTypes\SwfShapesWithStyle.cs" />
+    <Compile Include="Sources\SwfTypes\SwfShortHeader.cs" />
+    <Compile Include="Sources\SwfTypes\SwfSurfaceFilters.cs" />
+  </ItemGroup>
+</Project>

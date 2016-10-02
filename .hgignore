@@ -2,8 +2,4 @@ glob:obj/*
 glob:Temp/*
 glob:Library/*
 
-glob:*.sln
-glob:*.csproj
-glob:*.userprefs
-
 glob:.DS_Store
