@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-using FlashTools.Internal.SwfTools;
-using FlashTools.Internal.SwfTools.SwfTags;
-using FlashTools.Internal.SwfTools.SwfTypes;
+using SwfTools;
+using SwfTools.SwfTags;
+using SwfTools.SwfTypes;
 
 namespace FlashTools.Internal {
 	public class SwfPostprocessor : AssetPostprocessor {
@@ -287,6 +287,76 @@ namespace FlashTools.Internal {
 					RealWidth  = p.Value.Width,
 					RealHeight = p.Value.Height})
 				.ToList();
+		}
+	}
+
+	// ---------------------------------------------------------------------
+	//
+	// Extensions
+	//
+	// ---------------------------------------------------------------------
+
+	static class SwfExtensions {
+		public static Matrix4x4 ToUMatrix(this SwfMatrix self) {
+			var mat = Matrix4x4.identity;
+			mat.m00 = self.ScaleX;
+			mat.m10 = self.RotateSkew0;
+			mat.m01 = self.RotateSkew1;
+			mat.m11 = self.ScaleY;
+			mat.m03 = self.TranslateX;
+			mat.m13 = self.TranslateY;
+			return mat;
+		}
+
+		public static SwfBlendModeData ToBlendModeData(this SwfBlendMode self) {
+			switch ( self.Value ) {
+			case SwfBlendMode.Mode.Normal:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Normal);
+			case SwfBlendMode.Mode.Layer:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Layer);
+			case SwfBlendMode.Mode.Multiply:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Multiply);
+			case SwfBlendMode.Mode.Screen:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Screen);
+			case SwfBlendMode.Mode.Lighten:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Lighten);
+			case SwfBlendMode.Mode.Darken:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Darken);
+			case SwfBlendMode.Mode.Difference:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Difference);
+			case SwfBlendMode.Mode.Add:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Add);
+			case SwfBlendMode.Mode.Subtract:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Subtract);
+			case SwfBlendMode.Mode.Invert:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Invert);
+			case SwfBlendMode.Mode.Hardlight:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Hardlight);
+			default:
+				Debug.LogWarningFormat(
+					"<b>[FlashTools]</b> SwfBlendMode. Unsupported blend mode '{0}'",
+					self.Value);
+				return new SwfBlendModeData(SwfBlendModeData.Types.Normal);
+			}
+		}
+
+		public static SwfColorTransData ToColorTransData(this SwfColorTransform self) {
+			var trans = SwfColorTransData.identity;
+			if ( self.HasAdd ) {
+				trans.addColor = new SwfVec4Data(
+					self.RAdd / 256.0f,
+					self.GAdd / 256.0f,
+					self.BAdd / 256.0f,
+					self.AAdd / 256.0f);
+			}
+			if ( self.HasMul ) {
+				trans.mulColor = new SwfVec4Data(
+					self.RMul / 256.0f,
+					self.GMul / 256.0f,
+					self.BMul / 256.0f,
+					self.AMul / 256.0f);
+			}
+			return trans;
 		}
 	}
 }
