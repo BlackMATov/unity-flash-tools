@@ -1,6 +1,6 @@
-﻿<Properties StartupItem="SwfTools/SwfTools.csproj">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
+﻿<Properties StartupItem="FTSwfTools/FTSwfTools.csproj">
   <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug|x86" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

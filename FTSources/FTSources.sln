@@ -1,11 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SwfTools", "SwfTools\SwfTools.csproj", "{4EB8756F-398B-4356-90FB-0ED056B3E6E9}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp", "..\Assembly-CSharp.csproj", "{ED48043C-7BE9-40F3-EC3C-3D4369E54740}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Assembly-CSharp-Editor", "..\Assembly-CSharp-Editor.csproj", "{7FF03E09-4B14-EFF9-4F08-36E102F327D3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FTSwfTools", "FTSwfTools\FTSwfTools.csproj", "{4EB8756F-398B-4356-90FB-0ED056B3E6E9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,14 +13,6 @@ Global
 		{4EB8756F-398B-4356-90FB-0ED056B3E6E9}.Debug|x86.Build.0 = Debug|x86
 		{4EB8756F-398B-4356-90FB-0ED056B3E6E9}.Release|x86.ActiveCfg = Release|x86
 		{4EB8756F-398B-4356-90FB-0ED056B3E6E9}.Release|x86.Build.0 = Release|x86
-		{7FF03E09-4B14-EFF9-4F08-36E102F327D3}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{7FF03E09-4B14-EFF9-4F08-36E102F327D3}.Debug|x86.Build.0 = Debug|Any CPU
-		{7FF03E09-4B14-EFF9-4F08-36E102F327D3}.Release|x86.ActiveCfg = Release|Any CPU
-		{7FF03E09-4B14-EFF9-4F08-36E102F327D3}.Release|x86.Build.0 = Release|Any CPU
-		{ED48043C-7BE9-40F3-EC3C-3D4369E54740}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{ED48043C-7BE9-40F3-EC3C-3D4369E54740}.Debug|x86.Build.0 = Debug|Any CPU
-		{ED48043C-7BE9-40F3-EC3C-3D4369E54740}.Release|x86.ActiveCfg = Release|Any CPU
-		{ED48043C-7BE9-40F3-EC3C-3D4369E54740}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		Policies = $0

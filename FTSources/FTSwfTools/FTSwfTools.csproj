@@ -20,7 +20,7 @@
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
     <NoStdLib>true</NoStdLib>
-    <AssemblyName>SwfTools_Debug</AssemblyName>
+    <AssemblyName>FTSwfTools_Debug</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <Optimize>true</Optimize>
@@ -30,7 +30,7 @@
     <ConsolePause>false</ConsolePause>
     <PlatformTarget>x86</PlatformTarget>
     <NoStdLib>true</NoStdLib>
-    <AssemblyName>SwfTools_Release</AssemblyName>
+    <AssemblyName>FTSwfTools_Release</AssemblyName>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -88,15 +88,15 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">
-      <HintPath>..\..\..\..\..\..\..\Applications\Unity\Unity.app\Contents\Frameworks\Mono\lib\mono\unity\mscorlib.dll</HintPath>
+      <HintPath>..\DLLs\mscorlib.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="Ionic.Zip.Unity">
-      <HintPath>..\..\Assets\FlashTools\Plugins\Editor\Ionic.Zip.Unity.dll</HintPath>
+      <HintPath>..\DLLs\Ionic.Zip.Unity.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="System">
-      <HintPath>..\..\..\..\..\..\..\Applications\Unity\Unity.app\Contents\Frameworks\Mono\lib\mono\unity\System.dll</HintPath>
+      <HintPath>..\DLLs\System.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

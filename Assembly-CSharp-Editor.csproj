@@ -109,8 +109,8 @@
  <Reference Include="UnityEditor.OSXStandalone.Extensions">
  <HintPath>/Applications/Unity/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
  </Reference>
- <Reference Include="SwfTools_Debug">
- <HintPath>/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Plugins/Editor/SwfTools_Debug.dll</HintPath>
+ <Reference Include="FTSwfTools_Debug">
+ <HintPath>/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Plugins/Editor/FTSwfTools_Debug.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>/Applications/Unity/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
