@@ -1,10 +1,6 @@
 ﻿using UnityEngine;
 using FlashTools.Internal;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace FlashTools {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
@@ -152,6 +148,7 @@ namespace FlashTools {
 					_meshFilter  .sharedMesh      = null;
 					_meshRenderer.sharedMaterials = new Material[0];
 				}
+				_dirtyMesh = false;
 			}
 		}
 
@@ -216,10 +213,10 @@ namespace FlashTools {
 		}
 
 		void ChangeCurrentFrame() {
+			_dirtyMesh    = true;
 			_currentFrame = frameCount > 0
 				? Mathf.Clamp(currentFrame, 0, frameCount - 1)
 				: 0;
-			SetDirtyCurrentMesh();
 		}
 
 		void ChangeSortingProperties() {
@@ -243,13 +240,6 @@ namespace FlashTools {
 					clip && clip.Atlas ? clip.Atlas : Texture2D.whiteTexture);
 				_meshRenderer.SetPropertyBlock(_curPropBlock);
 			}
-		}
-
-		void SetDirtyCurrentMesh() {
-			_dirtyMesh = true;
-		#if UNITY_EDITOR
-			EditorUtility.SetDirty(this);
-		#endif
 		}
 
 		SwfClipAsset.Frame GetCurrentBakedFrame() {
@@ -283,7 +273,6 @@ namespace FlashTools {
 			}
 		}
 
-	#if UNITY_EDITOR
 		void Reset() {
 			UpdateAllProperties();
 		}
@@ -291,6 +280,5 @@ namespace FlashTools {
 		void OnValidate() {
 			UpdateAllProperties();
 		}
-	#endif
 	}
 }

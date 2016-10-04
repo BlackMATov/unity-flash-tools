@@ -86,14 +86,12 @@ namespace FlashTools {
 		[HideInInspector]
 		public List<Sequence>  Sequences;
 
-		#if UNITY_EDITOR
 		void Reset() {
 			Name      = string.Empty;
 			Atlas     = null;
 			FrameRate = 1.0f;
 			Sequences = new List<Sequence>();
 		}
-		#endif
 	}
 
 	// ---------------------------------------------------------------------
