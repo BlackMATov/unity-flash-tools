@@ -14,12 +14,12 @@ namespace FlashTools.Internal {
 		//
 		//
 
-		static SwfSettings _defaultSettingsCache = null;
-		static SwfSettings GetDefaultSettings() {
-			if ( !_defaultSettingsCache ) {
-				_defaultSettingsCache = SwfSettings.GetHolder();
+		static SwfSettings _settingsHolder = null;
+		static SwfSettings GetSettingsHolder() {
+			if ( !_settingsHolder ) {
+				_settingsHolder = SwfEditorUtils.GetSettingsHolder();
 			}
-			return _defaultSettingsCache;
+			return _settingsHolder;
 		}
 
 		//
@@ -31,7 +31,7 @@ namespace FlashTools.Internal {
 		}
 
 		static void OverriddenSettingsToDefault(SwfAsset asset) {
-			asset.Overridden = GetDefaultSettings().Settings;
+			asset.Overridden = GetSettingsHolder().Settings;
 		}
 
 		static void ApplyOverriddenSettings(SwfAsset asset) {
@@ -106,7 +106,7 @@ namespace FlashTools.Internal {
 						ReconvertAllAsset();
 					}
 					GUILayout.FlexibleSpace();
-					var default_settings = GetDefaultSettings().Settings;
+					var default_settings = GetSettingsHolder().Settings;
 					SwfEditorUtils.DoWithEnabledGUI(
 						_assets.Any(p => !p.Overridden.CheckEquals(default_settings)), () => {
 							if ( GUILayout.Button("Default") ) {

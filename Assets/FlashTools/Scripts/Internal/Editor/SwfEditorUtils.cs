@@ -76,18 +76,39 @@ namespace FlashTools.Internal {
 			return prop;
 		}
 
-		public static T LoadOrCreateAsset<T>(string asset_path, System.Action<T> act) where T : ScriptableObject {
+		public static SwfSettings GetSettingsHolder() {
+			var holder = LoadFirstAssetByFilter<SwfSettings>("t:SwfSettings");
+			if ( !holder ) {
+				throw new UnityException(
+					"SwfEditorUtils. SwfSettings asset not found");
+			}
+			return holder;
+		}
+
+		public static T LoadOrCreateAsset<T>(string asset_path, System.Action<T, bool> act) where T : ScriptableObject {
 			var asset = AssetDatabase.LoadAssetAtPath<T>(asset_path);
 			if ( asset ) {
-				act(asset);
+				act(asset, false);
 				EditorUtility.SetDirty(asset);
 			} else {
 				asset = ScriptableObject.CreateInstance<T>();
-				act(asset);
+				act(asset, true);
 				AssetDatabase.CreateAsset(asset, asset_path);
 			}
 			AssetDatabase.ImportAsset(asset_path);
 			return asset;
+		}
+
+		public static T LoadFirstAssetByFilter<T>(string filter) where T : UnityEngine.Object {
+			var guids = AssetDatabase.FindAssets(filter);
+			foreach ( var guid in guids ) {
+				var path  = AssetDatabase.GUIDToAssetPath(guid);
+				var asset = AssetDatabase.LoadAssetAtPath<T>(path);
+				if ( asset ) {
+					return asset;
+				}
+			}
+			return null;
 		}
 
 		public static byte[] CompressAsset<T>(T asset) {
@@ -125,7 +146,7 @@ namespace FlashTools.Internal {
 
 		[MenuItem("Tools/FlashTools/Open settings...")]
 		static void Tools_FlashTools_OpenSettings() {
-			var settings_holder = SwfSettings.GetHolder();
+			var settings_holder = SwfEditorUtils.GetSettingsHolder();
 			Selection.objects = new Object[]{settings_holder};
 		}
 
@@ -141,6 +162,19 @@ namespace FlashTools.Internal {
 					AssetDatabase.ImportAsset(swf_path);
 				}
 			}
+		}
+
+		[MenuItem("Tools/FlashTools/Pregenerate all materials")]
+		static void PregenerateAllMaterials() {
+			var blend_modes = System.Enum.GetValues(typeof(SwfBlendModeData.Types));
+			foreach ( SwfBlendModeData.Types blend_mode in blend_modes ) {
+				SwfMaterialCache.GetSimpleMaterial(blend_mode);
+				for ( var i = 0; i < 10; ++i ) {
+					SwfMaterialCache.GetMaskedMaterial(blend_mode, i);
+				}
+			}
+			SwfMaterialCache.GetIncrMaskMaterial();
+			SwfMaterialCache.GetDecrMaskMaterial();
 		}
 
 		static string[] GetAllSwfFilePaths() {

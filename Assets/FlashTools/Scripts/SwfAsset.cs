@@ -242,15 +242,13 @@ namespace FlashTools {
 		[HideInInspector]
 		public ConvertingState    Converting;
 
-	#if UNITY_EDITOR
 		void Reset() {
 			Data       = new byte[0];
 			Atlas      = null;
 			Clips      = new List<SwfClipAsset>();
-			Settings   = SwfSettings.GetDefault();
-			Overridden = SwfSettings.GetDefault();
+			Settings   = SwfSettingsData.identity;
+			Overridden = SwfSettingsData.identity;
 			Converting = new ConvertingState();
 		}
-	#endif
 	}
 }

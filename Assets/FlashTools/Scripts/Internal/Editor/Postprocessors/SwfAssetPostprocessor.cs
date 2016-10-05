@@ -267,7 +267,7 @@ namespace FlashTools.Internal {
 			} else {
 				var asset_path      = AssetDatabase.GetAssetPath(asset);
 				var clip_asset_path = Path.ChangeExtension(asset_path, symbol.Name + ".asset");
-				SwfEditorUtils.LoadOrCreateAsset<SwfClipAsset>(clip_asset_path, new_clip_asset => {
+				SwfEditorUtils.LoadOrCreateAsset<SwfClipAsset>(clip_asset_path, (new_clip_asset, created) => {
 					ConfigureClipAsset(new_clip_asset, asset, data, symbol);
 					asset.Clips.Add(new_clip_asset);
 				});
@@ -391,21 +391,20 @@ namespace FlashTools.Internal {
 				}
 			}
 
-			var settings_holder = SwfSettings.GetHolder();
 			for ( var i = 0; i < baked_groups.Count; ++i ) {
 				var group = baked_groups[i];
 				switch ( group.Type ) {
 				case SwfInstanceData.Types.Mask:
-					group.Material = settings_holder.GetIncrMaskMaterial();
+					group.Material = SwfMaterialCache.GetIncrMaskMaterial();
 					break;
 				case SwfInstanceData.Types.Group:
-					group.Material = settings_holder.GetSimpleMaterial(group.BlendMode);
+					group.Material = SwfMaterialCache.GetSimpleMaterial(group.BlendMode);
 					break;
 				case SwfInstanceData.Types.Masked:
-					group.Material = settings_holder.GetMaskedMaterial(group.BlendMode, group.ClipDepth);
+					group.Material = SwfMaterialCache.GetMaskedMaterial(group.BlendMode, group.ClipDepth);
 					break;
 				case SwfInstanceData.Types.MaskReset:
-					group.Material = settings_holder.GetDecrMaskMaterial();
+					group.Material = SwfMaterialCache.GetDecrMaskMaterial();
 					break;
 				default:
 					throw new UnityException(string.Format(

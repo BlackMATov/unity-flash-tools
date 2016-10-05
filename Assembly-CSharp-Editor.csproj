@@ -54,6 +54,7 @@
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\Postprocessors\SwfAssetPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\Postprocessors\SwfPostprocessor.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfEditorUtils.cs" />
+     <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfMaterialCache.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\SwfPropertyDrawers.cs" />
      <Compile Include="Assets\FlashTools\Scripts\Internal\Editor\Tests\SwfUtilsTests.cs" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfBaseCG.cginc" />
@@ -88,6 +89,9 @@
  <Reference Include="UnityEditor.TreeEditor">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TreeEditor/Editor/UnityEditor.TreeEditor.dll</HintPath>
  </Reference>
+ <Reference Include="FTSwfTools_Debug">
+ <HintPath>/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Plugins/Editor/FTSwfTools_Debug.dll</HintPath>
+ </Reference>
  <Reference Include="Ionic.Zip.Unity">
  <HintPath>/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Plugins/Editor/Ionic.Zip.Unity.dll</HintPath>
  </Reference>
@@ -108,9 +112,6 @@
  </Reference>
  <Reference Include="UnityEditor.OSXStandalone.Extensions">
  <HintPath>/Applications/Unity/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll</HintPath>
- </Reference>
- <Reference Include="FTSwfTools_Debug">
- <HintPath>/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Plugins/Editor/FTSwfTools_Debug.dll</HintPath>
  </Reference>
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>/Applications/Unity/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>

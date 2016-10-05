@@ -26,7 +26,12 @@ namespace FlashTools.Internal {
 
 		static void SwfFileProcess(string swf_path) {
 			var swf_asset_path = Path.ChangeExtension(swf_path, ".asset");
-			SwfEditorUtils.LoadOrCreateAsset<SwfAsset>(swf_asset_path, swf_asset => {
+			SwfEditorUtils.LoadOrCreateAsset<SwfAsset>(swf_asset_path, (swf_asset, created) => {
+				if ( created ) {
+					var default_settings = SwfEditorUtils.GetSettingsHolder().Settings;
+					swf_asset.Settings   = default_settings;
+					swf_asset.Overridden = default_settings;
+				}
 				SafeLoadSwfAsset(swf_path, swf_asset);
 			});
 		}
