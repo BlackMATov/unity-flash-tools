@@ -1,11 +1,5 @@
 ﻿<Properties StartupItem="FTEditor/FTEditor.csproj">
-  <MonoDevelop.Ide.Workbench ActiveDocument="FTSwfTools/Sources/SwfTags/SwfTagBase.cs">
-    <Files>
-      <File FileName="FTEditor/Sources/Postprocessors/SwfPostprocessor.cs" Line="87" Column="54" />
-      <File FileName="FTSwfTools/Sources/SwfContextExecuter.cs" Line="18" Column="3" />
-      <File FileName="FTSwfTools/Sources/SwfTags/SwfTagBase.cs" Line="215" Column="2" />
-    </Files>
-  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.Workbench />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
