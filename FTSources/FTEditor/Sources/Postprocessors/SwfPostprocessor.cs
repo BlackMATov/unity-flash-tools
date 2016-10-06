@@ -82,8 +82,10 @@ namespace FlashTools.Internal {
 		static SwfSymbolData LoadSymbol(
 			string symbol_name, SwfLibrary library, List<SwfTagBase> tags)
 		{
-			var disp_lst      = new SwfDisplayList();
-			var executer      = new SwfContextExecuter(library, 0);
+			var disp_lst = new SwfDisplayList();
+			var executer = new SwfContextExecuter(library, 0, warning_msg => {
+				Debug.LogWarningFormat("<b>[FlashTools]</b> {0}", warning_msg);
+			});
 			var symbol_frames = new List<SwfFrameData>();
 			while ( executer.NextFrame(tags, disp_lst) ) {
 				symbol_frames.Add(LoadSymbolFrameData(library, disp_lst));

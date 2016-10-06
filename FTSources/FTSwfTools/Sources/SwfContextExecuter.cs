@@ -6,12 +6,14 @@ using SwfTools.SwfTypes;
 
 namespace SwfTools {
 	public class SwfContextExecuter : SwfTagVisitor<SwfDisplayList, SwfDisplayList> {
-		public SwfLibrary Library    = null;
-		public int        CurrentTag = 0;
+		public SwfLibrary            Library    = null;
+		public int                   CurrentTag = 0;
+		public System.Action<string> WarningLog = null;
 
-		public SwfContextExecuter(SwfLibrary library, int current_tag) {
+		public SwfContextExecuter(SwfLibrary library, int current_tag, System.Action<string> warning_log) {
 			Library    = library;
 			CurrentTag = current_tag;
+			WarningLog = warning_log;
 		}
 
 		public bool NextFrame(List<SwfTagBase> tags, SwfDisplayList dl) {
@@ -283,16 +285,24 @@ namespace SwfTools {
 		}
 
 		public SwfDisplayList Visit(UnknownTag tag, SwfDisplayList dl) {
+			TagToWarningLog(tag);
 			return dl;
 		}
 
 		public SwfDisplayList Visit(UnsupportedTag tag, SwfDisplayList dl) {
+			TagToWarningLog(tag);
 			return dl;
 		}
 
 		//
 		//
 		//
+
+		void TagToWarningLog(SwfTagBase tag) {
+			if ( WarningLog != null ) {
+				WarningLog(string.Format("SwfContextExecuter: {0}", tag));
+			}
+		}
 
 		void AddShapesToLibrary(ushort define_id, SwfShapesWithStyle shapes) {
 			var bitmap_styles = shapes.FillStyles.Where(p => p.Type.IsBitmapType);
@@ -358,7 +368,7 @@ namespace SwfTools {
 					if ( IsSpriteTimelineEnd(sprite) ) {
 						sprite.Reset();
 					}
-					var sprite_executer = new SwfContextExecuter(Library, sprite.CurrentTag);
+					var sprite_executer = new SwfContextExecuter(Library, sprite.CurrentTag, WarningLog);
 					sprite_executer.NextFrame(sprite_def.ControlTags.Tags, sprite.DisplayList);
 					sprite.CurrentTag = sprite_executer.CurrentTag;
 				}
