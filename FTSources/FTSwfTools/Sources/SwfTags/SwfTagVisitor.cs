@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTags {
+﻿namespace FTSwfTools.SwfTags {
 	public interface SwfTagVisitor<TArg, TResult> {
 		TResult Visit(PlaceObjectTag                  tag, TArg arg);
 		TResult Visit(PlaceObject2Tag                 tag, TArg arg);

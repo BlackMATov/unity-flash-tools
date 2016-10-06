@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTypes {
+﻿namespace FTSwfTools.SwfTypes {
 	public struct SwfFillStyleType {
 		public enum Type {
 			SolidColor,

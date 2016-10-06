@@ -1,6 +1,6 @@
-﻿using SwfTools.SwfTypes;
+﻿using FTSwfTools.SwfTypes;
 
-namespace SwfTools.SwfTags {
+namespace FTSwfTools.SwfTags {
 	public class PlaceObjectTag : SwfTagBase {
 		public ushort            CharacterId;
 		public ushort            Depth;

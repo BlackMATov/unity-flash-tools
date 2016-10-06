@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTypes {
+﻿namespace FTSwfTools.SwfTypes {
 	public struct SwfColor {
 		public byte R;
 		public byte G;

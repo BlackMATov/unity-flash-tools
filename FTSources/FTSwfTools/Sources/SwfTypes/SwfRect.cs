@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTypes {
+﻿namespace FTSwfTools.SwfTypes {
 	public struct SwfRect {
 		public float XMin;
 		public float XMax;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SwfTools.SwfTypes;
+using FTSwfTools.SwfTypes;
 
-namespace SwfTools {
+namespace FTSwfTools {
 
 	using LibraryDefines   = SortedDictionary<ushort, SwfLibraryDefine>;
 	using DisplayInstances = SortedDictionary<ushort, SwfDisplayInstance>;

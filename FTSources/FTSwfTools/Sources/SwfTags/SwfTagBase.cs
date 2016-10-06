@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTags {
+﻿namespace FTSwfTools.SwfTags {
 	public enum SwfTagType {
 		// -----------------------------
 		// Display list

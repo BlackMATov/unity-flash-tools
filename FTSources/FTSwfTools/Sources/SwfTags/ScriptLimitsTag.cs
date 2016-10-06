@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTags {
+﻿namespace FTSwfTools.SwfTags {
 	public class ScriptLimitsTag : SwfTagBase {
 		public ushort MaxRecursionDepth;
 		public ushort ScriptTimeoutSeconds;

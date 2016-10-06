@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTypes {
+﻿namespace FTSwfTools.SwfTypes {
 	public struct SwfClipActions {
 		public static SwfClipActions identity {
 			get {

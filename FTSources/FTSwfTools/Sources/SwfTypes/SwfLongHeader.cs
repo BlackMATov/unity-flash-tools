@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTypes {
+﻿namespace FTSwfTools.SwfTypes {
 	public struct SwfLongHeader {
 		public SwfShortHeader ShortHeader;
 		public SwfRect        FrameSize;

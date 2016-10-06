@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTags {
+﻿namespace FTSwfTools.SwfTags {
 	public class DefineBitsLossless2Tag : SwfTagBase {
 		public ushort CharacterId;
 		public byte   BitmapFormat;

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using SwfTools.SwfTags;
+using FTSwfTools.SwfTags;
 
-namespace SwfTools.SwfTypes {
+namespace FTSwfTools.SwfTypes {
 	public struct SwfControlTags {
 		public List<SwfTagBase> Tags;
 

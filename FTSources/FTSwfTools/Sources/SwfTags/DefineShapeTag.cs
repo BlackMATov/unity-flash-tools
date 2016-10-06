@@ -1,6 +1,6 @@
-﻿using SwfTools.SwfTypes;
+﻿using FTSwfTools.SwfTypes;
 
-namespace SwfTools.SwfTags {
+namespace FTSwfTools.SwfTags {
 	public class DefineShapeTag : SwfTagBase {
 		public ushort             ShapeId;
 		public SwfRect            ShapeBounds;

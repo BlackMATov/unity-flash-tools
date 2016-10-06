@@ -1,10 +1,10 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 
-using SwfTools.SwfTags;
-using SwfTools.SwfTypes;
+using FTSwfTools.SwfTags;
+using FTSwfTools.SwfTypes;
 
-namespace SwfTools {
+namespace FTSwfTools {
 	public class SwfContextExecuter : SwfTagVisitor<SwfDisplayList, SwfDisplayList> {
 		public SwfLibrary            Library    = null;
 		public int                   CurrentTag = 0;

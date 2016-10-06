@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTags {
+﻿namespace FTSwfTools.SwfTags {
 	public class FileAttributesTag : SwfTagBase {
 		public override SwfTagType TagType {
 			get { return SwfTagType.FileAttributes; }

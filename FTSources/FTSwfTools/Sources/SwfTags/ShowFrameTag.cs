@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTags {
+﻿namespace FTSwfTools.SwfTags {
 	public class ShowFrameTag : SwfTagBase {
 		public override SwfTagType TagType {
 			get { return SwfTagType.ShowFrame; }

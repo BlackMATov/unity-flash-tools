@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-using SwfTools;
-using SwfTools.SwfTags;
-using SwfTools.SwfTypes;
+using FTSwfTools;
+using FTSwfTools.SwfTags;
+using FTSwfTools.SwfTypes;
 
 namespace FlashTools.Internal {
 	public class SwfPostprocessor : AssetPostprocessor {

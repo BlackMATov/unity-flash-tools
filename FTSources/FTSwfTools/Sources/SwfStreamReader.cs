@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 using Ionic.Zlib;
 
-namespace SwfTools {
+namespace FTSwfTools {
 	public class SwfStreamReader {
 		struct BitContext {
 			public byte CachedByte;

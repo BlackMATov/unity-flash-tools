@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTags {
+﻿namespace FTSwfTools.SwfTags {
 	public class RemoveObject2Tag : SwfTagBase {
 		public ushort Depth;
 

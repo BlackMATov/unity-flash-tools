@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SwfTools.SwfTags {
+namespace FTSwfTools.SwfTags {
 	public class SymbolClassTag : SwfTagBase {
 		public struct SymbolTagData {
 			public ushort Tag;

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SwfTools.SwfTypes {
+namespace FTSwfTools.SwfTypes {
 	public struct SwfShapesWithStyle {
 		public enum ShapeStyleType {
 			Shape,

@@ -1,7 +1,7 @@
 ﻿using System.Text;
-using SwfTools.SwfTypes;
+using FTSwfTools.SwfTypes;
 
-namespace SwfTools.SwfTags {
+namespace FTSwfTools.SwfTags {
 	public class PlaceObject3Tag : SwfTagBase {
 		public bool              HasClipActions;
 		public bool              HasClipDepth;

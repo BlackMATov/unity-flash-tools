@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTags {
+﻿namespace FTSwfTools.SwfTags {
 	public class UnknownTag : SwfTagBase {
 		public int _tagId;
 

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace SwfTools.SwfTypes {
+namespace FTSwfTools.SwfTypes {
 	public struct SwfSurfaceFilters {
 		public abstract class Filter {
 			public enum Types {

@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTags {
+﻿namespace FTSwfTools.SwfTags {
 	public class EnableDebugger2Tag : SwfTagBase {
 		public string MD5PasswordHash;
 

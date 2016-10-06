@@ -1,4 +1,4 @@
-﻿namespace SwfTools.SwfTags {
+﻿namespace FTSwfTools.SwfTags {
 	public class MetadataTag : SwfTagBase {
 		public string Metadata;
 

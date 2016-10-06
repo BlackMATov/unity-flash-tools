@@ -1,10 +1,10 @@
 ﻿using System.IO;
 using System.Collections.Generic;
 
-using SwfTools.SwfTags;
-using SwfTools.SwfTypes;
+using FTSwfTools.SwfTags;
+using FTSwfTools.SwfTypes;
 
-namespace SwfTools {
+namespace FTSwfTools {
 	public class SwfDecoder {
 		public SwfShortHeader   OriginalHeader;
 		public SwfLongHeader    UncompressedHeader;
