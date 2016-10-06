@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using FlashTools.Internal;
+using FTRuntime.Internal;
 
-namespace FlashTools {
+namespace FTRuntime {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	[RequireComponent(typeof(SwfClip))]
 	public class SwfClipController : MonoBehaviour {

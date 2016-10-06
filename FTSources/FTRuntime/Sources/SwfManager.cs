@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using FlashTools.Internal;
+using FTRuntime.Internal;
 using System.Collections.Generic;
 
-namespace FlashTools {
+namespace FTRuntime {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	public class SwfManager : MonoBehaviour {
 		SwfAssocList<SwfClip>           _clips           = new SwfAssocList<SwfClip>();

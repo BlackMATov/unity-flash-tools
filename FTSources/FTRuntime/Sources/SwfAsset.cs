@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using FlashTools.Internal;
+using FTRuntime.Internal;
 using System.Collections.Generic;
 
-namespace FlashTools {
+namespace FTRuntime {
 	[System.Serializable]
 	public struct SwfVec2Data {
 		public float x;

@@ -5,7 +5,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4EB8756F-398B-4356-90FB-0ED056B3E6E9}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>FlashTools</RootNamespace>
+    <RootNamespace>FTSwfTools</RootNamespace>
     <UseMSBuildEngine>True</UseMSBuildEngine>
     <ReleaseVersion>0.5</ReleaseVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>

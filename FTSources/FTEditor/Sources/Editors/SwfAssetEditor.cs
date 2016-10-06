@@ -5,7 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace FlashTools.Internal {
+using FTRuntime;
+using FTRuntime.Internal;
+
+namespace FTEditor.Editors {
 	[CustomEditor(typeof(SwfAsset)), CanEditMultipleObjects]
 	public class SwfAssetEditor : Editor {
 		List<SwfAsset> _assets = new List<SwfAsset>();

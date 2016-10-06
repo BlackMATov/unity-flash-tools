@@ -3,7 +3,9 @@ using UnityEditor;
 
 using System.Linq;
 
-namespace FlashTools.Internal {
+using FTRuntime;
+
+namespace FTEditor.Editors {
 	[CustomPreview(typeof(SwfClipAsset))]
 	public class SwfClipAssetPreview : ObjectPreview {
 		int                          _sequence     = 0;

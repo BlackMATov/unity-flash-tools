@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace FlashTools.Internal {
+namespace FTRuntime.Internal {
 	public class SwfList<T> {
 		T[] _data;
 		int _size;

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
-using FlashTools.Internal;
+using FTRuntime.Internal;
 
-namespace FlashTools {
+namespace FTRuntime {
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 	public class SwfClip : MonoBehaviour {

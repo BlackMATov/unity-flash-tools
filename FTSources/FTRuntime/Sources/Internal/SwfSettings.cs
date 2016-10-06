@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FlashTools.Internal {
+namespace FTRuntime.Internal {
 	[System.Serializable]
 	public struct SwfSettingsData {
 		public enum AtlasFilter {

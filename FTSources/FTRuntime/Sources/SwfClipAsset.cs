@@ -1,8 +1,8 @@
 ﻿using UnityEngine;
-using FlashTools.Internal;
+using FTRuntime.Internal;
 using System.Collections.Generic;
 
-namespace FlashTools {
+namespace FTRuntime {
 	public class SwfClipAsset : ScriptableObject {
 		[System.Serializable]
 		public class SubMeshData {

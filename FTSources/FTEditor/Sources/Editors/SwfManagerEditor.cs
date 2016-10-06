@@ -3,7 +3,10 @@ using UnityEditor;
 
 using System.Collections.Generic;
 
-namespace FlashTools.Internal {
+using FTRuntime;
+using FTRuntime.Internal;
+
+namespace FTEditor.Editors {
 	[CustomEditor(typeof(SwfManager))]
 	public class SwfManagerEditor : Editor {
 		SwfManager                 _manager       = null;

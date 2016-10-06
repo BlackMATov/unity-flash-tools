@@ -5,7 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace FlashTools.Internal {
+using FTRuntime;
+
+namespace FTEditor.Editors {
 	[CustomEditor(typeof(SwfClipAsset)), CanEditMultipleObjects]
 	public class SwfClipAssetEditor : Editor {
 		List<SwfClipAsset> _clips = new List<SwfClipAsset>();

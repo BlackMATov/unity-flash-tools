@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace FlashTools.Internal {
+namespace FTRuntime.Internal {
 	public class SwfAssocList<T> {
 		SwfList<T>           _list;
 		Dictionary<T, int>   _dict;

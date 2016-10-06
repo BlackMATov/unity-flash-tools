@@ -1,11 +1,15 @@
 ﻿using UnityEngine;
 using UnityEditor;
+
 using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace FlashTools.Internal {
+using FTRuntime;
+using FTRuntime.Internal;
+
+namespace FTEditor.Postprocessors {
 	public class SwfAssetPostprocessor : AssetPostprocessor {
 		static void OnPostprocessAllAssets(
 			string[] imported_assets,

@@ -8,7 +8,10 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 using Ionic.Zlib;
 
-namespace FlashTools.Internal {
+using FTRuntime;
+using FTRuntime.Internal;
+
+namespace FTEditor {
 	public static class SwfEditorUtils {
 
 		// ---------------------------------------------------------------------

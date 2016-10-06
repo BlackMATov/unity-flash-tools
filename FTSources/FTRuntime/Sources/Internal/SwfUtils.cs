@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FlashTools.Internal {
+namespace FTRuntime.Internal {
 	public static class SwfUtils {
 
 		public const float UVPrecision        = 1.0f / 16384.0f;

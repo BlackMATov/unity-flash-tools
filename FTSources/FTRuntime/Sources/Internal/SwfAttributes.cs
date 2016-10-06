@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FlashTools.Internal {
+namespace FTRuntime.Internal {
 	public class SwfIntRangeAttribute : PropertyAttribute {
 		public int Min;
 		public int Max;

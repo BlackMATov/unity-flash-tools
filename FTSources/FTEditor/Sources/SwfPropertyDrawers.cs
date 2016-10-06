@@ -4,7 +4,9 @@ using UnityEditor;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace FlashTools.Internal {
+using FTRuntime.Internal;
+
+namespace FTEditor {
 
 	//
 	// SwfIntRange

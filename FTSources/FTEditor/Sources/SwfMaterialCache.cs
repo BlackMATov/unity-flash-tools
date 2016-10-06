@@ -5,7 +5,9 @@ using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
 
-namespace FlashTools.Internal {
+using FTRuntime;
+
+namespace FTEditor {
 	public class SwfMaterialCache {
 
 		const string SwfSimpleShaderName     = "SwfSimpleShader";
