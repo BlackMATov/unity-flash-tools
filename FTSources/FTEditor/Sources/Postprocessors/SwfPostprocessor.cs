@@ -6,15 +6,14 @@ using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
+using FTRuntime;
+
 using FTSwfTools;
 using FTSwfTools.SwfTags;
 using FTSwfTools.SwfTypes;
 
-using FTRuntime;
-using FTRuntime.Internal;
-
 namespace FTEditor.Postprocessors {
-	public class SwfPostprocessor : AssetPostprocessor {
+	class SwfPostprocessor : AssetPostprocessor {
 		static void OnPostprocessAllAssets(
 			string[] imported_assets,
 			string[] deleted_assets,

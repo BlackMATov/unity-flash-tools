@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace FTRuntime.Internal {
-	public class SwfList<T> {
+	class SwfList<T> {
 		T[] _data;
 		int _size;
 
@@ -104,6 +105,16 @@ namespace FTRuntime.Internal {
 						_data = _emptyData;
 					}
 				}
+			}
+		}
+
+		public void AssignTo(List<T> list) {
+			list.Clear();
+			if ( list.Capacity < Count ) {
+				list.Capacity = Count * 2;
+			}
+			for ( int i = 0, e = Count; i < e; ++i ) {
+				list.Add(this[i]);
 			}
 		}
 

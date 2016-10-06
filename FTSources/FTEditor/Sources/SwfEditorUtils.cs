@@ -9,10 +9,63 @@ using System.Runtime.Serialization.Formatters.Binary;
 using Ionic.Zlib;
 
 using FTRuntime;
-using FTRuntime.Internal;
 
 namespace FTEditor {
-	public static class SwfEditorUtils {
+	static class SwfEditorUtils {
+
+		// ---------------------------------------------------------------------
+		//
+		// Packing
+		//
+		// ---------------------------------------------------------------------
+
+		const ushort UShortMax       = ushort.MaxValue;
+		const float  FColorPrecision = 1.0f / 512.0f;
+
+		public static uint PackUV(float u, float v) {
+			var uu = (uint)(Mathf.Clamp01(u) * UShortMax);
+			var vv = (uint)(Mathf.Clamp01(v) * UShortMax);
+			return (uu << 16) + vv;
+		}
+
+		public static ushort PackFloatColorToUShort(float v) {
+			return (ushort)Mathf.Clamp(
+				v * (1.0f / FColorPrecision),
+				short.MinValue,
+				short.MaxValue);
+		}
+
+		public static uint PackUShortsToUInt(ushort x, ushort y) {
+			var xx = (uint)x;
+			var yy = (uint)y;
+			return (xx << 16) + yy;
+		}
+
+		public static void PackFColorToUInts(
+			Color v,
+			out uint pack0, out uint pack1)
+		{
+			PackFColorToUInts(v.r, v.g, v.b, v.a, out pack0, out pack1);
+		}
+
+		public static void PackFColorToUInts(
+			Vector4 v,
+			out uint pack0, out uint pack1)
+		{
+			PackFColorToUInts(v.x, v.y, v.z, v.w, out pack0, out pack1);
+		}
+
+		public static void PackFColorToUInts(
+			float v0, float v1, float v2, float v3,
+			out uint pack0, out uint pack1)
+		{
+			pack0 = PackUShortsToUInt(
+				PackFloatColorToUShort(v0),
+				PackFloatColorToUShort(v1));
+			pack1 = PackUShortsToUInt(
+				PackFloatColorToUShort(v2),
+				PackFloatColorToUShort(v3));
+		}
 
 		// ---------------------------------------------------------------------
 		//

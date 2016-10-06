@@ -7,7 +7,7 @@ using FTRuntime;
 
 namespace FTEditor.Editors {
 	[CustomPreview(typeof(SwfClipAsset))]
-	public class SwfClipAssetPreview : ObjectPreview {
+	class SwfClipAssetPreview : ObjectPreview {
 		int                          _sequence     = 0;
 		static MaterialPropertyBlock _matPropBlock = null;
 		static PreviewRenderUtility  _previewUtils = null;

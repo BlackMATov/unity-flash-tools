@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace FTEditor {
 	[System.Serializable]
-	public struct SwfVec2Data {
+	struct SwfVec2Data {
 		public float x;
 		public float y;
 
@@ -27,7 +27,7 @@ namespace FTEditor {
 	}
 
 	[System.Serializable]
-	public struct SwfVec4Data {
+	struct SwfVec4Data {
 		public float x;
 		public float y;
 		public float z;
@@ -54,7 +54,7 @@ namespace FTEditor {
 	}
 
 	[System.Serializable]
-	public struct SwfRectData {
+	struct SwfRectData {
 		public float xMin;
 		public float xMax;
 		public float yMin;
@@ -80,7 +80,7 @@ namespace FTEditor {
 	}
 
 	[System.Serializable]
-	public struct SwfMatrixData {
+	struct SwfMatrixData {
 		public SwfVec2Data sc;
 		public SwfVec2Data sk;
 		public SwfVec2Data tr;
@@ -114,7 +114,7 @@ namespace FTEditor {
 	}
 
 	[System.Serializable]
-	public struct SwfBlendModeData {
+	struct SwfBlendModeData {
 		public enum Types : byte {
 			Normal,
 			Layer,
@@ -150,7 +150,7 @@ namespace FTEditor {
 	}
 
 	[System.Serializable]
-	public struct SwfColorTransData {
+	struct SwfColorTransData {
 		public SwfVec4Data mulColor;
 		public SwfVec4Data addColor;
 
@@ -188,7 +188,7 @@ namespace FTEditor {
 	}
 
 	[System.Serializable]
-	public class SwfInstanceData {
+	class SwfInstanceData {
 		public enum Types {
 			Mask,
 			Group,
@@ -204,19 +204,19 @@ namespace FTEditor {
 	}
 
 	[System.Serializable]
-	public class SwfFrameData {
+	class SwfFrameData {
 		public string                Name       = string.Empty;
 		public List<SwfInstanceData> Instances  = new List<SwfInstanceData>();
 	}
 
 	[System.Serializable]
-	public class SwfSymbolData {
+	class SwfSymbolData {
 		public string                Name       = string.Empty;
 		public List<SwfFrameData>    Frames     = new List<SwfFrameData>();
 	}
 
 	[System.Serializable]
-	public class SwfBitmapData {
+	class SwfBitmapData {
 		public ushort                Id         = 0;
 		public byte[]                ARGB32     = new byte[0];
 		public ushort                Redirect   = 0;
@@ -226,7 +226,7 @@ namespace FTEditor {
 	}
 
 	[System.Serializable]
-	public class SwfAssetData {
+	class SwfAssetData {
 		public float                 FrameRate  = 0.0f;
 		public List<SwfSymbolData>   Symbols    = new List<SwfSymbolData>();
 		public List<SwfBitmapData>   Bitmaps    = new List<SwfBitmapData>();

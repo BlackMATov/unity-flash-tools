@@ -6,11 +6,10 @@ using System.Linq;
 using System.Collections.Generic;
 
 using FTRuntime;
-using FTRuntime.Internal;
 
 namespace FTEditor.Editors {
 	[CustomEditor(typeof(SwfAsset)), CanEditMultipleObjects]
-	public class SwfAssetEditor : Editor {
+	class SwfAssetEditor : Editor {
 		List<SwfAsset> _assets = new List<SwfAsset>();
 
 		//

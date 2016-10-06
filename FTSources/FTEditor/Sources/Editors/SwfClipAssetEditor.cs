@@ -9,7 +9,7 @@ using FTRuntime;
 
 namespace FTEditor.Editors {
 	[CustomEditor(typeof(SwfClipAsset)), CanEditMultipleObjects]
-	public class SwfClipAssetEditor : Editor {
+	class SwfClipAssetEditor : Editor {
 		List<SwfClipAsset> _clips = new List<SwfClipAsset>();
 
 		static string GetClipPath(SwfClipAsset clip) {

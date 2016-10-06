@@ -8,7 +8,7 @@ using FTRuntime;
 
 namespace FTEditor.Editors {
 	[CustomEditor(typeof(SwfClip)), CanEditMultipleObjects]
-	public class SwfClipEditor : Editor {
+	class SwfClipEditor : Editor {
 		List<SwfClip>                            _clips    = new List<SwfClip>();
 		Dictionary<SwfClip, SwfClipAssetPreview> _previews = new Dictionary<SwfClip, SwfClipAssetPreview>();
 

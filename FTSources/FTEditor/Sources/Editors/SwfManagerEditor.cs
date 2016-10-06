@@ -4,14 +4,13 @@ using UnityEditor;
 using System.Collections.Generic;
 
 using FTRuntime;
-using FTRuntime.Internal;
 
 namespace FTEditor.Editors {
 	[CustomEditor(typeof(SwfManager))]
-	public class SwfManagerEditor : Editor {
-		SwfManager                 _manager       = null;
-		SwfList<SwfClipController> _controllers   = new SwfList<SwfClipController>();
-		bool                       _groupsFoldout = true;
+	class SwfManagerEditor : Editor {
+		SwfManager              _manager       = null;
+		List<SwfClipController> _controllers   = new List<SwfClipController>();
+		bool                    _groupsFoldout = true;
 
 		void DrawCounts() {
 			SwfEditorUtils.DoWithEnabledGUI(false, () => {

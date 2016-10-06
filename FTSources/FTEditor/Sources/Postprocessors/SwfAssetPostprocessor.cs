@@ -7,10 +7,9 @@ using System.Linq;
 using System.Collections.Generic;
 
 using FTRuntime;
-using FTRuntime.Internal;
 
 namespace FTEditor.Postprocessors {
-	public class SwfAssetPostprocessor : AssetPostprocessor {
+	class SwfAssetPostprocessor : AssetPostprocessor {
 		static void OnPostprocessAllAssets(
 			string[] imported_assets,
 			string[] deleted_assets,
@@ -359,18 +358,18 @@ namespace FTEditor.Postprocessors {
 					baked_vertices.Add(matrix.MultiplyPoint3x4(v3));
 
 					var source_rect = bitmap.SourceRect;
-					baked_uvs.Add(SwfUtils.PackUV(source_rect.xMin, source_rect.yMin));
-					baked_uvs.Add(SwfUtils.PackUV(source_rect.xMax, source_rect.yMax));
+					baked_uvs.Add(SwfEditorUtils.PackUV(source_rect.xMin, source_rect.yMin));
+					baked_uvs.Add(SwfEditorUtils.PackUV(source_rect.xMax, source_rect.yMax));
 
 					uint mul_pack0, mul_pack1;
-					SwfUtils.PackFColorToUInts(
+					SwfEditorUtils.PackFColorToUInts(
 						inst.ColorTrans.mulColor.ToUVector4(),
 						out mul_pack0, out mul_pack1);
 					baked_mulcolors.Add(mul_pack0);
 					baked_mulcolors.Add(mul_pack1);
 
 					uint add_pack0, add_pack1;
-					SwfUtils.PackFColorToUInts(
+					SwfEditorUtils.PackFColorToUInts(
 						inst.ColorTrans.addColor.ToUVector4(),
 						out add_pack0, out add_pack1);
 					baked_addcolors.Add(add_pack0);

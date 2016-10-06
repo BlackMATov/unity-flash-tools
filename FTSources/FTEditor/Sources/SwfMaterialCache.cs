@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using FTRuntime;
 
 namespace FTEditor {
-	public class SwfMaterialCache {
+	class SwfMaterialCache {
 
 		const string SwfSimpleShaderName     = "SwfSimpleShader";
 		const string SwfMaskedShaderName     = "SwfMaskedShader";

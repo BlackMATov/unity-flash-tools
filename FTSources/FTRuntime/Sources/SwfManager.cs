@@ -122,7 +122,7 @@ namespace FTRuntime {
 			_clips.Remove(clip);
 		}
 
-		public void GetAllClips(SwfList<SwfClip> clips) {
+		public void GetAllClips(List<SwfClip> clips) {
 			_clips.AssignTo(clips);
 		}
 
@@ -134,7 +134,7 @@ namespace FTRuntime {
 			_controllers.Remove(controller);
 		}
 
-		public void GetAllControllers(SwfList<SwfClipController> controllers) {
+		public void GetAllControllers(List<SwfClipController> controllers) {
 			_controllers.AssignTo(controllers);
 		}
 

@@ -13,7 +13,7 @@ namespace FTEditor {
 	//
 
 	[CustomPropertyDrawer(typeof(SwfIntRangeAttribute))]
-	public class SwfIntRangeDrawer : PropertyDrawer {
+	class SwfIntRangeDrawer : PropertyDrawer {
 		static void ValidateProperty(SerializedProperty property, int min, int max) {
 			if ( !property.hasMultipleDifferentValues ) {
 				if ( property.propertyType == SerializedPropertyType.Integer ) {
@@ -39,7 +39,7 @@ namespace FTEditor {
 	//
 
 	[CustomPropertyDrawer(typeof(SwfFloatRangeAttribute))]
-	public class SwfFloatRangeDrawer : PropertyDrawer {
+	class SwfFloatRangeDrawer : PropertyDrawer {
 		static void ValidateProperty(SerializedProperty property, float min, float max) {
 			if ( !property.hasMultipleDifferentValues ) {
 				if ( property.propertyType == SerializedPropertyType.Float ) {
@@ -65,7 +65,7 @@ namespace FTEditor {
 	//
 
 	[CustomPropertyDrawer(typeof(SwfSortingLayerAttribute))]
-	public class SwfSortingLayerDrawer : PropertyDrawer {
+	class SwfSortingLayerDrawer : PropertyDrawer {
 
 		const string DefaultLayerName = "Default";
 
@@ -155,7 +155,7 @@ namespace FTEditor {
 	//
 
 	[CustomPropertyDrawer(typeof(SwfPowerOfTwoIfAttribute))]
-	public class SwfPowerOfTwoIfDrawer : PropertyDrawer {
+	class SwfPowerOfTwoIfDrawer : PropertyDrawer {
 
 		static SerializedProperty FindNextBoolProperty(SerializedProperty property, string next_prop) {
 			var prop = property.Copy();
@@ -227,7 +227,7 @@ namespace FTEditor {
 	//
 
 	[CustomPropertyDrawer(typeof(SwfReadOnlyAttribute))]
-	public class SwfReadOnlyDrawer : PropertyDrawer {
+	class SwfReadOnlyDrawer : PropertyDrawer {
 		public override void OnGUI(
 			Rect position, SerializedProperty property, GUIContent label)
 		{
@@ -242,7 +242,7 @@ namespace FTEditor {
 	//
 
 	[CustomPropertyDrawer(typeof(SwfDisplayNameAttribute))]
-	public class SwfDisplayNameDrawer : PropertyDrawer {
+	class SwfDisplayNameDrawer : PropertyDrawer {
 		public override void OnGUI(
 			Rect position, SerializedProperty property, GUIContent label)
 		{

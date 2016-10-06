@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 namespace FTRuntime.Internal {
-	public class SwfAssocList<T> {
+	class SwfAssocList<T> {
 		SwfList<T>           _list;
 		Dictionary<T, int>   _dict;
 		IEqualityComparer<T> _comp;
@@ -61,6 +61,10 @@ namespace FTRuntime.Internal {
 		public void Clear() {
 			_list.Clear();
 			_dict.Clear();
+		}
+
+		public void AssignTo(List<T> list) {
+			_list.AssignTo(list);
 		}
 
 		public void AssignTo(SwfList<T> list) {
