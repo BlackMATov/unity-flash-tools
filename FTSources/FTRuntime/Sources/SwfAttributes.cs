@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FTRuntime.Internal {
+namespace FTRuntime {
 	public class SwfIntRangeAttribute : PropertyAttribute {
 		public int Min;
 		public int Max;
@@ -34,13 +34,6 @@ namespace FTRuntime.Internal {
 	}
 
 	public class SwfReadOnlyAttribute : PropertyAttribute {
-	}
-
-	public class SwfAssetGUIDAttribute : PropertyAttribute {
-		public bool ReadOnly;
-		public SwfAssetGUIDAttribute(bool read_only) {
-			ReadOnly = read_only;
-		}
 	}
 
 	public class SwfDisplayNameAttribute : PropertyAttribute {

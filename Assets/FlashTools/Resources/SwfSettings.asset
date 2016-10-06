@@ -8,7 +8,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 202113923, guid: 2d72a763e7d744285b19a282e955a055, type: 3}
+  m_Script: {fileID: 1806722981, guid: 2d72a763e7d744285b19a282e955a055, type: 3}
   m_Name: SwfSettings
   m_EditorClassIdentifier: 
   Settings:

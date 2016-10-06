@@ -364,14 +364,14 @@ namespace FTEditor.Postprocessors {
 
 					uint mul_pack0, mul_pack1;
 					SwfUtils.PackFColorToUInts(
-						inst.ColorTrans.mulColor,
+						inst.ColorTrans.mulColor.ToUVector4(),
 						out mul_pack0, out mul_pack1);
 					baked_mulcolors.Add(mul_pack0);
 					baked_mulcolors.Add(mul_pack1);
 
 					uint add_pack0, add_pack1;
 					SwfUtils.PackFColorToUInts(
-						inst.ColorTrans.addColor,
+						inst.ColorTrans.addColor.ToUVector4(),
 						out add_pack0, out add_pack1);
 					baked_addcolors.Add(add_pack0);
 					baked_addcolors.Add(add_pack1);

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace FTRuntime.Internal {
+namespace FTRuntime {
 	[System.Serializable]
 	public struct SwfSettingsData {
 		public enum AtlasFilter {
@@ -57,6 +57,7 @@ namespace FTRuntime.Internal {
 
 	public class SwfSettings : ScriptableObject {
 		public SwfSettingsData Settings;
+
 		void Reset() {
 			Settings = SwfSettingsData.identity;
 		}

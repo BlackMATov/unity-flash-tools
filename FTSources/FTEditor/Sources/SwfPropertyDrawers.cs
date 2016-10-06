@@ -4,7 +4,7 @@ using UnityEditor;
 using System.Linq;
 using System.Collections.Generic;
 
-using FTRuntime.Internal;
+using FTRuntime;
 
 namespace FTEditor {
 
@@ -234,43 +234,6 @@ namespace FTEditor {
 			SwfEditorUtils.DoWithEnabledGUI(false, () => {
 				EditorGUI.PropertyField(position, property, label, true);
 			});
-		}
-	}
-
-	//
-	// SwfAssetGUIDDrawer
-	//
-
-	[CustomPropertyDrawer(typeof(SwfAssetGUIDAttribute))]
-	public class SwfAssetGUIDDrawer : PropertyDrawer {
-		public override void OnGUI(
-			Rect position, SerializedProperty property, GUIContent label)
-		{
-			if ( property.propertyType == SerializedPropertyType.String ) {
-				var attr = attribute as SwfAssetGUIDAttribute;
-				SwfEditorUtils.DoWithEnabledGUI(!attr.ReadOnly, () => {
-					SwfEditorUtils.DoWithMixedValue(
-						property.hasMultipleDifferentValues, () => {
-							label = EditorGUI.BeginProperty(position, label, property);
-							EditorGUI.BeginChangeCheck();
-							var asset_path = AssetDatabase.GUIDToAssetPath(property.stringValue);
-							var asset      = AssetDatabase.LoadMainAssetAtPath(asset_path);
-							var new_asset  = EditorGUI.ObjectField(
-								position, property.displayName, asset, typeof(UnityEngine.Object), false);
-							if ( EditorGUI.EndChangeCheck() ) {
-								if ( property.hasMultipleDifferentValues ) {
-									property.stringValue = "--";
-								}
-								var new_asset_path   = AssetDatabase.GetAssetPath(new_asset);
-								property.stringValue = AssetDatabase.AssetPathToGUID(new_asset_path);
-								property.serializedObject.ApplyModifiedProperties();
-							}
-							EditorGUI.EndProperty();
-						});
-				});
-			} else {
-				EditorGUI.LabelField(position, label.text, "Use SwfAssetGUID with string attribute.");
-			}
 		}
 	}
 

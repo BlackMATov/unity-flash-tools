@@ -1,5 +1,9 @@
 ﻿<Properties StartupItem="FTEditor/FTEditor.csproj">
-  <MonoDevelop.Ide.Workbench />
+  <MonoDevelop.Ide.Workbench ActiveDocument="FTRuntime/Sources/SwfAsset.cs">
+    <Files>
+      <File FileName="FTRuntime/Sources/SwfAsset.cs" Line="22" Column="4" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Release|x86" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

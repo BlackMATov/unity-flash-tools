@@ -35,21 +35,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Folder Include="Sources\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Sources\SwfAsset.cs" />
-    <Compile Include="Sources\SwfClip.cs" />
-    <Compile Include="Sources\SwfClipAsset.cs" />
-    <Compile Include="Sources\SwfClipController.cs" />
-    <Compile Include="Sources\SwfManager.cs" />
-    <Compile Include="Sources\Internal\SwfAssocList.cs" />
-    <Compile Include="Sources\Internal\SwfAttributes.cs" />
-    <Compile Include="Sources\Internal\SwfList.cs" />
-    <Compile Include="Sources\Internal\SwfSettings.cs" />
-    <Compile Include="Sources\Internal\SwfUtils.cs" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="mscorlib">
       <HintPath>..\DLLs\mscorlib.dll</HintPath>
       <Private>False</Private>
@@ -58,5 +43,20 @@
       <HintPath>..\DLLs\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Sources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Sources\SwfAsset.cs" />
+    <Compile Include="Sources\SwfAttributes.cs" />
+    <Compile Include="Sources\SwfClip.cs" />
+    <Compile Include="Sources\SwfClipAsset.cs" />
+    <Compile Include="Sources\SwfClipController.cs" />
+    <Compile Include="Sources\SwfManager.cs" />
+    <Compile Include="Sources\SwfSettings.cs" />
+    <Compile Include="Sources\Internal\SwfAssocList.cs" />
+    <Compile Include="Sources\Internal\SwfList.cs" />
+    <Compile Include="Sources\Internal\SwfUtils.cs" />
   </ItemGroup>
 </Project>

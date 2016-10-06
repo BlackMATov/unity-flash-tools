@@ -49,6 +49,7 @@
     <Compile Include="Sources\Editors\SwfManagerEditor.cs" />
     <Compile Include="Sources\Postprocessors\SwfAssetPostprocessor.cs" />
     <Compile Include="Sources\Postprocessors\SwfPostprocessor.cs" />
+    <Compile Include="Sources\SwfAssetData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">

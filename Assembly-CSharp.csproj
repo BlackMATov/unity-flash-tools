@@ -45,16 +45,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfAssocList.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfAttributes.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfList.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfSettings.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\Internal\SwfUtils.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\SwfAsset.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\SwfClip.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\SwfClipAsset.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\SwfClipController.cs" />
-     <Compile Include="Assets\FlashTools\Scripts\SwfManager.cs" />
+     <Compile Include="Assets\FlashTools\Examples\PlayerController.cs" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfBaseCG.cginc" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfDecrMaskShader.shader" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfSimpleShader.shader" />
@@ -68,6 +59,9 @@
  </Reference>
  <Reference Include="UnityEngine.Networking">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/Networking/UnityEngine.Networking.dll</HintPath>
+ </Reference>
+ <Reference Include="FTRuntime_Release">
+ <HintPath>/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Plugins/FTRuntime_Release.dll</HintPath>
  </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
