@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{48D55C1A-BBD5-44D9-9CC5-473A1BBA9AB5}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FlashTools</RootNamespace>
+    <UseMSBuildEngine>True</UseMSBuildEngine>
+    <ReleaseVersion>0.5</ReleaseVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Assets\FlashTools\Plugins</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AssemblyName>FTRuntime_Debug</AssemblyName>
+    <NoStdLib>true</NoStdLib>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Assets\FlashTools\Plugins</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AssemblyName>FTRuntime_Release</AssemblyName>
+    <NoStdLib>true</NoStdLib>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Sources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Sources\SwfAsset.cs" />
+    <Compile Include="Sources\SwfClip.cs" />
+    <Compile Include="Sources\SwfClipAsset.cs" />
+    <Compile Include="Sources\SwfClipController.cs" />
+    <Compile Include="Sources\SwfManager.cs" />
+    <Compile Include="Sources\Internal\SwfAssocList.cs" />
+    <Compile Include="Sources\Internal\SwfAttributes.cs" />
+    <Compile Include="Sources\Internal\SwfList.cs" />
+    <Compile Include="Sources\Internal\SwfSettings.cs" />
+    <Compile Include="Sources\Internal\SwfUtils.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib">
+      <HintPath>..\DLLs\mscorlib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\DLLs\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{30886846-765A-400B-AD3E-436089DE68ED}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FlashTools</RootNamespace>
+    <UseMSBuildEngine>True</UseMSBuildEngine>
+    <ReleaseVersion>0.5</ReleaseVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Assets\FlashTools\Plugins\Editor</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AssemblyName>FTEditor_Debug</AssemblyName>
+    <NoStdLib>true</NoStdLib>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Assets\FlashTools\Plugins\Editor</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <AssemblyName>FTEditor_Release</AssemblyName>
+    <NoStdLib>true</NoStdLib>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="Sources\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Sources\SwfEditorUtils.cs" />
+    <Compile Include="Sources\SwfMaterialCache.cs" />
+    <Compile Include="Sources\SwfPropertyDrawers.cs" />
+    <Compile Include="Sources\Editors\SwfAssetEditor.cs" />
+    <Compile Include="Sources\Editors\SwfClipAssetEditor.cs" />
+    <Compile Include="Sources\Editors\SwfClipAssetPreview.cs" />
+    <Compile Include="Sources\Editors\SwfClipControllerEditor.cs" />
+    <Compile Include="Sources\Editors\SwfClipEditor.cs" />
+    <Compile Include="Sources\Editors\SwfManagerEditor.cs" />
+    <Compile Include="Sources\Postprocessors\SwfAssetPostprocessor.cs" />
+    <Compile Include="Sources\Postprocessors\SwfPostprocessor.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib">
+      <HintPath>..\DLLs\mscorlib.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\DLLs\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEditor">
+      <HintPath>..\DLLs\UnityEditor.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Ionic.Zip.Unity">
+      <HintPath>..\DLLs\Ionic.Zip.Unity.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System">
+      <HintPath>..\DLLs\System.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FTRuntime\FTRuntime.csproj">
+      <Project>{48D55C1A-BBD5-44D9-9CC5-473A1BBA9AB5}</Project>
+      <Name>FTRuntime</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\FTSwfTools\FTSwfTools.csproj">
+      <Project>{4EB8756F-398B-4356-90FB-0ED056B3E6E9}</Project>
+      <Name>FTSwfTools</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+</Project>

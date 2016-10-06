@@ -89,9 +89,6 @@
  <Reference Include="UnityEditor.TreeEditor">
  <HintPath>/Applications/Unity/Unity.app/Contents/UnityExtensions/Unity/TreeEditor/Editor/UnityEditor.TreeEditor.dll</HintPath>
  </Reference>
- <Reference Include="FTSwfTools_Debug">
- <HintPath>/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Plugins/Editor/FTSwfTools_Debug.dll</HintPath>
- </Reference>
  <Reference Include="Ionic.Zip.Unity">
  <HintPath>/Users/matov/Programming/Projects/unityflash/Assets/FlashTools/Plugins/Editor/Ionic.Zip.Unity.dll</HintPath>
  </Reference>
