@@ -464,7 +464,7 @@ namespace FTEditor.Postprocessors {
 			var clips = GameObject.FindObjectsOfType<SwfClip>();
 			foreach ( var clip in clips ) {
 				if ( clip && clip.clip && asset.Clips.Contains(clip.clip) ) {
-					clip.UpdateAllProperties();
+					clip.Internal_UpdateAllProperties();
 				}
 			}
 		}

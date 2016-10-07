@@ -3,9 +3,6 @@ using FTRuntime.Internal;
 using System.Collections.Generic;
 
 namespace FTRuntime {
-	/// <summary>
-	/// General manager for update and controlling animations and animation groups
-	/// </summary>
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	public class SwfManager : MonoBehaviour {
 		SwfAssocList<SwfClip>           _clips           = new SwfAssocList<SwfClip>();
@@ -247,7 +244,7 @@ namespace FTRuntime {
 			for ( int i = 0, e = _clips.Count; i < e; ++i ) {
 				var clip = _clips[i];
 				if ( clip ) {
-					clip.InternalLateUpdate();
+					clip.Internal_LateUpdate();
 				}
 			}
 		}

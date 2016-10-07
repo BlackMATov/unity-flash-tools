@@ -15,13 +15,36 @@ namespace FTRuntime {
 
 		// ---------------------------------------------------------------------
 		//
-		// Properties
+		// Serialized fields
 		//
 		// ---------------------------------------------------------------------
 
 		[Header("Sorting")]
 		[SerializeField][SwfSortingLayer]
-		public string _sortingLayer = string.Empty;
+		string _sortingLayer = string.Empty;
+		[SerializeField]
+		int _sortingOrder = 0;
+
+		[Header("Animation")]
+		[SerializeField]
+		Color _tint = Color.white;
+		[SerializeField]
+		SwfClipAsset _clip = null;
+		[SerializeField][HideInInspector]
+		string _sequence = string.Empty;
+		[SerializeField][HideInInspector]
+		int _currentFrame = 0;
+
+		// ---------------------------------------------------------------------
+		//
+		// Properties
+		//
+		// ---------------------------------------------------------------------
+
+		/// <summary>
+		/// Gets or sets the animation mesh renderer sorting layer
+		/// </summary>
+		/// <value>The sorting layer</value>
 		public string sortingLayer {
 			get { return _sortingLayer; }
 			set {
@@ -30,8 +53,10 @@ namespace FTRuntime {
 			}
 		}
 
-		[SerializeField]
-		public int _sortingOrder = 0;
+		/// <summary>
+		/// Gets or sets the animation mesh renderer sorting order
+		/// </summary>
+		/// <value>The sorting order</value>
 		public int sortingOrder {
 			get { return _sortingOrder; }
 			set {
@@ -40,9 +65,10 @@ namespace FTRuntime {
 			}
 		}
 
-		[Header("Animation")]
-		[SerializeField]
-		Color _tint = Color.white;
+		/// <summary>
+		/// Gets or sets the animation tint color
+		/// </summary>
+		/// <value>The tint color</value>
 		public Color tint {
 			get { return _tint; }
 			set {
@@ -51,8 +77,10 @@ namespace FTRuntime {
 			}
 		}
 
-		[SerializeField]
-		SwfClipAsset _clip = null;
+		/// <summary>
+		/// Gets or sets the animation asset (reset sequence and current frame)
+		/// </summary>
+		/// <value>The animation asset</value>
 		public SwfClipAsset clip {
 			get { return _clip; }
 			set {
@@ -63,8 +91,10 @@ namespace FTRuntime {
 			}
 		}
 
-		[SerializeField][HideInInspector]
-		string _sequence = string.Empty;
+		/// <summary>
+		/// Gets or sets the animation sequence (reset current frame)
+		/// </summary>
+		/// <value>The animation sequence</value>
 		public string sequence {
 			get { return _sequence; }
 			set {
@@ -74,8 +104,10 @@ namespace FTRuntime {
 			}
 		}
 
-		[SerializeField][HideInInspector]
-		int _currentFrame = 0;
+		/// <summary>
+		/// Gets or sets the animation current frame
+		/// </summary>
+		/// <value>The animation current frame</value>
 		public int currentFrame {
 			get { return _currentFrame; }
 			set {
@@ -84,6 +116,10 @@ namespace FTRuntime {
 			}
 		}
 
+		/// <summary>
+		/// Gets the current animation sequence frame count
+		/// </summary>
+		/// <value>The frame count.</value>
 		public int frameCount {
 			get {
 				return _curSequence != null && _curSequence.Frames != null
@@ -92,6 +128,10 @@ namespace FTRuntime {
 			}
 		}
 
+		/// <summary>
+		/// Gets the animation frame rate
+		/// </summary>
+		/// <value>The frame rate.</value>
 		public float frameRate {
 			get {
 				return clip
@@ -106,16 +146,26 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
+		/// <summary>
+		/// Rewind current sequence to begin frame
+		/// </summary>
 		public void ToBeginFrame() {
 			currentFrame = 0;
 		}
 
+		/// <summary>
+		/// Rewind current sequence to end frame
+		/// </summary>
 		public void ToEndFrame() {
 			currentFrame = frameCount > 0
 				? frameCount - 1
 				: 0;
 		}
 
+		/// <summary>
+		/// Rewind current sequence to previous frame
+		/// </summary>
+		/// <returns><c>true</c>, if animation was rewound, <c>false</c> otherwise.</returns>
 		public bool ToPrevFrame() {
 			if ( currentFrame > 0 ) {
 				--currentFrame;
@@ -124,6 +174,10 @@ namespace FTRuntime {
 			return false;
 		}
 
+		/// <summary>
+		/// Rewind current sequence to next frame
+		/// </summary>
+		/// <returns><c>true</c>, if animation was rewound, <c>false</c> otherwise.</returns>
 		public bool ToNextFrame() {
 			if ( currentFrame < frameCount - 1 ) {
 				++currentFrame;
@@ -138,7 +192,7 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
-		internal void InternalLateUpdate() {
+		public void Internal_LateUpdate() {
 			if ( _meshFilter && _meshRenderer && _dirtyMesh ) {
 				var baked_frame = GetCurrentBakedFrame();
 				if ( baked_frame != null ) {
@@ -152,7 +206,7 @@ namespace FTRuntime {
 			}
 		}
 
-		public void UpdateAllProperties() {
+		public void Internal_UpdateAllProperties() {
 			ClearCache();
 			ChangeTint();
 			ChangeClip();
@@ -256,7 +310,7 @@ namespace FTRuntime {
 		// ---------------------------------------------------------------------
 
 		void Awake() {
-			UpdateAllProperties();
+			Internal_UpdateAllProperties();
 		}
 
 		void OnEnable() {
@@ -274,11 +328,11 @@ namespace FTRuntime {
 		}
 
 		void Reset() {
-			UpdateAllProperties();
+			Internal_UpdateAllProperties();
 		}
 
 		void OnValidate() {
-			UpdateAllProperties();
+			Internal_UpdateAllProperties();
 		}
 	}
 }
