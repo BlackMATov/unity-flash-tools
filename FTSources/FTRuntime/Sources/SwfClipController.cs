@@ -16,9 +16,41 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
+		/// <summary>
+		/// Occurs when on stop playing event
+		/// </summary>
 		public event System.Action<SwfClipController> OnStopPlayingEvent;
+
+		/// <summary>
+		/// Occurs when on play stopped event
+		/// </summary>
 		public event System.Action<SwfClipController> OnPlayStoppedEvent;
+
+		/// <summary>
+		/// Occurs when on rewind playing event
+		/// </summary>
 		public event System.Action<SwfClipController> OnRewindPlayingEvent;
+
+		// ---------------------------------------------------------------------
+		//
+		// Serialized fields
+		//
+		// ---------------------------------------------------------------------
+
+		[SerializeField]
+		bool _autoPlay = false;
+
+		[SerializeField, SwfFloatRange(0.0f, float.MaxValue)]
+		float _rateScale = 1.0f;
+
+		[SerializeField]
+		string _groupName = string.Empty;
+
+		[SerializeField]
+		PlayModes _playMode = PlayModes.Forward;
+
+		[SerializeField]
+		LoopModes _loopMode = LoopModes.Once;
 
 		// ---------------------------------------------------------------------
 		//
@@ -26,60 +58,99 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
+		/// <summary>
+		/// Controller play modes
+		/// </summary>
 		public enum PlayModes {
+			/// <summary>
+			/// Forward play mode
+			/// </summary>
 			Forward,
+			/// <summary>
+			/// Backward play mode
+			/// </summary>
 			Backward
 		}
 
+		/// <summary>
+		/// Controller loop modes
+		/// </summary>
 		public enum LoopModes {
+			/// <summary>
+			/// Once loop mode
+			/// </summary>
 			Once,
+			/// <summary>
+			/// Repeat loop mode
+			/// </summary>
 			Loop
 		}
 
-		[SerializeField]
-		bool _autoPlay = false;
+		/// <summary>
+		/// Gets or sets a value indicating whether controller play after awake on scene
+		/// </summary>
+		/// <value><c>true</c> if auto play; otherwise, <c>false</c></value>
 		public bool autoPlay {
 			get { return _autoPlay; }
 			set { _autoPlay = value; }
 		}
 
-		[SerializeField]
-		[SwfFloatRange(0.0f, float.MaxValue)]
-		float _rateScale = 1.0f;
+		/// <summary>
+		/// Gets or sets the controller rate scale
+		/// </summary>
+		/// <value>The rate scale</value>
 		public float rateScale {
 			get { return _rateScale; }
 			set { _rateScale = Mathf.Clamp(value, 0.0f, float.MaxValue); }
 		}
 
-		[SerializeField]
-		string _groupName = string.Empty;
+		/// <summary>
+		/// Gets or sets the controller group name
+		/// </summary>
+		/// <value>The group name</value>
 		public string groupName {
 			get { return _groupName; }
 			set { _groupName = value; }
 		}
 
-		[SerializeField]
-		PlayModes _playMode = PlayModes.Forward;
+		/// <summary>
+		/// Gets or sets the controller play mode
+		/// </summary>
+		/// <value>The play mode</value>
 		public PlayModes playMode {
 			get { return _playMode; }
 			set { _playMode = value; }
 		}
 
-		[SerializeField]
-		LoopModes _loopMode = LoopModes.Once;
+		/// <summary>
+		/// Gets or sets the controller loop mode
+		/// </summary>
+		/// <value>The loop mode</value>
 		public LoopModes loopMode {
 			get { return _loopMode; }
 			set { _loopMode = value; }
 		}
 
+		/// <summary>
+		/// Gets the controller clip
+		/// </summary>
+		/// <value>The clip</value>
 		public SwfClip clip {
 			get { return _clip; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether controller is playing
+		/// </summary>
+		/// <value><c>true</c> if is playing; otherwise, <c>false</c></value>
 		public bool isPlaying {
 			get { return _isPlaying; }
 		}
 
+		/// <summary>
+		/// Gets a value indicating whether controller is stopped
+		/// </summary>
+		/// <value><c>true</c> if is stopped; otherwise, <c>false</c></value>
 		public bool isStopped {
 			get { return !_isPlaying; }
 		}
@@ -90,6 +161,10 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
+		/// <summary>
+		/// Changes the animation frame with stops it
+		/// </summary>
+		/// <param name="frame">The new current frame</param>
 		public void GotoAndStop(int frame) {
 			if ( clip ) {
 				clip.currentFrame = frame;
@@ -97,6 +172,11 @@ namespace FTRuntime {
 			Stop(false);
 		}
 
+		/// <summary>
+		/// Changes the animation sequence and frame with stops it
+		/// </summary>
+		/// <param name="sequence">The new sequence</param>
+		/// <param name="frame">The new current frame</param>
 		public void GotoAndStop(string sequence, int frame) {
 			if ( clip ) {
 				clip.sequence = sequence;
@@ -104,10 +184,10 @@ namespace FTRuntime {
 			GotoAndStop(frame);
 		}
 
-		//
-		//
-		//
-
+		/// <summary>
+		/// Changes the animation frame with plays it
+		/// </summary>
+		/// <param name="frame">The new current frame</param>
 		public void GotoAndPlay(int frame) {
 			if ( clip ) {
 				clip.currentFrame = frame;
@@ -115,6 +195,11 @@ namespace FTRuntime {
 			Play(false);
 		}
 
+		/// <summary>
+		/// Changes the animation sequence and frame with plays it
+		/// </summary>
+		/// <param name="sequence">The new sequence</param>
+		/// <param name="frame">The new current frame</param>
 		public void GotoAndPlay(string sequence, int frame) {
 			if ( clip ) {
 				clip.sequence = sequence;
@@ -122,10 +207,10 @@ namespace FTRuntime {
 			GotoAndPlay(frame);
 		}
 
-		//
-		//
-		//
-
+		/// <summary>
+		/// Stop with specified rewind action
+		/// </summary>
+		/// <param name="rewind">If set to <c>true</c> rewind animation to begin frame</param>
 		public void Stop(bool rewind) {
 			var is_playing = isPlaying;
 			if ( is_playing ) {
@@ -140,6 +225,10 @@ namespace FTRuntime {
 			}
 		}
 
+		/// <summary>
+		/// Changes the animation sequence and stop controller with rewind
+		/// </summary>
+		/// <param name="sequence">The new sequence</param>
 		public void Stop(string sequence) {
 			if ( clip ) {
 				clip.sequence = sequence;
@@ -147,10 +236,10 @@ namespace FTRuntime {
 			Stop(true);
 		}
 
-		//
-		//
-		//
-
+		/// <summary>
+		/// Play with specified rewind action
+		/// </summary>
+		/// <param name="rewind">If set to <c>true</c> rewind animation to begin frame</param>
 		public void Play(bool rewind) {
 			var is_stopped = isStopped;
 			if ( is_stopped ) {
@@ -165,6 +254,10 @@ namespace FTRuntime {
 			}
 		}
 
+		/// <summary>
+		/// Changes the animation sequence and play controller with rewind
+		/// </summary>
+		/// <param name="sequence">The new sequence</param>
 		public void Play(string sequence) {
 			if ( clip ) {
 				clip.sequence = sequence;
@@ -172,10 +265,9 @@ namespace FTRuntime {
 			Play(true);
 		}
 
-		//
-		//
-		//
-
+		/// <summary>
+		/// Rewind animation to begin frame
+		/// </summary>
 		public void Rewind() {
 			switch ( playMode ) {
 			case PlayModes.Forward:
@@ -204,7 +296,7 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
-		public void InternalUpdate(float dt) {
+		internal void Internal_Update(float dt) {
 			if ( isPlaying ) {
 				UpdateTimer(dt);
 			}

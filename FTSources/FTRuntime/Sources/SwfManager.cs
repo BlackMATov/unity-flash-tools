@@ -230,10 +230,10 @@ namespace FTRuntime {
 				if ( ctrl ) {
 					var group_name = ctrl.groupName;
 					if ( string.IsNullOrEmpty(group_name) ) {
-						ctrl.InternalUpdate(dt);
+						ctrl.Internal_Update(dt);
 					} else if ( IsGroupPlaying(group_name) ) {
 						var group_rate_scale = GetGroupRateScale(group_name);
-						ctrl.InternalUpdate(group_rate_scale * dt);
+						ctrl.Internal_Update(group_rate_scale * dt);
 					}
 				}
 			}

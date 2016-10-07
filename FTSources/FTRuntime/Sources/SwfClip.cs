@@ -20,7 +20,7 @@ namespace FTRuntime {
 		// ---------------------------------------------------------------------
 
 		[Header("Sorting")]
-		[SerializeField][SwfSortingLayer]
+		[SerializeField, SwfSortingLayer]
 		string _sortingLayer = string.Empty;
 		[SerializeField]
 		int _sortingOrder = 0;
@@ -30,9 +30,9 @@ namespace FTRuntime {
 		Color _tint = Color.white;
 		[SerializeField]
 		SwfClipAsset _clip = null;
-		[SerializeField][HideInInspector]
+		[SerializeField, HideInInspector]
 		string _sequence = string.Empty;
-		[SerializeField][HideInInspector]
+		[SerializeField, HideInInspector]
 		int _currentFrame = 0;
 
 		// ---------------------------------------------------------------------
@@ -192,7 +192,7 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
-		public void Internal_LateUpdate() {
+		internal void Internal_LateUpdate() {
 			if ( _meshFilter && _meshRenderer && _dirtyMesh ) {
 				var baked_frame = GetCurrentBakedFrame();
 				if ( baked_frame != null ) {
@@ -206,6 +206,9 @@ namespace FTRuntime {
 			}
 		}
 
+		/// <summary>
+		/// Update all animation properties (for internal use only)
+		/// </summary>
 		public void Internal_UpdateAllProperties() {
 			ClearCache();
 			ChangeTint();
