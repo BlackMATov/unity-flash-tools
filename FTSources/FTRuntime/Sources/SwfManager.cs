@@ -178,28 +178,24 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
-		public void AddClip(SwfClip clip) {
+		internal void AddClip(SwfClip clip) {
 			_clips.Add(clip);
 		}
 
-		public void RemoveClip(SwfClip clip) {
+		internal void RemoveClip(SwfClip clip) {
 			_clips.Remove(clip);
 		}
 
-		public void GetAllClips(List<SwfClip> clips) {
+		internal void GetAllClips(List<SwfClip> clips) {
 			_clips.AssignTo(clips);
 		}
 
-		public void AddController(SwfClipController controller) {
+		internal void AddController(SwfClipController controller) {
 			_controllers.Add(controller);
 		}
 
-		public void RemoveController(SwfClipController controller) {
+		internal void RemoveController(SwfClipController controller) {
 			_controllers.Remove(controller);
-		}
-
-		public void GetAllControllers(List<SwfClipController> controllers) {
-			_controllers.AssignTo(controllers);
 		}
 
 		void GrabEnabledClips() {

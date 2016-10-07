@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 
+using System.Linq;
 using System.Collections.Generic;
 
 using FTRuntime;
@@ -80,8 +81,8 @@ namespace FTEditor.Editors {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
-			_manager = target as SwfManager;
-			_manager.GetAllControllers(_controllers);
+			_manager     = target as SwfManager;
+			_controllers = FindObjectsOfType<SwfClipController>().ToList();
 		}
 
 		public override void OnInspectorGUI() {

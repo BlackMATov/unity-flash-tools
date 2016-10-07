@@ -138,7 +138,7 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
-		public void InternalLateUpdate() {
+		internal void InternalLateUpdate() {
 			if ( _meshFilter && _meshRenderer && _dirtyMesh ) {
 				var baked_frame = GetCurrentBakedFrame();
 				if ( baked_frame != null ) {
