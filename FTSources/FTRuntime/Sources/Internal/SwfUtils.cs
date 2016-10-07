@@ -103,8 +103,8 @@ namespace FTRuntime.Internal {
 				}
 				for ( int i = 0, e = uvs.Length; i < e; i += 2 ) {
 					float min_x, min_y, max_x, max_y;
-					SwfUtils.UnpackUV(uvs[i+0], out min_x, out min_y);
-					SwfUtils.UnpackUV(uvs[i+1], out max_x, out max_y);
+					UnpackUV(uvs[i+0], out min_x, out min_y);
+					UnpackUV(uvs[i+1], out max_x, out max_y);
 
 					UV0.x = min_x; UV0.y = min_y;
 					UV1.x = max_x; UV1.y = min_y;
@@ -126,7 +126,7 @@ namespace FTRuntime.Internal {
 					AddColors.Capacity = colors.Length * 2 * 2;
 				}
 				for ( int i = 0, e = colors.Length; i < e; i += 2 ) {
-					SwfUtils.UnpackFColorFromUInts(
+					UnpackFColorFromUInts(
 						colors[i+0], colors[i+1],
 						out AddColor.x, out AddColor.y,
 						out AddColor.z, out AddColor.w);
@@ -145,7 +145,7 @@ namespace FTRuntime.Internal {
 					MulColors.Capacity = colors.Length * 2 * 2;
 				}
 				for ( int i = 0, e = colors.Length; i < e; i += 2 ) {
-					SwfUtils.UnpackFColorFromUInts(
+					UnpackFColorFromUInts(
 						colors[i+0], colors[i+1],
 						out MulColor.r, out MulColor.g,
 						out MulColor.b, out MulColor.a);

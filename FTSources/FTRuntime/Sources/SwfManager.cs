@@ -3,6 +3,9 @@ using FTRuntime.Internal;
 using System.Collections.Generic;
 
 namespace FTRuntime {
+	/// <summary>
+	/// General manager for update and controlling animations and animation groups
+	/// </summary>
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	public class SwfManager : MonoBehaviour {
 		SwfAssocList<SwfClip>           _clips           = new SwfAssocList<SwfClip>();
@@ -21,6 +24,12 @@ namespace FTRuntime {
 		// ---------------------------------------------------------------------
 
 		static SwfManager _instance;
+
+		/// <summary>
+		/// Get cached manager instance from scene or create it (if allowed)
+		/// </summary>
+		/// <returns>The manager instance</returns>
+		/// <param name="allow_create">If set to <c>true</c> allow create</param>
 		public static SwfManager GetInstance(bool allow_create) {
 			if ( !_instance ) {
 				_instance = FindObjectOfType<SwfManager>();
@@ -38,24 +47,44 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
+		/// <summary>
+		/// Get animation clip count on scene
+		/// </summary>
+		/// <value>Clip count</value>
 		public int clipCount {
 			get { return _clips.Count; }
 		}
 
+		/// <summary>
+		/// Get animation clip controller count on scene
+		/// </summary>
+		/// <value>Clip controller count</value>
 		public int controllerCount {
 			get { return _controllers.Count; }
 		}
 
+		/// <summary>
+		/// Get or set a value indicating whether animation updates is paused
+		/// </summary>
+		/// <value><c>true</c> if is paused; otherwise, <c>false</c>.</value>
 		public bool isPaused {
 			get { return _isPaused; }
 			set { _isPaused = value; }
 		}
 
+		/// <summary>
+		/// Get or set a value indicating whether animation updates is playing
+		/// </summary>
+		/// <value><c>true</c> if is playing; otherwise, <c>false</c>.</value>
 		public bool isPlaying {
 			get { return !_isPaused; }
 			set { _isPaused = !value; }
 		}
 
+		/// <summary>
+		/// Get or set the global animation rate scale
+		/// </summary>
+		/// <value>Global rate scale</value>
 		public float rateScale {
 			get { return _rateScale; }
 			set { _rateScale = Mathf.Clamp(value, 0.0f, float.MaxValue); }
@@ -67,40 +96,75 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
+		/// <summary>
+		/// Pause animation updates
+		/// </summary>
 		public void Pause() {
 			isPaused = true;
 		}
 
+		/// <summary>
+		/// Resume animation updates
+		/// </summary>
 		public void Resume() {
 			isPlaying = true;
 		}
 
+		/// <summary>
+		/// Pause the group of animations by name
+		/// </summary>
+		/// <param name="group_name">Group name</param>
 		public void PauseGroup(string group_name) {
 			if ( !string.IsNullOrEmpty(group_name) ) {
 				_groupPauses.Add(group_name);
 			}
 		}
 
+		/// <summary>
+		/// Resume the group of animations by name
+		/// </summary>
+		/// <param name="group_name">Group name</param>
 		public void ResumeGroup(string group_name) {
 			if ( !string.IsNullOrEmpty(group_name) ) {
 				_groupPauses.Remove(group_name);
 			}
 		}
 
+		/// <summary>
+		/// Determines whether group of animations is paused
+		/// </summary>
+		/// <returns><c>true</c> if group is paused; otherwise, <c>false</c>.</returns>
+		/// <param name="group_name">Group name</param>
 		public bool IsGroupPaused(string group_name) {
 			return _groupPauses.Contains(group_name);
 		}
 
+
+		/// <summary>
+		/// Determines whether group of animations is playing
+		/// </summary>
+		/// <returns><c>true</c> if group is playing; otherwise, <c>false</c>.</returns>
+		/// <param name="group_name">Group name</param>
 		public bool IsGroupPlaying(string group_name) {
 			return !IsGroupPaused(group_name);
 		}
 
+		/// <summary>
+		/// Set the group of animations rate scale
+		/// </summary>
+		/// <param name="group_name">Group name</param>
+		/// <param name="rate_scale">Rate scale</param>
 		public void SetGroupRateScale(string group_name, float rate_scale) {
 			if ( !string.IsNullOrEmpty(group_name) ) {
 				_groupRateScales[group_name] = Mathf.Clamp(rate_scale, 0.0f, float.MaxValue);
 			}
 		}
 
+		/// <summary>
+		/// Get the group of animations rate scale
+		/// </summary>
+		/// <returns>The group rate scale.</returns>
+		/// <param name="group_name">Group name.</param>
 		public float GetGroupRateScale(string group_name) {
 			float rate_scale;
 			return _groupRateScales.TryGetValue(group_name, out rate_scale)
