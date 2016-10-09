@@ -23,7 +23,14 @@ namespace FTEditor.Editors {
 					AllControllersForeach(ctrl => ctrl.Stop(ctrl.isStopped));
 				}
 				if ( GUILayout.Button("Play") ) {
-					AllControllersForeach(ctrl => ctrl.Play(ctrl.isPlaying));
+					AllControllersForeach(ctrl => {
+						var rewind =
+							ctrl.isPlaying ||
+							(ctrl.clip && (
+								ctrl.clip.currentFrame == 0 ||
+								ctrl.clip.currentFrame == ctrl.clip.frameCount - 1));
+						ctrl.Play(rewind);
+					});
 				}
 			});
 		}
