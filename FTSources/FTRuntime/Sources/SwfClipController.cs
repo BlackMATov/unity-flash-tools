@@ -38,7 +38,7 @@ namespace FTRuntime {
 		// ---------------------------------------------------------------------
 
 		[SerializeField]
-		bool _autoPlay = false;
+		bool _autoPlay = true;
 
 		[SerializeField, SwfFloatRange(0.0f, float.MaxValue)]
 		float _rateScale = 1.0f;
@@ -50,7 +50,7 @@ namespace FTRuntime {
 		PlayModes _playMode = PlayModes.Forward;
 
 		[SerializeField]
-		LoopModes _loopMode = LoopModes.Once;
+		LoopModes _loopMode = LoopModes.Loop;
 
 		// ---------------------------------------------------------------------
 		//
