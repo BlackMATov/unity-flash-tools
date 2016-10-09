@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Release_LITE</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release_DEMO</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{48D55C1A-BBD5-44D9-9CC5-473A1BBA9AB5}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -10,7 +10,7 @@
     <ReleaseVersion>0.5</ReleaseVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_FREE|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_DEMO|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>..\..\Assets\FlashTools\Plugins</OutputPath>
     <ErrorReport>prompt</ErrorReport>
@@ -18,16 +18,8 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <ConsolePause>false</ConsolePause>
     <NoStdLib>true</NoStdLib>
-    <DefineConstants>FT_VERSION_FREE</DefineConstants>
-    <AssemblyName>FTRuntime_FREE</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_LITE|AnyCPU' ">
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\Assets\FlashTools\Plugins</OutputPath>
-    <WarningLevel>4</WarningLevel>
-    <NoStdLib>true</NoStdLib>
-    <DefineConstants>FT_VERSION_LITE</DefineConstants>
-    <AssemblyName>FTRuntime_LITE</AssemblyName>
+    <DefineConstants>FT_VERSION_DEMO</DefineConstants>
+    <AssemblyName>FTRuntimeDemo</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_FULL|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -35,7 +27,7 @@
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
     <DefineConstants>FT_VERSION_FULL</DefineConstants>
-    <AssemblyName>FTRuntime_FULL</AssemblyName>
+    <AssemblyName>FTRuntime</AssemblyName>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

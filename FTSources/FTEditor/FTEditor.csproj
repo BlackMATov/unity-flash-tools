@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Release_FREE</Configuration>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release_DEMO</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{30886846-765A-400B-AD3E-436089DE68ED}</ProjectGuid>
     <OutputType>Library</OutputType>
@@ -10,7 +10,7 @@
     <ReleaseVersion>0.5</ReleaseVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_FREE|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_DEMO|AnyCPU' ">
     <Optimize>true</Optimize>
     <OutputPath>..\..\Assets\FlashTools\Plugins\Editor</OutputPath>
     <ErrorReport>prompt</ErrorReport>
@@ -18,16 +18,8 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <ConsolePause>false</ConsolePause>
     <NoStdLib>true</NoStdLib>
-    <DefineConstants>FT_VERSION_FREE</DefineConstants>
-    <AssemblyName>FTEditor_FREE</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_LITE|AnyCPU' ">
-    <Optimize>true</Optimize>
-    <OutputPath>..\..\Assets\FlashTools\Plugins\Editor</OutputPath>
-    <WarningLevel>4</WarningLevel>
-    <NoStdLib>true</NoStdLib>
-    <DefineConstants>FT_VERSION_LITE</DefineConstants>
-    <AssemblyName>FTEditor_LITE</AssemblyName>
+    <DefineConstants>FT_VERSION_DEMO</DefineConstants>
+    <AssemblyName>FTEditorDemo</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_FULL|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -35,7 +27,7 @@
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
     <DefineConstants>FT_VERSION_FULL</DefineConstants>
-    <AssemblyName>FTEditor_FULL</AssemblyName>
+    <AssemblyName>FTEditor</AssemblyName>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
