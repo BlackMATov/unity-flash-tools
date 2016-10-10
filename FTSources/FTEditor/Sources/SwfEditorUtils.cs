@@ -202,6 +202,27 @@ namespace FTEditor {
 
 		// ---------------------------------------------------------------------
 		//
+		// Demo
+		//
+		// ---------------------------------------------------------------------
+
+	#if FT_VERSION_DEMO
+		public static bool IsDemoEnded {
+			get {
+				var guids = AssetDatabase.FindAssets("t:SwfAsset");
+				return guids.Length >= 5;
+			}
+		}
+	#else
+		public static bool IsDemoEnded {
+			get {
+				return false;
+			}
+		}
+	#endif
+
+		// ---------------------------------------------------------------------
+		//
 		// Menu
 		//
 		// ---------------------------------------------------------------------

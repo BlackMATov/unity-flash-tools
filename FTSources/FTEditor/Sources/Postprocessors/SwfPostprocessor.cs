@@ -22,8 +22,16 @@ namespace FTEditor.Postprocessors {
 		{
 			var swf_paths = imported_assets
 				.Where(p => Path.GetExtension(p).ToLower().Equals(".swf"));
-			foreach ( var swf_path in swf_paths ) {
-				SwfFileProcess(swf_path);
+			if ( swf_paths.Any() && SwfEditorUtils.IsDemoEnded ) {
+				var title   = "Demo version";
+				var message =
+					"This demo is for evaluation purpose only. " +
+					"It means that you can't have more than 5 animation assets in the project.";
+				EditorUtility.DisplayDialog(title, message, "Ok");
+			} else {
+				foreach ( var swf_path in swf_paths ) {
+					SwfFileProcess(swf_path);
+				}
 			}
 		}
 
