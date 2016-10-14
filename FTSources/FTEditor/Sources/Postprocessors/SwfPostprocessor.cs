@@ -43,19 +43,21 @@ namespace FTEditor.Postprocessors {
 					swf_asset.Settings   = default_settings;
 					swf_asset.Overridden = default_settings;
 				}
-				SafeLoadSwfAsset(swf_path, swf_asset);
+				return SafeLoadSwfAsset(swf_path, swf_asset);
 			});
 		}
 
-		static void SafeLoadSwfAsset(string swf_path, SwfAsset swf_asset) {
+		static bool SafeLoadSwfAsset(string swf_path, SwfAsset swf_asset) {
 			try {
 				var new_data         = LoadSwfAssetData(swf_path);
 				swf_asset.Data       = SwfEditorUtils.CompressAsset(new_data);
 				swf_asset.Converting = new SwfAsset.ConvertingState();
+				return true;
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
 					"<b>[FlashTools]</b> Parsing swf error: {0}",
 					e.Message);
+				return false;
 			}
 		}
 

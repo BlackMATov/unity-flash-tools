@@ -273,6 +273,7 @@ namespace FTEditor.Postprocessors {
 				SwfEditorUtils.LoadOrCreateAsset<SwfClipAsset>(clip_asset_path, (new_clip_asset, created) => {
 					ConfigureClipAsset(new_clip_asset, asset, data, symbol);
 					asset.Clips.Add(new_clip_asset);
+					return true;
 				});
 			}
 		}

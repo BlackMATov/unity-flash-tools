@@ -147,17 +147,22 @@ namespace FTEditor {
 			return holder;
 		}
 
-		public static T LoadOrCreateAsset<T>(string asset_path, System.Action<T, bool> act) where T : ScriptableObject {
+		public static T LoadOrCreateAsset<T>(string asset_path, System.Func<T, bool, bool> act) where T : ScriptableObject {
 			var asset = AssetDatabase.LoadAssetAtPath<T>(asset_path);
 			if ( asset ) {
-				act(asset, false);
-				EditorUtility.SetDirty(asset);
+				if ( act(asset, false) ) {
+					EditorUtility.SetDirty(asset);
+					AssetDatabase.ImportAsset(asset_path);
+				}
 			} else {
 				asset = ScriptableObject.CreateInstance<T>();
-				act(asset, true);
-				AssetDatabase.CreateAsset(asset, asset_path);
+				if ( act(asset, true) ) {
+					AssetDatabase.CreateAsset(asset, asset_path);
+					AssetDatabase.ImportAsset(asset_path);
+				} else {
+					ScriptableObject.DestroyImmediate(asset);
+				}
 			}
-			AssetDatabase.ImportAsset(asset_path);
 			return asset;
 		}
 
