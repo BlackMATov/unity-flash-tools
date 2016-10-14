@@ -20,18 +20,24 @@ namespace FTRuntime {
 		// ---------------------------------------------------------------------
 
 		[Header("Sorting")]
+
 		[SerializeField, SwfSortingLayer]
 		string _sortingLayer = string.Empty;
+
 		[SerializeField]
 		int _sortingOrder = 0;
 
 		[Header("Animation")]
+
 		[SerializeField]
 		Color _tint = Color.white;
+
 		[SerializeField]
 		SwfClipAsset _clip = null;
+
 		[SerializeField, HideInInspector]
 		string _sequence = string.Empty;
+
 		[SerializeField, HideInInspector]
 		int _currentFrame = 0;
 
