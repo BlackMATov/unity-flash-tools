@@ -193,5 +193,9 @@ namespace FTSwfTools {
 			target.Position = 0;
 			return target;
 		}
+
+		static public SwfStreamReader DecompressZBytesToReader(byte[] compressd_bytes) {
+			return new SwfStreamReader(DecompressZBytes(compressd_bytes));
+		}
 	}
 }
