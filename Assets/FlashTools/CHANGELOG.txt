@@ -1,4 +1,12 @@
 -----------------
+-- Version 1.0 --
+-----------------
+
+Initial asset store version
+Sources to dll
+Palette bitmaps support
+
+-----------------
 -- Version 0.5 --
 -----------------
 
