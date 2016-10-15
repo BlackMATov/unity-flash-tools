@@ -6,7 +6,6 @@
     <ProjectGuid>{4EB8756F-398B-4356-90FB-0ED056B3E6E9}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FTSwfTools</RootNamespace>
-    <UseMSBuildEngine>True</UseMSBuildEngine>
     <ReleaseVersion>0.5</ReleaseVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -15,11 +14,11 @@
     <OutputPath>..\..\Assets\FlashTools\Plugins\Editor</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <ConsolePause>false</ConsolePause>
     <NoStdLib>true</NoStdLib>
     <DefineConstants>FT_VERSION_DEMO</DefineConstants>
     <AssemblyName>FTSwfToolsDemo</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_FULL|AnyCPU' ">
     <Optimize>true</Optimize>

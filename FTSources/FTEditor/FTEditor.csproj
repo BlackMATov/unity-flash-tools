@@ -6,7 +6,6 @@
     <ProjectGuid>{30886846-765A-400B-AD3E-436089DE68ED}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FTEditor</RootNamespace>
-    <UseMSBuildEngine>True</UseMSBuildEngine>
     <ReleaseVersion>0.5</ReleaseVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -15,11 +14,11 @@
     <OutputPath>..\..\Assets\FlashTools\Plugins\Editor</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <ConsolePause>false</ConsolePause>
     <NoStdLib>true</NoStdLib>
     <DefineConstants>FT_VERSION_DEMO</DefineConstants>
     <AssemblyName>FTEditorDemo</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_FULL|AnyCPU' ">
     <Optimize>true</Optimize>

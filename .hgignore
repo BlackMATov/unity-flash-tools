@@ -2,4 +2,7 @@ glob:obj/*
 glob:Temp/*
 glob:Library/*
 
+glob:*.mdb
+glob:*.mdb.meta
+
 glob:.DS_Store

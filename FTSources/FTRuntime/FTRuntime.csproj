@@ -6,7 +6,6 @@
     <ProjectGuid>{48D55C1A-BBD5-44D9-9CC5-473A1BBA9AB5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>FTRuntime</RootNamespace>
-    <UseMSBuildEngine>True</UseMSBuildEngine>
     <ReleaseVersion>0.5</ReleaseVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
@@ -15,11 +14,11 @@
     <OutputPath>..\..\Assets\FlashTools\Plugins</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <ConsolePause>false</ConsolePause>
     <NoStdLib>true</NoStdLib>
     <DefineConstants>FT_VERSION_DEMO</DefineConstants>
     <AssemblyName>FTRuntimeDemo</AssemblyName>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_FULL|AnyCPU' ">
     <Optimize>true</Optimize>
