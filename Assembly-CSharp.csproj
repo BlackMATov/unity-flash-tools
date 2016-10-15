@@ -45,12 +45,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\FlashTools\Examples\Scripts\PurpleFlowerLogic.cs" />
+     <Compile Include="Assets\FlashTools\Example\Scripts\PurpleFlowerLogic.cs" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfBaseCG.cginc" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfDecrMaskShader.shader" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfSimpleShader.shader" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfMaskedGrabShader.shader" />
-     <None Include="Assets\FlashTools\Examples\Animations\licence.txt" />
+     <None Include="Assets\FlashTools\Example\Animations\licence.txt" />
      <None Include="Assets\FlashTools\CHANGELOG.txt" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfSimpleGrabShader.shader" />
      <None Include="Assets\FlashTools\Resources\Materials\SwfIncrMaskShader.shader" />

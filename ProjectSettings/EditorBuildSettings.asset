@@ -6,4 +6,4 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/FlashTools/Examples/ExampleScene.unity
+    path: Assets/FlashTools/Example/Scene.unity
