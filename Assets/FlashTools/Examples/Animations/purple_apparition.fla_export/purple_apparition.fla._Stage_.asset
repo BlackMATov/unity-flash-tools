@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1437306451, guid: 5accf2f76c39043afaf11033c5682c24, type: 3}
+  m_Name: purple_apparition.fla._Stage_
+  m_EditorClassIdentifier: 
+  Name: _Stage_
+  Atlas: {fileID: 2800000, guid: a799322aa44e44b38980bc9d307f0c38, type: 3}
+  FrameRate: 24
+  Sequences:
+  - Name: Default
+    Frames:
+    - MeshData:
+        SubMeshes:
+        - StartVertex: 0
+          IndexCount: 18
+        Vertices:
+        - {x: 1.4074999, y: -1.2465}
+        - {x: 1.4567962, y: -1.2465}
+        - {x: 1.4567962, y: -1.265126}
+        - {x: 1.4074999, y: -1.265126}
+        - {x: 1.3955, y: -1.242}
+        - {x: 1.4708942, y: -1.242}
+        - {x: 1.4708942, y: -1.2696567}
+        - {x: 1.3955, y: -1.2696567}
+        - {x: 1.3870001, y: -1.2475}
+        - {x: 1.4810733, y: -1.2475}
+        - {x: 1.4810733, y: -1.2815095}
+        - {x: 1.3870001, y: -1.2815095}
+        UVs: bf443fa4ff4cbfacff0f7ff23f1c7fff7f1c7fee3f26fff8
+        AddColors: 000000000000000000000000000000000000000000000000
+        MulColors: 000200020001000200020002000100020002000200010002
+      Materials:
+      - {fileID: 2100000, guid: d58d9a5e482e8429f8d7d18a9538d94a, type: 2}
