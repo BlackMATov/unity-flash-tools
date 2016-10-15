@@ -4,11 +4,10 @@
 
 Convert your flash animation for Unity easy!
 
-- Usage video "http://www.youtube.com/watch?v=XXXXXXXXXXXXXXXXXXXXXXX"   !!!
+- Usage video "http://www.youtube.com/watch?v=uE_XRWZ5KHA"
 
 - Blog "http://matov.me"
 - Site "http://matov.me/flash-animation-toolset"
-- Forum "http://forum.unity3d.com/threads/XXXXXXXXXXXXXXXXXXXXXXXXXXX"   !!!
 - Web demo "http://matov.me/public/blog_share/flash_tools/web_demo"
 - User guide "http://matov.me/flash-animation-toolset-user-guide"
 
