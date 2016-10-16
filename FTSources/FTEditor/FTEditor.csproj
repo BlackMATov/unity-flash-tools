@@ -8,6 +8,7 @@
     <RootNamespace>FTEditor</RootNamespace>
     <ReleaseVersion>0.5</ReleaseVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <AssemblyName>FTEditor</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_DEMO|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -17,7 +18,6 @@
     <ConsolePause>false</ConsolePause>
     <NoStdLib>true</NoStdLib>
     <DefineConstants>FT_VERSION_DEMO</DefineConstants>
-    <AssemblyName>FTEditorDemo</AssemblyName>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_FULL|AnyCPU' ">
@@ -26,7 +26,6 @@
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
     <DefineConstants>FT_VERSION_FULL</DefineConstants>
-    <AssemblyName>FTEditor</AssemblyName>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
