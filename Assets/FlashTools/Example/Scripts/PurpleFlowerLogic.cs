@@ -6,7 +6,7 @@ using FTRuntime;
 namespace FlashTools.Examples {
 	[RequireComponent(typeof(SwfClipController))]
 	public class PurpleFlowerLogic : MonoBehaviour {
-		static string[] _idleSequences    = new string[]{"talk", "idle0", "idle1", "idle2"};
+		static string[] _idleSequences    = {"talk", "idle0", "idle1", "idle2"};
 		static string   _fadeInSequence   = "fadeIn";
 		static string   _fadeOutSequence  = "fadeOut";
 

@@ -40,17 +40,73 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Sources\" />
+    <Folder Include="FTRuntime\" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Sources\SwfAsset.cs" />
-    <Compile Include="Sources\SwfAttributes.cs" />
-    <Compile Include="Sources\SwfClip.cs" />
-    <Compile Include="Sources\SwfClipAsset.cs" />
-    <Compile Include="Sources\SwfClipController.cs" />
-    <Compile Include="Sources\SwfManager.cs" />
-    <Compile Include="Sources\SwfSettings.cs" />
-    <Compile Include="Sources\Internal\SwfAssocList.cs" />
-    <Compile Include="Sources\Internal\SwfList.cs" />
-    <Compile Include="Sources\Internal\SwfUtils.cs" />
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal.meta">
+      <Link>FTRuntime\Internal.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfAsset.cs.meta">
+      <Link>FTRuntime\SwfAsset.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfAttributes.cs.meta">
+      <Link>FTRuntime\SwfAttributes.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfClip.cs.meta">
+      <Link>FTRuntime\SwfClip.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfClipAsset.cs.meta">
+      <Link>FTRuntime\SwfClipAsset.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfClipController.cs.meta">
+      <Link>FTRuntime\SwfClipController.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfManager.cs.meta">
+      <Link>FTRuntime\SwfManager.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfSettings.cs.meta">
+      <Link>FTRuntime\SwfSettings.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfAssocList.cs.meta">
+      <Link>FTRuntime\Internal\SwfAssocList.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfList.cs.meta">
+      <Link>FTRuntime\Internal\SwfList.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfUtils.cs.meta">
+      <Link>FTRuntime\Internal\SwfUtils.cs.meta</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfAsset.cs">
+      <Link>FTRuntime\SwfAsset.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfAttributes.cs">
+      <Link>FTRuntime\SwfAttributes.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfClip.cs">
+      <Link>FTRuntime\SwfClip.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfClipAsset.cs">
+      <Link>FTRuntime\SwfClipAsset.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfClipController.cs">
+      <Link>FTRuntime\SwfClipController.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfManager.cs">
+      <Link>FTRuntime\SwfManager.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfSettings.cs">
+      <Link>FTRuntime\SwfSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfAssocList.cs">
+      <Link>FTRuntime\Internal\SwfAssocList.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfList.cs">
+      <Link>FTRuntime\Internal\SwfList.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfUtils.cs">
+      <Link>FTRuntime\Internal\SwfUtils.cs</Link>
+    </Compile>
   </ItemGroup>
 </Project>

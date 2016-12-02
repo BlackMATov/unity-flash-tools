@@ -30,20 +30,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Sources\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Sources\SwfEditorUtils.cs" />
-    <Compile Include="Sources\SwfMaterialCache.cs" />
-    <Compile Include="Sources\SwfPropertyDrawers.cs" />
-    <Compile Include="Sources\Editors\SwfAssetEditor.cs" />
-    <Compile Include="Sources\Editors\SwfClipAssetEditor.cs" />
-    <Compile Include="Sources\Editors\SwfClipAssetPreview.cs" />
-    <Compile Include="Sources\Editors\SwfClipControllerEditor.cs" />
-    <Compile Include="Sources\Editors\SwfClipEditor.cs" />
-    <Compile Include="Sources\Editors\SwfManagerEditor.cs" />
-    <Compile Include="Sources\Postprocessors\SwfAssetPostprocessor.cs" />
-    <Compile Include="Sources\Postprocessors\SwfPostprocessor.cs" />
-    <Compile Include="Sources\SwfAssetData.cs" />
+    <Folder Include="FTEditor\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">
@@ -78,5 +65,87 @@
       <Name>FTSwfTools</Name>
       <Private>False</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors.meta">
+      <Link>FTEditor\Editors.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Postprocessors.meta">
+      <Link>FTEditor\Postprocessors.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\SwfAssetData.cs.meta">
+      <Link>FTEditor\SwfAssetData.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\SwfEditorUtils.cs.meta">
+      <Link>FTEditor\SwfEditorUtils.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\SwfMaterialCache.cs.meta">
+      <Link>FTEditor\SwfMaterialCache.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\SwfPropertyDrawers.cs.meta">
+      <Link>FTEditor\SwfPropertyDrawers.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfAssetEditor.cs.meta">
+      <Link>FTEditor\Editors\SwfAssetEditor.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfClipAssetEditor.cs.meta">
+      <Link>FTEditor\Editors\SwfClipAssetEditor.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfClipAssetPreview.cs.meta">
+      <Link>FTEditor\Editors\SwfClipAssetPreview.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfClipControllerEditor.cs.meta">
+      <Link>FTEditor\Editors\SwfClipControllerEditor.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfClipEditor.cs.meta">
+      <Link>FTEditor\Editors\SwfClipEditor.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfManagerEditor.cs.meta">
+      <Link>FTEditor\Editors\SwfManagerEditor.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Postprocessors\SwfAssetPostprocessor.cs.meta">
+      <Link>FTEditor\Postprocessors\SwfAssetPostprocessor.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Postprocessors\SwfPostprocessor.cs.meta">
+      <Link>FTEditor\Postprocessors\SwfPostprocessor.cs.meta</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\SwfAssetData.cs">
+      <Link>FTEditor\SwfAssetData.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\SwfEditorUtils.cs">
+      <Link>FTEditor\SwfEditorUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\SwfMaterialCache.cs">
+      <Link>FTEditor\SwfMaterialCache.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\SwfPropertyDrawers.cs">
+      <Link>FTEditor\SwfPropertyDrawers.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfAssetEditor.cs">
+      <Link>FTEditor\Editors\SwfAssetEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfClipAssetEditor.cs">
+      <Link>FTEditor\Editors\SwfClipAssetEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfClipAssetPreview.cs">
+      <Link>FTEditor\Editors\SwfClipAssetPreview.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfClipControllerEditor.cs">
+      <Link>FTEditor\Editors\SwfClipControllerEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfClipEditor.cs">
+      <Link>FTEditor\Editors\SwfClipEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors\SwfManagerEditor.cs">
+      <Link>FTEditor\Editors\SwfManagerEditor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Postprocessors\SwfAssetPostprocessor.cs">
+      <Link>FTEditor\Postprocessors\SwfAssetPostprocessor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Postprocessors\SwfPostprocessor.cs">
+      <Link>FTEditor\Postprocessors\SwfPostprocessor.cs</Link>
+    </Compile>
   </ItemGroup>
 </Project>

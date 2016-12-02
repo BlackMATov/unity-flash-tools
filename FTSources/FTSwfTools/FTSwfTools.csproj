@@ -30,56 +30,7 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <Folder Include="Sources\" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Sources\SwfContext.cs" />
-    <Compile Include="Sources\SwfContextExecuter.cs" />
-    <Compile Include="Sources\SwfDecoder.cs" />
-    <Compile Include="Sources\SwfStreamReader.cs" />
-    <Compile Include="Sources\SwfTags\DefineBinaryDataTag.cs" />
-    <Compile Include="Sources\SwfTags\DefineBitsLossless2Tag.cs" />
-    <Compile Include="Sources\SwfTags\DefineBitsLosslessTag.cs" />
-    <Compile Include="Sources\SwfTags\DefineSceneAndFrameLabelDataTag.cs" />
-    <Compile Include="Sources\SwfTags\DefineShape2Tag.cs" />
-    <Compile Include="Sources\SwfTags\DefineShape3Tag.cs" />
-    <Compile Include="Sources\SwfTags\DefineShape4Tag.cs" />
-    <Compile Include="Sources\SwfTags\DefineShapeTag.cs" />
-    <Compile Include="Sources\SwfTags\DefineSpriteTag.cs" />
-    <Compile Include="Sources\SwfTags\DoABCTag.cs" />
-    <Compile Include="Sources\SwfTags\EnableDebugger2Tag.cs" />
-    <Compile Include="Sources\SwfTags\EnableDebuggerTag.cs" />
-    <Compile Include="Sources\SwfTags\EnableTelemetryTag.cs" />
-    <Compile Include="Sources\SwfTags\EndTag.cs" />
-    <Compile Include="Sources\SwfTags\ExportAssetsTag.cs" />
-    <Compile Include="Sources\SwfTags\FileAttributesTag.cs" />
-    <Compile Include="Sources\SwfTags\FrameLabelTag.cs" />
-    <Compile Include="Sources\SwfTags\MetadataTag.cs" />
-    <Compile Include="Sources\SwfTags\PlaceObject2Tag.cs" />
-    <Compile Include="Sources\SwfTags\PlaceObject3Tag.cs" />
-    <Compile Include="Sources\SwfTags\PlaceObjectTag.cs" />
-    <Compile Include="Sources\SwfTags\ProtectTag.cs" />
-    <Compile Include="Sources\SwfTags\RemoveObject2Tag.cs" />
-    <Compile Include="Sources\SwfTags\RemoveObjectTag.cs" />
-    <Compile Include="Sources\SwfTags\ScriptLimitsTag.cs" />
-    <Compile Include="Sources\SwfTags\SetBackgroundColorTag.cs" />
-    <Compile Include="Sources\SwfTags\ShowFrameTag.cs" />
-    <Compile Include="Sources\SwfTags\SwfTagBase.cs" />
-    <Compile Include="Sources\SwfTags\SwfTagVisitor.cs" />
-    <Compile Include="Sources\SwfTags\SymbolClassTag.cs" />
-    <Compile Include="Sources\SwfTags\UnknownTag.cs" />
-    <Compile Include="Sources\SwfTags\UnsupportedTag.cs" />
-    <Compile Include="Sources\SwfTypes\SwfBlendMode.cs" />
-    <Compile Include="Sources\SwfTypes\SwfClipActions.cs" />
-    <Compile Include="Sources\SwfTypes\SwfColor.cs" />
-    <Compile Include="Sources\SwfTypes\SwfColorTransform.cs" />
-    <Compile Include="Sources\SwfTypes\SwfControlTags.cs" />
-    <Compile Include="Sources\SwfTypes\SwfFillStyleType.cs" />
-    <Compile Include="Sources\SwfTypes\SwfLongHeader.cs" />
-    <Compile Include="Sources\SwfTypes\SwfMatrix.cs" />
-    <Compile Include="Sources\SwfTypes\SwfRect.cs" />
-    <Compile Include="Sources\SwfTypes\SwfShapesWithStyle.cs" />
-    <Compile Include="Sources\SwfTypes\SwfShortHeader.cs" />
-    <Compile Include="Sources\SwfTypes\SwfSurfaceFilters.cs" />
+    <Folder Include="FTSwfTools\" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="mscorlib">
@@ -94,5 +45,303 @@
       <HintPath>..\DLLs\System.dll</HintPath>
       <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfContext.cs">
+      <Link>FTSwfTools\SwfContext.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfContextExecuter.cs">
+      <Link>FTSwfTools\SwfContextExecuter.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfDecoder.cs">
+      <Link>FTSwfTools\SwfDecoder.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfStreamReader.cs">
+      <Link>FTSwfTools\SwfStreamReader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineBinaryDataTag.cs">
+      <Link>FTSwfTools\SwfTags\DefineBinaryDataTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineBitsLossless2Tag.cs">
+      <Link>FTSwfTools\SwfTags\DefineBitsLossless2Tag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineBitsLosslessTag.cs">
+      <Link>FTSwfTools\SwfTags\DefineBitsLosslessTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineSceneAndFrameLabelDataTag.cs">
+      <Link>FTSwfTools\SwfTags\DefineSceneAndFrameLabelDataTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineShape2Tag.cs">
+      <Link>FTSwfTools\SwfTags\DefineShape2Tag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineShape3Tag.cs">
+      <Link>FTSwfTools\SwfTags\DefineShape3Tag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineShape4Tag.cs">
+      <Link>FTSwfTools\SwfTags\DefineShape4Tag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineShapeTag.cs">
+      <Link>FTSwfTools\SwfTags\DefineShapeTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineSpriteTag.cs">
+      <Link>FTSwfTools\SwfTags\DefineSpriteTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DoABCTag.cs">
+      <Link>FTSwfTools\SwfTags\DoABCTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\EnableDebugger2Tag.cs">
+      <Link>FTSwfTools\SwfTags\EnableDebugger2Tag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\EnableDebuggerTag.cs">
+      <Link>FTSwfTools\SwfTags\EnableDebuggerTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\EnableTelemetryTag.cs">
+      <Link>FTSwfTools\SwfTags\EnableTelemetryTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\EndTag.cs">
+      <Link>FTSwfTools\SwfTags\EndTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\ExportAssetsTag.cs">
+      <Link>FTSwfTools\SwfTags\ExportAssetsTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\FileAttributesTag.cs">
+      <Link>FTSwfTools\SwfTags\FileAttributesTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\FrameLabelTag.cs">
+      <Link>FTSwfTools\SwfTags\FrameLabelTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\MetadataTag.cs">
+      <Link>FTSwfTools\SwfTags\MetadataTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\PlaceObject2Tag.cs">
+      <Link>FTSwfTools\SwfTags\PlaceObject2Tag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\PlaceObject3Tag.cs">
+      <Link>FTSwfTools\SwfTags\PlaceObject3Tag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\PlaceObjectTag.cs">
+      <Link>FTSwfTools\SwfTags\PlaceObjectTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\ProtectTag.cs">
+      <Link>FTSwfTools\SwfTags\ProtectTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\RemoveObject2Tag.cs">
+      <Link>FTSwfTools\SwfTags\RemoveObject2Tag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\RemoveObjectTag.cs">
+      <Link>FTSwfTools\SwfTags\RemoveObjectTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\ScriptLimitsTag.cs">
+      <Link>FTSwfTools\SwfTags\ScriptLimitsTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\SetBackgroundColorTag.cs">
+      <Link>FTSwfTools\SwfTags\SetBackgroundColorTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\ShowFrameTag.cs">
+      <Link>FTSwfTools\SwfTags\ShowFrameTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\SwfTagBase.cs">
+      <Link>FTSwfTools\SwfTags\SwfTagBase.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\SwfTagVisitor.cs">
+      <Link>FTSwfTools\SwfTags\SwfTagVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\SymbolClassTag.cs">
+      <Link>FTSwfTools\SwfTags\SymbolClassTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\UnknownTag.cs">
+      <Link>FTSwfTools\SwfTags\UnknownTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\UnsupportedTag.cs">
+      <Link>FTSwfTools\SwfTags\UnsupportedTag.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfBlendMode.cs">
+      <Link>FTSwfTools\SwfTypes\SwfBlendMode.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfClipActions.cs">
+      <Link>FTSwfTools\SwfTypes\SwfClipActions.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfColor.cs">
+      <Link>FTSwfTools\SwfTypes\SwfColor.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfColorTransform.cs">
+      <Link>FTSwfTools\SwfTypes\SwfColorTransform.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfControlTags.cs">
+      <Link>FTSwfTools\SwfTypes\SwfControlTags.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfFillStyleType.cs">
+      <Link>FTSwfTools\SwfTypes\SwfFillStyleType.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfLongHeader.cs">
+      <Link>FTSwfTools\SwfTypes\SwfLongHeader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfMatrix.cs">
+      <Link>FTSwfTools\SwfTypes\SwfMatrix.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfRect.cs">
+      <Link>FTSwfTools\SwfTypes\SwfRect.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfShapesWithStyle.cs">
+      <Link>FTSwfTools\SwfTypes\SwfShapesWithStyle.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfShortHeader.cs">
+      <Link>FTSwfTools\SwfTypes\SwfShortHeader.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfSurfaceFilters.cs">
+      <Link>FTSwfTools\SwfTypes\SwfSurfaceFilters.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfContext.cs.meta">
+      <Link>FTSwfTools\SwfContext.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfContextExecuter.cs.meta">
+      <Link>FTSwfTools\SwfContextExecuter.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfDecoder.cs.meta">
+      <Link>FTSwfTools\SwfDecoder.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfStreamReader.cs.meta">
+      <Link>FTSwfTools\SwfStreamReader.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags.meta">
+      <Link>FTSwfTools\SwfTags.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes.meta">
+      <Link>FTSwfTools\SwfTypes.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineBinaryDataTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\DefineBinaryDataTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineBitsLossless2Tag.cs.meta">
+      <Link>FTSwfTools\SwfTags\DefineBitsLossless2Tag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineBitsLosslessTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\DefineBitsLosslessTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineSceneAndFrameLabelDataTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\DefineSceneAndFrameLabelDataTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineShape2Tag.cs.meta">
+      <Link>FTSwfTools\SwfTags\DefineShape2Tag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineShape3Tag.cs.meta">
+      <Link>FTSwfTools\SwfTags\DefineShape3Tag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineShape4Tag.cs.meta">
+      <Link>FTSwfTools\SwfTags\DefineShape4Tag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineShapeTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\DefineShapeTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DefineSpriteTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\DefineSpriteTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\DoABCTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\DoABCTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\EnableDebugger2Tag.cs.meta">
+      <Link>FTSwfTools\SwfTags\EnableDebugger2Tag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\EnableDebuggerTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\EnableDebuggerTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\EnableTelemetryTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\EnableTelemetryTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\EndTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\EndTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\ExportAssetsTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\ExportAssetsTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\FileAttributesTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\FileAttributesTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\FrameLabelTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\FrameLabelTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\MetadataTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\MetadataTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\PlaceObject2Tag.cs.meta">
+      <Link>FTSwfTools\SwfTags\PlaceObject2Tag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\PlaceObject3Tag.cs.meta">
+      <Link>FTSwfTools\SwfTags\PlaceObject3Tag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\PlaceObjectTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\PlaceObjectTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\ProtectTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\ProtectTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\RemoveObject2Tag.cs.meta">
+      <Link>FTSwfTools\SwfTags\RemoveObject2Tag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\RemoveObjectTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\RemoveObjectTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\ScriptLimitsTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\ScriptLimitsTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\SetBackgroundColorTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\SetBackgroundColorTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\ShowFrameTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\ShowFrameTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\SwfTagBase.cs.meta">
+      <Link>FTSwfTools\SwfTags\SwfTagBase.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\SwfTagVisitor.cs.meta">
+      <Link>FTSwfTools\SwfTags\SwfTagVisitor.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\SymbolClassTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\SymbolClassTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\UnknownTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\UnknownTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTags\UnsupportedTag.cs.meta">
+      <Link>FTSwfTools\SwfTags\UnsupportedTag.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfBlendMode.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfBlendMode.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfClipActions.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfClipActions.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfColor.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfColor.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfColorTransform.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfColorTransform.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfControlTags.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfControlTags.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfFillStyleType.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfFillStyleType.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfLongHeader.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfLongHeader.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfMatrix.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfMatrix.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfRect.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfRect.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfShapesWithStyle.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfShapesWithStyle.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfShortHeader.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfShortHeader.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfTypes\SwfSurfaceFilters.cs.meta">
+      <Link>FTSwfTools\SwfTypes\SwfSurfaceFilters.cs.meta</Link>
+    </None>
   </ItemGroup>
 </Project>
