@@ -436,6 +436,7 @@ namespace FTEditor.Postprocessors {
 				MulColors = baked_mulcolors.ToArray()};
 
 			return new SwfClipAsset.Frame(
+				frame.Labels.ToArray(),
 				mesh_data,
 				baked_materials.ToArray());
 		}

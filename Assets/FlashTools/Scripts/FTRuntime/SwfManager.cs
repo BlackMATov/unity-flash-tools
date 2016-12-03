@@ -63,7 +63,7 @@ namespace FTRuntime {
 		/// <summary>
 		/// Get or set a value indicating whether animation updates is paused
 		/// </summary>
-		/// <value><c>true</c> if is paused; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if is paused; otherwise, <c>false</c></value>
 		public bool isPaused {
 			get { return _isPaused; }
 			set { _isPaused = value; }
@@ -72,7 +72,7 @@ namespace FTRuntime {
 		/// <summary>
 		/// Get or set a value indicating whether animation updates is playing
 		/// </summary>
-		/// <value><c>true</c> if is playing; otherwise, <c>false</c>.</value>
+		/// <value><c>true</c> if is playing; otherwise, <c>false</c></value>
 		public bool isPlaying {
 			get { return !_isPaused; }
 			set { _isPaused = !value; }
@@ -130,7 +130,7 @@ namespace FTRuntime {
 		/// <summary>
 		/// Determines whether group of animations is paused
 		/// </summary>
-		/// <returns><c>true</c> if group is paused; otherwise, <c>false</c>.</returns>
+		/// <returns><c>true</c> if group is paused; otherwise, <c>false</c></returns>
 		/// <param name="group_name">Group name</param>
 		public bool IsGroupPaused(string group_name) {
 			return _groupPauses.Contains(group_name);
@@ -140,7 +140,7 @@ namespace FTRuntime {
 		/// <summary>
 		/// Determines whether group of animations is playing
 		/// </summary>
-		/// <returns><c>true</c> if group is playing; otherwise, <c>false</c>.</returns>
+		/// <returns><c>true</c> if group is playing; otherwise, <c>false</c></returns>
 		/// <param name="group_name">Group name</param>
 		public bool IsGroupPlaying(string group_name) {
 			return !IsGroupPaused(group_name);
@@ -160,8 +160,8 @@ namespace FTRuntime {
 		/// <summary>
 		/// Get the group of animations rate scale
 		/// </summary>
-		/// <returns>The group rate scale.</returns>
-		/// <param name="group_name">Group name.</param>
+		/// <returns>The group rate scale</returns>
+		/// <param name="group_name">Group name</param>
 		public float GetGroupRateScale(string group_name) {
 			float rate_scale;
 			return _groupRateScales.TryGetValue(group_name, out rate_scale)

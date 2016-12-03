@@ -21,15 +21,18 @@ namespace FTRuntime {
 
 		[System.Serializable]
 		public class Frame {
+			public string[]   Labels    = new string[0];
 			public MeshData   MeshData  = new MeshData();
 			public Material[] Materials = new Material[0];
 
 			public Frame() {
+				Labels    = new string[0];
 				MeshData  = new MeshData();
 				Materials = new Material[0];
 			}
 
-			public Frame(MeshData mesh_data, Material[] materials) {
+			public Frame(string[] labels, MeshData mesh_data, Material[] materials) {
+				Labels    = labels;
 				MeshData  = mesh_data;
 				Materials = materials;
 			}

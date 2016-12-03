@@ -125,7 +125,7 @@ namespace FTRuntime {
 		/// <summary>
 		/// Gets the current animation sequence frame count
 		/// </summary>
-		/// <value>The frame count.</value>
+		/// <value>The frame count</value>
 		public int frameCount {
 			get {
 				return _curSequence != null && _curSequence.Frames != null
@@ -137,12 +137,24 @@ namespace FTRuntime {
 		/// <summary>
 		/// Gets the animation frame rate
 		/// </summary>
-		/// <value>The frame rate.</value>
+		/// <value>The frame rate</value>
 		public float frameRate {
 			get {
 				return clip
 					? clip.FrameRate
 					: 1.0f;
+			}
+		}
+
+		/// <summary>
+		/// Gets the current frame label count
+		/// </summary>
+		/// <value>The frame label count</value>
+		public int currentLabelCount {
+			get {
+				var baked_frame  = GetCurrentBakedFrame();
+				var frame_labels = baked_frame != null ? baked_frame.Labels : null;
+				return frame_labels != null ? frame_labels.Length : 0;
 			}
 		}
 
@@ -171,7 +183,7 @@ namespace FTRuntime {
 		/// <summary>
 		/// Rewind current sequence to previous frame
 		/// </summary>
-		/// <returns><c>true</c>, if animation was rewound, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c>, if animation was rewound, <c>false</c> otherwise</returns>
 		public bool ToPrevFrame() {
 			if ( currentFrame > 0 ) {
 				--currentFrame;
@@ -183,13 +195,26 @@ namespace FTRuntime {
 		/// <summary>
 		/// Rewind current sequence to next frame
 		/// </summary>
-		/// <returns><c>true</c>, if animation was rewound, <c>false</c> otherwise.</returns>
+		/// <returns><c>true</c>, if animation was rewound, <c>false</c> otherwise</returns>
 		public bool ToNextFrame() {
 			if ( currentFrame < frameCount - 1 ) {
 				++currentFrame;
 				return true;
 			}
 			return false;
+		}
+
+		/// <summary>
+		/// Gets the current frame label by index
+		/// </summary>
+		/// <returns>The current frame label</returns>
+		/// <param name="index">Current frame label index</param>
+		public string GetCurrentFrameLabel(int index) {
+			var baked_frame  = GetCurrentBakedFrame();
+			var frame_labels = baked_frame != null ? baked_frame.Labels : null;
+			return frame_labels != null && index >= 0 && index < frame_labels.Length
+				? frame_labels[index]
+				: string.Empty;
 		}
 
 		// ---------------------------------------------------------------------
