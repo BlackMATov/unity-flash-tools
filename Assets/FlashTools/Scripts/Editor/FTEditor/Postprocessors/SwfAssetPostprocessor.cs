@@ -294,10 +294,10 @@ namespace FTEditor.Postprocessors {
 			if ( IsValidAssetsForFrame(asset, symbol) ) {
 				foreach ( var frame in symbol.Frames ) {
 					var baked_frame = BakeClipFrame(asset, data, frame);
-					if ( !string.IsNullOrEmpty(frame.Name) &&
-						(sequences.Count < 1 || sequences.Last().Name != frame.Name) )
+					if ( !string.IsNullOrEmpty(frame.Anchor) &&
+						(sequences.Count < 1 || sequences.Last().Name != frame.Anchor) )
 					{
-						sequences.Add(new SwfClipAsset.Sequence{Name = frame.Name});
+						sequences.Add(new SwfClipAsset.Sequence{Name = frame.Anchor});
 					} else if ( sequences.Count < 1 ) {
 						sequences.Add(new SwfClipAsset.Sequence{Name = "Default"});
 					}

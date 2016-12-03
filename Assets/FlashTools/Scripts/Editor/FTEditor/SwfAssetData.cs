@@ -205,7 +205,8 @@ namespace FTEditor {
 
 	[System.Serializable]
 	class SwfFrameData {
-		public string                Name       = string.Empty;
+		public string                Anchor     = string.Empty;
+		public List<string>          Labels     = new List<string>();
 		public List<SwfInstanceData> Instances  = new List<SwfInstanceData>();
 	}
 

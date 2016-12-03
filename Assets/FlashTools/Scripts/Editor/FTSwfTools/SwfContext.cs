@@ -108,7 +108,8 @@ namespace FTSwfTools {
 	}
 
 	public class SwfDisplayList {
-		public string           FrameName = string.Empty;
-		public DisplayInstances Instances = new DisplayInstances();
+		public DisplayInstances Instances    = new DisplayInstances();
+		public List<string>     FrameLabels  = new List<string>();
+		public List<string>     FrameAnchors = new List<string>();
 	}
 }

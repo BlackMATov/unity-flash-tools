@@ -111,8 +111,11 @@ namespace FTEditor.Postprocessors {
 		static SwfFrameData LoadSymbolFrameData(
 			SwfLibrary library, SwfDisplayList display_list)
 		{
-			var frame = new SwfFrameData();
-			frame.Name = display_list.FrameName;
+			var frame = new SwfFrameData{
+				Anchor = display_list.FrameAnchors.Count > 0
+					? display_list.FrameAnchors[0]
+					: string.Empty,
+				Labels = new List<string>(display_list.FrameLabels)};
 			return AddDisplayListToFrame(
 				library,
 				display_list,

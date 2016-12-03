@@ -17,7 +17,8 @@ namespace FTSwfTools {
 		}
 
 		public bool NextFrame(List<SwfTagBase> tags, SwfDisplayList dl) {
-			dl.FrameName = string.Empty;
+			dl.FrameLabels.Clear();
+			dl.FrameAnchors.Clear();
 			while ( CurrentTag < tags.Count ) {
 				var tag = tags[CurrentTag++];
 				tag.AcceptVistor(this, dl);
@@ -171,7 +172,11 @@ namespace FTSwfTools {
 		}
 
 		public SwfDisplayList Visit(FrameLabelTag tag, SwfDisplayList dl) {
-			dl.FrameName = tag.Name.Trim();
+			if ( tag.AnchorFlag == 0 ) {
+				dl.FrameLabels.Add(tag.Name.Trim());
+			} else {
+				dl.FrameAnchors.Add(tag.Name.Trim());
+			}
 			return dl;
 		}
 
