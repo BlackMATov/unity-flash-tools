@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using FTRuntime.Internal;
 
 namespace FTRuntime {
 	[System.Serializable]

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 
 using FTRuntime;
+using FTRuntime.Internal;
 
 namespace FTEditor {
 
