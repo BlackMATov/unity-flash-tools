@@ -146,7 +146,7 @@ namespace FTEditor.Editors {
 			var label_text = string.Empty;
 			for ( int i = 0, e = sequence_names.Length; i < e; ++i ) {
 				label_text += string.Format(
-					i < e - 1 ? "{0}, " : "{0}",
+					i > 0 ? ", {0}" : "{0}",
 					sequence_names[i]);
 			}
 			GUILayout.Label(label_text, EditorStyles.whiteLabel);
