@@ -28,7 +28,7 @@ Features
 - Export marked "for export" clips and main timeline
 - Live preview of animations in the Unity editor
 
-Supports Unity 5.3 and newer, both Personal and Pro.
+Supports Unity 5.3 and newer, both Personal and Pro. Full C# source code included.
 
 Leave your rating for this Asset. It is very important for me and the development of the project :) Thank you!
 
