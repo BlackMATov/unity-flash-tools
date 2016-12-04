@@ -17,17 +17,17 @@ namespace FTRuntime {
 		// ---------------------------------------------------------------------
 
 		/// <summary>
-		/// Occurs when on stop playing event
+		/// Occurs when the controller stops played clip
 		/// </summary>
 		public event System.Action<SwfClipController> OnStopPlayingEvent;
 
 		/// <summary>
-		/// Occurs when on play stopped event
+		/// Occurs when the controller plays stopped clip
 		/// </summary>
 		public event System.Action<SwfClipController> OnPlayStoppedEvent;
 
 		/// <summary>
-		/// Occurs when on rewind playing event
+		/// Occurs when the controller rewinds played clip
 		/// </summary>
 		public event System.Action<SwfClipController> OnRewindPlayingEvent;
 
@@ -298,16 +298,17 @@ namespace FTRuntime {
 
 		internal void Internal_Update(float dt) {
 			if ( isPlaying ) {
-				UpdateTimer(dt);
-			}
-		}
-
-		void UpdateTimer(float dt) {
-			var frame_rate = clip ? clip.frameRate : 1.0f;
-			_tickTimer += frame_rate * rateScale * dt;
-			while ( _tickTimer > 1.0f ) {
-				_tickTimer -= 1.0f;
-				TimerTick();
+				_tickTimer += dt;
+				do {
+					var frame_rate = clip ? clip.frameRate * rateScale : 0.0f;
+					var frame_time = frame_rate > 0.0f ? 1.0f / frame_rate : 0.0f;
+					if ( frame_time > 0.0f && frame_time <= _tickTimer ) {
+						_tickTimer -= frame_time;
+						TimerTick();
+					} else {
+						break;
+					}
+				} while ( isPlaying );
 			}
 		}
 

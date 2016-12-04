@@ -15,6 +15,27 @@ namespace FTRuntime {
 
 		// ---------------------------------------------------------------------
 		//
+		// Events
+		//
+		// ---------------------------------------------------------------------
+
+		/// <summary>
+		/// Occurs when clip changes
+		/// </summary>
+		public event System.Action<SwfClip> OnChangeClipEvent;
+
+		/// <summary>
+		/// Occurs when sequence changes
+		/// </summary>
+		public event System.Action<SwfClip> OnChangeSequenceEvent;
+
+		/// <summary>
+		/// Occurs when current frame changes
+		/// </summary>
+		public event System.Action<SwfClip> OnChangeCurrentFrameEvent;
+
+		// ---------------------------------------------------------------------
+		//
 		// Serialized fields
 		//
 		// ---------------------------------------------------------------------
@@ -94,6 +115,7 @@ namespace FTRuntime {
 				_sequence     = string.Empty;
 				_currentFrame = 0;
 				ChangeClip();
+				EmitChangeEvents(true, true, true);
 			}
 		}
 
@@ -107,6 +129,7 @@ namespace FTRuntime {
 				_sequence     = value;
 				_currentFrame = 0;
 				ChangeSequence();
+				EmitChangeEvents(false, true, true);
 			}
 		}
 
@@ -119,6 +142,7 @@ namespace FTRuntime {
 			set {
 				_currentFrame = value;
 				ChangeCurrentFrame();
+				EmitChangeEvents(false, false, true);
 			}
 		}
 
@@ -142,7 +166,7 @@ namespace FTRuntime {
 			get {
 				return clip
 					? clip.FrameRate
-					: 1.0f;
+					: 0.0f;
 			}
 		}
 
@@ -330,6 +354,18 @@ namespace FTRuntime {
 			}
 		}
 
+		void EmitChangeEvents(bool clip, bool sequence, bool current_frame) {
+			if ( clip && OnChangeClipEvent != null ) {
+				OnChangeClipEvent(this);
+			}
+			if ( sequence && OnChangeSequenceEvent != null ) {
+				OnChangeSequenceEvent(this);
+			}
+			if ( current_frame && OnChangeCurrentFrameEvent != null ) {
+				OnChangeCurrentFrameEvent(this);
+			}
+		}
+
 		SwfClipAsset.Frame GetCurrentBakedFrame() {
 			var frames = _curSequence != null ? _curSequence.Frames : null;
 			return frames != null && currentFrame >= 0 && currentFrame < frames.Count
@@ -345,6 +381,10 @@ namespace FTRuntime {
 
 		void Awake() {
 			Internal_UpdateAllProperties();
+		}
+
+		void Start() {
+			EmitChangeEvents(true, true, true);
 		}
 
 		void OnEnable() {
