@@ -1,4 +1,12 @@
 -----------------
+-- Version 1.1 --
+-----------------
+
+Sequence separator is anchor frame label (not common frame label)
+SwfClip access to frame labels (currentLabelCount, GetCurrentFrameLabel)
+SwfClip events (OnChangeClipEvent, OnChangeSequenceEvent, OnChangeCurrentFrameEvent)
+
+-----------------
 -- Version 1.0 --
 -----------------
 
