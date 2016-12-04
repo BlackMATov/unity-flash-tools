@@ -349,6 +349,9 @@ namespace FTRuntime {
 
 		void Awake() {
 			_clip = GetComponent<SwfClip>();
+		}
+
+		void Start() {
 			if ( autoPlay && Application.isPlaying ) {
 				Play(false);
 			}

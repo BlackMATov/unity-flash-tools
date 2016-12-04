@@ -223,7 +223,16 @@ namespace FTRuntime {
 			_controllers.Clear();
 		}
 
-		void UpdateControllers(float dt) {
+		void LateUpdateClips() {
+			for ( int i = 0, e = _clips.Count; i < e; ++i ) {
+				var clip = _clips[i];
+				if ( clip ) {
+					clip.Internal_LateUpdate();
+				}
+			}
+		}
+
+		void LateUpdateControllers(float dt) {
 			_controllers.AssignTo(_safeUpdates);
 			for ( int i = 0, e = _safeUpdates.Count; i < e; ++i ) {
 				var ctrl = _safeUpdates[i];
@@ -238,15 +247,6 @@ namespace FTRuntime {
 				}
 			}
 			_safeUpdates.Clear();
-		}
-
-		void LateUpdateClips() {
-			for ( int i = 0, e = _clips.Count; i < e; ++i ) {
-				var clip = _clips[i];
-				if ( clip ) {
-					clip.Internal_LateUpdate();
-				}
-			}
 		}
 
 		// ---------------------------------------------------------------------
@@ -265,14 +265,11 @@ namespace FTRuntime {
 			DropControllers();
 		}
 
-		void Update() {
+		void LateUpdate() {
 			if ( isPlaying ) {
 				var dt = Time.deltaTime;
-				UpdateControllers(rateScale * dt);
+				LateUpdateControllers(rateScale * dt);
 			}
-		}
-
-		void LateUpdate() {
 			LateUpdateClips();
 		}
 	}
