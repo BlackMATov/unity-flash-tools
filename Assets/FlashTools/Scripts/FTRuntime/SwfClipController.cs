@@ -352,20 +352,18 @@ namespace FTRuntime {
 			_clip = GetComponent<SwfClip>();
 		}
 
-		void Start() {
-			if ( autoPlay && Application.isPlaying ) {
-				Play(false);
-			}
-		}
-
 		void OnEnable() {
 			var swf_manager = SwfManager.GetInstance(true);
 			if ( swf_manager ) {
 				swf_manager.AddController(this);
 			}
+			if ( autoPlay && Application.isPlaying ) {
+				Play(false);
+			}
 		}
 
 		void OnDisable() {
+			Stop(false);
 			var swf_manager = SwfManager.GetInstance(false);
 			if ( swf_manager ) {
 				swf_manager.RemoveController(this);

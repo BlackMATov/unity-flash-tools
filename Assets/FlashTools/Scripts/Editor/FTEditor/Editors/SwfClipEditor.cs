@@ -26,9 +26,9 @@ namespace FTEditor.Editors {
 				: 0;
 		}
 
-		string GetClipsFrameCountStr() {
+		string GetClipsFrameCountForView() {
 			return _clips.Aggregate(string.Empty, (acc, clip) => {
-				var frame_count     = clip.frameCount > 0 ? clip.frameCount - 1 : 0;
+				var frame_count     = clip.frameCount;
 				var frame_count_str = frame_count.ToString();
 				return string.IsNullOrEmpty(acc)
 					? frame_count_str
@@ -36,9 +36,9 @@ namespace FTEditor.Editors {
 			});
 		}
 
-		string GetClipsCurrentFrameStr() {
+		string GetClipsCurrentFrameForView() {
 			return _clips.Aggregate(string.Empty, (acc, clip) => {
-				var current_frame     = clip.currentFrame;
+				var current_frame     = clip.currentFrame + 1;
 				var current_frame_str = current_frame.ToString();
 				return string.IsNullOrEmpty(acc)
 					? current_frame_str
@@ -120,7 +120,7 @@ namespace FTEditor.Editors {
 				}
 				GUILayout.Label(string.Format(
 					"{0}/{1}",
-					GetClipsCurrentFrameStr(), GetClipsFrameCountStr()));
+					GetClipsCurrentFrameForView(), GetClipsFrameCountForView()));
 				if ( GUILayout.Button(new GUIContent(">", "to next frame")) ) {
 					AllClipsForeachWithUndo(p => p.ToNextFrame());
 				}
