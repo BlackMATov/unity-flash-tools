@@ -1,3 +1,10 @@
+-------------------
+-- Version 1.1.1 --
+-------------------
+
+Add conversion error by shape tween in CS6
+Fix life after death (problem about destroying with big lag by frame event)
+
 -----------------
 -- Version 1.1 --
 -----------------

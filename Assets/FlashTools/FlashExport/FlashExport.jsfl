@@ -79,6 +79,10 @@ if (!Function.prototype.bind) {
 			ft.type_assert(item, type);
 		}
 	};
+	
+	ft.is_function = function (func) {
+		return func && typeof(func) === 'function';
+	};
 
 	ft.profile_function = function (func, msg) {
 		ft.type_assert(func, Function);
@@ -117,12 +121,9 @@ if (!Function.prototype.bind) {
 	ft.get_call_function_time = function (func) {
 		ft.type_assert(func, Function);
 		var b_time = Date.now();
-		try {
-			func();
-		} finally {
-			var e_time = Date.now();
-			return (e_time - b_time) / 1000;
-		}
+		func();
+		var e_time = Date.now();
+		return (e_time - b_time) / 1000;
 	};
 
 	ft.escape_path = function (path) {
@@ -623,7 +624,11 @@ if (!Function.prototype.bind) {
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
 			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
-				frame.convertToFrameByFrameAnimation();
+				if ( ft.is_function(frame.convertToFrameByFrameAnimation) ) {
+					frame.convertToFrameByFrameAnimation();
+				} else {
+					throw "Animation uses shape tweens. To export this animation you should use Adobe Animate CC or higher!";
+				}
 			}, function (frame, frame_index) {
 				return fttim.is_keyframe(frame, frame_index) && fttim.is_shape_frame(frame);
 			});
