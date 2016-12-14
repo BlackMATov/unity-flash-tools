@@ -500,6 +500,11 @@ if (!Function.prototype.bind) {
 		return frame.startFrame == frame_index;
 	};
 	
+	fttim.is_not_guide_layer = function(layer) {
+		ft.type_assert(layer, Layer);
+		return layer.layerType != "guide";
+	};
+	
 	fttim.unlock = function (timeline) {
 		ft.type_assert(timeline, Timeline);
 		ft.array_foreach(timeline.layers, function (layer) {
@@ -564,7 +569,7 @@ if (!Function.prototype.bind) {
 					}
 				}, fttim.is_symbol_instance);
 			}, fttim.is_keyframe);
-		});
+		}, fttim.is_not_guide_layer);
 	};
 
 	fttim.optimize_single_graphics = function (doc, timeline, opt_item) {
@@ -600,7 +605,7 @@ if (!Function.prototype.bind) {
 					return fttim.is_symbol_graphic_single_frame_instance(elem) && !fttim.is_static(elem.libraryItem.timeline);
 				});
 			}, fttim.is_keyframe);
-		});
+		}, fttim.is_not_guide_layer);
 	};
 
 	fttim.is_static = function (timeline) {
@@ -632,7 +637,7 @@ if (!Function.prototype.bind) {
 			}, function (frame, frame_index) {
 				return fttim.is_keyframe(frame, frame_index) && fttim.is_shape_frame(frame);
 			});
-		});
+		}, fttim.is_not_guide_layer);
 
 		var any_rasterize = false;
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
@@ -648,7 +653,7 @@ if (!Function.prototype.bind) {
 					any_rasterize = true;
 				}
 			}, fttim.is_keyframe);
-		});
+		}, fttim.is_not_guide_layer);
 		if (any_rasterize && ft.verbose_mode) {
 			ft.trace_fmt("Rasterize vector shapes in '{0}'", timeline.name);
 		}
