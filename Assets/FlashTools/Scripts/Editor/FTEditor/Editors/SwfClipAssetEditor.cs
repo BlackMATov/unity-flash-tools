@@ -80,17 +80,25 @@ namespace FTEditor.Editors {
 		//
 
 		void CreateAllClipsPrefabs() {
-			Selection.objects = _clips
+			var objects = _clips
 				.Select (p => CreateClipPrefab(p))
 				.Where  (p => !!p)
 				.ToArray();
+			Selection.objects = objects;
+			foreach ( var obj in objects ) {
+				EditorGUIUtility.PingObject(obj);
+			}
 		}
 
 		void CreateAllClipsOnScene() {
-			Selection.objects = _clips
+			var objects = _clips
 				.Select (p => CreateClipOnScene(p))
 				.Where  (p => !!p)
 				.ToArray();
+			Selection.objects = objects;
+			foreach ( var obj in objects ) {
+				EditorGUIUtility.PingObject(obj);
+			}
 		}
 
 		//

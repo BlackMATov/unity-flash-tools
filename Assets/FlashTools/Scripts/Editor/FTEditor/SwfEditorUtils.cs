@@ -265,6 +265,7 @@ namespace FTEditor {
 		static void Tools_FlashTools_OpenSettings() {
 			var settings_holder = SwfEditorUtils.GetSettingsHolder();
 			Selection.objects = new Object[]{settings_holder};
+			EditorGUIUtility.PingObject(settings_holder);
 		}
 
 		[MenuItem("Tools/FlashTools/Reimport all swf files")]
