@@ -106,7 +106,7 @@ namespace FTEditor {
 
 		static Shader SafeLoadShader(string shader_name) {
 			var filter = string.Format("t:Shader {0}", shader_name);
-			var shader = SwfEditorUtils.LoadFirstAssetByFilter<Shader>(filter);
+			var shader = SwfEditorUtils.LoadFirstAssetDBByFilter<Shader>(filter);
 			if ( !shader ) {
 				throw new UnityException(string.Format(
 					"SwfMaterialCache. Shader not found: {0}",

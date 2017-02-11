@@ -11,7 +11,7 @@ using FTRuntime;
 namespace FTEditor.Postprocessors {
 	class SwfAssetPostprocessor : AssetPostprocessor {
 		static SwfEditorUtils.ProgressBar _progressBar      = new SwfEditorUtils.ProgressBar();
-		static List<SwfAsset>             _assetsForProcess = new List<SwfAsset>();
+		static Queue<SwfAsset>            _assetsForProcess = new Queue<SwfAsset>();
 
 		static void OnPostprocessAllAssets(
 			string[] imported_assets,
@@ -21,11 +21,14 @@ namespace FTEditor.Postprocessors {
 		{
 			var asset_paths = imported_assets
 				.Where(p => Path.GetExtension(p).ToLower().Equals(".asset"));
-			_assetsForProcess = asset_paths
+			var assets = asset_paths
 				.Select(p => AssetDatabase.LoadAssetAtPath<SwfAsset>(p))
-				.Where(p => !!p)
-				.Distinct()
-				.ToList();
+				.Where(p => !!p);
+			foreach ( var asset in assets ) {
+				if ( !_assetsForProcess.Contains(asset) ) {
+					_assetsForProcess.Enqueue(asset);
+				}
+			}
 			if ( _assetsForProcess.Count > 0 ) {
 				EditorApplication.update += ProcessAfterImport;
 			}
@@ -33,12 +36,12 @@ namespace FTEditor.Postprocessors {
 
 		static void ProcessAfterImport() {
 			EditorApplication.update -= ProcessAfterImport;
-			var assets = new List<SwfAsset>(_assetsForProcess);
-			_assetsForProcess.Clear();
-			foreach ( var asset in assets ) {
-				SwfAssetProcess(asset);
+			if ( _assetsForProcess.Count > 0 ) {
+				while ( _assetsForProcess.Count > 0 ) {
+					SwfAssetProcess(_assetsForProcess.Dequeue());
+				}
+				AssetDatabase.SaveAssets();
 			}
-			AssetDatabase.SaveAssets();
 		}
 
 		static void SwfAssetProcess(SwfAsset asset) {
@@ -137,6 +140,7 @@ namespace FTEditor.Postprocessors {
 			File.WriteAllBytes(atlas_path, atlas_info.Atlas.EncodeToPNG());
 			GameObject.DestroyImmediate(atlas_info.Atlas, true);
 			_progressBar.UpdateProgress("import atlas", 0.75f);
+			//AssetDatabase.Refresh();
 			AssetDatabase.ImportAsset(atlas_path);
 			return atlas_info.Rects;
 		}
@@ -215,7 +219,6 @@ namespace FTEditor.Postprocessors {
 			atlas_importer.filterMode          = SwfAtlasFilterToImporterFilter(asset.Settings.AtlasTextureFilter);
 			atlas_importer.textureFormat       = SwfAtlasFormatToImporterFormat(asset.Settings.AtlasTextureFormat);
 			AssetDatabase.WriteImportSettingsIfDirty(atlas_path);
-			AssetDatabase.ImportAsset(atlas_path);
 		}
 
 		static TextureImporter GetBitmapsAtlasImporter(SwfAsset asset) {
@@ -272,7 +275,6 @@ namespace FTEditor.Postprocessors {
 		// ---------------------------------------------------------------------
 
 		static SwfAssetData ConfigureClips(SwfAsset asset, SwfAssetData data) {
-			asset.Clips = asset.Clips.Where(p => !!p).Distinct().ToList();
 			for ( var i = 0; i < data.Symbols.Count; ++i ) {
 				_progressBar.UpdateProgress(
 					"configure clips",
@@ -283,16 +285,18 @@ namespace FTEditor.Postprocessors {
 		}
 
 		static void ConfigureClip(SwfAsset asset, SwfAssetData data, SwfSymbolData symbol) {
-			var clip_asset = asset.Clips.FirstOrDefault(p => p.Name == symbol.Name);
-			if ( clip_asset ) {
-				ConfigureClipAsset(clip_asset, asset, data, symbol);
-				AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(clip_asset));
+			var asset_guid  = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
+			var clip_assets = SwfEditorUtils.LoadAllAssetsDBByFilter<SwfClipAsset>("t:SwfClipAsset")
+				.Where(p => p.AssetGUID == asset_guid && p.Name == symbol.Name);
+			if ( clip_assets.Any() ) {
+				foreach ( var clip_asset in clip_assets ) {
+					ConfigureClipAsset(clip_asset, asset, data, symbol);
+				}
 			} else {
 				var asset_path      = AssetDatabase.GetAssetPath(asset);
 				var clip_asset_path = Path.ChangeExtension(asset_path, symbol.Name + ".asset");
 				SwfEditorUtils.LoadOrCreateAsset<SwfClipAsset>(clip_asset_path, (new_clip_asset, created) => {
 					ConfigureClipAsset(new_clip_asset, asset, data, symbol);
-					asset.Clips.Add(new_clip_asset);
 					return true;
 				});
 			}
@@ -301,10 +305,13 @@ namespace FTEditor.Postprocessors {
 		static void ConfigureClipAsset(
 			SwfClipAsset clip_asset, SwfAsset asset, SwfAssetData data, SwfSymbolData symbol)
 		{
+			var asset_guid       = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
 			clip_asset.Name      = symbol.Name;
 			clip_asset.Atlas     = asset.Atlas;
+			clip_asset.AssetGUID = asset_guid;
 			clip_asset.FrameRate = data.FrameRate;
 			clip_asset.Sequences = LoadClipSequences(asset, data, symbol);
+			EditorUtility.SetDirty(clip_asset);
 		}
 
 		static List<SwfClipAsset.Sequence> LoadClipSequences(
@@ -483,11 +490,15 @@ namespace FTEditor.Postprocessors {
 		// ---------------------------------------------------------------------
 
 		static void UpdateAssetClips(SwfAsset asset) {
-			var clips = GameObject.FindObjectsOfType<SwfClip>();
-			foreach ( var clip in clips ) {
-				if ( clip && clip.clip && asset.Clips.Contains(clip.clip) ) {
-					clip.Internal_UpdateAllProperties();
-				}
+			var asset_guid  = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
+			var scene_clips = GameObject.FindObjectsOfType<SwfClip>()
+				.Where (p => p && p.clip && p.clip.AssetGUID == asset_guid)
+				.ToList();
+			for ( var i = 0; i < scene_clips.Count; ++i ) {
+				_progressBar.UpdateProgress(
+					"update scene clips",
+					(float)(i + 1) / scene_clips.Count);
+				scene_clips[i].Internal_UpdateAllProperties();
 			}
 		}
 	}

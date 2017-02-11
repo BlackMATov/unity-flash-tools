@@ -121,6 +121,20 @@ namespace FTEditor.Editors {
 			});
 		}
 
+		void DrawGUISourceAsset() {
+			var asset_guids = _clips.Select(p => p.AssetGUID);
+			var mixed_value = asset_guids.GroupBy(p => p).Count() > 1;
+			SwfEditorUtils.DoWithEnabledGUI(false, () => {
+				SwfEditorUtils.DoWithMixedValue(
+					mixed_value, () => {
+						var source_asset = AssetDatabase.LoadAssetAtPath<SwfAsset>(
+							AssetDatabase.GUIDToAssetPath(asset_guids.First()));
+						EditorGUILayout.ObjectField(
+							"Source Asset", source_asset, typeof(SwfAsset), false);
+					});
+			});
+		}
+
 		void DrawGUIControls() {
 			SwfEditorUtils.DoHorizontalGUI(() => {
 				if ( GUILayout.Button("Create prefab") ) {
@@ -147,6 +161,7 @@ namespace FTEditor.Editors {
 			DrawDefaultInspector();
 			DrawGUIFrameCount();
 			DrawGUISequences();
+			DrawGUISourceAsset();
 			DrawGUIControls();
 			if ( GUI.changed ) {
 				serializedObject.ApplyModifiedProperties();

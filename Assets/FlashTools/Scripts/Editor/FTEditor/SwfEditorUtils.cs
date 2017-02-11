@@ -139,7 +139,7 @@ namespace FTEditor {
 		// ---------------------------------------------------------------------
 
 		public static SwfSettings GetSettingsHolder() {
-			var holder = LoadFirstAssetByFilter<SwfSettings>("t:SwfSettings");
+			var holder = LoadFirstAssetDBByFilter<SwfSettings>("t:SwfSettings");
 			if ( !holder ) {
 				throw new UnityException(
 					"SwfEditorUtils. SwfSettings asset not found");
@@ -165,7 +165,7 @@ namespace FTEditor {
 			return asset;
 		}
 
-		public static T LoadFirstAssetByFilter<T>(string filter) where T : UnityEngine.Object {
+		public static T LoadFirstAssetDBByFilter<T>(string filter) where T : UnityEngine.Object {
 			var guids = AssetDatabase.FindAssets(filter);
 			foreach ( var guid in guids ) {
 				var path  = AssetDatabase.GUIDToAssetPath(guid);
@@ -175,6 +175,14 @@ namespace FTEditor {
 				}
 			}
 			return null;
+		}
+
+		public static T[] LoadAllAssetsDBByFilter<T>(string filter) where T : UnityEngine.Object {
+			return AssetDatabase.FindAssets(filter)
+				.Select (p => AssetDatabase.GUIDToAssetPath(p))
+				.Select (p => AssetDatabase.LoadAssetAtPath<T>(p))
+				.Where  (p => !!p)
+				.ToArray();
 		}
 
 		public static byte[] CompressAsset<T>(T asset) {

@@ -62,12 +62,15 @@ namespace FTRuntime {
 		[SwfReadOnly]
 		public float           FrameRate;
 		[HideInInspector]
+		public string          AssetGUID;
+		[HideInInspector]
 		public List<Sequence>  Sequences;
 
 		void Reset() {
 			Name      = string.Empty;
 			Atlas     = null;
 			FrameRate = 1.0f;
+			AssetGUID = string.Empty;
 			Sequences = new List<Sequence>();
 		}
 	}
