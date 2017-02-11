@@ -40,6 +40,9 @@ namespace FTRuntime {
 		[SerializeField]
 		bool _autoPlay = true;
 
+		[SerializeField]
+		bool _useUnscaledDt = false;
+
 		[SerializeField, SwfFloatRange(0.0f, float.MaxValue)]
 		float _rateScale = 1.0f;
 
@@ -93,6 +96,15 @@ namespace FTRuntime {
 		public bool autoPlay {
 			get { return _autoPlay; }
 			set { _autoPlay = value; }
+		}
+
+		/// <summary>
+		/// Gets or sets a value indicating whether controller uses unscaled delta time
+		/// </summary>
+		/// <value><c>true</c> if uses unscaled delta time; otherwise, <c>false</c></value>
+		public bool useUnscaledDt {
+			get { return _useUnscaledDt; }
+			set { _useUnscaledDt = value; }
 		}
 
 		/// <summary>
@@ -296,9 +308,9 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
-		internal void Internal_Update(float dt) {
+		internal void Internal_Update(float scaled_dt, float unscaled_dt) {
 			if ( isPlaying ) {
-				_tickTimer += dt;
+				_tickTimer += useUnscaledDt ? unscaled_dt : scaled_dt;
 				do {
 					var frame_rate = clip ? clip.frameRate * rateScale : 0.0f;
 					var frame_time = frame_rate > 0.0f ? 1.0f / frame_rate : 0.0f;

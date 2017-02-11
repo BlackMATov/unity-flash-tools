@@ -10,8 +10,10 @@ namespace FTRuntime {
 		SwfList<SwfClipController>      _safeUpdates     = new SwfList<SwfClipController>();
 
 		bool                            _isPaused        = false;
+		bool                            _useUnscaledDt   = false;
 		float                           _rateScale       = 1.0f;
 		HashSet<string>                 _groupPauses     = new HashSet<string>();
+		HashSet<string>                 _groupUnscales   = new HashSet<string>();
 		Dictionary<string, float>       _groupRateScales = new Dictionary<string, float>();
 
 		// ---------------------------------------------------------------------
@@ -76,6 +78,15 @@ namespace FTRuntime {
 		public bool isPlaying {
 			get { return !_isPaused; }
 			set { _isPaused = !value; }
+		}
+
+		/// <summary>
+		/// Get or set a value indicating whether animation updates uses unscaled delta time
+		/// </summary>
+		/// <value><c>true</c> if uses unscaled delta time; otherwise, <c>false</c></value>
+		public bool useUnscaledDt {
+			get { return _useUnscaledDt; }
+			set { _useUnscaledDt = value; }
 		}
 
 		/// <summary>
@@ -144,6 +155,30 @@ namespace FTRuntime {
 		/// <param name="group_name">Group name</param>
 		public bool IsGroupPlaying(string group_name) {
 			return !IsGroupPaused(group_name);
+		}
+
+		/// <summary>
+		/// Set the group of animations use unscaled delta time
+		/// </summary>
+		/// <param name="group_name">Group name</param>
+		/// <param name="yesno"><c>true</c> if group will use unscaled delta time; otherwise, <c>false</c></param>
+		public void SetGroupUseUnscaledDt(string group_name, bool yesno) {
+			if ( !string.IsNullOrEmpty(group_name) ) {
+				if ( yesno ) {
+					_groupUnscales.Add(group_name);
+				} else {
+					_groupUnscales.Remove(group_name);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Determines whether group of animations uses unscaled delta time
+		/// </summary>
+		/// <returns><c>true</c> if group uses unscaled delta time; otherwise, <c>false</c></returns>
+		/// <param name="group_name">Group name</param>
+		public bool IsGroupUseUnscaledDt(string group_name) {
+			return _groupUnscales.Contains(group_name);
 		}
 
 		/// <summary>
@@ -232,17 +267,19 @@ namespace FTRuntime {
 			}
 		}
 
-		void LateUpdateControllers(float dt) {
+		void LateUpdateControllers(float scaled_dt, float unscaled_dt) {
 			_controllers.AssignTo(_safeUpdates);
 			for ( int i = 0, e = _safeUpdates.Count; i < e; ++i ) {
 				var ctrl = _safeUpdates[i];
 				if ( ctrl ) {
-					var group_name = ctrl.groupName;
+					var group_name  = ctrl.groupName;
 					if ( string.IsNullOrEmpty(group_name) ) {
-						ctrl.Internal_Update(dt);
+						ctrl.Internal_Update(scaled_dt, unscaled_dt);
 					} else if ( IsGroupPlaying(group_name) ) {
 						var group_rate_scale = GetGroupRateScale(group_name);
-						ctrl.Internal_Update(group_rate_scale * dt);
+						ctrl.Internal_Update(
+							group_rate_scale * (IsGroupUseUnscaledDt(group_name) ? unscaled_dt : scaled_dt),
+							group_rate_scale * unscaled_dt);
 					}
 				}
 			}
@@ -267,8 +304,9 @@ namespace FTRuntime {
 
 		void LateUpdate() {
 			if ( isPlaying ) {
-				var dt = Time.deltaTime;
-				LateUpdateControllers(rateScale * dt);
+				LateUpdateControllers(
+					rateScale * (useUnscaledDt ? Time.unscaledDeltaTime : Time.deltaTime),
+					rateScale * Time.unscaledDeltaTime);
 			}
 			LateUpdateClips();
 		}

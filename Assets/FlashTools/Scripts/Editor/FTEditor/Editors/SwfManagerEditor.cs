@@ -26,6 +26,12 @@ namespace FTEditor.Editors {
 
 		void DrawControls() {
 			SwfEditorUtils.DoRightHorizontalGUI(() => {
+				if ( _manager.useUnscaledDt && GUILayout.Button("Use Scaled Dt") ) {
+					_manager.useUnscaledDt = false;
+				}
+				if ( !_manager.useUnscaledDt && GUILayout.Button("Use Unscaled Dt") ) {
+					_manager.useUnscaledDt = true;
+				}
 				if ( _manager.isPaused && GUILayout.Button("Resume") ) {
 					_manager.Resume();
 				}
@@ -44,11 +50,21 @@ namespace FTEditor.Editors {
 						SwfEditorUtils.DoWithEnabledGUI(false, () => {
 							EditorGUILayout.TextField("Name", group_name);
 						});
-						EditorGUI.BeginChangeCheck();
-						var new_rate_scale = EditorGUILayout.FloatField(
-							"Rate Scale", _manager.GetGroupRateScale(group_name));
-						if ( EditorGUI.EndChangeCheck() ) {
-							_manager.SetGroupRateScale(group_name, new_rate_scale);
+						{
+							EditorGUI.BeginChangeCheck();
+							var new_rate_scale = EditorGUILayout.FloatField(
+								"Rate Scale", _manager.GetGroupRateScale(group_name));
+							if ( EditorGUI.EndChangeCheck() ) {
+								_manager.SetGroupRateScale(group_name, new_rate_scale);
+							}
+						}
+						{
+							EditorGUI.BeginChangeCheck();
+							var new_user_unscaled_dt = EditorGUILayout.Toggle(
+								"Use Unscaled Dt", _manager.IsGroupUseUnscaledDt(group_name));
+							if ( EditorGUI.EndChangeCheck() ) {
+								_manager.SetGroupUseUnscaledDt(group_name, new_user_unscaled_dt);
+							}
 						}
 						SwfEditorUtils.DoRightHorizontalGUI(() => {
 							if ( _manager.IsGroupPaused(group_name) && GUILayout.Button("Resume") ) {
