@@ -14,10 +14,12 @@ MonoBehaviour:
   Name: _Stage_
   Atlas: {fileID: 2800000, guid: c1278c7f98af44db8a86e620305eb32b, type: 3}
   FrameRate: 30
+  AssetGUID: 91fc9b6bb83c645678686dbc06141d03
   Sequences:
   - Name: Default
     Frames:
-    - MeshData:
+    - Labels: []
+      MeshData:
         SubMeshes:
         - StartVertex: 0
           IndexCount: 156
