@@ -10,10 +10,13 @@ namespace FTSwfTools {
 		public SwfLongHeader    UncompressedHeader;
 		public List<SwfTagBase> Tags = new List<SwfTagBase>();
 
-		public SwfDecoder(string swf_path) {
+		public SwfDecoder(string swf_path) : this(swf_path, null) {
+		}
+
+		public SwfDecoder(string swf_path, System.Action<float> progress_act) {
 			var raw_data            = File.ReadAllBytes(swf_path);
 			var uncompressed_stream = DecompressSwfData(raw_data);
-			DecodeSwf(new SwfStreamReader(uncompressed_stream));
+			DecodeSwf(new SwfStreamReader(uncompressed_stream), progress_act);
 		}
 
 		MemoryStream DecompressSwfData(byte[] raw_swf_data) {
@@ -40,9 +43,12 @@ namespace FTSwfTools {
 			}
 		}
 
-		void DecodeSwf(SwfStreamReader reader) {
+		void DecodeSwf(SwfStreamReader reader, System.Action<float> progress_act) {
 			UncompressedHeader = SwfLongHeader.Read(reader);
 			while ( !reader.IsEOF ) {
+				if ( progress_act != null ) {
+					progress_act((float)(reader.Position + 1) / reader.Length);
+				}
 				var tag = SwfTagBase.Read(reader);
 				if ( tag.TagType == SwfTagType.End ) {
 					break;

@@ -227,6 +227,28 @@ namespace FTEditor {
 
 		// ---------------------------------------------------------------------
 		//
+		// ProgressBar
+		//
+		// ---------------------------------------------------------------------
+
+		public class ProgressBar {
+			string _title = "Flash Tools Process";
+
+			public void UpdateTitle(string title) {
+				_title = string.Format("Flash Tools Process: {0}", title);
+			}
+
+			public void UpdateProgress(string info, float progress) {
+				EditorUtility.DisplayProgressBar(_title, info, progress);
+			}
+
+			public void HideProgress() {
+				EditorUtility.ClearProgressBar();
+			}
+		}
+
+		// ---------------------------------------------------------------------
+		//
 		// Menu
 		//
 		// ---------------------------------------------------------------------

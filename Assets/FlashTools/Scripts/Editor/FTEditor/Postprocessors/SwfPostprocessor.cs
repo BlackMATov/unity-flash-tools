@@ -14,7 +14,8 @@ using FTSwfTools.SwfTypes;
 
 namespace FTEditor.Postprocessors {
 	class SwfPostprocessor : AssetPostprocessor {
-		static List<string> _assetsForProcess = new List<string>();
+		static SwfEditorUtils.ProgressBar _progressBar      = new SwfEditorUtils.ProgressBar();
+		static List<string>               _assetsForProcess = new List<string>();
 
 		static void OnPostprocessAllAssets(
 			string[] imported_assets,
@@ -62,6 +63,7 @@ namespace FTEditor.Postprocessors {
 
 		static bool SafeLoadSwfAsset(string swf_path, SwfAsset swf_asset) {
 			try {
+				_progressBar.UpdateTitle(Path.GetFileName(swf_path));
 				var new_data   = LoadSwfAssetData(swf_path);
 				swf_asset.Data = SwfEditorUtils.CompressAsset(new_data);
 				return true;
@@ -70,12 +72,16 @@ namespace FTEditor.Postprocessors {
 					"<b>[FlashTools]</b> Parsing swf error: {0}",
 					e.Message);
 				return false;
+			} finally {
+				_progressBar.HideProgress();
 			}
 		}
 
 		static SwfAssetData LoadSwfAssetData(string swf_path) {
 			var library = new SwfLibrary();
-			var decoder = new SwfDecoder(swf_path);
+			var decoder = new SwfDecoder(swf_path, progress => {
+				_progressBar.UpdateProgress("swf decoding", progress);
+			});
 			return new SwfAssetData{
 				FrameRate = decoder.UncompressedHeader.FrameRate,
 				Symbols   = LoadSymbols(library, decoder),
@@ -95,10 +101,15 @@ namespace FTEditor.Postprocessors {
 			symbols.Add(LoadSymbol("_Stage_", library, decoder.Tags));
 			var sprite_defs = library.Defines.Values
 				.OfType<SwfLibrarySpriteDefine>()
-				.Where(p => !string.IsNullOrEmpty(p.ExportName));
-			foreach ( var sprite_def in sprite_defs ) {
-				var name = sprite_def.ExportName;
-				var tags = sprite_def.ControlTags.Tags;
+				.Where(p => !string.IsNullOrEmpty(p.ExportName))
+				.ToList();
+			for ( var i = 0; i < sprite_defs.Count; ++i ) {
+				_progressBar.UpdateProgress(
+					"load swf symbols",
+					(float)(i + 1) / sprite_defs.Count);
+				var def  = sprite_defs[i];
+				var name = def.ExportName;
+				var tags = def.ControlTags.Tags;
 				symbols.Add(LoadSymbol(name, library, tags));
 			}
 			return symbols;

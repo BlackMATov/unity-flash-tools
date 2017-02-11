@@ -13,18 +13,6 @@ namespace FTSwfTools {
 		BitContext   _bitContext;
 		BinaryReader _binaryReader;
 
-		long Length {
-			get { return _binaryReader.BaseStream.Length; }
-		}
-
-		long Position {
-			get { return _binaryReader.BaseStream.Position; }
-		}
-
-		long BytesLeft {
-			get { return Length - Position; }
-		}
-
 		// ---------------------------------------------------------------------
 		//
 		// Public
@@ -42,6 +30,18 @@ namespace FTSwfTools {
 
 		public bool IsEOF {
 			get { return Position >= Length; }
+		}
+
+		public long Length {
+			get { return _binaryReader.BaseStream.Length; }
+		}
+
+		public long Position {
+			get { return _binaryReader.BaseStream.Position; }
+		}
+
+		public long BytesLeft {
+			get { return Length - Position; }
 		}
 
 		public void AlignToByte() {

@@ -10,7 +10,8 @@ using FTRuntime;
 
 namespace FTEditor.Postprocessors {
 	class SwfAssetPostprocessor : AssetPostprocessor {
-		static List<SwfAsset> _assetsForProcess = new List<SwfAsset>();
+		static SwfEditorUtils.ProgressBar _progressBar      = new SwfEditorUtils.ProgressBar();
+		static List<SwfAsset>             _assetsForProcess = new List<SwfAsset>();
 
 		static void OnPostprocessAllAssets(
 			string[] imported_assets,
@@ -42,6 +43,7 @@ namespace FTEditor.Postprocessors {
 
 		static void SwfAssetProcess(SwfAsset asset) {
 			try {
+				_progressBar.UpdateTitle(asset.name);
 				var new_data = ConfigureBitmaps(
 					asset,
 					SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data));
@@ -62,6 +64,7 @@ namespace FTEditor.Postprocessors {
 				if ( asset ) {
 					UpdateAssetClips(asset);
 				}
+				_progressBar.HideProgress();
 			}
 		}
 
@@ -86,12 +89,18 @@ namespace FTEditor.Postprocessors {
 		// ---------------------------------------------------------------------
 
 		static SwfAssetData ConfigureBitmaps(SwfAsset asset, SwfAssetData data) {
-			var textures = data.Bitmaps
-				.Where (p => p.Redirect == 0)
-				.Select(p => new KeyValuePair<ushort, Texture2D>(
-					p.Id,
-					LoadTextureFromData(p)))
-				.ToList();
+			var textures = new List<KeyValuePair<ushort, Texture2D>>(data.Bitmaps.Count);
+			for ( var i = 0; i < data.Bitmaps.Count; ++i ) {
+				_progressBar.UpdateProgress(
+					"configure bitmaps",
+					(float)(i + 1) / data.Bitmaps.Count);
+				var bitmap = data.Bitmaps[i];
+				if ( bitmap.Redirect == 0 ) {
+					textures.Add(new KeyValuePair<ushort, Texture2D>(
+						bitmap.Id,
+						LoadTextureFromData(bitmap)));
+				}
+			}
 			var rects = PackAndSaveBitmapsAtlas(
 				GetAtlasPath(asset),
 				textures.Select(p => p.Value).ToArray(),
@@ -121,10 +130,13 @@ namespace FTEditor.Postprocessors {
 		static Rect[] PackAndSaveBitmapsAtlas(
 			string atlas_path, Texture2D[] textures, SwfSettingsData settings)
 		{
+			_progressBar.UpdateProgress("pack bitmaps", 0.25f);
 			var atlas_info = PackBitmapsAtlas(textures, settings);
 			RevertTexturePremultipliedAlpha(atlas_info.Atlas);
+			_progressBar.UpdateProgress("save atlas", 0.5f);
 			File.WriteAllBytes(atlas_path, atlas_info.Atlas.EncodeToPNG());
 			GameObject.DestroyImmediate(atlas_info.Atlas, true);
+			_progressBar.UpdateProgress("import atlas", 0.75f);
 			AssetDatabase.ImportAsset(atlas_path);
 			return atlas_info.Rects;
 		}
@@ -261,8 +273,11 @@ namespace FTEditor.Postprocessors {
 
 		static SwfAssetData ConfigureClips(SwfAsset asset, SwfAssetData data) {
 			asset.Clips = asset.Clips.Where(p => !!p).Distinct().ToList();
-			foreach ( var symbol in data.Symbols ) {
-				ConfigureClip(asset, data, symbol);
+			for ( var i = 0; i < data.Symbols.Count; ++i ) {
+				_progressBar.UpdateProgress(
+					"configure clips",
+					(float)(i + 1) / data.Symbols.Count);
+				ConfigureClip(asset, data, data.Symbols[i]);
 			}
 			return data;
 		}
