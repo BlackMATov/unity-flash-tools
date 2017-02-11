@@ -14,6 +14,8 @@ using FTSwfTools.SwfTypes;
 
 namespace FTEditor.Postprocessors {
 	class SwfPostprocessor : AssetPostprocessor {
+		static List<string> _assetsForProcess = new List<string>();
+
 		static void OnPostprocessAllAssets(
 			string[] imported_assets,
 			string[] deleted_assets,
@@ -29,10 +31,21 @@ namespace FTEditor.Postprocessors {
 					"It means that you can't have more than 5 animation assets in the project.";
 				EditorUtility.DisplayDialog(title, message, "Ok");
 			} else {
-				foreach ( var swf_path in swf_paths ) {
-					SwfFileProcess(swf_path);
+				_assetsForProcess = swf_paths.ToList();
+				if ( _assetsForProcess.Count > 0 ) {
+					EditorApplication.update += ProcessAfterImport;
 				}
 			}
+		}
+
+		static void ProcessAfterImport() {
+			EditorApplication.update -= ProcessAfterImport;
+			var swf_paths = new List<string>(_assetsForProcess);
+			_assetsForProcess.Clear();
+			foreach ( var swf_path in swf_paths ) {
+				SwfFileProcess(swf_path);
+			}
+			AssetDatabase.SaveAssets();
 		}
 
 		static void SwfFileProcess(string swf_path) {
@@ -49,9 +62,8 @@ namespace FTEditor.Postprocessors {
 
 		static bool SafeLoadSwfAsset(string swf_path, SwfAsset swf_asset) {
 			try {
-				var new_data         = LoadSwfAssetData(swf_path);
-				swf_asset.Data       = SwfEditorUtils.CompressAsset(new_data);
-				swf_asset.Converting = new SwfAsset.ConvertingState();
+				var new_data   = LoadSwfAssetData(swf_path);
+				swf_asset.Data = SwfEditorUtils.CompressAsset(new_data);
 				return true;
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(

@@ -4,10 +4,6 @@ using System.Collections.Generic;
 
 namespace FTRuntime {
 	public class SwfAsset : ScriptableObject {
-		[System.Serializable]
-		public struct ConvertingState {
-			public int Stage;
-		}
 		[HideInInspector]
 		public byte[]             Data;
 		[SwfReadOnly]
@@ -18,8 +14,6 @@ namespace FTRuntime {
 		public SwfSettingsData    Settings;
 		[SwfDisplayName("Settings")]
 		public SwfSettingsData    Overridden;
-		[HideInInspector]
-		public ConvertingState    Converting;
 
 		void Reset() {
 			Data       = new byte[0];
@@ -27,7 +21,6 @@ namespace FTRuntime {
 			Clips      = new List<SwfClipAsset>();
 			Settings   = SwfSettingsData.identity;
 			Overridden = SwfSettingsData.identity;
-			Converting = new ConvertingState();
 		}
 	}
 }

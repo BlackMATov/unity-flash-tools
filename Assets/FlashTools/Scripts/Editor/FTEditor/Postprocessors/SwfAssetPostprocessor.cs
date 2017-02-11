@@ -10,6 +10,8 @@ using FTRuntime;
 
 namespace FTEditor.Postprocessors {
 	class SwfAssetPostprocessor : AssetPostprocessor {
+		static List<SwfAsset> _assetsForProcess = new List<SwfAsset>();
+
 		static void OnPostprocessAllAssets(
 			string[] imported_assets,
 			string[] deleted_assets,
@@ -18,35 +20,38 @@ namespace FTEditor.Postprocessors {
 		{
 			var asset_paths = imported_assets
 				.Where(p => Path.GetExtension(p).ToLower().Equals(".asset"));
-			foreach ( var asset_path in asset_paths ) {
-				var asset = AssetDatabase.LoadAssetAtPath<SwfAsset>(asset_path);
-				if ( asset ) {
-					SwfAssetProcess(asset);
-				}
+			_assetsForProcess = asset_paths
+				.Select(p => AssetDatabase.LoadAssetAtPath<SwfAsset>(p))
+				.Where(p => !!p)
+				.Distinct()
+				.ToList();
+			if ( _assetsForProcess.Count > 0 ) {
+				EditorApplication.update += ProcessAfterImport;
 			}
+		}
+
+		static void ProcessAfterImport() {
+			EditorApplication.update -= ProcessAfterImport;
+			var assets = new List<SwfAsset>(_assetsForProcess);
+			_assetsForProcess.Clear();
+			foreach ( var asset in assets ) {
+				SwfAssetProcess(asset);
+			}
+			AssetDatabase.SaveAssets();
 		}
 
 		static void SwfAssetProcess(SwfAsset asset) {
 			try {
-				if ( asset.Converting.Stage == 0 ) {
-					var new_data = ConfigureBitmaps(
+				var new_data = ConfigureBitmaps(
+					asset,
+					SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data));
+				asset.Data  = SwfEditorUtils.CompressAsset(new_data);
+				asset.Atlas = LoadAssetAtlas(asset);
+				if ( asset.Atlas ) {
+					ConfigureAtlas(asset);
+					ConfigureClips(
 						asset,
 						SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data));
-					asset.Data = SwfEditorUtils.CompressAsset(new_data);
-					++asset.Converting.Stage;
-					EditorUtility.SetDirty(asset);
-					AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(asset));
-				} else if ( asset.Converting.Stage == 1 ) {
-					asset.Atlas = LoadAssetAtlas(asset);
-					if ( asset.Atlas ) {
-						ConfigureAtlas(asset);
-						ConfigureClips(
-							asset,
-							SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data));
-					}
-					++asset.Converting.Stage;
-					EditorUtility.SetDirty(asset);
-					AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(asset));
 				}
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
@@ -82,8 +87,8 @@ namespace FTEditor.Postprocessors {
 
 		static SwfAssetData ConfigureBitmaps(SwfAsset asset, SwfAssetData data) {
 			var textures = data.Bitmaps
-				.Where  (p => p.Redirect == 0)
-				.Select (p => new KeyValuePair<ushort, Texture2D>(
+				.Where (p => p.Redirect == 0)
+				.Select(p => new KeyValuePair<ushort, Texture2D>(
 					p.Id,
 					LoadTextureFromData(p)))
 				.ToList();

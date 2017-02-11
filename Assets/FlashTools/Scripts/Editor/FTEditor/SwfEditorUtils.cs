@@ -152,7 +152,6 @@ namespace FTEditor {
 			if ( asset ) {
 				if ( act(asset, false) ) {
 					EditorUtility.SetDirty(asset);
-					AssetDatabase.ImportAsset(asset_path);
 				}
 			} else {
 				asset = ScriptableObject.CreateInstance<T>();
