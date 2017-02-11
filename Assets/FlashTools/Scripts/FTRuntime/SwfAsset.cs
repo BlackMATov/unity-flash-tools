@@ -3,6 +3,9 @@ using FTRuntime.Internal;
 using System.Collections.Generic;
 
 namespace FTRuntime {
+	#if UNITY_5_5_OR_NEWER
+	[PreferBinarySerialization]
+	#endif
 	public class SwfAsset : ScriptableObject {
 		[HideInInspector]
 		public byte[]          Data;
