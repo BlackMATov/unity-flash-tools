@@ -11,10 +11,8 @@ namespace FTRuntime {
 		}
 
 		public enum AtlasFormat {
-			AutomaticCompressed,
-			Automatic16bit,
-			AutomaticTruecolor,
-			AutomaticCrunched
+			AutomaticCompressed = 0,
+			AutomaticTruecolor  = 2
 		}
 
 		[SwfPowerOfTwoIfAttribute(5, 13, "AtlasPowerOfTwo")]
