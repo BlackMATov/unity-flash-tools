@@ -7,37 +7,24 @@
 	};
 }
 
-if (!Function.prototype.bind) {
-	Function.prototype.bind = function (oThis) {
-		if (typeof this !== 'function') {
-			throw new TypeError('Function.prototype.bind - what is trying to be bound is not callable');
-		}
-		var aArgs = Array.prototype.slice.call(arguments, 1);
-		var fToBind = this;
-		var fNOP = function () {};
-		var fBound = function () {
-			return fToBind.apply(this instanceof fNOP && oThis ? this : oThis,
-				aArgs.concat(Array.prototype.slice.call(arguments)));
-		};
-		fNOP.prototype = this.prototype;
-		fBound.prototype = new fNOP();
-		return fBound;
-	};
-}
-
 (function () {
 	"use strict";
 
 	//
-	// ft
+	// ft config
 	//
 
 	var ft = {
 		profile_mode             : false,
 		verbose_mode             : false,
+		graphics_scale           : 1.0,
 		optimize_static_items    : true,
 		optimize_single_graphics : true
 	};
+	
+	//
+	// ft base functions
+	//
 
 	ft.trace = function () {
 		fl.outputPanel.trace(
@@ -202,6 +189,13 @@ if (!Function.prototype.bind) {
 				func(value, index);
 			}
 		}
+	};
+	
+	ft.approximately = function(a, b, precision) {
+		ft.type_assert(a, 'number');
+		ft.type_assert(b, 'number');
+		ft.type_assert(precision, 'number');
+		return Math.abs(b - a) < Math.abs(precision);
 	};
 
 	ft.gen_unique_name = function () {
@@ -429,7 +423,16 @@ if (!Function.prototype.bind) {
 			new_item_elem.setTransformationPoint({x: 0, y: 0});
 			new_item_elem.transformX = 0;
 			new_item_elem.transformY = 0;
-			doc.convertSelectionToBitmap();
+			if (ft.approximately(ft.graphics_scale, 1.0, 0.01)) {
+				doc.convertSelectionToBitmap();
+			} else {
+				var wrapper_item_name = ft.gen_unique_name();
+				var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "center");
+				fttim.recursive_scale_filters(doc, wrapper_item.timeline);
+				doc.scaleSelection(ft.graphics_scale, ft.graphics_scale);
+				doc.convertSelectionToBitmap();
+				doc.scaleSelection(1.0 / ft.graphics_scale, 1.0 / ft.graphics_scale);
+			}
 			return true;
 		} else {
 			doc.exitEditMode();
@@ -552,6 +555,26 @@ if (!Function.prototype.bind) {
 		var frame_height = Math.max(0, bounds.bottom - bounds.top);
 		return Math.round(frame_width) * Math.round(frame_height);
 	}
+	
+	fttim.recursive_scale_filters = function (doc, timeline) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(timeline, Timeline);
+		ft.array_foreach(timeline.layers, function (layer) {
+			ft.array_foreach(layer.frames, function (frame, frame_index) {
+				ft.array_foreach(frame.elements, function (elem) {
+					var elem_filters = elem.filters;
+					if (Array.isArray(elem_filters)) {
+						ft.array_foreach(elem_filters, function (elem_filter, filter_index) {
+							elem_filter.blurX *= ft.graphics_scale;
+							elem_filter.blurY *= ft.graphics_scale;
+						});
+						elem.filters = elem_filters;
+					}
+					fttim.recursive_scale_filters(doc, elem.libraryItem.timeline);
+				}, fttim.is_symbol_instance);
+			}, fttim.is_keyframe);
+		}, fttim.is_not_guide_layer);
+	};
 
 	fttim.replace_baked_symbols = function (doc, timeline, replaces) {
 		ft.type_assert(doc, Document);
@@ -648,7 +671,16 @@ if (!Function.prototype.bind) {
 				doc.selectNone();
 				doc.selection = ft.array_filter(frame.elements, fttim.is_shape_instance);
 				if (doc.selection.length > 0) {
-					doc.convertSelectionToBitmap();
+					if (ft.approximately(ft.graphics_scale, 1.0, 0.01)) {
+						doc.convertSelectionToBitmap();
+					} else {
+						var wrapper_item_name = ft.gen_unique_name();
+						var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "center");
+						fttim.recursive_scale_filters(doc, wrapper_item.timeline);
+						doc.scaleSelection(ft.graphics_scale, ft.graphics_scale);
+						doc.convertSelectionToBitmap();
+						doc.scaleSelection(1.0 / ft.graphics_scale, 1.0 / ft.graphics_scale);
+					}
 					doc.arrange("back");
 					any_rasterize = true;
 				}

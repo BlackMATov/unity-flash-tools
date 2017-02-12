@@ -3,6 +3,7 @@
 -------------------
 
 ETC separated alpha support
+Export animations with custom scale (for retina)
 
 -------------------
 -- Version 1.2.0 --
