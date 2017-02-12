@@ -157,7 +157,7 @@ namespace FTEditor.Editors {
 		void DrawGUINotes() {
 			EditorGUILayout.Separator();
 			EditorGUILayout.HelpBox(
-				"Masks of animation may not be displayed correctly in preview window. " + 
+				"Masks and blends of animation may not be displayed correctly in preview window. " + 
 				"Instance animation to the scene, to see how it will look like the animation in the game.",
 				MessageType.Info);
 		}

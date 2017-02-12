@@ -18,6 +18,7 @@
 		profile_mode             : false,
 		verbose_mode             : false,
 		graphics_scale           : 1.0,
+		optimize_small_items     : true,
 		optimize_static_items    : true,
 		optimize_single_graphics : true
 	};
@@ -216,11 +217,22 @@
 		ft.type_assert(doc, Document);
 		ft.profile_function(function() { ftdoc.prepare_folders(doc);        }, "Prepare folders");
 		ft.profile_function(function() { ftdoc.full_exit_edit_mode(doc);    }, "Full exit edit mode");
+		ft.profile_function(function() { ftdoc.remove_unused_items(doc);    }, "Remove unused items");
 		ft.profile_function(function() { ftdoc.prepare_all_bitmaps(doc);    }, "Prepare all bitmaps");
 		ft.profile_function(function() { ftdoc.unlock_all_timelines(doc);   }, "Unlock all timelines");
 		ft.profile_function(function() { ftdoc.optimize_all_timelines(doc); }, "Optimize all timelines");
 		ft.profile_function(function() { ftdoc.rasterize_all_shapes(doc);   }, "Rasterize all shapes");
 		ft.profile_function(function() { ftdoc.export_swf(doc);             }, "Export swf");
+	};
+	
+	ftdoc.get_temp = function (doc) {
+		if (!ftdoc.hasOwnProperty("temp")) {
+			ftdoc["temp"] = {
+				x_scales : {},
+				y_scales : {}
+			}
+		}
+		return ftdoc["temp"];
 	};
 
 	ftdoc.prepare_folders = function (doc) {
@@ -245,6 +257,17 @@
 			doc.exitEditMode();
 		}
 	};
+	
+	ftdoc.remove_unused_items = function (doc) {
+		ft.type_assert(doc, Document);
+		var unused_items = doc.library.unusedItems;
+		ft.array_reverse_foreach(unused_items, function(item) {
+			if (ft.verbose_mode) {
+				ft.trace_fmt("Remove unused item: {0}", item.name);
+			}
+			doc.library.deleteItem(item.name);
+		});
+	};
 
 	ftdoc.unlock_all_timelines = function (doc) {
 		ft.type_assert(doc, Document);
@@ -254,6 +277,11 @@
 
 	ftdoc.optimize_all_timelines = function (doc) {
 		ft.type_assert(doc, Document);
+		if (ft.optimize_small_items) {
+			ft.profile_function(function () {
+				ftlib.optimize_small_items(doc, doc.library);
+			}, "Optimize small items");
+		}
 		if (ft.optimize_static_items) {
 			ft.profile_function(function () {
 				ftlib.optimize_static_items(doc, doc.library);
@@ -350,6 +378,72 @@
 			fttim.unlock(item.timeline);
 		});
 	};
+	
+	ftlib.optimize_small_items = function (doc, library) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(library, Library);
+		
+		var x_scales = ftdoc.get_temp(doc).x_scales;
+		var y_scales = ftdoc.get_temp(doc).y_scales;
+		
+		var walk_by_timeline = function(timeline, func, acc) {
+			ft.type_assert(timeline, Timeline);
+			ft.type_assert(func, Function);
+			ft.array_foreach(timeline.layers, function (layer) {
+				ft.array_foreach(layer.frames, function (frame) {
+					ft.array_foreach(frame.elements, function (elem) {
+						walk_by_timeline(
+							elem.libraryItem.timeline,
+							func,
+							func(elem, acc));
+					}, fttim.is_symbol_instance);
+				}, fttim.is_keyframe);
+			});
+		};
+		
+		var walk_by_library = function(lib, func, acc) {
+			ft.type_assert(lib, Library);
+			ft.type_assert(func, Function);
+			ft.array_foreach(lib.items, function (item) {
+				walk_by_timeline(item.timeline, func, acc)
+			}, ftlib.is_symbol_item);
+		};
+		
+		var x_func = function(elem, acc) {
+			var elem_sx   = elem.scaleX * acc;
+			var item_name = elem.libraryItem.name;
+			x_scales[item_name] = Math.max(
+				x_scales.hasOwnProperty(item_name) ? x_scales[item_name] : elem_sx,
+				elem_sx);
+			return elem_sx;
+		};
+		
+		var y_func = function(elem, acc) {
+			var elem_sy   = elem.scaleY * acc;
+			var item_name = elem.libraryItem.name;
+			y_scales[item_name] = Math.max(
+				y_scales.hasOwnProperty(item_name) ? y_scales[item_name] : elem_sy,
+				elem_sy);
+			return elem_sy;
+		};
+		
+		walk_by_library(library, x_func, 1.0);
+		walk_by_timeline(doc.getTimeline(), x_func, 1.0);
+		
+		walk_by_library(library, y_func, 1.0);
+		walk_by_timeline(doc.getTimeline(), y_func, 1.0);
+
+		if (ft.verbose_mode) {
+			for (var item_name in x_scales) {
+				var max_x_scale = x_scales.hasOwnProperty(item_name) ? x_scales[item_name] : 1.0;
+				var max_y_scale = y_scales.hasOwnProperty(item_name) ? y_scales[item_name] : 1.0;
+				var max_c_scale = Math.max(max_x_scale, max_y_scale);
+				if (max_c_scale < 1.0) {
+					ft.trace_fmt("Small item for optimize: {0} - {1}", item_name, max_c_scale);
+				} 
+			}
+		}
+	};
 
 	ftlib.optimize_static_items = function (doc, library) {
 		ft.type_assert(doc, Document);
@@ -423,15 +517,26 @@
 			new_item_elem.setTransformationPoint({x: 0, y: 0});
 			new_item_elem.transformX = 0;
 			new_item_elem.transformY = 0;
-			if (ft.approximately(ft.graphics_scale, 1.0, 0.01)) {
+			
+			var x_scales = ftdoc.get_temp(doc).x_scales;
+			var y_scales = ftdoc.get_temp(doc).y_scales;
+
+			var final_scale = ft.graphics_scale;
+			if (x_scales.hasOwnProperty(item.name) && y_scales.hasOwnProperty(item.name)) {
+				var max_scale_x = x_scales[item.name];
+				var max_scale_y = y_scales[item.name];
+				final_scale = Math.min(final_scale, Math.max(max_scale_x, max_scale_y));
+			}
+			
+			if (ft.approximately(final_scale, 1.0, 0.01)) {
 				doc.convertSelectionToBitmap();
 			} else {
 				var wrapper_item_name = ft.gen_unique_name();
 				var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "center");
-				fttim.recursive_scale_filters(doc, wrapper_item.timeline);
-				doc.scaleSelection(ft.graphics_scale, ft.graphics_scale);
+				fttim.recursive_scale_filters(doc, wrapper_item.timeline, final_scale);
+				doc.scaleSelection(final_scale, final_scale);
 				doc.convertSelectionToBitmap();
-				doc.scaleSelection(1.0 / ft.graphics_scale, 1.0 / ft.graphics_scale);
+				doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
 			}
 			return true;
 		} else {
@@ -444,7 +549,6 @@
 	ftlib.optimize_single_graphics = function (doc, library) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(library, Library);
-
 		ft.array_reverse_foreach(library.items, function (item) {
 			fttim.optimize_single_graphics(doc, item.timeline, item);
 		}, ftlib.is_symbol_item);
@@ -556,7 +660,7 @@
 		return Math.round(frame_width) * Math.round(frame_height);
 	}
 	
-	fttim.recursive_scale_filters = function (doc, timeline) {
+	fttim.recursive_scale_filters = function (doc, timeline, scale) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(timeline, Timeline);
 		ft.array_foreach(timeline.layers, function (layer) {
@@ -565,12 +669,12 @@
 					var elem_filters = elem.filters;
 					if (Array.isArray(elem_filters)) {
 						ft.array_foreach(elem_filters, function (elem_filter, filter_index) {
-							elem_filter.blurX *= ft.graphics_scale;
-							elem_filter.blurY *= ft.graphics_scale;
+							elem_filter.blurX *= scale;
+							elem_filter.blurY *= scale;
 						});
 						elem.filters = elem_filters;
 					}
-					fttim.recursive_scale_filters(doc, elem.libraryItem.timeline);
+					fttim.recursive_scale_filters(doc, elem.libraryItem.timeline, scale);
 				}, fttim.is_symbol_instance);
 			}, fttim.is_keyframe);
 		}, fttim.is_not_guide_layer);
@@ -671,15 +775,27 @@
 				doc.selectNone();
 				doc.selection = ft.array_filter(frame.elements, fttim.is_shape_instance);
 				if (doc.selection.length > 0) {
-					if (ft.approximately(ft.graphics_scale, 1.0, 0.01)) {
+
+					var x_scales = ftdoc.get_temp(doc).x_scales;
+					var y_scales = ftdoc.get_temp(doc).y_scales;
+					
+					var item = timeline.libraryItem;
+					var final_scale = ft.graphics_scale;
+					if (item && x_scales.hasOwnProperty(item.name) && y_scales.hasOwnProperty(item.name)) {
+						var max_scale_x = x_scales[item.name];
+						var max_scale_y = y_scales[item.name];
+						final_scale = Math.min(final_scale, Math.max(max_scale_x, max_scale_y));
+					}
+					
+					if (ft.approximately(final_scale, 1.0, 0.01)) {
 						doc.convertSelectionToBitmap();
 					} else {
 						var wrapper_item_name = ft.gen_unique_name();
 						var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "center");
-						fttim.recursive_scale_filters(doc, wrapper_item.timeline);
-						doc.scaleSelection(ft.graphics_scale, ft.graphics_scale);
+						fttim.recursive_scale_filters(doc, wrapper_item.timeline, final_scale);
+						doc.scaleSelection(final_scale, final_scale);
 						doc.convertSelectionToBitmap();
-						doc.scaleSelection(1.0 / ft.graphics_scale, 1.0 / ft.graphics_scale);
+						doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
 					}
 					doc.arrange("back");
 					any_rasterize = true;

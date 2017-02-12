@@ -5,6 +5,7 @@
 ETC separated alpha support
 Export animations with custom scale (for retina)
 Added note message about problems of animation in preview
+New small vector scaled items optimization
 
 -------------------
 -- Version 1.2.0 --
