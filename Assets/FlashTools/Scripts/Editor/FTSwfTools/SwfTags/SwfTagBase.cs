@@ -71,18 +71,18 @@
 		// Fonts and Text
 		// -----------------------------
 
-		//DefineFont = 10,
-		//DefineFontInfo = 13,
-		//DefineFontInfo2 = 62,
-		//DefineFont2 = 48,
-		//DefineFont3 = 75,
-		//DefineFontAlignZones = 73,
-		//DefineFontName = 88,
-		//DefineText = 11,
-		//DefineText2 = 33,
-		//DefineEditText = 37,
-		//CSMTextSettings = 74,
-		//DefineFont4 = 91,
+		DefineFont = 10,
+		DefineFontInfo = 13,
+		DefineFontInfo2 = 62,
+		DefineFont2 = 48,
+		DefineFont3 = 75,
+		DefineFontAlignZones = 73,
+		DefineFontName = 88,
+		DefineText = 11,
+		DefineText2 = 33,
+		DefineEditText = 37,
+		CSMTextSettings = 74,
+		DefineFont4 = 91,
 
 		// -----------------------------
 		// Sounds
@@ -199,6 +199,19 @@
 			// Shape Morphing
 			case (int)SwfTagType.DefineMorphShape:             return UnsupportedTag.Create(SwfTagType.DefineMorphShape);
 			case (int)SwfTagType.DefineMorphShape2:            return UnsupportedTag.Create(SwfTagType.DefineMorphShape2);
+			// Fonts and Text
+			case (int)SwfTagType.DefineFont:                   return UnsupportedTag.Create(SwfTagType.DefineFont);
+			case (int)SwfTagType.DefineFontInfo:               return UnsupportedTag.Create(SwfTagType.DefineFontInfo);
+			case (int)SwfTagType.DefineFontInfo2:              return UnsupportedTag.Create(SwfTagType.DefineFontInfo2);
+			case (int)SwfTagType.DefineFont2:                  return UnsupportedTag.Create(SwfTagType.DefineFont2);
+			case (int)SwfTagType.DefineFont3:                  return UnsupportedTag.Create(SwfTagType.DefineFont3);
+			case (int)SwfTagType.DefineFontAlignZones:         return UnsupportedTag.Create(SwfTagType.DefineFontAlignZones);
+			case (int)SwfTagType.DefineFontName:               return UnsupportedTag.Create(SwfTagType.DefineFontName);
+			case (int)SwfTagType.DefineText:                   return UnsupportedTag.Create(SwfTagType.DefineText);
+			case (int)SwfTagType.DefineText2:                  return UnsupportedTag.Create(SwfTagType.DefineText2);
+			case (int)SwfTagType.DefineEditText:               return UnsupportedTag.Create(SwfTagType.DefineEditText);
+			case (int)SwfTagType.CSMTextSettings:              return UnsupportedTag.Create(SwfTagType.CSMTextSettings);
+			case (int)SwfTagType.DefineFont4:                  return UnsupportedTag.Create(SwfTagType.DefineFont4);
 			// Sprites and Movie Clips
 			case (int)SwfTagType.DefineSprite:                 return DefineSpriteTag.Create(reader);
 			// Video
