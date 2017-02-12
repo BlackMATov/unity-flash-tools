@@ -39,7 +39,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Sources\" />
     <Folder Include="FTRuntime\" />
   </ItemGroup>
   <ItemGroup>
@@ -48,9 +47,6 @@
     </None>
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfAsset.cs.meta">
       <Link>FTRuntime\SwfAsset.cs.meta</Link>
-    </None>
-    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfAttributes.cs.meta">
-      <Link>FTRuntime\SwfAttributes.cs.meta</Link>
     </None>
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfClip.cs.meta">
       <Link>FTRuntime\SwfClip.cs.meta</Link>
@@ -67,8 +63,14 @@
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfSettings.cs.meta">
       <Link>FTRuntime\SwfSettings.cs.meta</Link>
     </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields.meta">
+      <Link>FTRuntime\Yields.meta</Link>
+    </None>
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfAssocList.cs.meta">
       <Link>FTRuntime\Internal\SwfAssocList.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfAttributes.cs.meta">
+      <Link>FTRuntime\Internal\SwfAttributes.cs.meta</Link>
     </None>
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfList.cs.meta">
       <Link>FTRuntime\Internal\SwfList.cs.meta</Link>
@@ -76,13 +78,19 @@
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfUtils.cs.meta">
       <Link>FTRuntime\Internal\SwfUtils.cs.meta</Link>
     </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitPlayStopped.cs.meta">
+      <Link>FTRuntime\Yields\SwfWaitPlayStopped.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitRewindPlaying.cs.meta">
+      <Link>FTRuntime\Yields\SwfWaitRewindPlaying.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitStopPlaying.cs.meta">
+      <Link>FTRuntime\Yields\SwfWaitStopPlaying.cs.meta</Link>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfAsset.cs">
       <Link>FTRuntime\SwfAsset.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfAttributes.cs">
-      <Link>FTRuntime\SwfAttributes.cs</Link>
     </Compile>
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfClip.cs">
       <Link>FTRuntime\SwfClip.cs</Link>
@@ -102,11 +110,23 @@
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfAssocList.cs">
       <Link>FTRuntime\Internal\SwfAssocList.cs</Link>
     </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfAttributes.cs">
+      <Link>FTRuntime\Internal\SwfAttributes.cs</Link>
+    </Compile>
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfList.cs">
       <Link>FTRuntime\Internal\SwfList.cs</Link>
     </Compile>
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfUtils.cs">
       <Link>FTRuntime\Internal\SwfUtils.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitPlayStopped.cs">
+      <Link>FTRuntime\Yields\SwfWaitPlayStopped.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitRewindPlaying.cs">
+      <Link>FTRuntime\Yields\SwfWaitRewindPlaying.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitStopPlaying.cs">
+      <Link>FTRuntime\Yields\SwfWaitStopPlaying.cs</Link>
     </Compile>
   </ItemGroup>
 </Project>

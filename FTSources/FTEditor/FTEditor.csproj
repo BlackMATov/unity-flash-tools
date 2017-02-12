@@ -29,10 +29,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Folder Include="Sources\" />
-    <Folder Include="FTEditor\" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="mscorlib">
       <HintPath>..\DLLs\mscorlib.dll</HintPath>
       <Private>False</Private>
@@ -65,6 +61,9 @@
       <Name>FTSwfTools</Name>
       <Private>False</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FTEditor\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Assets\FlashTools\Scripts\Editor\FTEditor\Editors.meta">
