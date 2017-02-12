@@ -240,14 +240,19 @@ namespace FTEditor {
 		// ---------------------------------------------------------------------
 
 		public class ProgressBar {
-			string _title = "Flash Tools Process";
+			string _title = string.Empty;
 
 			public void UpdateTitle(string title) {
-				_title = string.Format("Flash Tools Process: {0}", title);
+				_title = title;
 			}
 
 			public void UpdateProgress(string info, float progress) {
-				EditorUtility.DisplayProgressBar(_title, info, progress);
+				var bar_title    = string.IsNullOrEmpty(_title)
+					? "Flash Tools Process"
+					: string.Format("Flash Tools Process: {0}", _title);
+				var bar_info     = string.Format("{0}...", info);
+				var bar_progress = Mathf.Clamp01(progress);
+				EditorUtility.DisplayProgressBar(bar_title, bar_info, bar_progress);
 			}
 
 			public void HideProgress() {
