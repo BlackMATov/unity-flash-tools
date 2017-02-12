@@ -1,7 +1,9 @@
 Shader "FlashTools/SwfSimpleGrab" {
 	Properties {
-		[PerRendererData] _MainTex ("Main Texture", 2D   ) = "white" {}
-		[PerRendererData] _Tint    ("Tint"        , Color) = (1,1,1,1)
+		[PerRendererData] _MainTex       ("Main Texture"  , 2D   ) = "white" {}
+		[PerRendererData] _AlphaTex      ("Alpha Texture" , 2D   ) = "white" {}
+		[PerRendererData] _ExternalAlpha ("External Alpha", Float) = 0
+		[PerRendererData] _Tint          ("Tint"          , Color) = (1,1,1,1)
 
 		[Enum(UnityEngine.Rendering.BlendOp  )] _BlendOp  ("BlendOp" , Int) = 0
 		[Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend ("SrcBlend", Int) = 1
@@ -30,7 +32,9 @@ Shader "FlashTools/SwfSimpleGrab" {
 		CGPROGRAM
 			fixed4    _Tint;
 			sampler2D _MainTex;
+			sampler2D _AlphaTex;
 			sampler2D _GrabTexture;
+			float     _ExternalAlpha;
 
 			#pragma multi_compile SWF_DARKEN_BLEND SWF_DIFFERENCE_BLEND SWF_INVERT_BLEND SWF_OVERLAY_BLEND SWF_HARDLIGHT_BLEND
 

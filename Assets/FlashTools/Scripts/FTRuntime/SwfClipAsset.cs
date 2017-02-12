@@ -61,7 +61,7 @@ namespace FTRuntime {
 		[SwfReadOnly]
 		public string          Name;
 		[SwfReadOnly]
-		public Texture2D       Atlas;
+		public Sprite          Sprite;
 		[SwfReadOnly]
 		public float           FrameRate;
 		[HideInInspector]
@@ -71,7 +71,7 @@ namespace FTRuntime {
 
 		void Reset() {
 			Name      = string.Empty;
-			Atlas     = null;
+			Sprite    = null;
 			FrameRate = 1.0f;
 			AssetGUID = string.Empty;
 			Sequences = new List<Sequence>();

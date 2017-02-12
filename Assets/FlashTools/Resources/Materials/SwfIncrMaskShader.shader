@@ -1,6 +1,8 @@
 Shader "FlashTools/SwfIncrMask" {
 	Properties {
-		[PerRendererData] _MainTex("Main Texture", 2D) = "white" {}
+		[PerRendererData] _MainTex       ("Main Texture"  , 2D)    = "white" {}
+		[PerRendererData] _AlphaTex      ("Alpha Texture" , 2D)    = "white" {}
+		[PerRendererData] _ExternalAlpha ("External Alpha", Float) = 0
 	}
 
 	SubShader {
@@ -28,7 +30,9 @@ Shader "FlashTools/SwfIncrMask" {
 		CGPROGRAM
 			fixed4    _Tint;
 			sampler2D _MainTex;
+			sampler2D _AlphaTex;
 			sampler2D _GrabTexture;
+			float     _ExternalAlpha;
 
 			#include "UnityCG.cginc"
 			#include "SwfBaseCG.cginc"

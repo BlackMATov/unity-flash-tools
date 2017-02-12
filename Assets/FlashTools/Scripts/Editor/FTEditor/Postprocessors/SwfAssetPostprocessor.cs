@@ -211,9 +211,8 @@ namespace FTEditor.Postprocessors {
 		static void ConfigureAtlas(SwfAsset asset) {
 			var atlas_path                     = AssetDatabase.GetAssetPath(asset.Atlas);
 			var atlas_importer                 = GetBitmapsAtlasImporter(asset);
-			atlas_importer.spritesheet         = new SpriteMetaData[0];
 			atlas_importer.textureType         = TextureImporterType.Sprite;
-			atlas_importer.spriteImportMode    = SpriteImportMode.Multiple;
+			atlas_importer.spriteImportMode    = SpriteImportMode.Single;
 			atlas_importer.spritePixelsPerUnit = asset.Settings.PixelsPerUnit;
 			atlas_importer.mipmapEnabled       = asset.Settings.GenerateMipMaps;
 			atlas_importer.filterMode          = SwfAtlasFilterToImporterFilter(asset.Settings.AtlasTextureFilter);
@@ -306,8 +305,9 @@ namespace FTEditor.Postprocessors {
 			SwfClipAsset clip_asset, SwfAsset asset, SwfAssetData data, SwfSymbolData symbol)
 		{
 			var asset_guid       = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
+			var asset_atlas      = AssetDatabase.LoadAssetAtPath<Sprite>(AssetDatabase.GetAssetPath(asset.Atlas));
 			clip_asset.Name      = symbol.Name;
-			clip_asset.Atlas     = asset.Atlas;
+			clip_asset.Sprite    = asset_atlas;
 			clip_asset.AssetGUID = asset_guid;
 			clip_asset.FrameRate = data.FrameRate;
 			clip_asset.Sequences = LoadClipSequences(asset, data, symbol);

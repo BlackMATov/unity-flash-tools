@@ -12,10 +12,24 @@ namespace FTEditor.Editors {
 		static MaterialPropertyBlock _matPropBlock = null;
 		static PreviewRenderUtility  _previewUtils = null;
 
-		Texture2D targetAtlas {
+		Sprite targetSprite {
 			get {
 				var clip = target as SwfClipAsset;
-				return clip.Atlas;
+				return clip ? clip.Sprite : null;
+			}
+		}
+
+		Texture2D targetAtlas {
+			get {
+				var sprite = targetSprite;
+				return sprite ? sprite.texture : null;
+			}
+		}
+
+		Texture2D targetAtlasA {
+			get {
+				var sprite = targetSprite;
+				return sprite ? sprite.associatedAlphaSplitTexture : null;
 			}
 		}
 
@@ -160,7 +174,15 @@ namespace FTEditor.Editors {
 				if ( isTargetValidForPreview ) {
 					_previewUtils.BeginPreview(r, background);
 					{
-						_matPropBlock.SetTexture("_MainTex", targetAtlas);
+						if ( targetAtlas ) {
+							_matPropBlock.SetTexture("_MainTex", targetAtlas);
+						}
+						if ( targetAtlasA ) {
+							_matPropBlock.SetTexture("_AlphaTex", targetAtlasA);
+							_matPropBlock.SetFloat("_ExternalAlpha", 1.0f);
+						} else {
+							_matPropBlock.SetFloat("_ExternalAlpha", 0.0f);
+						}
 						ConfigureCameraForSequence(_previewUtils.m_Camera, targetSequence);
 						var frame = targetFrame;
 						for ( var i = 0; i < frame.Materials.Length; ++i ) {
