@@ -63,7 +63,7 @@
 	};
 
 	ft.type_assert_if_defined = function (item, type) {
-		if (item !== undefined) {
+		if (item && item !== undefined) {
 			ft.type_assert(item, type);
 		}
 	};
@@ -228,11 +228,47 @@
 	ftdoc.get_temp = function (doc) {
 		if (!ftdoc.hasOwnProperty("temp")) {
 			ftdoc["temp"] = {
-				x_scales : {},
-				y_scales : {}
+				x_max_scales : {},
+				y_max_scales : {}
 			}
 		}
 		return ftdoc["temp"];
+	};
+	
+	ftdoc.calculate_item_final_scale = function (doc, optional_item) {
+		ft.type_assert(doc, Document);
+		ft.type_assert_if_defined(optional_item, LibraryItem);
+		var final_scale = ft.graphics_scale;
+		if (optional_item && ft.optimize_small_items) {
+			var item_name    = optional_item.name;
+			var x_max_scales = ftdoc.get_temp(doc).x_max_scales;
+			var y_max_scales = ftdoc.get_temp(doc).y_max_scales;
+			if (x_max_scales.hasOwnProperty(item_name) && y_max_scales.hasOwnProperty(item_name)) {
+				var max_x_scale = x_max_scales[item_name];
+				var max_y_scale = y_max_scales[item_name];
+				var max_c_scale = Math.max(max_x_scale, max_y_scale);
+				if (max_c_scale < 1.0) {
+					final_scale *= max_c_scale;
+				}
+			}
+		}
+		return final_scale;
+	};
+	
+	ftdoc.convert_selection_to_bitmap = function (doc, optional_item) {
+		ft.type_assert(doc, Document);
+		ft.type_assert_if_defined(optional_item, LibraryItem);
+		var final_scale = ftdoc.calculate_item_final_scale(doc, optional_item);
+		if (ft.approximately(final_scale, 1.0, 0.01)) {
+			doc.convertSelectionToBitmap();
+		} else {
+			var wrapper_item_name = ft.gen_unique_name();
+			var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "center");
+			fttim.recursive_scale_filters(doc, wrapper_item.timeline, final_scale);
+			doc.scaleSelection(final_scale, final_scale);
+			doc.convertSelectionToBitmap();
+			doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
+		}
 	};
 
 	ftdoc.prepare_folders = function (doc) {
@@ -383,8 +419,8 @@
 		ft.type_assert(doc, Document);
 		ft.type_assert(library, Library);
 		
-		var x_scales = ftdoc.get_temp(doc).x_scales;
-		var y_scales = ftdoc.get_temp(doc).y_scales;
+		var x_max_scales = ftdoc.get_temp(doc).x_max_scales;
+		var y_max_scales = ftdoc.get_temp(doc).y_max_scales;
 		
 		var walk_by_timeline = function(timeline, func, acc) {
 			ft.type_assert(timeline, Timeline);
@@ -412,8 +448,8 @@
 		var x_func = function(elem, acc) {
 			var elem_sx   = elem.scaleX * acc;
 			var item_name = elem.libraryItem.name;
-			x_scales[item_name] = Math.max(
-				x_scales.hasOwnProperty(item_name) ? x_scales[item_name] : elem_sx,
+			x_max_scales[item_name] = Math.max(
+				x_max_scales.hasOwnProperty(item_name) ? x_max_scales[item_name] : elem_sx,
 				elem_sx);
 			return elem_sx;
 		};
@@ -421,8 +457,8 @@
 		var y_func = function(elem, acc) {
 			var elem_sy   = elem.scaleY * acc;
 			var item_name = elem.libraryItem.name;
-			y_scales[item_name] = Math.max(
-				y_scales.hasOwnProperty(item_name) ? y_scales[item_name] : elem_sy,
+			y_max_scales[item_name] = Math.max(
+				y_max_scales.hasOwnProperty(item_name) ? y_max_scales[item_name] : elem_sy,
 				elem_sy);
 			return elem_sy;
 		};
@@ -434,13 +470,13 @@
 		walk_by_timeline(doc.getTimeline(), y_func, 1.0);
 
 		if (ft.verbose_mode) {
-			for (var item_name in x_scales) {
-				var max_x_scale = x_scales.hasOwnProperty(item_name) ? x_scales[item_name] : 1.0;
-				var max_y_scale = y_scales.hasOwnProperty(item_name) ? y_scales[item_name] : 1.0;
+			for (var item_name in x_max_scales) {
+				var max_x_scale = x_max_scales.hasOwnProperty(item_name) ? x_max_scales[item_name] : 1.0;
+				var max_y_scale = y_max_scales.hasOwnProperty(item_name) ? y_max_scales[item_name] : 1.0;
 				var max_c_scale = Math.max(max_x_scale, max_y_scale);
 				if (max_c_scale < 1.0) {
 					ft.trace_fmt("Small item for optimize: {0} - {1}", item_name, max_c_scale);
-				} 
+				}
 			}
 		}
 	};
@@ -517,27 +553,7 @@
 			new_item_elem.setTransformationPoint({x: 0, y: 0});
 			new_item_elem.transformX = 0;
 			new_item_elem.transformY = 0;
-			
-			var x_scales = ftdoc.get_temp(doc).x_scales;
-			var y_scales = ftdoc.get_temp(doc).y_scales;
-
-			var final_scale = ft.graphics_scale;
-			if (x_scales.hasOwnProperty(item.name) && y_scales.hasOwnProperty(item.name)) {
-				var max_scale_x = x_scales[item.name];
-				var max_scale_y = y_scales[item.name];
-				final_scale = Math.min(final_scale, Math.max(max_scale_x, max_scale_y));
-			}
-			
-			if (ft.approximately(final_scale, 1.0, 0.01)) {
-				doc.convertSelectionToBitmap();
-			} else {
-				var wrapper_item_name = ft.gen_unique_name();
-				var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "center");
-				fttim.recursive_scale_filters(doc, wrapper_item.timeline, final_scale);
-				doc.scaleSelection(final_scale, final_scale);
-				doc.convertSelectionToBitmap();
-				doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
-			}
+			ftdoc.convert_selection_to_bitmap(doc, item);
 			return true;
 		} else {
 			doc.exitEditMode();
@@ -775,28 +791,7 @@
 				doc.selectNone();
 				doc.selection = ft.array_filter(frame.elements, fttim.is_shape_instance);
 				if (doc.selection.length > 0) {
-
-					var x_scales = ftdoc.get_temp(doc).x_scales;
-					var y_scales = ftdoc.get_temp(doc).y_scales;
-					
-					var item = timeline.libraryItem;
-					var final_scale = ft.graphics_scale;
-					if (item && x_scales.hasOwnProperty(item.name) && y_scales.hasOwnProperty(item.name)) {
-						var max_scale_x = x_scales[item.name];
-						var max_scale_y = y_scales[item.name];
-						final_scale = Math.min(final_scale, Math.max(max_scale_x, max_scale_y));
-					}
-					
-					if (ft.approximately(final_scale, 1.0, 0.01)) {
-						doc.convertSelectionToBitmap();
-					} else {
-						var wrapper_item_name = ft.gen_unique_name();
-						var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "center");
-						fttim.recursive_scale_filters(doc, wrapper_item.timeline, final_scale);
-						doc.scaleSelection(final_scale, final_scale);
-						doc.convertSelectionToBitmap();
-						doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
-					}
+					ftdoc.convert_selection_to_bitmap(doc, timeline.libraryItem);
 					doc.arrange("back");
 					any_rasterize = true;
 				}
