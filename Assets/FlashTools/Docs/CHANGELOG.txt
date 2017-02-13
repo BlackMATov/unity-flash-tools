@@ -3,6 +3,7 @@
 -------------------
 
 Fix CS6 export problem
+Fix unity postprocessor problems
 
 -------------------
 -- Version 1.3.3 --
