@@ -42,8 +42,9 @@ namespace FTEditor.Editors {
 		}
 
 		static void ReconvertAsset(SwfAsset asset) {
-			AssetDatabase.ImportAsset(
-				AssetDatabase.GetAssetPath(asset));
+			asset.Atlas = null;
+			EditorUtility.SetDirty(asset);
+			AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(asset));
 		}
 
 		//

@@ -14,8 +14,7 @@ using FTSwfTools.SwfTypes;
 
 namespace FTEditor.Postprocessors {
 	class SwfPostprocessor : AssetPostprocessor {
-		static SwfEditorUtils.ProgressBar _progressBar      = new SwfEditorUtils.ProgressBar();
-		static Queue<string>              _assetsForProcess = new Queue<string>();
+		static SwfEditorUtils.ProgressBar _progressBar = new SwfEditorUtils.ProgressBar();
 
 		static void OnPostprocessAllAssets(
 			string[] imported_assets,
@@ -33,23 +32,11 @@ namespace FTEditor.Postprocessors {
 				EditorUtility.DisplayDialog(title, message, "Ok");
 			} else {
 				foreach ( var swf_path in swf_paths ) {
-					if ( !_assetsForProcess.Contains(swf_path) ) {
-						_assetsForProcess.Enqueue(swf_path);
-					}
+					EditorApplication.delayCall += () => {
+						SwfFileProcess(swf_path);
+						AssetDatabase.SaveAssets();
+					};
 				}
-				if ( _assetsForProcess.Count > 0 ) {
-					EditorApplication.update += ProcessAfterImport;
-				}
-			}
-		}
-
-		static void ProcessAfterImport() {
-			EditorApplication.update -= ProcessAfterImport;
-			if ( _assetsForProcess.Count > 0 ) {
-				while ( _assetsForProcess.Count > 0 ) {
-					SwfFileProcess(_assetsForProcess.Dequeue());
-				}
-				AssetDatabase.SaveAssets();
 			}
 		}
 
@@ -68,8 +55,10 @@ namespace FTEditor.Postprocessors {
 		static bool SafeLoadSwfAsset(string swf_path, SwfAsset swf_asset) {
 			try {
 				_progressBar.UpdateTitle(Path.GetFileName(swf_path));
-				var new_data   = LoadSwfAssetData(swf_path);
-				swf_asset.Data = SwfEditorUtils.CompressAsset(new_data);
+				var new_data    = LoadSwfAssetData(swf_path);
+				swf_asset.Data  = SwfEditorUtils.CompressAsset(new_data);
+				swf_asset.Atlas = null;
+				EditorUtility.SetDirty(swf_asset);
 				return true;
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(

@@ -157,7 +157,6 @@ namespace FTEditor {
 				asset = ScriptableObject.CreateInstance<T>();
 				if ( act(asset, true) ) {
 					AssetDatabase.CreateAsset(asset, asset_path);
-					AssetDatabase.ImportAsset(asset_path);
 				} else {
 					ScriptableObject.DestroyImmediate(asset);
 				}
