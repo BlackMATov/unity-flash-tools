@@ -685,7 +685,7 @@
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
 				ft.array_foreach(frame.elements, function (elem) {
 					var elem_filters = elem.filters;
-					if (Array.isArray(elem_filters)) {
+					if (elem_filters && elem_filters !== undefined) {
 						ft.array_foreach(elem_filters, function (elem_filter, filter_index) {
 							elem_filter.blurX *= scale;
 							elem_filter.blurY *= scale;
