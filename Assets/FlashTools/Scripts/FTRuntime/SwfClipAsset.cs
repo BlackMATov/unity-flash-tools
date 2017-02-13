@@ -3,9 +3,6 @@ using FTRuntime.Internal;
 using System.Collections.Generic;
 
 namespace FTRuntime {
-	#if UNITY_5_5_OR_NEWER
-	[PreferBinarySerialization]
-	#endif
 	public class SwfClipAsset : ScriptableObject {
 		[System.Serializable]
 		public class SubMeshData {
