@@ -297,12 +297,14 @@
 	ftdoc.remove_unused_items = function (doc) {
 		ft.type_assert(doc, Document);
 		var unused_items = doc.library.unusedItems;
-		ft.array_reverse_foreach(unused_items, function(item) {
-			if (ft.verbose_mode) {
-				ft.trace_fmt("Remove unused item: {0}", item.name);
-			}
-			doc.library.deleteItem(item.name);
-		});
+		if (unused_items && unused_items !== undefined) {
+			ft.array_reverse_foreach(unused_items, function(item) {
+				if (ft.verbose_mode) {
+					ft.trace_fmt("Remove unused item: {0}", item.name);
+				}
+				doc.library.deleteItem(item.name);
+			});
+		}
 	};
 
 	ftdoc.unlock_all_timelines = function (doc) {
