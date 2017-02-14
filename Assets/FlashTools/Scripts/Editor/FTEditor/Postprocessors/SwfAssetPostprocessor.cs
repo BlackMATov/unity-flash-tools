@@ -209,6 +209,7 @@ namespace FTEditor.Postprocessors {
 			atlas_importer.textureFormat       = SwfAtlasFormatToImporterFormat(asset.Settings.AtlasTextureFormat);
 		#endif
 			AssetDatabase.WriteImportSettingsIfDirty(atlas_path);
+			AssetDatabase.ImportAsset(atlas_path);
 		}
 
 		static TextureImporter GetBitmapsAtlasImporter(SwfAsset asset) {
