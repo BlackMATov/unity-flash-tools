@@ -268,11 +268,21 @@
 			doc.convertSelectionToBitmap();
 		} else {
 			var wrapper_item_name = ft.gen_unique_name();
-			var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "center");
+			var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "top left");
 			fttim.recursive_scale_filters(doc, wrapper_item.timeline, final_scale);
+			var elem   = doc.selection[0];
+			var elem_x = elem.x;
+			var elem_y = elem.y;
+			var elem_w = elem.width;
+			var elem_h = elem.height;
 			doc.scaleSelection(final_scale, final_scale);
 			doc.convertSelectionToBitmap();
 			doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
+			var new_elem    = doc.selection[0];
+			new_elem.x      = elem_x;
+			new_elem.y      = elem_y;
+			new_elem.width  = elem_w;
+			new_elem.height = elem_h;
 		}
 	};
 
