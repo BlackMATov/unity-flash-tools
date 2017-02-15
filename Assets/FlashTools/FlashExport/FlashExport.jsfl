@@ -17,12 +17,16 @@
 	var ft = {
 		profile_mode             : false,
 		verbose_mode             : false,
+		
 		graphics_scale           : 1.0,
 		scale_precision          : 0.01,
+		
 		optimize_big_items       : true,
 		optimize_small_items     : true,
 		optimize_static_items    : true,
-		optimize_single_graphics : true
+		optimize_single_graphics : true,
+		
+		export_path_postfix      : "_export"
 	};
 	
 	//
@@ -285,7 +289,7 @@
 		ft.type_assert(doc, Document);
 		return ft.combine_path(
 			ft.escape_path(doc.pathURI),
-			"_export/");
+			ft.export_path_postfix + "/");
 	};
 
 	ftdoc.full_exit_edit_mode = function (doc) {
