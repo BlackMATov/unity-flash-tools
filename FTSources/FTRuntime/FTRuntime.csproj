@@ -19,6 +19,7 @@
     <NoStdLib>true</NoStdLib>
     <DefineConstants>FT_VERSION_DEMO</DefineConstants>
     <DebugSymbols>true</DebugSymbols>
+    <DocumentationFile>..\..\Assets\FlashTools\Docs\FTRuntime.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_FULL|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -26,6 +27,7 @@
     <WarningLevel>4</WarningLevel>
     <NoStdLib>true</NoStdLib>
     <DefineConstants>FT_VERSION_FULL</DefineConstants>
+    <DocumentationFile>..\..\Assets\FlashTools\Docs\FTRuntime.xml</DocumentationFile>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
