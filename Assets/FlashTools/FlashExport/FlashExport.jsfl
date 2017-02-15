@@ -18,6 +18,8 @@
 		profile_mode             : false,
 		verbose_mode             : false,
 		graphics_scale           : 1.0,
+		scale_precision          : 0.01,
+		optimize_big_items       : true,
 		optimize_small_items     : true,
 		optimize_static_items    : true,
 		optimize_single_graphics : true
@@ -220,6 +222,7 @@
 		ft.profile_function(function() { ftdoc.remove_unused_items(doc);    }, "Remove unused items");
 		ft.profile_function(function() { ftdoc.prepare_all_bitmaps(doc);    }, "Prepare all bitmaps");
 		ft.profile_function(function() { ftdoc.unlock_all_timelines(doc);   }, "Unlock all timelines");
+		ft.profile_function(function() { ftdoc.calculate_item_scales(doc);  }, "Calculate item scales");
 		ft.profile_function(function() { ftdoc.optimize_all_timelines(doc); }, "Optimize all timelines");
 		ft.profile_function(function() { ftdoc.rasterize_all_shapes(doc);   }, "Rasterize all shapes");
 		ft.profile_function(function() { ftdoc.export_swf(doc);             }, "Export swf");
@@ -228,8 +231,7 @@
 	ftdoc.get_temp = function (doc) {
 		if (!ftdoc.hasOwnProperty("temp")) {
 			ftdoc["temp"] = {
-				x_max_scales : {},
-				y_max_scales : {}
+				max_scales : {}
 			}
 		}
 		return ftdoc["temp"];
@@ -239,16 +241,15 @@
 		ft.type_assert(doc, Document);
 		ft.type_assert_if_defined(optional_item, LibraryItem);
 		var final_scale = ft.graphics_scale;
-		if (optional_item && ft.optimize_small_items) {
-			var item_name    = optional_item.name;
-			var x_max_scales = ftdoc.get_temp(doc).x_max_scales;
-			var y_max_scales = ftdoc.get_temp(doc).y_max_scales;
-			if (x_max_scales.hasOwnProperty(item_name) && y_max_scales.hasOwnProperty(item_name)) {
-				var max_x_scale = x_max_scales[item_name];
-				var max_y_scale = y_max_scales[item_name];
-				var max_c_scale = Math.max(max_x_scale, max_y_scale);
-				if (max_c_scale < 1.0) {
-					final_scale *= max_c_scale;
+		if (optional_item && (ft.optimize_big_items || ft.optimize_small_items)) {
+			var item_name  = optional_item.name;
+			var max_scales = ftdoc.get_temp(doc).max_scales;
+			if (max_scales.hasOwnProperty(item_name)) {
+				var max_scale  = max_scales[item_name];
+				var big_item   = ft.optimize_big_items   && (max_scale - ft.scale_precision > 1.0);
+				var small_item = ft.optimize_small_items && (max_scale + ft.scale_precision < 1.0);
+				if (big_item || small_item) {
+					final_scale *= max_scale;
 				}
 			}
 		}
@@ -259,7 +260,7 @@
 		ft.type_assert(doc, Document);
 		ft.type_assert_if_defined(optional_item, LibraryItem);
 		var final_scale = ftdoc.calculate_item_final_scale(doc, optional_item);
-		if (ft.approximately(final_scale, 1.0, 0.01)) {
+		if (ft.approximately(final_scale, 1.0, ft.scale_precision)) {
 			doc.convertSelectionToBitmap();
 		} else {
 			var wrapper_item_name = ft.gen_unique_name();
@@ -312,14 +313,73 @@
 		ftlib.unlock_all_timelines(doc, doc.library);
 		fttim.unlock(doc.getTimeline());
 	};
+	
+	ftdoc.calculate_item_scales = function (doc) {
+		ft.type_assert(doc, Document);
+		
+		var max_scales = ftdoc.get_temp(doc).max_scales;
+		
+		var walk_by_timeline = function(timeline, func, acc) {
+			ft.type_assert(timeline, Timeline);
+			ft.type_assert(func, Function);
+			ft.array_foreach(timeline.layers, function (layer) {
+				ft.array_foreach(layer.frames, function (frame) {
+					ft.array_foreach(frame.elements, function (elem) {
+						walk_by_timeline(
+							elem.libraryItem.timeline,
+							func,
+							func(elem, acc));
+					}, fttim.is_symbol_instance);
+				}, fttim.is_keyframe);
+			});
+		};
+		
+		var walk_by_library = function(lib, func, acc) {
+			ft.type_assert(lib, Library);
+			ft.type_assert(func, Function);
+			ft.array_foreach(lib.items, function (item) {
+				walk_by_timeline(item.timeline, func, acc)
+			}, ftlib.is_symbol_item);
+		};
+		
+		var x_func = function(elem, acc) {
+			var elem_sx   = elem.scaleX * acc;
+			var item_name = elem.libraryItem.name;
+			max_scales[item_name] = Math.max(
+				max_scales.hasOwnProperty(item_name) ? max_scales[item_name] : elem_sx,
+				elem_sx);
+			return elem_sx;
+		};
+		
+		var y_func = function(elem, acc) {
+			var elem_sy   = elem.scaleY * acc;
+			var item_name = elem.libraryItem.name;
+			max_scales[item_name] = Math.max(
+				max_scales.hasOwnProperty(item_name) ? max_scales[item_name] : elem_sy,
+				elem_sy);
+			return elem_sy;
+		};
+		
+		walk_by_library(doc.library, x_func, 1.0);
+		walk_by_timeline(doc.getTimeline(), x_func, 1.0);
+		
+		walk_by_library(doc.library, y_func, 1.0);
+		walk_by_timeline(doc.getTimeline(), y_func, 1.0);
+
+		if (ft.verbose_mode) {
+			for (var item_name in max_scales) {
+				var max_scale = max_scales.hasOwnProperty(item_name) ? max_scales[item_name] : 1.0;
+				if (max_scale - ft.scale_precision > 1.0) {
+					ft.trace_fmt("Big item for optimize: {0} - {1}", item_name, max_scale);
+				} else if (max_scale + ft.scale_precision < 1.0) {
+					ft.trace_fmt("Small item for optimize: {0} - {1}", item_name, max_scale);
+				}
+			}
+		}
+	};
 
 	ftdoc.optimize_all_timelines = function (doc) {
 		ft.type_assert(doc, Document);
-		if (ft.optimize_small_items) {
-			ft.profile_function(function () {
-				ftlib.optimize_small_items(doc, doc.library);
-			}, "Optimize small items");
-		}
 		if (ft.optimize_static_items) {
 			ft.profile_function(function () {
 				ftlib.optimize_static_items(doc, doc.library);
@@ -415,72 +475,6 @@
 		ftlib.edit_all_symbol_items(doc, library, function (item) {
 			fttim.unlock(item.timeline);
 		});
-	};
-	
-	ftlib.optimize_small_items = function (doc, library) {
-		ft.type_assert(doc, Document);
-		ft.type_assert(library, Library);
-		
-		var x_max_scales = ftdoc.get_temp(doc).x_max_scales;
-		var y_max_scales = ftdoc.get_temp(doc).y_max_scales;
-		
-		var walk_by_timeline = function(timeline, func, acc) {
-			ft.type_assert(timeline, Timeline);
-			ft.type_assert(func, Function);
-			ft.array_foreach(timeline.layers, function (layer) {
-				ft.array_foreach(layer.frames, function (frame) {
-					ft.array_foreach(frame.elements, function (elem) {
-						walk_by_timeline(
-							elem.libraryItem.timeline,
-							func,
-							func(elem, acc));
-					}, fttim.is_symbol_instance);
-				}, fttim.is_keyframe);
-			});
-		};
-		
-		var walk_by_library = function(lib, func, acc) {
-			ft.type_assert(lib, Library);
-			ft.type_assert(func, Function);
-			ft.array_foreach(lib.items, function (item) {
-				walk_by_timeline(item.timeline, func, acc)
-			}, ftlib.is_symbol_item);
-		};
-		
-		var x_func = function(elem, acc) {
-			var elem_sx   = elem.scaleX * acc;
-			var item_name = elem.libraryItem.name;
-			x_max_scales[item_name] = Math.max(
-				x_max_scales.hasOwnProperty(item_name) ? x_max_scales[item_name] : elem_sx,
-				elem_sx);
-			return elem_sx;
-		};
-		
-		var y_func = function(elem, acc) {
-			var elem_sy   = elem.scaleY * acc;
-			var item_name = elem.libraryItem.name;
-			y_max_scales[item_name] = Math.max(
-				y_max_scales.hasOwnProperty(item_name) ? y_max_scales[item_name] : elem_sy,
-				elem_sy);
-			return elem_sy;
-		};
-		
-		walk_by_library(library, x_func, 1.0);
-		walk_by_timeline(doc.getTimeline(), x_func, 1.0);
-		
-		walk_by_library(library, y_func, 1.0);
-		walk_by_timeline(doc.getTimeline(), y_func, 1.0);
-
-		if (ft.verbose_mode) {
-			for (var item_name in x_max_scales) {
-				var max_x_scale = x_max_scales.hasOwnProperty(item_name) ? x_max_scales[item_name] : 1.0;
-				var max_y_scale = y_max_scales.hasOwnProperty(item_name) ? y_max_scales[item_name] : 1.0;
-				var max_c_scale = Math.max(max_x_scale, max_y_scale);
-				if (max_c_scale < 1.0) {
-					ft.trace_fmt("Small item for optimize: {0} - {1}", item_name, max_c_scale);
-				}
-			}
-		}
 	};
 
 	ftlib.optimize_static_items = function (doc, library) {
