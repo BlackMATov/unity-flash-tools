@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
 
 namespace FTRuntime.Yields {
-	public class SwfWaitStopPlaying : CustomYieldInstruction {
+	public class SwfWaitStopOrRewindPlaying : CustomYieldInstruction {
 		SwfClipController _waitCtrl;
 
-		public SwfWaitStopPlaying(SwfClipController ctrl) {
+		public SwfWaitStopOrRewindPlaying(SwfClipController ctrl) {
 			Subscribe(ctrl);
 		}
 
-		public SwfWaitStopPlaying Reuse(SwfClipController ctrl) {
+		public SwfWaitStopOrRewindPlaying Reuse(SwfClipController ctrl) {
 			return Subscribe(ctrl);
 		}
 
@@ -24,23 +24,25 @@ namespace FTRuntime.Yields {
 		//
 		// ---------------------------------------------------------------------
 
-		SwfWaitStopPlaying Subscribe(SwfClipController ctrl) {
+		SwfWaitStopOrRewindPlaying Subscribe(SwfClipController ctrl) {
 			Unsubscribe();
 			if ( ctrl ) {
 				_waitCtrl = ctrl;
-				ctrl.OnStopPlayingEvent += OnStopPlaying;
+				ctrl.OnStopPlayingEvent   += OnStopOrRewindPlaying;
+				ctrl.OnRewindPlayingEvent += OnStopOrRewindPlaying;
 			}
 			return this;
 		}
 
 		void Unsubscribe() {
 			if ( _waitCtrl != null ) {
-				_waitCtrl.OnStopPlayingEvent -= OnStopPlaying;
+				_waitCtrl.OnStopPlayingEvent   -= OnStopOrRewindPlaying;
+				_waitCtrl.OnRewindPlayingEvent -= OnStopOrRewindPlaying;
 				_waitCtrl = null;
 			}
 		}
 
-		void OnStopPlaying(SwfClipController ctrl) {
+		void OnStopOrRewindPlaying(SwfClipController ctrl) {
 			Unsubscribe();
 		}
 	}

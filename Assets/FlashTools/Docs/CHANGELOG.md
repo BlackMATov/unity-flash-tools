@@ -1,6 +1,7 @@
 ###### Version 1.3.6
 * Fix for scale very small vector items
 * Big vector item optimization
+* More yield instructions and extensions
 
 ###### Version 1.3.5
 * Fix sprite import problem

@@ -1,7 +1,7 @@
-﻿using System.Collections;
+﻿using UnityEngine;
 
 namespace FTRuntime.Yields {
-	public class SwfWaitRewindPlaying : IEnumerator {
+	public class SwfWaitRewindPlaying : CustomYieldInstruction {
 		SwfClipController _waitCtrl;
 
 		public SwfWaitRewindPlaying(SwfClipController ctrl) {
@@ -12,12 +12,20 @@ namespace FTRuntime.Yields {
 			return Subscribe(ctrl);
 		}
 
+		public override bool keepWaiting {
+			get {
+				return _waitCtrl != null;
+			}
+		}
+
+		// ---------------------------------------------------------------------
 		//
-		// Private
+		// Internal
 		//
+		// ---------------------------------------------------------------------
 
 		SwfWaitRewindPlaying Subscribe(SwfClipController ctrl) {
-			(this as IEnumerator).Reset();
+			Unsubscribe();
 			if ( ctrl ) {
 				_waitCtrl = ctrl;
 				ctrl.OnRewindPlayingEvent += OnRewindPlaying;
@@ -25,27 +33,15 @@ namespace FTRuntime.Yields {
 			return this;
 		}
 
-		void OnRewindPlaying(SwfClipController ctrl) {
-			(this as IEnumerator).Reset();
-		}
-
-		//
-		// IEnumerator
-		//
-
-		bool IEnumerator.MoveNext() {
-			return _waitCtrl != null;
-		}
-
-		void IEnumerator.Reset() {
+		void Unsubscribe() {
 			if ( _waitCtrl != null ) {
 				_waitCtrl.OnRewindPlayingEvent -= OnRewindPlaying;
 				_waitCtrl = null;
 			}
 		}
 
-		object IEnumerator.Current {
-			get { return null; }
+		void OnRewindPlaying(SwfClipController ctrl) {
+			Unsubscribe();
 		}
 	}
 }

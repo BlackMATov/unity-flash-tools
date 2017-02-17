@@ -18,22 +18,25 @@ namespace FlashTools.Examples {
 
 		IEnumerator StartCoro(SwfClipController ctrl) {
 			while ( true ) {
-				ctrl.Play(_fadeInSequence);
-				yield return new SwfWaitStopPlaying(ctrl);
-
+				yield return ctrl.PlayAndWaitStopOrRewind(_fadeInSequence);
 				for ( var i = 0; i < 3; ++i ) {
-					var last_seq = ctrl.clip.sequence;
-					do {
-						var seq_index = Random.Range(0, _idleSequences.Length);
-						ctrl.Play(_idleSequences[seq_index]);
-					} while ( last_seq == ctrl.clip.sequence );
-					yield return new SwfWaitStopPlaying(ctrl);
+					var idle_seq = GetRandomIdleSequence(ctrl);
+					yield return ctrl.PlayAndWaitStopOrRewind(idle_seq);
 				}
-
-				ctrl.Play(_fadeOutSequence);
-				yield return new SwfWaitStopPlaying(ctrl);
+				yield return ctrl.PlayAndWaitStopOrRewind(_fadeOutSequence);
 				yield return new WaitForSeconds(2.0f);
 			}
+		}
+
+		string GetRandomIdleSequence(SwfClipController ctrl) {
+			var cur_seq = ctrl.clip.sequence;
+			do {
+				var seq_index    = Random.Range(0, _idleSequences.Length);
+				var new_sequence = _idleSequences[seq_index];
+				if ( new_sequence != cur_seq ) {
+					return new_sequence;
+				}
+			} while ( true );
 		}
 	}
 }
