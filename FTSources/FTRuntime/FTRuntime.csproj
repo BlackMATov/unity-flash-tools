@@ -80,11 +80,17 @@
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfUtils.cs.meta">
       <Link>FTRuntime\Internal\SwfUtils.cs.meta</Link>
     </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitExtensions.cs.meta">
+      <Link>FTRuntime\Yields\SwfWaitExtensions.cs.meta</Link>
+    </None>
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitPlayStopped.cs.meta">
       <Link>FTRuntime\Yields\SwfWaitPlayStopped.cs.meta</Link>
     </None>
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitRewindPlaying.cs.meta">
       <Link>FTRuntime\Yields\SwfWaitRewindPlaying.cs.meta</Link>
+    </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitStopOrRewindPlaying.cs.meta">
+      <Link>FTRuntime\Yields\SwfWaitStopOrRewindPlaying.cs.meta</Link>
     </None>
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitStopPlaying.cs.meta">
       <Link>FTRuntime\Yields\SwfWaitStopPlaying.cs.meta</Link>
@@ -121,11 +127,17 @@
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfUtils.cs">
       <Link>FTRuntime\Internal\SwfUtils.cs</Link>
     </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitExtensions.cs">
+      <Link>FTRuntime\Yields\SwfWaitExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitPlayStopped.cs">
       <Link>FTRuntime\Yields\SwfWaitPlayStopped.cs</Link>
     </Compile>
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitRewindPlaying.cs">
       <Link>FTRuntime\Yields\SwfWaitRewindPlaying.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitStopOrRewindPlaying.cs">
+      <Link>FTRuntime\Yields\SwfWaitStopOrRewindPlaying.cs</Link>
     </Compile>
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields\SwfWaitStopPlaying.cs">
       <Link>FTRuntime\Yields\SwfWaitStopPlaying.cs</Link>
