@@ -196,7 +196,6 @@ namespace FTEditor.Postprocessors {
 		// ---------------------------------------------------------------------
 
 		static void ConfigureAtlas(SwfAsset asset) {
-			var atlas_path                     = AssetDatabase.GetAssetPath(asset.Atlas);
 			var atlas_importer                 = GetBitmapsAtlasImporter(asset);
 			atlas_importer.textureType         = TextureImporterType.Sprite;
 			atlas_importer.spriteImportMode    = SpriteImportMode.Single;
@@ -208,8 +207,7 @@ namespace FTEditor.Postprocessors {
 		#else
 			atlas_importer.textureFormat       = SwfAtlasFormatToImporterFormat(asset.Settings.AtlasTextureFormat);
 		#endif
-			AssetDatabase.WriteImportSettingsIfDirty(atlas_path);
-			AssetDatabase.ImportAsset(atlas_path);
+			atlas_importer.SaveAndReimport();
 		}
 
 		static TextureImporter GetBitmapsAtlasImporter(SwfAsset asset) {
