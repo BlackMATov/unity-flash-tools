@@ -1,3 +1,6 @@
+###### Version 1.3.7
+* Fix single frame optimization
+
 ###### Version 1.3.6
 * Fix for scale very small vector items
 * Big vector item optimization

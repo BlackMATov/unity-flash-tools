@@ -564,6 +564,7 @@
 			new_item_elem.transformX = 0;
 			new_item_elem.transformY = 0;
 			ftdoc.convert_selection_to_bitmap(doc, item);
+			doc.exitEditMode();
 			return true;
 		} else {
 			doc.exitEditMode();
