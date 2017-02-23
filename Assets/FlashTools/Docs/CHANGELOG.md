@@ -1,4 +1,5 @@
 ###### Version 1.3.7
+* Fix multiple import
 * Fix single frame optimization
 
 ###### Version 1.3.6

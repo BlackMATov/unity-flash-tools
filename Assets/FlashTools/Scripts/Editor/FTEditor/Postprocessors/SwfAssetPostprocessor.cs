@@ -24,8 +24,9 @@ namespace FTEditor.Postprocessors {
 				.Select(p => AssetDatabase.LoadAssetAtPath<SwfAsset>(p))
 				.Where(p => !!p);
 			foreach ( var asset in assets ) {
+				var asset_copy = asset;
 				EditorApplication.delayCall += () => {
-					SwfAssetProcess(asset);
+					SwfAssetProcess(asset_copy);
 					AssetDatabase.SaveAssets();
 				};
 			}

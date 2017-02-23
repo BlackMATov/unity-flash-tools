@@ -32,8 +32,9 @@ namespace FTEditor.Postprocessors {
 				EditorUtility.DisplayDialog(title, message, "Ok");
 			} else {
 				foreach ( var swf_path in swf_paths ) {
+					var swf_path_copy = swf_path;
 					EditorApplication.delayCall += () => {
-						SwfFileProcess(swf_path);
+						SwfFileProcess(swf_path_copy);
 						AssetDatabase.SaveAssets();
 					};
 				}
