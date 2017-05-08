@@ -1,3 +1,6 @@
+###### Version 1.3.8
+* Fix shape groups in tweens
+
 ###### Version 1.3.7
 * Fix multiple import
 * Fix single frame optimization

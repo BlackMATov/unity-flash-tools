@@ -226,6 +226,7 @@
 		ft.profile_function(function() { ftdoc.remove_unused_items(doc);    }, "Remove unused items");
 		ft.profile_function(function() { ftdoc.prepare_all_bitmaps(doc);    }, "Prepare all bitmaps");
 		ft.profile_function(function() { ftdoc.unlock_all_timelines(doc);   }, "Unlock all timelines");
+		ft.profile_function(function() { ftdoc.prepare_all_groups(doc);     }, "Prepare all groups");
 		ft.profile_function(function() { ftdoc.calculate_item_scales(doc);  }, "Calculate item scales");
 		ft.profile_function(function() { ftdoc.optimize_all_timelines(doc); }, "Optimize all timelines");
 		ft.profile_function(function() { ftdoc.rasterize_all_shapes(doc);   }, "Rasterize all shapes");
@@ -326,6 +327,12 @@
 		ft.type_assert(doc, Document);
 		ftlib.unlock_all_timelines(doc, doc.library);
 		fttim.unlock(doc.getTimeline());
+	};
+	
+	ftdoc.prepare_all_groups = function (doc) {
+		ft.type_assert(doc, Document);
+		ftlib.prepare_all_groups(doc, doc.library);
+		fttim.prepare_all_groups(doc, doc.getTimeline());
 	};
 	
 	ftdoc.calculate_item_scales = function (doc) {
@@ -589,6 +596,14 @@
 			fttim.rasterize_all_shapes(doc, item.timeline);
 		});
 	};
+	
+	ftlib.prepare_all_groups = function (doc, library) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(library, Library);
+		ftlib.edit_all_symbol_items(doc, library, function (item) {
+			fttim.prepare_all_groups(doc, item.timeline);
+		});
+	};
 
 	ftlib.prepare_all_bitmaps = function (library) {
 		ft.type_assert(library, Library);
@@ -605,6 +620,10 @@
 
 	fttim.is_shape_instance = function (elem) {
 		return elem.elementType == "shape";
+	};
+	
+	fttim.is_shape_group_instance = function (elem) {
+		return elem.elementType == "shape" && elem.isGroup;
 	};
 
 	fttim.is_symbol_instance = function (elem) {
@@ -623,7 +642,7 @@
 		return fttim.is_symbol_instance(elem) && elem.symbolType == "movie clip";
 	};
 
-	fttim.is_shape_frame = function (frame) {
+	fttim.is_tween_shape_frame = function (frame) {
 		ft.type_assert(frame, Frame);
 		return frame.tweenType == "shape";
 	};
@@ -775,6 +794,34 @@
 			}, acc);
 		}, true);
 	};
+	
+	fttim.prepare_all_groups = function (doc, timeline) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(timeline, Timeline);
+		
+		var group_count = 0;
+		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
+			timeline.setSelectedLayers(layer_index);
+			ft.array_foreach(layer.frames, function (frame, frame_index) {
+				timeline.currentFrame = frame_index;
+				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
+				ft.array_foreach(frame.elements, function (elem) {
+					doc.selectNone();
+					doc.selection = [elem];
+					var elem_depth = elem.depth;
+					var wrapper_item_name = ft.gen_unique_name();
+					var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "top left");
+					for (var i = 0; i < elem_depth; ++i) {
+						doc.arrange("backward");
+					}
+					++group_count;
+				}, fttim.is_shape_group_instance);
+			}, fttim.is_keyframe);
+		}, fttim.is_not_guide_layer);
+		if (group_count > 0 && ft.verbose_mode) {
+			ft.trace_fmt("Prepare shape groups({0}) in '{1}'", group_count, timeline.name);
+		}
+	};
 
 	fttim.rasterize_all_shapes = function (doc, timeline) {
 		ft.type_assert(doc, Document);
@@ -789,11 +836,11 @@
 					throw "Animation uses shape tweens. To export this animation you should use Adobe Animate CC or higher!";
 				}
 			}, function (frame, frame_index) {
-				return fttim.is_keyframe(frame, frame_index) && fttim.is_shape_frame(frame);
+				return fttim.is_keyframe(frame, frame_index) && fttim.is_tween_shape_frame(frame);
 			});
 		}, fttim.is_not_guide_layer);
 
-		var any_rasterize = false;
+		var rasterize_count = 0;
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
 			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
@@ -804,12 +851,12 @@
 				if (doc.selection.length > 0) {
 					ftdoc.convert_selection_to_bitmap(doc, timeline.libraryItem);
 					doc.arrange("back");
-					any_rasterize = true;
+					++rasterize_count;
 				}
 			}, fttim.is_keyframe);
 		}, fttim.is_not_guide_layer);
-		if (any_rasterize && ft.verbose_mode) {
-			ft.trace_fmt("Rasterize vector shapes in '{0}'", timeline.name);
+		if (rasterize_count > 0 && ft.verbose_mode) {
+			ft.trace_fmt("Rasterize vector shapes({0}) in '{1}'", rasterize_count, timeline.name);
 		}
 	};
 
