@@ -161,6 +161,16 @@
 		return acc;
 	};
 
+	ft.array_clone = function (arr) {
+		ft.type_assert(arr, Array);
+		var new_arr = [];
+		for (var index = 0; index < arr.length; ++index) {
+			var value = arr[index];
+			new_arr.push(value);
+		}
+		return new_arr;
+	};
+
 	ft.array_filter = function (arr, filter) {
 		ft.type_assert(arr, Array);
 		ft.type_assert(filter, Function);
@@ -331,8 +341,20 @@
 	
 	ftdoc.prepare_all_groups = function (doc) {
 		ft.type_assert(doc, Document);
-		ftlib.prepare_all_groups(doc, doc.library);
-		fttim.prepare_all_groups(doc, doc.getTimeline());
+		var arr1 = ftlib.prepare_all_groups(doc, doc.library);
+		var arr2 = fttim.prepare_all_groups(doc, doc.getTimeline());
+		var new_symbols = arr1.concat(arr2);
+		while (new_symbols.length > 0) {
+			var new_symbols_copy = ft.array_clone(new_symbols);
+			new_symbols = [];
+			ft.array_foreach(new_symbols_copy, function (item) {
+				if (doc.library.editItem(item.name)) {
+					var arr3 = fttim.prepare_all_groups(doc, item.timeline);
+					new_symbols = new_symbols.concat(arr3);
+					doc.exitEditMode();
+				}
+			});
+		}
 	};
 	
 	ftdoc.calculate_item_scales = function (doc) {
@@ -600,9 +622,12 @@
 	ftlib.prepare_all_groups = function (doc, library) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(library, Library);
+		var new_symbols = [];
 		ftlib.edit_all_symbol_items(doc, library, function (item) {
-			fttim.prepare_all_groups(doc, item.timeline);
+			var arr = fttim.prepare_all_groups(doc, item.timeline);
+			new_symbols = new_symbols.concat(arr);
 		});
+		return new_symbols;
 	};
 
 	ftlib.prepare_all_bitmaps = function (library) {
@@ -622,7 +647,7 @@
 		return elem.elementType == "shape";
 	};
 	
-	fttim.is_shape_group_instance = function (elem) {
+	fttim.is_group_shape_instance = function (elem) {
 		return elem.elementType == "shape" && elem.isGroup;
 	};
 
@@ -799,34 +824,40 @@
 		ft.type_assert(doc, Document);
 		ft.type_assert(timeline, Timeline);
 		
-		var group_count = 0;
+		var new_symbols = [];
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
 			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
 				timeline.currentFrame = frame_index;
 				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
-				ft.array_foreach(frame.elements, function (elem) {
+				
+				var groups = ft.array_filter(frame.elements, fttim.is_group_shape_instance);
+				ft.array_foreach(groups, function (group, group_index) {
 					doc.selectNone();
-					doc.selection = [elem];
-					var elem_depth = elem.depth;
+					doc.selection = [group];
+					var group_depth = group.depth;
+					
+					doc.unGroup();
 					var wrapper_item_name = ft.gen_unique_name();
 					var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "top left");
-					for (var i = 0; i < elem_depth; ++i) {
+					for (var i = 0; i < group_depth; ++i) {
 						doc.arrange("backward");
 					}
-					++group_count;
-				}, fttim.is_shape_group_instance);
+					
+					new_symbols.push(wrapper_item);
+				});
 			}, fttim.is_keyframe);
 		}, fttim.is_not_guide_layer);
-		if (group_count > 0 && ft.verbose_mode) {
-			ft.trace_fmt("Prepare shape groups({0}) in '{1}'", group_count, timeline.name);
+		if (new_symbols.length > 0 && ft.verbose_mode) {
+			ft.trace_fmt("Ungroup groups({0}) in '{1}'", new_symbols.length, timeline.name);
 		}
+		return new_symbols;
 	};
-
+	
 	fttim.rasterize_all_shapes = function (doc, timeline) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(timeline, Timeline);
-
+		
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
 			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
@@ -846,6 +877,7 @@
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
 				timeline.currentFrame = frame_index;
 				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
+				
 				doc.selectNone();
 				doc.selection = ft.array_filter(frame.elements, fttim.is_shape_instance);
 				if (doc.selection.length > 0) {
