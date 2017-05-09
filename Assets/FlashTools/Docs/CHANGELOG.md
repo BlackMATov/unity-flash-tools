@@ -1,5 +1,6 @@
 ###### Version 1.3.8
 * Fix shape groups in tweens problems
+* Fix locked elements problem
 
 ###### Version 1.3.7
 * Fix multiple import
