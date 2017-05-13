@@ -288,24 +288,54 @@
 		ft.type_assert_if_defined(optional_item, LibraryItem);
 		var final_scale = ftdoc.calculate_item_final_scale(doc, optional_item);
 		if (ft.approximately(final_scale, 1.0, ft.scale_precision)) {
+			var elem_r  = doc.getSelectionRect();
+			
+			var elem_x  = elem_r.left;
+			var elem_y  = elem_r.top;
+			var elem_w  = elem_r.right  - elem_r.left;
+			var elem_h  = elem_r.bottom - elem_r.top;
+			
+			var elem_dx = Math.round(elem_x) - elem_x;
+			var elem_dy = Math.round(elem_y) - elem_y;
+			var elem_dw = Math.round(elem_w) - elem_w;
+			var elem_dh = Math.round(elem_h) - elem_h;
+			
 			doc.convertSelectionToBitmap();
+			elem = doc.selection[0];
+			
+			elem.x      -= elem_dx;
+			elem.y      -= elem_dy;
+			elem.width  -= elem_dw;
+			elem.height -= elem_dh;
 		} else {
 			var wrapper_item_name = ft.gen_unique_name();
 			var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "top left");
 			fttim.recursive_scale_filters(doc, wrapper_item.timeline, final_scale);
-			var elem   = doc.selection[0];
-			var elem_x = elem.x;
-			var elem_y = elem.y;
-			var elem_w = elem.width;
-			var elem_h = elem.height;
+			
+			var elem = doc.selection[0];
+			elem.setTransformationPoint({x: 0, y: 0});
 			doc.scaleSelection(final_scale, final_scale);
+
+			var elem_x  = elem.x;
+			var elem_y  = elem.y;
+			var elem_w  = elem.width;
+			var elem_h  = elem.height;
+			
+			var elem_dx = Math.round(elem_x) - elem_x;
+			var elem_dy = Math.round(elem_y) - elem_y;
+			var elem_dw = Math.round(elem_w) - elem_w;
+			var elem_dh = Math.round(elem_h) - elem_h;
+			
 			doc.convertSelectionToBitmap();
+			elem = doc.selection[0];
+			
+			elem.x      -= elem_dx;
+			elem.y      -= elem_dy;
+			elem.width  -= elem_dw;
+			elem.height -= elem_dh;
+			
+			elem.setTransformationPoint({x: (elem_x - elem.x), y: (elem_y - elem.y)});
 			doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
-			var new_elem    = doc.selection[0];
-			new_elem.x      = elem_x;
-			new_elem.y      = elem_y;
-			new_elem.width  = elem_w;
-			new_elem.height = elem_h;
 		}
 	};
 
