@@ -2,6 +2,7 @@
 * Fix shape groups in tweens problems
 * Fix locked elements problem
 * Fix optimizator bitmap trim problems
+* Add shape tween warning
 
 ###### Version 1.3.7
 * Fix multiple import

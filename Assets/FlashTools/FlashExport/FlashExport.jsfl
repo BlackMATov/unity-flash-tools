@@ -490,7 +490,7 @@
 
 	ftdoc.export_swf = function (doc) {
 		ft.type_assert(doc, Document);
-		ft.trace_fmt("!!!Document!!!: '{0}' conversion complete!", doc.name);
+		ft.trace_fmt("[Document] '{0}' conversion complete!", doc.name);
 		doc.exportSWF(ftdoc.get_export_swf_path(doc));
 	};
 
@@ -917,6 +917,10 @@
 			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
 				if ( ft.is_function(frame.convertToFrameByFrameAnimation) ) {
+					ft.trace_fmt(
+						"[Warning] Timeline: '{0}'\n" +
+						"- Shape tween strongly not recommended because it rasterized to frame-by-frame bitmap sequence.",
+						timeline.name);
 					frame.convertToFrameByFrameAnimation();
 				} else {
 					throw "Animation uses shape tweens. To export this animation you should use Adobe Animate CC or higher!";
@@ -954,13 +958,13 @@
 	(function () {
 		ft.clear_output();
 		fl.showIdleMessage(false);
-		ft.trace("- Start -");
+		ft.trace("[Start]");
 		ft.array_foreach(fl.documents, function (doc) {
 			try {
-				ft.trace_fmt("!!!Document!!!: '{0}'", doc.name);
+				ft.trace_fmt("[Document] '{0}' conversion started...", doc.name);
 				ftdoc.prepare(doc);
 			} catch (e) {
-				ft.trace_fmt("!!!Document!!!: '{0}' conversion error: '{1}'", doc.name, e);
+				ft.trace_fmt("[Document] '{0}' conversion error: '{1}'", doc.name, e);
 			}
 		});
 		ft.profile_function(function () {
@@ -970,6 +974,6 @@
 				}
 			});
 		}, "Revert documents");
-		ft.trace("- Finish -");
+		ft.trace("[Finish]");
 	})();
 })();
