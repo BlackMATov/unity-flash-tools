@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Name: SwfSettings
   m_EditorClassIdentifier: 
   Settings:
-    MaxAtlasSize: 1024
+    MaxAtlasSize: 2048
     AtlasPadding: 1
     PixelsPerUnit: 100
     GenerateMipMaps: 0
     AtlasPowerOfTwo: 1
     AtlasForceSquare: 1
     AtlasTextureFilter: 1
-    AtlasTextureFormat: 0
+    AtlasTextureFormat: 2
