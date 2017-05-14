@@ -174,13 +174,14 @@ namespace FTEditor.Editors {
 				if ( isTargetValidForPreview ) {
 					_previewUtils.BeginPreview(r, background);
 					{
-						if ( targetAtlas ) {
-							_matPropBlock.SetTexture("_MainTex", targetAtlas);
-						}
+						_matPropBlock.SetTexture(
+							"_MainTex",
+							targetAtlas ? targetAtlas : Texture2D.whiteTexture);
 						if ( targetAtlasA ) {
 							_matPropBlock.SetTexture("_AlphaTex", targetAtlasA);
 							_matPropBlock.SetFloat("_ExternalAlpha", 1.0f);
 						} else {
+							_matPropBlock.SetTexture("_AlphaTex", Texture2D.whiteTexture);
 							_matPropBlock.SetFloat("_ExternalAlpha", 0.0f);
 						}
 						ConfigureCameraForSequence(_previewUtils.m_Camera, targetSequence);

@@ -348,13 +348,14 @@ namespace FTRuntime {
 				var sprite = clip ? clip.Sprite : null;
 				var atlas  = sprite && sprite.texture ? sprite.texture : Texture2D.whiteTexture;
 				var atlasA = sprite ? sprite.associatedAlphaSplitTexture : null;
-				if ( atlas ) {
-					_curPropBlock.SetTexture("_MainTex", atlas);
-				}
+				_curPropBlock.SetTexture(
+					"_MainTex",
+					atlas ? atlas : Texture2D.whiteTexture);
 				if ( atlasA ) {
 					_curPropBlock.SetTexture("_AlphaTex", atlasA);
 					_curPropBlock.SetFloat("_ExternalAlpha", 1.0f);
 				} else {
+					_curPropBlock.SetTexture("_AlphaTex", Texture2D.whiteTexture);
 					_curPropBlock.SetFloat("_ExternalAlpha", 0.0f);
 				}
 				_meshRenderer.SetPropertyBlock(_curPropBlock);

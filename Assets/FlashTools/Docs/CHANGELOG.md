@@ -3,6 +3,7 @@
 * Fix locked elements problem
 * Fix optimizator bitmap trim problems
 * Add shape tween warning
+* Remove excess "if" instruction from shaders
 
 ###### Version 1.3.7
 * Fix multiple import
