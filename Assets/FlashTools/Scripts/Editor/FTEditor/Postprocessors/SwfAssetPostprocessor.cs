@@ -49,8 +49,9 @@ namespace FTEditor.Postprocessors {
 				}
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
-					"<b>[FlashTools]</b> Postprocess swf asset error: {0}",
-					e.Message);
+					asset,
+					"<b>[FlashTools]</b> Postprocess swf asset error: {0}\nPath: {1}",
+					e.Message, AssetDatabase.GetAssetPath(asset));
 				AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(asset));
 			} finally {
 				if ( asset ) {

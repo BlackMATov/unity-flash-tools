@@ -63,8 +63,9 @@ namespace FTEditor.Postprocessors {
 				return true;
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
-					"<b>[FlashTools]</b> Parsing swf error: {0}",
-					e.Message);
+					AssetDatabase.LoadMainAssetAtPath(swf_path),
+					"<b>[FlashTools]</b> Parsing swf error: {0}\nPath: {1}",
+					e.Message, swf_path);
 				return false;
 			} finally {
 				_progressBar.HideProgress();
