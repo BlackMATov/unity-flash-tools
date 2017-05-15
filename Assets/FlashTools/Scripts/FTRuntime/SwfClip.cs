@@ -190,6 +190,34 @@ namespace FTRuntime {
 			}
 		}
 
+		/// <summary>
+		/// Gets the current frame mesh bounding volume in local space
+		/// (Since 1.3.8)
+		/// </summary>
+		/// <value>The bounding volume in local space</value>
+		public Bounds currentLocalBounds {
+			get {
+				var frame = GetCurrentBakedFrame();
+				return frame != null
+					? frame.CachedMesh.bounds
+					: new Bounds();
+			}
+		}
+
+		/// <summary>
+		/// Gets the current frame mesh bounding volume in world space
+		/// (Since 1.3.8)
+		/// </summary>
+		/// <value>The bounding volume in world space</value>
+		public Bounds currentWorldBounds {
+			get {
+				Internal_UpdateMesh();
+				return _meshRenderer
+					? _meshRenderer.bounds
+					: new Bounds();
+			}
+		}
+
 		// ---------------------------------------------------------------------
 		//
 		// Functions
@@ -255,7 +283,7 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
-		internal void Internal_LateUpdate() {
+		internal void Internal_UpdateMesh() {
 			if ( _meshFilter && _meshRenderer && _dirtyMesh ) {
 				var baked_frame = GetCurrentBakedFrame();
 				if ( baked_frame != null ) {

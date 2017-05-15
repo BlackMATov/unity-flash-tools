@@ -4,6 +4,7 @@
 * Fix optimizator bitmap trim problems
 * Fix Unity 5.6 submesh sorting bug
 * Add shape tween warning
+* Add SwfClip bounds functions (currentLocalBounds, currentWorldBounds)
 * Remove excess "if" instruction from shaders
 
 ###### Version 1.3.7

@@ -262,7 +262,7 @@ namespace FTRuntime {
 			for ( int i = 0, e = _clips.Count; i < e; ++i ) {
 				var clip = _clips[i];
 				if ( clip ) {
-					clip.Internal_LateUpdate();
+					clip.Internal_UpdateMesh();
 				}
 			}
 		}
