@@ -2,6 +2,7 @@
 * Fix shape groups in tweens problems
 * Fix locked elements problem
 * Fix optimizator bitmap trim problems
+* Fix Unity 5.6 submesh sorting bug
 * Add shape tween warning
 * Remove excess "if" instruction from shaders
 

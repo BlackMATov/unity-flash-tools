@@ -27,6 +27,17 @@ namespace FTRuntime.Internal {
 		//
 		//
 
+		public static T GetOrCreateComponent<T>(GameObject obj) where T : Component {
+			var comp = obj.GetComponent<T>();
+			return comp != null
+				? comp
+				: obj.AddComponent<T>();
+		}
+
+		//
+		//
+		//
+
 		public static void FillGeneratedMesh(Mesh mesh, SwfClipAsset.MeshData mesh_data) {
 			if ( mesh_data.SubMeshes.Length > 0 ) {
 				mesh.subMeshCount = mesh_data.SubMeshes.Length;

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEditor;
 
 using System.IO;
@@ -40,6 +41,9 @@ namespace FTEditor.Editors {
 				var clip_go = new GameObject(clip.name);
 				clip_go.AddComponent<MeshFilter>();
 				clip_go.AddComponent<MeshRenderer>();
+			#if UNITY_5_6_OR_NEWER
+				clip_go.AddComponent<SortingGroup>();
+			#endif
 				clip_go.AddComponent<SwfClip>().clip = clip;
 				clip_go.AddComponent<SwfClipController>();
 				return clip_go;

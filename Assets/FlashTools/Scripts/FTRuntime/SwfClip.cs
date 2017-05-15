@@ -1,13 +1,21 @@
 ﻿using UnityEngine;
+using UnityEngine.Rendering;
 using FTRuntime.Internal;
 
 namespace FTRuntime {
 	[ExecuteInEditMode, DisallowMultipleComponent]
+#if UNITY_5_6_OR_NEWER
+	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(SortingGroup))]
+#else
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
+#endif
 	public class SwfClip : MonoBehaviour {
 
 		MeshFilter            _meshFilter   = null;
 		MeshRenderer          _meshRenderer = null;
+	#if UNITY_5_6_OR_NEWER
+		SortingGroup          _sortingGroup = null;
+	#endif
 
 		bool                  _dirtyMesh    = true;
 		SwfClipAsset.Sequence _curSequence  = null;
@@ -274,8 +282,11 @@ namespace FTRuntime {
 		}
 
 		void ClearCache() {
-			_meshFilter   = GetComponent<MeshFilter>();
-			_meshRenderer = GetComponent<MeshRenderer>();
+			_meshFilter   = SwfUtils.GetOrCreateComponent<MeshFilter>(gameObject);
+			_meshRenderer = SwfUtils.GetOrCreateComponent<MeshRenderer>(gameObject);
+		#if UNITY_5_6_OR_NEWER
+			_sortingGroup = SwfUtils.GetOrCreateComponent<SortingGroup>(gameObject);
+		#endif
 			_dirtyMesh    = true;
 			_curSequence  = null;
 			_curPropBlock = null;
@@ -336,6 +347,12 @@ namespace FTRuntime {
 				_meshRenderer.sortingOrder     = sortingOrder;
 				_meshRenderer.sortingLayerName = sortingLayer;
 			}
+		#if UNITY_5_6_OR_NEWER
+			if ( _sortingGroup ) {
+				_sortingGroup.sortingOrder     = sortingOrder;
+				_sortingGroup.sortingLayerName = sortingLayer;
+			}
+		#endif
 		}
 
 		void UpdatePropBlock() {
