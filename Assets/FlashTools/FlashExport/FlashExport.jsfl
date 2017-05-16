@@ -15,18 +15,20 @@
 	//
 
 	var ft = {
-		profile_mode             : false,
-		verbose_mode             : false,
+		profile_mode              : false,
+		verbose_mode              : false,
 		
-		graphics_scale           : 1.0,
-		scale_precision          : 0.01,
+		graphics_scale            : 1.0,
+		scale_precision           : 0.01,
 		
-		optimize_big_items       : true,
-		optimize_small_items     : true,
-		optimize_static_items    : true,
-		optimize_single_graphics : true,
+		optimize_big_items        : true,
+		optimize_small_items      : true,
+		optimize_static_items     : true,
+		optimize_single_graphics  : true,
 		
-		export_path_postfix      : "_export"
+		export_path_postfix       : "_export",
+		revert_after_conversion   : true,
+		max_convertible_selection : 3900
 	};
 	
 	//
@@ -264,7 +266,7 @@
 		return ftdoc["temp"];
 	};
 	
-	ftdoc.calculate_item_final_scale = function (doc, optional_item) {
+	ftdoc.calculate_item_prefer_scale = function (doc, optional_item) {
 		ft.type_assert(doc, Document);
 		ft.type_assert_if_defined(optional_item, LibraryItem);
 		var final_scale = ft.graphics_scale;
@@ -283,10 +285,27 @@
 		return final_scale;
 	};
 	
-	ftdoc.convert_selection_to_bitmap = function (doc, optional_item) {
+	ftdoc.convert_selection_to_bitmap = function (doc, location_name, optional_item) {
 		ft.type_assert(doc, Document);
+		ft.type_assert(location_name, 'string');
 		ft.type_assert_if_defined(optional_item, LibraryItem);
-		var final_scale = ftdoc.calculate_item_final_scale(doc, optional_item);
+
+		var selection_r = doc.getSelectionRect();
+		var selection_w = selection_r.right  - selection_r.left;
+		var selection_h = selection_r.bottom - selection_r.top;
+		
+		var max_scale    = ft.max_convertible_selection / Math.max(selection_w, selection_h);
+		var prefer_scale = ftdoc.calculate_item_prefer_scale(doc, optional_item);
+		var final_scale  = Math.min(prefer_scale, max_scale);
+		
+		if (final_scale < prefer_scale) {
+			var down_scale = Math.floor(final_scale / prefer_scale * 1000) * 0.001;
+			ft.trace_fmt(
+				"[Warning] {0}\n" +
+				"- Converted element was downscaled ({1}x) to maximum allowed size ({2}px)",
+				location_name, down_scale, ft.max_convertible_selection);
+		}
+		
 		if (ft.approximately(final_scale, 1.0, ft.scale_precision)) {
 			var elem_r  = doc.getSelectionRect();
 			
@@ -634,7 +653,8 @@
 			new_item_elem.setTransformationPoint({x: 0, y: 0});
 			new_item_elem.transformX = 0;
 			new_item_elem.transformY = 0;
-			ftdoc.convert_selection_to_bitmap(doc, item);
+			var location_name = "Symbol: {0}".format(item_name);
+			ftdoc.convert_selection_to_bitmap(doc, location_name, item);
 			doc.exitEditMode();
 			return true;
 		} else {
@@ -940,7 +960,8 @@
 				doc.selectNone();
 				doc.selection = ft.array_filter(frame.elements, fttim.is_shape_instance);
 				if (doc.selection.length > 0) {
-					ftdoc.convert_selection_to_bitmap(doc, timeline.libraryItem);
+					var location_name = "Timeline: {0}".format(timeline.name);
+					ftdoc.convert_selection_to_bitmap(doc, location_name, timeline.libraryItem);
 					doc.arrange("back");
 					++rasterize_count;
 				}
@@ -967,13 +988,15 @@
 				ft.trace_fmt("[Document] '{0}' conversion error: '{1}'", doc.name, e);
 			}
 		});
-		ft.profile_function(function () {
-			ft.array_foreach(fl.documents, function (doc) {
-				if (doc.canRevert()) {
-					fl.revertDocument(doc);
-				}
-			});
-		}, "Revert documents");
+		if (ft.revert_after_conversion) {
+			ft.profile_function(function () {
+				ft.array_foreach(fl.documents, function (doc) {
+					if (doc.canRevert()) {
+						fl.revertDocument(doc);
+					}
+				});
+			}, "Revert documents");
+		}
 		ft.trace("[Finish]");
 	})();
 })();

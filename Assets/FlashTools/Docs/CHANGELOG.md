@@ -3,6 +3,7 @@
 * Fix locked elements problem
 * Fix optimizator bitmap trim problems
 * Fix Unity 5.6 submesh sorting bug
+* Fix convertSelectionToBitmap for big item (over 4000px)
 * Add shape tween warning
 * Add SwfClip bounds functions (currentLocalBounds, currentWorldBounds)
 * Remove excess "if" instruction from shaders
