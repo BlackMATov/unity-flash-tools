@@ -42,22 +42,26 @@ namespace FTEditor.Postprocessors {
 		}
 
 		static void SwfFileProcess(string swf_path) {
+			var swf_hash       = SwfEditorUtils.GetFileHash(swf_path);
 			var swf_asset_path = Path.ChangeExtension(swf_path, ".asset");
 			SwfEditorUtils.LoadOrCreateAsset<SwfAsset>(swf_asset_path, (swf_asset, created) => {
-				if ( created ) {
+				if ( !string.IsNullOrEmpty(swf_asset.Hash) && swf_asset.Hash == swf_hash ) {
+					return true;
+				} else if ( created ) {
 					var default_settings = SwfEditorUtils.GetSettingsHolder().Settings;
 					swf_asset.Settings   = default_settings;
 					swf_asset.Overridden = default_settings;
 				}
-				return SafeLoadSwfAsset(swf_path, swf_asset);
+				return SafeLoadSwfAsset(swf_path, swf_hash, swf_asset);
 			});
 		}
 
-		static bool SafeLoadSwfAsset(string swf_path, SwfAsset swf_asset) {
+		static bool SafeLoadSwfAsset(string swf_path, string swf_hash, SwfAsset swf_asset) {
 			try {
 				_progressBar.UpdateTitle(Path.GetFileName(swf_path));
 				var new_data    = LoadSwfAssetData(swf_path);
 				swf_asset.Data  = SwfEditorUtils.CompressAsset(new_data);
+				swf_asset.Hash  = swf_hash;
 				swf_asset.Atlas = null;
 				EditorUtility.SetDirty(swf_asset);
 				return true;

@@ -6,6 +6,7 @@
 * Add shape tween warning
 * Add SwfClip bounds functions (currentLocalBounds, currentWorldBounds)
 * Remove excess "if" instruction from shaders
+* Remove excess animation reimports
 
 ###### Version 1.3.7
 * Fix multiple import

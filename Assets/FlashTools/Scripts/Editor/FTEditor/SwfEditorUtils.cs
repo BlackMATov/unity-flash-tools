@@ -4,6 +4,7 @@ using UnityEditor;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using Ionic.Zlib;
@@ -261,6 +262,24 @@ namespace FTEditor {
 
 		// ---------------------------------------------------------------------
 		//
+		// FileHash
+		//
+		// ---------------------------------------------------------------------
+
+		public static string GetFileHash(string path) {
+			try {
+				using ( var sha256 = SHA256.Create() ) {
+					var file_bytes = File.ReadAllBytes(path);
+					var hash_bytes = sha256.ComputeHash(file_bytes);
+					return System.Convert.ToBase64String(hash_bytes) + file_bytes.LongLength.ToString();
+				}
+			} catch ( System.Exception ) {
+				return string.Empty;
+			}
+		}
+
+		// ---------------------------------------------------------------------
+		//
 		// Menu
 		//
 		// ---------------------------------------------------------------------
@@ -286,6 +305,17 @@ namespace FTEditor {
 			}
 		}
 
+		[MenuItem("Tools/FlashTools/Reconvert all swf assets")]
+		static void Tools_FlashTools_ReconvertAllSwfAssets() {
+			Tools_FlashTools_ReimportAllSwfFiles();
+			var swf_assets = GetAllSwfAssets();
+			foreach ( var swf_asset in swf_assets ) {
+				swf_asset.Atlas = null;
+				EditorUtility.SetDirty(swf_asset);
+				AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(swf_asset));
+			}
+		}
+
 		[MenuItem("Tools/FlashTools/Pregenerate all materials")]
 		static void PregenerateAllMaterials() {
 			var blend_modes = System.Enum.GetValues(typeof(SwfBlendModeData.Types));
@@ -297,6 +327,10 @@ namespace FTEditor {
 			}
 			SwfMaterialCache.GetIncrMaskMaterial();
 			SwfMaterialCache.GetDecrMaskMaterial();
+		}
+
+		static SwfAsset[] GetAllSwfAssets() {
+			return SwfEditorUtils.LoadAllAssetsDBByFilter<SwfAsset>("t:SwfAsset");
 		}
 
 		static string[] GetAllSwfFilePaths() {

@@ -6,6 +6,8 @@ namespace FTRuntime {
 	public class SwfAsset : ScriptableObject {
 		[HideInInspector]
 		public byte[]          Data;
+		[HideInInspector]
+		public string          Hash;
 		[SwfReadOnly]
 		public Texture2D       Atlas;
 		[HideInInspector]
@@ -15,6 +17,7 @@ namespace FTRuntime {
 
 		void Reset() {
 			Data       = new byte[0];
+			Hash       = string.Empty;
 			Atlas      = null;
 			Settings   = SwfSettingsData.identity;
 			Overridden = SwfSettingsData.identity;
