@@ -1,5 +1,6 @@
 ###### Version 1.3.8
 * Fix shape groups in tweens problems
+* Fix drawing object shape problems
 * Fix locked elements problem
 * Fix optimizator bitmap trim problems
 * Fix Unity 5.6 submesh sorting bug

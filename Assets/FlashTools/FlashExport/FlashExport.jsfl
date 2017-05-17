@@ -712,6 +712,18 @@
 	fttim.is_group_shape_instance = function (elem) {
 		return elem.elementType == "shape" && elem.isGroup;
 	};
+	
+	fttim.is_object_shape_instance = function (elem) {
+		return elem.elementType == "shape" && elem.isDrawingObject;
+	};
+	
+	fttim.is_simple_shape_instance = function (elem) {
+		return elem.elementType == "shape" && !elem.isGroup && !elem.isDrawingObject;
+	};
+	
+	fttim.is_complex_shape_instance = function (elem) {
+		return elem.elementType == "shape" && (elem.isGroup || elem.isDrawingObject);
+	};
 
 	fttim.is_symbol_instance = function (elem) {
 		return elem.elementType == "instance" && elem.instanceType == "symbol";
@@ -902,24 +914,27 @@
 				timeline.currentFrame = frame_index;
 				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
 				
-				var groups = ft.array_filter(frame.elements, fttim.is_group_shape_instance);
-				ft.array_foreach(groups, function (group, group_index) {
+				var elements = ft.array_clone(frame.elements);
+				ft.array_foreach(elements, function (elem, elem_index) {
 					doc.selectNone();
-					doc.selection = [group];
-					var group_depth = group.depth;
-					
-					doc.unGroup();
-					try {
-						doc.unlockAllElements();
-					} catch (e) {}
-					
-					var wrapper_item_name = ft.gen_unique_name();
-					var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "top left");
-					for (var i = 0; i < group_depth; ++i) {
-						doc.arrange("backward");
+					doc.selection = [elem];
+
+					if (fttim.is_simple_shape_instance(elem)) {
+						// nothing
+					} else if (fttim.is_complex_shape_instance(elem)) {
+						if (fttim.is_object_shape_instance(elem)) {
+							doc.breakApart();
+							doc.group();
+						}
+						doc.unGroup();
+						try {
+							doc.unlockAllElements();
+						} catch (e) {}
+						var wrapper_item = doc.convertToSymbol("graphic", ft.gen_unique_name(), "top left");
+						new_symbols.push(wrapper_item);
+					} else {
+						doc.arrange("front");
 					}
-					
-					new_symbols.push(wrapper_item);
 				});
 			}, fttim.is_keyframe);
 		}, fttim.is_not_guide_layer);
