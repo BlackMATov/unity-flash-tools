@@ -1,4 +1,10 @@
-﻿if (!String.prototype.format) {
+﻿if (!Array.prototype.peek) {
+	Array.prototype.peek = function () {
+		return this[this.length - 1];
+	};
+}
+
+if (!String.prototype.format) {
 	String.prototype.format = function () {
 		var args = arguments;
 		return this.replace(/{(\d+)}/g, function (match, number) {
@@ -8,31 +14,31 @@
 }
 
 ft_main = function (opts) {
-	opts = opts || {}
+	opts = opts || {};
 
 	//
 	// ft config
 	//
 
 	var ft = {
-		profile_mode              : opts.profile_mode              == undefined ? false     : opts.profile_mode,
-		verbose_mode              : opts.verbose_mode              == undefined ? false     : opts.verbose_mode,
-		
-		graphics_scale            : opts.graphics_scale            == undefined ? 1.0       : opts.graphics_scale,
-		scale_precision           : opts.scale_precision           == undefined ? 0.01      : opts.scale_precision,
-		
-		optimize_big_items        : opts.optimize_big_items        == undefined ? true      : opts.optimize_big_items,
-		optimize_small_items      : opts.optimize_small_items      == undefined ? true      : opts.optimize_small_items,
-		optimize_static_items     : opts.optimize_static_items     == undefined ? true      : opts.optimize_static_items,
-		optimize_single_graphics  : opts.optimize_single_graphics  == undefined ? true      : opts.optimize_single_graphics,
-		
-		open_documents            : opts.open_documents            == undefined ? []        : opts.open_documents,
-		export_path_postfix       : opts.export_path_postfix       == undefined ? "_export" : opts.export_path_postfix,
-		close_after_conversion    : opts.close_after_conversion    == undefined ? false     : opts.close_after_conversion,
-		revert_after_conversion   : opts.revert_after_conversion   == undefined ? true      : opts.revert_after_conversion,
-		max_convertible_selection : opts.max_convertible_selection == undefined ? 3900      : opts.max_convertible_selection
+		profile_mode              : opts.profile_mode              === undefined ? false     : opts.profile_mode,
+		verbose_mode              : opts.verbose_mode              === undefined ? false     : opts.verbose_mode,
+
+		graphics_scale            : opts.graphics_scale            === undefined ? 1.0       : opts.graphics_scale,
+		scale_precision           : opts.scale_precision           === undefined ? 0.01      : opts.scale_precision,
+
+		optimize_big_items        : opts.optimize_big_items        === undefined ? true      : opts.optimize_big_items,
+		optimize_small_items      : opts.optimize_small_items      === undefined ? true      : opts.optimize_small_items,
+		optimize_static_items     : opts.optimize_static_items     === undefined ? true      : opts.optimize_static_items,
+		optimize_single_graphics  : opts.optimize_single_graphics  === undefined ? true      : opts.optimize_single_graphics,
+
+		open_documents            : opts.open_documents            === undefined ? []        : opts.open_documents,
+		export_path_postfix       : opts.export_path_postfix       === undefined ? "_export" : opts.export_path_postfix,
+		close_after_conversion    : opts.close_after_conversion    === undefined ? false     : opts.close_after_conversion,
+		revert_after_conversion   : opts.revert_after_conversion   === undefined ? true      : opts.revert_after_conversion,
+		max_convertible_selection : opts.max_convertible_selection === undefined ? 3900      : opts.max_convertible_selection
 	};
-	
+
 	//
 	// ft base functions
 	//
@@ -77,7 +83,7 @@ ft_main = function (opts) {
 			ft.type_assert(item, type);
 		}
 	};
-	
+
 	ft.is_function = function (func) {
 		return func && typeof(func) === 'function';
 	};
@@ -101,7 +107,7 @@ ft_main = function (opts) {
 		var func_time = ft.get_call_function_time(func);
 		--ft.profile_function_level;
 		ft.profile_function_stack[stack_index].time = func_time;
-		if (stack_index == 0) {
+		if (stack_index === 0) {
 			for (var i = 0; i < ft.profile_function_stack.length; ++i) {
 				var info = ft.profile_function_stack[i];
 				var ident = "--";
@@ -144,7 +150,7 @@ ft_main = function (opts) {
 		ft.type_assert(rhs, 'string');
 		return ft.escape_path(lhs) + ft.escape_path(rhs);
 	};
-	
+
 	ft.array_any = function (arr, func) {
 		ft.type_assert(arr, Array);
 		ft.type_assert(func, Function);
@@ -212,6 +218,17 @@ ft_main = function (opts) {
 		}
 	};
 
+	ft.array_group_by = function(arr, func) {
+		return ft.array_foldl(arr, function (value, acc) {
+			if (acc.length > 0 && func(acc.peek().peek()) == func(value)) {
+				acc.peek().push(value);
+			} else {
+				acc.push([value]);
+			}
+			return acc;
+		}, []);
+	};
+
 	ft.array_reverse_foreach = function (arr, func, filter) {
 		ft.type_assert(arr, Array);
 		ft.type_assert(func, Function);
@@ -223,7 +240,7 @@ ft_main = function (opts) {
 			}
 		}
 	};
-	
+
 	ft.approximately = function(a, b, precision) {
 		ft.type_assert(a, 'number');
 		ft.type_assert(b, 'number');
@@ -252,22 +269,23 @@ ft_main = function (opts) {
 		ft.profile_function(function() { ftdoc.remove_unused_items(doc);    }, "Remove unused items");
 		ft.profile_function(function() { ftdoc.prepare_all_bitmaps(doc);    }, "Prepare all bitmaps");
 		ft.profile_function(function() { ftdoc.unlock_all_timelines(doc);   }, "Unlock all timelines");
+		ft.profile_function(function() { ftdoc.prepare_all_shapes(doc);     }, "Prepare all shapes");
 		ft.profile_function(function() { ftdoc.prepare_all_groups(doc);     }, "Prepare all groups");
 		ft.profile_function(function() { ftdoc.calculate_item_scales(doc);  }, "Calculate item scales");
 		ft.profile_function(function() { ftdoc.optimize_all_timelines(doc); }, "Optimize all timelines");
 		ft.profile_function(function() { ftdoc.rasterize_all_shapes(doc);   }, "Rasterize all shapes");
 		ft.profile_function(function() { ftdoc.export_swf(doc);             }, "Export swf");
 	};
-	
+
 	ftdoc.get_temp = function (doc) {
 		if (!ftdoc.hasOwnProperty("temp")) {
-			ftdoc["temp"] = {
+			ftdoc.temp = {
 				max_scales : {}
-			}
+			};
 		}
-		return ftdoc["temp"];
+		return ftdoc.temp;
 	};
-	
+
 	ftdoc.calculate_item_prefer_scale = function (doc, optional_item) {
 		ft.type_assert(doc, Document);
 		ft.type_assert_if_defined(optional_item, LibraryItem);
@@ -286,7 +304,7 @@ ft_main = function (opts) {
 		}
 		return final_scale;
 	};
-	
+
 	ftdoc.convert_selection_to_bitmap = function (doc, location_name, optional_item) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(location_name, 'string');
@@ -295,11 +313,11 @@ ft_main = function (opts) {
 		var selection_r = doc.getSelectionRect();
 		var selection_w = selection_r.right  - selection_r.left;
 		var selection_h = selection_r.bottom - selection_r.top;
-		
+
 		var max_scale    = ft.max_convertible_selection / Math.max(selection_w, selection_h);
 		var prefer_scale = ftdoc.calculate_item_prefer_scale(doc, optional_item);
 		var final_scale  = Math.min(prefer_scale, max_scale);
-		
+
 		if (final_scale < prefer_scale) {
 			var down_scale = Math.floor(final_scale / prefer_scale * 1000) * 0.001;
 			ft.trace_fmt(
@@ -309,54 +327,58 @@ ft_main = function (opts) {
 		}
 		
 		if (ft.approximately(final_scale, 1.0, ft.scale_precision)) {
-			var elem_r  = doc.getSelectionRect();
-			
-			var elem_x  = elem_r.left;
-			var elem_y  = elem_r.top;
-			var elem_w  = elem_r.right  - elem_r.left;
-			var elem_h  = elem_r.bottom - elem_r.top;
-			
-			var elem_dx = Math.round(elem_x) - elem_x;
-			var elem_dy = Math.round(elem_y) - elem_y;
-			var elem_dw = Math.round(elem_w) - elem_w;
-			var elem_dh = Math.round(elem_h) - elem_h;
-			
-			doc.convertSelectionToBitmap();
-			elem = doc.selection[0];
-			
-			elem.x      -= elem_dx;
-			elem.y      -= elem_dy;
-			elem.width  -= elem_dw;
-			elem.height -= elem_dh;
-		} else {
-			var wrapper_item_name = ft.gen_unique_name();
-			var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "top left");
-			fttim.recursive_scale_filters(doc, wrapper_item.timeline, final_scale);
-			
-			var elem = doc.selection[0];
-			elem.setTransformationPoint({x: 0, y: 0});
-			doc.scaleSelection(final_scale, final_scale);
+			(function() {
+				var elem_r  = doc.getSelectionRect();
 
-			var elem_x  = elem.x;
-			var elem_y  = elem.y;
-			var elem_w  = elem.width;
-			var elem_h  = elem.height;
-			
-			var elem_dx = Math.round(elem_x) - elem_x;
-			var elem_dy = Math.round(elem_y) - elem_y;
-			var elem_dw = Math.round(elem_w) - elem_w;
-			var elem_dh = Math.round(elem_h) - elem_h;
-			
-			doc.convertSelectionToBitmap();
-			elem = doc.selection[0];
-			
-			elem.x      -= elem_dx;
-			elem.y      -= elem_dy;
-			elem.width  -= elem_dw;
-			elem.height -= elem_dh;
-			
-			elem.setTransformationPoint({x: (elem_x - elem.x), y: (elem_y - elem.y)});
-			doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
+				var elem_x  = elem_r.left;
+				var elem_y  = elem_r.top;
+				var elem_w  = elem_r.right  - elem_r.left;
+				var elem_h  = elem_r.bottom - elem_r.top;
+
+				var elem_dx = Math.round(elem_x) - elem_x;
+				var elem_dy = Math.round(elem_y) - elem_y;
+				var elem_dw = Math.round(elem_w) - elem_w;
+				var elem_dh = Math.round(elem_h) - elem_h;
+
+				doc.convertSelectionToBitmap();
+				var elem = doc.selection[0];
+
+				elem.x      -= elem_dx;
+				elem.y      -= elem_dy;
+				elem.width  -= elem_dw;
+				elem.height -= elem_dh;
+			})();
+		} else {
+			(function() {
+				var wrapper_item_name = ft.gen_unique_name();
+				var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "top left");
+				fttim.recursive_scale_filters(doc, wrapper_item.timeline, final_scale);
+
+				var elem = doc.selection[0];
+				elem.setTransformationPoint({x: 0, y: 0});
+				doc.scaleSelection(final_scale, final_scale);
+
+				var elem_x  = elem.x;
+				var elem_y  = elem.y;
+				var elem_w  = elem.width;
+				var elem_h  = elem.height;
+
+				var elem_dx = Math.round(elem_x) - elem_x;
+				var elem_dy = Math.round(elem_y) - elem_y;
+				var elem_dw = Math.round(elem_w) - elem_w;
+				var elem_dh = Math.round(elem_h) - elem_h;
+
+				doc.convertSelectionToBitmap();
+				elem = doc.selection[0];
+
+				elem.x      -= elem_dx;
+				elem.y      -= elem_dy;
+				elem.width  -= elem_dw;
+				elem.height -= elem_dh;
+
+				elem.setTransformationPoint({x: (elem_x - elem.x), y: (elem_y - elem.y)});
+				doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
+			})();
 		}
 	};
 
@@ -382,7 +404,7 @@ ft_main = function (opts) {
 			doc.exitEditMode();
 		}
 	};
-	
+
 	ftdoc.remove_unused_items = function (doc) {
 		ft.type_assert(doc, Document);
 		var unused_items = doc.library.unusedItems;
@@ -401,30 +423,37 @@ ft_main = function (opts) {
 		ftlib.unlock_all_timelines(doc, doc.library);
 		fttim.unlock(doc, doc.getTimeline());
 	};
-	
+
+	ftdoc.prepare_all_shapes = function (doc) {
+		ft.type_assert(doc, Document);
+		ftlib.prepare_all_shapes(doc, doc.library);
+		fttim.prepare_all_shapes(doc, doc.getTimeline());
+	};
+
 	ftdoc.prepare_all_groups = function (doc) {
 		ft.type_assert(doc, Document);
 		var arr1 = ftlib.prepare_all_groups(doc, doc.library);
 		var arr2 = fttim.prepare_all_groups(doc, doc.getTimeline());
 		var new_symbols = arr1.concat(arr2);
+		var process_item = function (item) {
+			if (doc.library.editItem(item.name)) {
+				var arr3 = fttim.prepare_all_groups(doc, item.timeline);
+				new_symbols = new_symbols.concat(arr3);
+				doc.exitEditMode();
+			}
+		};
 		while (new_symbols.length > 0) {
 			var new_symbols_copy = ft.array_clone(new_symbols);
 			new_symbols = [];
-			ft.array_foreach(new_symbols_copy, function (item) {
-				if (doc.library.editItem(item.name)) {
-					var arr3 = fttim.prepare_all_groups(doc, item.timeline);
-					new_symbols = new_symbols.concat(arr3);
-					doc.exitEditMode();
-				}
-			});
+			ft.array_foreach(new_symbols_copy, process_item);
 		}
 	};
-	
+
 	ftdoc.calculate_item_scales = function (doc) {
 		ft.type_assert(doc, Document);
-		
+
 		var max_scales = ftdoc.get_temp(doc).max_scales;
-		
+
 		var walk_by_timeline = function(timeline, func, acc) {
 			ft.type_assert(timeline, Timeline);
 			ft.type_assert(func, Function);
@@ -439,15 +468,15 @@ ft_main = function (opts) {
 				}, fttim.is_keyframe);
 			});
 		};
-		
+
 		var walk_by_library = function(lib, func, acc) {
 			ft.type_assert(lib, Library);
 			ft.type_assert(func, Function);
 			ft.array_foreach(lib.items, function (item) {
-				walk_by_timeline(item.timeline, func, acc)
+				walk_by_timeline(item.timeline, func, acc);
 			}, ftlib.is_symbol_item);
 		};
-		
+
 		var x_func = function(elem, acc) {
 			var elem_sx   = elem.scaleX * acc;
 			var item_name = elem.libraryItem.name;
@@ -456,7 +485,7 @@ ft_main = function (opts) {
 				elem_sx);
 			return elem_sx;
 		};
-		
+
 		var y_func = function(elem, acc) {
 			var elem_sy   = elem.scaleY * acc;
 			var item_name = elem.libraryItem.name;
@@ -465,10 +494,10 @@ ft_main = function (opts) {
 				elem_sy);
 			return elem_sy;
 		};
-		
+
 		walk_by_library(doc.library, x_func, 1.0);
 		walk_by_timeline(doc.getTimeline(), x_func, 1.0);
-		
+
 		walk_by_library(doc.library, y_func, 1.0);
 		walk_by_timeline(doc.getTimeline(), y_func, 1.0);
 
@@ -542,7 +571,7 @@ ft_main = function (opts) {
 		ft.type_assert(item, LibraryItem);
 		return item.itemType == "graphic" || item.itemType == "movie clip";
 	};
-	
+
 	ftlib.find_item_by_name = function (library, item_name) {
 		ft.type_assert(library, Library);
 		ft.type_assert(item_name, 'string');
@@ -616,25 +645,25 @@ ft_main = function (opts) {
 		ft.type_assert(item_name, 'string');
 		ft.type_assert(new_item_name, 'string');
 		ft.type_assert(first_frame, 'number');
-		
+
 		if (library.itemExists(new_item_name)) {
 			return true;
 		}
-		
+
 		var item = ftlib.find_item_by_name(library, item_name);
 		if (!item) {
 			return false;
 		}
-		
+
 		var item_frame_area = fttim.calculate_frame_area(item.timeline, first_frame);
 		var item_elems_area = fttim.calculate_elems_area(item.timeline, first_frame);
-		
+
 		if (ft.verbose_mode) {
 			ft.trace_fmt(
 				"Library item: '{0}'\n- frame area: {1}\n- elems area: {2}",
 				item_name, item_frame_area, item_elems_area);
 		}
-		
+
 		if (item_frame_area >= item_elems_area) {
 			return false;
 		}
@@ -642,12 +671,12 @@ ft_main = function (opts) {
 		if (!library.addNewItem("graphic", new_item_name)) {
 			return false;
 		}
-		
+
 		if (!library.editItem(new_item_name)) {
 			library.deleteItem(new_item_name);
 			return false;
 		}
-		
+
 		if (library.addItemToDocument({x: 0, y: 0}, item_name)) {
 			var new_item_elem = doc.selection[0];
 			new_item_elem.symbolType = "graphic";
@@ -682,7 +711,15 @@ ft_main = function (opts) {
 			fttim.rasterize_all_shapes(doc, item.timeline);
 		});
 	};
-	
+
+	ftlib.prepare_all_shapes = function (doc, library) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(library, Library);
+		ftlib.edit_all_symbol_items(doc, library, function (item) {
+			fttim.prepare_all_shapes(doc, item.timeline);
+		});
+	};
+
 	ftlib.prepare_all_groups = function (doc, library) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(library, Library);
@@ -710,19 +747,19 @@ ft_main = function (opts) {
 	fttim.is_shape_instance = function (elem) {
 		return elem.elementType == "shape";
 	};
-	
+
 	fttim.is_group_shape_instance = function (elem) {
 		return elem.elementType == "shape" && elem.isGroup;
 	};
-	
+
 	fttim.is_object_shape_instance = function (elem) {
 		return elem.elementType == "shape" && elem.isDrawingObject;
 	};
-	
+
 	fttim.is_simple_shape_instance = function (elem) {
 		return elem.elementType == "shape" && !elem.isGroup && !elem.isDrawingObject;
 	};
-	
+
 	fttim.is_complex_shape_instance = function (elem) {
 		return elem.elementType == "shape" && (elem.isGroup || elem.isDrawingObject);
 	};
@@ -743,7 +780,12 @@ ft_main = function (opts) {
 		return fttim.is_symbol_instance(elem) && elem.symbolType == "movie clip";
 	};
 
-	fttim.is_tween_shape_frame = function (frame) {
+	fttim.is_tween_frame = function (frame) {
+		ft.type_assert(frame, Frame);
+		return frame.tweenType != "none";
+	};
+
+	fttim.is_shape_tween_frame = function (frame) {
 		ft.type_assert(frame, Frame);
 		return frame.tweenType == "shape";
 	};
@@ -753,12 +795,12 @@ ft_main = function (opts) {
 		ft.type_assert(frame_index, 'number');
 		return frame.startFrame == frame_index;
 	};
-	
+
 	fttim.is_not_guide_layer = function(layer) {
 		ft.type_assert(layer, Layer);
 		return layer.layerType != "guide";
 	};
-	
+
 	fttim.unlock = function (doc, timeline) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(timeline, Timeline);
@@ -789,7 +831,7 @@ ft_main = function (opts) {
 			}
 		}, 0);
 	};
-	
+
 	fttim.calculate_frame_area = function (timeline, frame_index) {
 		ft.type_assert(timeline, Timeline);
 		ft.type_assert(frame_index, 'number');
@@ -814,8 +856,8 @@ ft_main = function (opts) {
 		var frame_width  = Math.max(0, bounds.right  - bounds.left);
 		var frame_height = Math.max(0, bounds.bottom - bounds.top);
 		return Math.round(frame_width) * Math.round(frame_height);
-	}
-	
+	};
+
 	fttim.recursive_scale_filters = function (doc, timeline, scale) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(timeline, Timeline);
@@ -868,7 +910,7 @@ ft_main = function (opts) {
 							ft.trace_fmt("Optimize single graphic '{0}' for frame '{1}' in '{2}'",
 								lib_item_name, elem.firstFrame, timeline.name);
 						}
-						if (opt_item == null || doc.library.editItem(opt_item.name)) {
+						if (opt_item === null || doc.library.editItem(opt_item.name)) {
 							if (timeline.currentFrame != frame_index) {
 								timeline.currentFrame = frame_index;
 							}
@@ -904,18 +946,41 @@ ft_main = function (opts) {
 			}, acc);
 		}, true);
 	};
-	
+
+	fttim.prepare_all_shapes = function (doc, timeline) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(timeline, Timeline);
+
+		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
+			timeline.setSelectedLayers(layer_index);
+			ft.array_foreach(layer.frames, function (frame, frame_index) {
+				timeline.currentFrame = frame_index;
+				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
+
+				if (ft.array_any(frame.elements, fttim.is_shape_instance)) {
+					doc.selectNone();
+					doc.selectAll();
+					if (doc.selection.length > 0) {
+						doc.group();
+					}
+				}
+			}, function (frame, frame_index) {
+				return fttim.is_keyframe(frame, frame_index) && fttim.is_tween_frame(frame);
+			});
+		}, fttim.is_not_guide_layer);
+	};
+
 	fttim.prepare_all_groups = function (doc, timeline) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(timeline, Timeline);
-		
+
 		var new_symbols = [];
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
 			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
 				timeline.currentFrame = frame_index;
 				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
-				
+
 				var elements = ft.array_clone(frame.elements);
 				ft.array_foreach(elements, function (elem, elem_index) {
 					doc.selectNone();
@@ -940,16 +1005,13 @@ ft_main = function (opts) {
 				});
 			}, fttim.is_keyframe);
 		}, fttim.is_not_guide_layer);
-		if (new_symbols.length > 0 && ft.verbose_mode) {
-			ft.trace_fmt("Ungroup groups({0}) in '{1}'", new_symbols.length, timeline.name);
-		}
 		return new_symbols;
 	};
-	
+
 	fttim.rasterize_all_shapes = function (doc, timeline) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(timeline, Timeline);
-		
+
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
 			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
@@ -963,7 +1025,7 @@ ft_main = function (opts) {
 					throw "Animation uses shape tweens. To export this animation you should use Adobe Animate CC or higher!";
 				}
 			}, function (frame, frame_index) {
-				return fttim.is_keyframe(frame, frame_index) && fttim.is_tween_shape_frame(frame);
+				return fttim.is_keyframe(frame, frame_index) && fttim.is_shape_tween_frame(frame);
 			});
 		}, fttim.is_not_guide_layer);
 
@@ -973,7 +1035,7 @@ ft_main = function (opts) {
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
 				timeline.currentFrame = frame_index;
 				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
-				
+
 				doc.selectNone();
 				doc.selection = ft.array_filter(frame.elements, fttim.is_shape_instance);
 				if (doc.selection.length > 0) {
@@ -997,7 +1059,7 @@ ft_main = function (opts) {
 		ft.clear_output();
 		fl.showIdleMessage(false);
 		ft.trace("[Start]");
-		
+
 		if (ft.open_documents.length > 0) {
 			ft.profile_function(function () {
 				ft.array_foreach(ft.open_documents, function (uri) {
@@ -1005,7 +1067,7 @@ ft_main = function (opts) {
 				});
 			}, "Open documents");
 		}
-		
+
 		ft.array_foreach(fl.documents, function (doc) {
 			try {
 				ft.trace_fmt("[Document] '{0}' conversion started...", doc.name);
@@ -1014,7 +1076,7 @@ ft_main = function (opts) {
 				ft.trace_fmt("[Document] '{0}' conversion error: '{1}'", doc.name, e);
 			}
 		});
-		
+
 		if (ft.revert_after_conversion) {
 			ft.profile_function(function () {
 				ft.array_foreach(fl.documents, function (doc) {
@@ -1024,7 +1086,7 @@ ft_main = function (opts) {
 				});
 			}, "Revert documents");
 		}
-		
+
 		if (ft.close_after_conversion) {
 			ft.profile_function(function () {
 				ft.array_foreach(fl.documents, function (doc) {
@@ -1032,7 +1094,7 @@ ft_main = function (opts) {
 				});
 			}, "Close documents");
 		}
-		
+
 		ft.trace("[Finish]");
 	})();
 };
