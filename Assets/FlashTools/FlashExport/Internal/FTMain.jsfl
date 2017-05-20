@@ -510,6 +510,10 @@
 	//
 
 	var fttim = {};
+	
+	fttim.is_element_locked = function (elem) {
+		return elem.locked;
+	};
 
 	fttim.is_shape_element = function (elem) {
 		return elem.elementType == "shape";
@@ -585,11 +589,14 @@
 			layer.visible = true;
 			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
-				timeline.currentFrame = frame_index;
-				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
-				try {
-					doc.unlockAllElements();
-				} catch (e) {}
+				var has_locked = ft.array_any(frame.elements, fttim.is_element_locked);
+				if (has_locked) {
+					timeline.currentFrame = frame_index;
+					timeline.setSelectedFrames(frame_index, frame_index + 1, true);
+					try {
+						doc.unlockAllElements();
+					} catch (e) {}
+				}
 			}, fttim.is_keyframe);
 		});
 	};
