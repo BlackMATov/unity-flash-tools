@@ -1,3 +1,3 @@
-﻿fl.runScript(
-	fl.scriptURI.replace('FlashExport.jsfl', 'Internal/FTMain.jsfl'),
-	"ft_main");
+﻿var script_dir = fl.scriptURI.replace('FlashExport.jsfl', '');
+fl.runScript(script_dir + 'Internal/FTBase.jsfl');
+fl.runScript(script_dir + 'Internal/FTMain.jsfl', "ft_main");

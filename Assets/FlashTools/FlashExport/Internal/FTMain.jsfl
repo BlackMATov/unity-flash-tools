@@ -1,26 +1,11 @@
-﻿if (!Array.prototype.peek) {
-	Array.prototype.peek = function () {
-		return this[this.length - 1];
-	};
-}
-
-if (!String.prototype.format) {
-	String.prototype.format = function () {
-		var args = arguments;
-		return this.replace(/{(\d+)}/g, function (match, number) {
-			return typeof args[number] != 'undefined' ? args[number] : match;
-		});
-	};
-}
-
-ft_main = function (opts) {
+﻿ft_main = function (opts) {
 	opts = opts || {};
 
 	//
-	// ft config
+	// config
 	//
 
-	var ft = {
+	var cfg = {
 		profile_mode              : opts.profile_mode              === undefined ? false     : opts.profile_mode,
 		verbose_mode              : opts.verbose_mode              === undefined ? false     : opts.verbose_mode,
 
@@ -40,223 +25,6 @@ ft_main = function (opts) {
 	};
 
 	//
-	// ft base functions
-	//
-
-	ft.trace = function () {
-		fl.outputPanel.trace(
-			Array.prototype.join.call(arguments, " "));
-	};
-
-	ft.trace_fmt = function (format) {
-		var args = Array.prototype.slice.call(arguments, 1);
-		ft.trace(format.format.apply(format, args));
-	};
-
-	ft.clear_output = function () {
-		fl.outputPanel.clear();
-	};
-
-	ft.assert = function (expr, format) {
-		if (!expr) {
-			if (format === undefined) {
-				throw "!!!Assert!!!";
-			} else {
-				var args = Array.prototype.slice.call(arguments, 2);
-				throw "!!!Assert!!! " + format.format.apply(format, args);
-			}
-		}
-	};
-
-	ft.type_assert = function (item, type) {
-		var type_is_string = (typeof type === 'string');
-		ft.assert(
-			(type_is_string && typeof item === type) ||
-			(!type_is_string && item instanceof type),
-			"Type error: {0} != {1}",
-			typeof item,
-			type_is_string ? type : type.constructor.name);
-	};
-
-	ft.type_assert_if_defined = function (item, type) {
-		if (item && item !== undefined) {
-			ft.type_assert(item, type);
-		}
-	};
-
-	ft.is_function = function (func) {
-		return func && typeof(func) === 'function';
-	};
-
-	ft.profile_function = function (func, msg) {
-		ft.type_assert(func, Function);
-		ft.type_assert(msg, 'string');
-		if (!ft.profile_function_stack) {
-			ft.profile_function_stack = [];
-		}
-		if (!ft.profile_function_level) {
-			ft.profile_function_level = 0;
-		}
-		var stack_index = ft.profile_function_stack.length;
-		ft.profile_function_stack.push({
-			msg: msg,
-			level: ft.profile_function_level,
-			time: 0
-		});
-		++ft.profile_function_level;
-		var func_time = ft.get_call_function_time(func);
-		--ft.profile_function_level;
-		ft.profile_function_stack[stack_index].time = func_time;
-		if (stack_index === 0) {
-			for (var i = 0; i < ft.profile_function_stack.length; ++i) {
-				var info = ft.profile_function_stack[i];
-				var ident = "-";
-				for (var j = 0; j < info.level; ++j) {
-					ident += "-";
-				}
-				if (ft.profile_mode) {
-					ft.trace_fmt("{0} [Profile] {1} ({2}s)", ident, info.msg, info.time);
-				}
-			}
-			ft.profile_function_stack = [];
-		}
-	};
-
-	ft.get_call_function_time = function (func) {
-		ft.type_assert(func, Function);
-		var b_time = Date.now();
-		func();
-		var e_time = Date.now();
-		return (e_time - b_time) / 1000;
-	};
-
-	ft.escape_path = function (path) {
-		ft.type_assert(path, 'string');
-		return path.replace(/ /g, '%20');
-	};
-
-	ft.escape_string = function (str) {
-		ft.type_assert(str, 'string');
-		return str
-			.replace(/\&/g, '&amp;')
-			.replace(/\"/g, '&quot;')
-			.replace(/\'/g, '&apos;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;');
-	};
-
-	ft.combine_path = function (lhs, rhs) {
-		ft.type_assert(lhs, 'string');
-		ft.type_assert(rhs, 'string');
-		return ft.escape_path(lhs) + ft.escape_path(rhs);
-	};
-
-	ft.array_any = function (arr, func) {
-		ft.type_assert(arr, Array);
-		ft.type_assert(func, Function);
-		for (var index = 0; index < arr.length; ++index) {
-			var value = arr[index];
-			if (func(value)) {
-				return true;
-			}
-		}
-		return false;
-	};
-
-	ft.array_foldl = function (arr, func, acc) {
-		ft.type_assert(arr, Array);
-		ft.type_assert(func, Function);
-		for (var index = 0; index < arr.length; ++index) {
-			var value = arr[index];
-			acc = func(value, acc);
-		}
-		return acc;
-	};
-
-	ft.array_foldr = function (arr, func, acc) {
-		ft.type_assert(arr, Array);
-		ft.type_assert(func, Function);
-		for (var index = arr.length - 1; index >= 0; --index) {
-			var value = arr[index];
-			acc = func(value, acc);
-		}
-		return acc;
-	};
-
-	ft.array_clone = function (arr) {
-		ft.type_assert(arr, Array);
-		var new_arr = [];
-		for (var index = 0; index < arr.length; ++index) {
-			var value = arr[index];
-			new_arr.push(value);
-		}
-		return new_arr;
-	};
-
-	ft.array_filter = function (arr, filter) {
-		ft.type_assert(arr, Array);
-		ft.type_assert(filter, Function);
-		var new_arr = [];
-		for (var index = 0; index < arr.length; ++index) {
-			var value = arr[index];
-			if (filter(value, index)) {
-				new_arr.push(value);
-			}
-		}
-		return new_arr;
-	};
-
-	ft.array_foreach = function (arr, func, filter) {
-		ft.type_assert(arr, Array);
-		ft.type_assert(func, Function);
-		ft.type_assert_if_defined(filter, Function);
-		for (var index = 0; index < arr.length; ++index) {
-			var value = arr[index];
-			if (filter === undefined || filter(value, index)) {
-				func(value, index);
-			}
-		}
-	};
-
-	ft.array_group_by = function(arr, func) {
-		return ft.array_foldl(arr, function (value, acc) {
-			if (acc.length > 0 && func(acc.peek().peek()) == func(value)) {
-				acc.peek().push(value);
-			} else {
-				acc.push([value]);
-			}
-			return acc;
-		}, []);
-	};
-
-	ft.array_reverse_foreach = function (arr, func, filter) {
-		ft.type_assert(arr, Array);
-		ft.type_assert(func, Function);
-		ft.type_assert_if_defined(filter, Function);
-		for (var index = arr.length - 1; index >= 0; --index) {
-			var value = arr[index];
-			if (filter === undefined || filter(value, index)) {
-				func(value, index);
-			}
-		}
-	};
-
-	ft.approximately = function(a, b, precision) {
-		ft.type_assert(a, 'number');
-		ft.type_assert(b, 'number');
-		ft.type_assert(precision, 'number');
-		return Math.abs(b - a) < Math.abs(precision);
-	};
-
-	ft.gen_unique_name = function () {
-		if (!ft.gen_unique_name_index) {
-			ft.gen_unique_name_index = 0;
-		}
-		++ft.gen_unique_name_index;
-		return "ft_unique_name_" + ft.gen_unique_name_index;
-	};
-
-	//
 	// document
 	//
 
@@ -264,17 +32,17 @@ ft_main = function (opts) {
 
 	ftdoc.prepare = function (doc) {
 		ft.type_assert(doc, Document);
-		ft.profile_function(function() { ftdoc.prepare_folders(doc);        }, "Prepare folders");
-		ft.profile_function(function() { ftdoc.full_exit_edit_mode(doc);    }, "Full exit edit mode");
-		ft.profile_function(function() { ftdoc.remove_unused_items(doc);    }, "Remove unused items");
-		ft.profile_function(function() { ftdoc.prepare_all_bitmaps(doc);    }, "Prepare all bitmaps");
-		ft.profile_function(function() { ftdoc.unlock_all_timelines(doc);   }, "Unlock all timelines");
-		ft.profile_function(function() { ftdoc.prepare_all_tweens(doc);     }, "Prepare all tweens");
-		ft.profile_function(function() { ftdoc.prepare_all_groups(doc);     }, "Prepare all groups");
-		ft.profile_function(function() { ftdoc.calculate_item_scales(doc);  }, "Calculate item scales");
-		ft.profile_function(function() { ftdoc.optimize_all_timelines(doc); }, "Optimize all timelines");
-		ft.profile_function(function() { ftdoc.rasterize_all_shapes(doc);   }, "Rasterize all shapes");
-		ft.profile_function(function() { ftdoc.export_swf(doc);             }, "Export swf");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.prepare_folders(doc);        }, "Prepare folders");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.full_exit_edit_mode(doc);    }, "Full exit edit mode");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.remove_unused_items(doc);    }, "Remove unused items");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.prepare_all_bitmaps(doc);    }, "Prepare all bitmaps");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.unlock_all_timelines(doc);   }, "Unlock all timelines");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.prepare_all_tweens(doc);     }, "Prepare all tweens");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.prepare_all_groups(doc);     }, "Prepare all groups");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.calculate_item_scales(doc);  }, "Calculate item scales");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.optimize_all_timelines(doc); }, "Optimize all timelines");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.rasterize_all_shapes(doc);   }, "Rasterize all shapes");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.export_swf(doc);             }, "Export swf");
 	};
 
 	ftdoc.get_temp = function (doc) {
@@ -289,14 +57,14 @@ ft_main = function (opts) {
 	ftdoc.calculate_item_prefer_scale = function (doc, optional_item) {
 		ft.type_assert(doc, Document);
 		ft.type_assert_if_defined(optional_item, LibraryItem);
-		var final_scale = ft.graphics_scale;
-		if (optional_item && (ft.optimize_big_items || ft.optimize_small_items)) {
+		var final_scale = cfg.graphics_scale;
+		if (optional_item && (cfg.optimize_big_items || cfg.optimize_small_items)) {
 			var item_name  = optional_item.name;
 			var max_scales = ftdoc.get_temp(doc).max_scales;
 			if (max_scales.hasOwnProperty(item_name)) {
 				var max_scale  = max_scales[item_name];
-				var big_item   = ft.optimize_big_items   && (max_scale - ft.scale_precision > 1.0);
-				var small_item = ft.optimize_small_items && (max_scale + ft.scale_precision < 1.0);
+				var big_item   = cfg.optimize_big_items   && (max_scale - cfg.scale_precision > 1.0);
+				var small_item = cfg.optimize_small_items && (max_scale + cfg.scale_precision < 1.0);
 				if (big_item || small_item) {
 					final_scale *= max_scale;
 				}
@@ -314,7 +82,7 @@ ft_main = function (opts) {
 		var selection_w = selection_r.right  - selection_r.left;
 		var selection_h = selection_r.bottom - selection_r.top;
 
-		var max_scale    = ft.max_convertible_selection / Math.max(selection_w, selection_h);
+		var max_scale    = cfg.max_convertible_selection / Math.max(selection_w, selection_h);
 		var prefer_scale = ftdoc.calculate_item_prefer_scale(doc, optional_item);
 		var final_scale  = Math.min(prefer_scale, max_scale);
 
@@ -323,10 +91,10 @@ ft_main = function (opts) {
 			ft.trace_fmt(
 				"[Warning] {0}\n" +
 				"- Converted element was downscaled ({1}x) to maximum allowed size ({2}px)",
-				location_name, down_scale, ft.max_convertible_selection);
+				location_name, down_scale, cfg.max_convertible_selection);
 		}
 		
-		if (ft.approximately(final_scale, 1.0, ft.scale_precision)) {
+		if (ft.approximately(final_scale, 1.0, cfg.scale_precision)) {
 			(function() {
 				var elem_r  = doc.getSelectionRect();
 
@@ -395,7 +163,7 @@ ft_main = function (opts) {
 		ft.type_assert(doc, Document);
 		return ft.combine_path(
 			ft.escape_path(doc.pathURI),
-			ft.export_path_postfix + "/");
+			cfg.export_path_postfix + "/");
 	};
 
 	ftdoc.full_exit_edit_mode = function (doc) {
@@ -410,7 +178,7 @@ ft_main = function (opts) {
 		var unused_items = doc.library.unusedItems;
 		if (unused_items && unused_items !== undefined) {
 			ft.array_reverse_foreach(unused_items, function(item) {
-				if (ft.verbose_mode) {
+				if (cfg.verbose_mode) {
 					ft.trace_fmt("Remove unused item: {0}", item.name);
 				}
 				doc.library.deleteItem(item.name);
@@ -501,12 +269,12 @@ ft_main = function (opts) {
 		walk_by_library(doc.library, y_func, 1.0);
 		walk_by_timeline(doc.getTimeline(), y_func, 1.0);
 
-		if (ft.verbose_mode) {
+		if (cfg.verbose_mode) {
 			for (var item_name in max_scales) {
 				var max_scale = max_scales.hasOwnProperty(item_name) ? max_scales[item_name] : 1.0;
-				if (max_scale - ft.scale_precision > 1.0) {
+				if (max_scale - cfg.scale_precision > 1.0) {
 					ft.trace_fmt("Big item for optimize: {0} - {1}", item_name, max_scale);
-				} else if (max_scale + ft.scale_precision < 1.0) {
+				} else if (max_scale + cfg.scale_precision < 1.0) {
 					ft.trace_fmt("Small item for optimize: {0} - {1}", item_name, max_scale);
 				}
 			}
@@ -515,13 +283,13 @@ ft_main = function (opts) {
 
 	ftdoc.optimize_all_timelines = function (doc) {
 		ft.type_assert(doc, Document);
-		if (ft.optimize_static_items) {
-			ft.profile_function(function () {
+		if (cfg.optimize_static_items) {
+			ft.profile_function(cfg.profile_mode, function () {
 				ftlib.optimize_static_items(doc, doc.library);
 			}, "Optimize static items");
 		}
-		if (ft.optimize_single_graphics) {
-			ft.profile_function(function () {
+		if (cfg.optimize_single_graphics) {
+			ft.profile_function(cfg.profile_mode, function () {
 				ftlib.optimize_single_graphics(doc, doc.library);
 			}, "Optimize single graphics");
 		}
@@ -620,11 +388,11 @@ ft_main = function (opts) {
 			var new_item_name = ft.gen_unique_name();
 			if (ftlib.bake_symbol_item(doc, library, item.name, new_item_name, 0)) {
 				replaces[item.name] = new_item_name;
-				if (ft.verbose_mode) {
+				if (cfg.verbose_mode) {
 					ft.trace_fmt("Optimize static item: '{0}'", item.name);
 				}
 			} else {
-				if (ft.verbose_mode) {
+				if (cfg.verbose_mode) {
 					ft.trace_fmt("NOT Optimize static item: '{0}'", item.name);
 				}
 			}
@@ -657,7 +425,7 @@ ft_main = function (opts) {
 		var item_frame_area = fttim.calculate_frame_area(item.timeline, first_frame);
 		var item_elems_area = fttim.calculate_elems_area(item.timeline, first_frame);
 
-		if (ft.verbose_mode) {
+		if (cfg.verbose_mode) {
 			ft.trace_fmt(
 				"Library item: '{0}'\n- frame area: {1}\n- elems area: {2}",
 				item_name, item_frame_area, item_elems_area);
@@ -914,7 +682,7 @@ ft_main = function (opts) {
 					var lib_item_name = elem.libraryItem.name;
 					var lib_item_cache_name = "ft_cache_name_" + lib_item_name + "_" + elem.firstFrame;
 					if (ftlib.bake_symbol_item(doc, doc.library, lib_item_name, lib_item_cache_name, elem.firstFrame)) {
-						if (ft.verbose_mode) {
+						if (cfg.verbose_mode) {
 							ft.trace_fmt("Optimize single graphic '{0}' for frame '{1}' in '{2}'",
 								lib_item_name, elem.firstFrame, timeline.name);
 						}
@@ -929,7 +697,7 @@ ft_main = function (opts) {
 							doc.exitEditMode();
 						}
 					} else {
-						if (ft.verbose_mode) {
+						if (cfg.verbose_mode) {
 							ft.trace_fmt("NOT Optimize single graphic '{0}' for frame '{1}' in '{2}'",
 								lib_item_name, elem.firstFrame, timeline.name);
 						}
@@ -1049,7 +817,7 @@ ft_main = function (opts) {
 			}, fttim.is_keyframe);
 		}, fttim.is_not_guide_layer);
 		
-		if (rasterize_count > 0 && ft.verbose_mode) {
+		if (rasterize_count > 0 && cfg.verbose_mode) {
 			ft.trace_fmt("Rasterize vector shapes({0}) in '{1}'", rasterize_count, timeline.name);
 		}
 	};
@@ -1063,17 +831,17 @@ ft_main = function (opts) {
 		fl.showIdleMessage(false);
 		ft.trace("[Start]");
 
-		if (ft.open_documents.length > 0) {
-			ft.profile_function(function () {
-				ft.array_foreach(ft.open_documents, function (uri) {
+		if (cfg.open_documents.length > 0) {
+			ft.profile_function(cfg.profile_mode, function () {
+				ft.array_foreach(cfg.open_documents, function (uri) {
 					fl.openDocument(uri);
 				});
 			}, "Open documents");
 		}
 		
-		ft.profile_function(function() {
+		ft.profile_function(cfg.profile_mode, function() {
 			ft.array_foreach(fl.documents, function (doc) {
-				ft.profile_function(function() {
+				ft.profile_function(cfg.profile_mode, function() {
 					try {
 						ft.trace_fmt("[Document] '{0}' conversion started...", doc.name);
 						ftdoc.prepare(doc);
@@ -1085,8 +853,8 @@ ft_main = function (opts) {
 			});
 		}, "Prepare documents");
 
-		if (ft.revert_after_conversion) {
-			ft.profile_function(function () {
+		if (cfg.revert_after_conversion) {
+			ft.profile_function(cfg.profile_mode, function () {
 				ft.array_foreach(fl.documents, function (doc) {
 					if (doc.canRevert()) {
 						fl.revertDocument(doc);
@@ -1095,8 +863,8 @@ ft_main = function (opts) {
 			}, "Revert documents");
 		}
 
-		if (ft.close_after_conversion) {
-			ft.profile_function(function () {
+		if (cfg.close_after_conversion) {
+			ft.profile_function(cfg.profile_mode, function () {
 				ft.array_foreach(fl.documents, function (doc) {
 					fl.closeDocument(doc, false);
 				});
