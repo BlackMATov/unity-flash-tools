@@ -511,24 +511,24 @@
 
 	var fttim = {};
 
-	fttim.is_shape_instance = function (elem) {
+	fttim.is_shape_element = function (elem) {
 		return elem.elementType == "shape";
 	};
 
-	fttim.is_group_shape_instance = function (elem) {
-		return elem.elementType == "shape" && elem.isGroup;
+	fttim.is_group_shape_element = function (elem) {
+		return fttim.is_shape_element(elem) && elem.isGroup;
 	};
 
-	fttim.is_object_shape_instance = function (elem) {
-		return elem.elementType == "shape" && elem.isDrawingObject;
+	fttim.is_object_shape_element = function (elem) {
+		return fttim.is_shape_element(elem) && elem.isDrawingObject;
 	};
 
-	fttim.is_simple_shape_instance = function (elem) {
-		return elem.elementType == "shape" && !elem.isGroup && !elem.isDrawingObject;
+	fttim.is_simple_shape_element = function (elem) {
+		return fttim.is_shape_element(elem) && !elem.isGroup && !elem.isDrawingObject;
 	};
 
-	fttim.is_complex_shape_instance = function (elem) {
-		return elem.elementType == "shape" && (elem.isGroup || elem.isDrawingObject);
+	fttim.is_complex_shape_element = function (elem) {
+		return fttim.is_shape_element(elem) && (elem.isGroup || elem.isDrawingObject);
 	};
 	
 	fttim.is_instance_element = function (elem) {
@@ -536,7 +536,7 @@
 	};
 
 	fttim.is_symbol_instance = function (elem) {
-		return elem.elementType == "instance" && elem.instanceType == "symbol";
+		return fttim.is_instance_element(elem) && elem.instanceType == "symbol";
 	};
 
 	fttim.is_symbol_graphic_instance = function (elem) {
@@ -741,7 +741,7 @@
 						throw "Animation uses shape tweens. To export this animation you should use Adobe Animate CC or higher!";
 					}
 				} else if (fttim.is_motion_tween_frame(frame)) {
-					var shapes = ft.array_filter(frame.elements, fttim.is_shape_instance);
+					var shapes = ft.array_filter(frame.elements, fttim.is_shape_element);
 					if (shapes.length > 0) {
 						timeline.currentFrame = frame_index;
 						timeline.setSelectedFrames(frame_index, frame_index + 1, true);
@@ -773,10 +773,10 @@
 					doc.selectNone();
 					doc.selection = [elem];
 
-					if (fttim.is_simple_shape_instance(elem)) {
+					if (fttim.is_simple_shape_element(elem)) {
 						// nothing
-					} else if (fttim.is_complex_shape_instance(elem)) {
-						if (fttim.is_object_shape_instance(elem)) {
+					} else if (fttim.is_complex_shape_element(elem)) {
+						if (fttim.is_object_shape_element(elem)) {
 							doc.breakApart();
 							doc.group();
 						}
@@ -807,7 +807,7 @@
 				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
 
 				doc.selectNone();
-				doc.selection = ft.array_filter(frame.elements, fttim.is_shape_instance);
+				doc.selection = ft.array_filter(frame.elements, fttim.is_shape_element);
 				if (doc.selection.length > 0) {
 					var location_name = "Timeline: {0}".format(timeline.name);
 					ftdoc.convert_selection_to_bitmap(doc, location_name, timeline.libraryItem);
