@@ -110,12 +110,12 @@ ft_main = function (opts) {
 		if (stack_index === 0) {
 			for (var i = 0; i < ft.profile_function_stack.length; ++i) {
 				var info = ft.profile_function_stack[i];
-				var ident = "--";
+				var ident = "-";
 				for (var j = 0; j < info.level; ++j) {
-					ident += "--";
+					ident += "-";
 				}
 				if (ft.profile_mode) {
-					ft.trace_fmt("{0} Profile: '{1}' : {2}", ident, info.msg, info.time);
+					ft.trace_fmt("{0} [Profile] {1} ({2}s)", ident, info.msg, info.time);
 				}
 			}
 			ft.profile_function_stack = [];
@@ -540,7 +540,6 @@ ft_main = function (opts) {
 
 	ftdoc.export_swf = function (doc) {
 		ft.type_assert(doc, Document);
-		ft.trace_fmt("[Document] '{0}' conversion complete!", doc.name);
 		doc.exportSWF(ftdoc.get_export_swf_path(doc));
 	};
 
@@ -1067,15 +1066,20 @@ ft_main = function (opts) {
 				});
 			}, "Open documents");
 		}
-
-		ft.array_foreach(fl.documents, function (doc) {
-			try {
-				ft.trace_fmt("[Document] '{0}' conversion started...", doc.name);
-				ftdoc.prepare(doc);
-			} catch (e) {
-				ft.trace_fmt("[Document] '{0}' conversion error: '{1}'", doc.name, e);
-			}
-		});
+		
+		ft.profile_function(function() {
+			ft.array_foreach(fl.documents, function (doc) {
+				ft.profile_function(function() {
+					try {
+						ft.trace_fmt("[Document] '{0}' conversion started...", doc.name);
+						ftdoc.prepare(doc);
+						ft.trace_fmt("[Document] '{0}' conversion complete!", doc.name);
+					} catch (e) {
+						ft.trace_fmt("[Document] '{0}' conversion error: '{1}'", doc.name, e);
+					}
+				}, "Prepare document: '{0}'".format(doc.name));
+			});
+		}, "Prepare documents");
 
 		if (ft.revert_after_conversion) {
 			ft.profile_function(function () {
