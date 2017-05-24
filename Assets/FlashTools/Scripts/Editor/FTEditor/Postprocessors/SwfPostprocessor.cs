@@ -375,6 +375,8 @@ namespace FTEditor.Postprocessors {
 				return new SwfBlendModeData(SwfBlendModeData.Types.Subtract);
 			case SwfBlendMode.Mode.Invert:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Invert);
+			case SwfBlendMode.Mode.Overlay:
+				return new SwfBlendModeData(SwfBlendModeData.Types.Overlay);
 			case SwfBlendMode.Mode.Hardlight:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Hardlight);
 			default:
