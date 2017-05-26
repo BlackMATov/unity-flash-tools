@@ -193,7 +193,7 @@ ft.array_foreach = function (arr, func, filter) {
 
 ft.array_group_by = function(arr, func) {
 	return ft.array_foldl(arr, function (value, acc) {
-		if (acc.length > 0 && func(acc.peek().peek()) == func(value)) {
+		if (acc.length > 0 && func(acc.peek().peek()) === func(value)) {
 			acc.peek().push(value);
 		} else {
 			acc.push([value]);

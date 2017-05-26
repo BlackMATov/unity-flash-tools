@@ -46,12 +46,16 @@
 	};
 
 	ftdoc.get_temp = function (doc) {
-		if (!ftdoc.hasOwnProperty("temp")) {
-			ftdoc.temp = {
+		ft.type_assert(doc, Document);
+		if (!ftdoc.get_temp_ft_temp) {
+			ftdoc.get_temp_ft_temp = {};
+		}
+		if (!ftdoc.get_temp_ft_temp[doc.pathURI]) {
+			ftdoc.get_temp_ft_temp[doc.pathURI] = {
 				max_scales : {}
 			};
 		}
-		return ftdoc.temp;
+		return ftdoc.get_temp_ft_temp[doc.pathURI];
 	};
 
 	ftdoc.calculate_item_prefer_scale = function (doc, optional_item) {
@@ -61,7 +65,7 @@
 		if (optional_item && (cfg.optimize_big_items || cfg.optimize_small_items)) {
 			var item_name  = optional_item.name;
 			var max_scales = ftdoc.get_temp(doc).max_scales;
-			if (max_scales.hasOwnProperty(item_name)) {
+			if (max_scales && max_scales.hasOwnProperty(item_name)) {
 				var max_scale  = max_scales[item_name];
 				var big_item   = cfg.optimize_big_items   && (max_scale - cfg.scale_precision > 1.0);
 				var small_item = cfg.optimize_small_items && (max_scale + cfg.scale_precision < 1.0);
@@ -185,6 +189,11 @@
 			});
 		}
 	};
+	
+	ftdoc.prepare_all_bitmaps = function (doc) {
+		ft.type_assert(doc, Document);
+		ftlib.prepare_all_bitmaps(doc.library);
+	};
 
 	ftdoc.unlock_all_timelines = function (doc) {
 		ft.type_assert(doc, Document);
@@ -220,7 +229,7 @@
 	ftdoc.calculate_item_scales = function (doc) {
 		ft.type_assert(doc, Document);
 
-		var max_scales = ftdoc.get_temp(doc).max_scales;
+		var max_scales = {};
 
 		var walk_by_timeline = function(timeline, func, acc) {
 			ft.type_assert(timeline, Timeline);
@@ -268,6 +277,8 @@
 
 		walk_by_library(doc.library, y_func, 1.0);
 		walk_by_timeline(doc.getTimeline(), y_func, 1.0);
+		
+		ftdoc.get_temp(doc).max_scales = max_scales;
 
 		if (cfg.verbose_mode) {
 			for (var item_name in max_scales) {
@@ -299,11 +310,6 @@
 		ft.type_assert(doc, Document);
 		ftlib.rasterize_all_shapes(doc, doc.library);
 		fttim.rasterize_all_shapes(doc, doc.getTimeline());
-	};
-
-	ftdoc.prepare_all_bitmaps = function (doc) {
-		ft.type_assert(doc, Document);
-		ftlib.prepare_all_bitmaps(doc.library);
 	};
 
 	ftdoc.export_swf = function (doc) {
@@ -369,6 +375,13 @@
 		ft.type_assert(library, Library);
 		ft.type_assert(func, Function);
 		ftlib.edit_all_items(doc, library, func, ftlib.is_symbol_item);
+	};
+	
+	ftlib.prepare_all_bitmaps = function (library) {
+		ft.type_assert(library, Library);
+		ft.array_foreach(library.items, function (item) {
+			item.compressionType = "lossless";
+		}, ftlib.is_bitmap_item);
 	};
 
 	ftlib.unlock_all_timelines = function (doc, library) {
@@ -498,13 +511,6 @@
 		return new_symbols;
 	};
 
-	ftlib.prepare_all_bitmaps = function (library) {
-		ft.type_assert(library, Library);
-		ft.array_foreach(library.items, function (item) {
-			item.compressionType = "lossless";
-		}, ftlib.is_bitmap_item);
-	};
-
 	//
 	// timeline
 	//
@@ -587,12 +593,10 @@
 		ft.array_foreach(timeline.layers, function (layer, layer_index) {
 			layer.locked = false;
 			layer.visible = true;
-			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
 				var has_locked = ft.array_any(frame.elements, fttim.is_element_locked);
 				if (has_locked) {
 					timeline.currentFrame = frame_index;
-					timeline.setSelectedFrames(frame_index, frame_index + 1, true);
 					try {
 						doc.unlockAllElements();
 					} catch (e) {}
@@ -666,9 +670,8 @@
 		ft.type_assert(timeline, Timeline);
 		ft.array_foreach(timeline.layers, function (layer) {
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
-				if (timeline.currentFrame != frame_index) {
-					timeline.currentFrame = frame_index;
-				}
+				timeline.currentFrame = frame_index;
+				doc.selectNone();
 				ft.array_foreach(frame.elements, function (elem) {
 					if (replaces.hasOwnProperty(elem.libraryItem.name)) {
 						doc.selectNone();
@@ -735,29 +738,28 @@
 		ft.type_assert(timeline, Timeline);
 
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
-			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
 				if (fttim.is_shape_tween_frame(frame)) {
-					if ( ft.is_function(frame.convertToFrameByFrameAnimation) ) {
+					if (ft.is_function(frame.convertToFrameByFrameAnimation)) {
 						ft.trace_fmt(
-							"[Warning] Timeline: '{0}'\n" +
+							"[Warning] Timeline: '{0}' Layer: '{1}' Frame: {2}\n" +
 							"- Shape tween strongly not recommended because it rasterized to frame-by-frame bitmap sequence.",
-							timeline.name);
+							timeline.name, layer.name, frame_index + 1);
 						frame.convertToFrameByFrameAnimation();
 					} else {
 						throw "Animation uses shape tweens. To export this animation you should use Adobe Animate CC or higher!";
 					}
 				} else if (fttim.is_motion_tween_frame(frame)) {
-					var shapes = ft.array_filter(frame.elements, fttim.is_shape_element);
-					if (shapes.length > 0) {
+					var has_shapes = ft.array_any(frame.elements, fttim.is_shape_element);
+					if (has_shapes || frame.elements.length > 1) {
+						ft.trace_fmt(
+							"[Warning] Timeline: '{0}' Layer: '{1}' Frame: {2}\n" +
+							"- Frame contains incorrect objects for correctly tween.",
+							timeline.name, layer.name, frame_index + 1);
 						timeline.currentFrame = frame_index;
-						timeline.setSelectedFrames(frame_index, frame_index + 1, true);
 						doc.selectNone();
-						doc.selection = shapes;
-						if (doc.selection.length > 0) {
-							doc.group();
-							doc.arrange("back");
-						}
+						doc.selection = frame.elements;
+						doc.convertToSymbol("graphic", ft.gen_unique_name(), "top left");
 					}
 				}
 			}, fttim.is_keyframe);
@@ -767,36 +769,54 @@
 	fttim.prepare_all_groups = function (doc, timeline) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(timeline, Timeline);
+		
+		var check_need_for_ungroup = function (frame, elem) {
+			if (fttim.is_tween_frame(frame)) {
+				return true;
+			}
+			if (fttim.is_group_shape_element(elem)) {
+				return ft.array_any(elem.members, function (member) {
+					if (fttim.is_instance_element(member)) {
+						return true;
+					}
+					return check_need_for_ungroup(frame, member);
+				});
+			}
+			return false;
+		};
 
 		var new_symbols = [];
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
-			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
-				timeline.currentFrame = frame_index;
-				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
-
-				var elements = ft.array_clone(frame.elements);
-				ft.array_foreach(elements, function (elem, elem_index) {
+				var has_complex_shapes = ft.array_any(frame.elements, fttim.is_complex_shape_element);
+				if (has_complex_shapes) {
+					timeline.currentFrame = frame_index;
 					doc.selectNone();
-					doc.selection = [elem];
-
-					if (fttim.is_simple_shape_element(elem)) {
-						// nothing
-					} else if (fttim.is_complex_shape_element(elem)) {
-						if (fttim.is_object_shape_element(elem)) {
-							doc.breakApart();
-							doc.group();
+					
+					var elements = ft.array_clone(frame.elements);
+					ft.array_foreach(elements, function (elem, elem_index) {
+						if (fttim.is_simple_shape_element(elem)) {
+							// nothing
+						} else if (fttim.is_complex_shape_element(elem) && check_need_for_ungroup(frame, elem)) {
+							doc.selectNone();
+							doc.selection = [elem];
+							if (fttim.is_object_shape_element(elem)) {
+								doc.breakApart();
+								doc.group();
+							}
+							doc.unGroup();
+							try {
+								doc.unlockAllElements();
+							} catch (e) {}
+							var wrapper_item = doc.convertToSymbol("graphic", ft.gen_unique_name(), "top left");
+							new_symbols.push(wrapper_item);
+						} else {
+							doc.selectNone();
+							doc.selection = [elem];
+							doc.arrange("front");
 						}
-						doc.unGroup();
-						try {
-							doc.unlockAllElements();
-						} catch (e) {}
-						var wrapper_item = doc.convertToSymbol("graphic", ft.gen_unique_name(), "top left");
-						new_symbols.push(wrapper_item);
-					} else {
-						doc.arrange("front");
-					}
-				});
+					});
+				}
 			}, fttim.is_keyframe);
 		}, fttim.is_not_guide_layer);
 		return new_symbols;
@@ -808,18 +828,26 @@
 
 		var rasterize_count = 0;
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
-			timeline.setSelectedLayers(layer_index);
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
-				timeline.currentFrame = frame_index;
-				timeline.setSelectedFrames(frame_index, frame_index + 1, true);
-
-				doc.selectNone();
-				doc.selection = ft.array_filter(frame.elements, fttim.is_shape_element);
-				if (doc.selection.length > 0) {
-					var location_name = "Timeline: {0}".format(timeline.name);
-					ftdoc.convert_selection_to_bitmap(doc, location_name, timeline.libraryItem);
-					doc.arrange("back");
-					++rasterize_count;
+				var has_shapes = ft.array_any(frame.elements, fttim.is_shape_element);
+				if (has_shapes) {
+					timeline.currentFrame = frame_index;
+					doc.selectNone();
+					var groups_arr = ft.array_group_by(frame.elements, fttim.is_shape_element);
+					for (var i = 0; i < groups_arr.length; ++i) {
+						var groups = groups_arr[i];
+						if (fttim.is_shape_element(groups.peek())) {
+							doc.selectNone();
+							doc.selection = groups;
+							var location_name = "Timeline: {0}".format(timeline.name);
+							ftdoc.convert_selection_to_bitmap(doc, location_name, timeline.libraryItem);
+							++rasterize_count;
+						} else {
+							doc.selectNone();
+							doc.selection = groups;
+							doc.arrange("front");
+						}
+					}
 				}
 			}, fttim.is_keyframe);
 		}, fttim.is_not_guide_layer);
