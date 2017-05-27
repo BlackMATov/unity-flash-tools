@@ -544,6 +544,10 @@
 	fttim.is_instance_element = function (elem) {
 		return elem.elementType == "instance";
 	};
+	
+	fttim.is_bitmap_instance = function (elem) {
+		return fttim.is_instance_element(elem) && elem.instanceType == "bitmap";
+	};
 
 	fttim.is_symbol_instance = function (elem) {
 		return fttim.is_instance_element(elem) && elem.instanceType == "symbol";
