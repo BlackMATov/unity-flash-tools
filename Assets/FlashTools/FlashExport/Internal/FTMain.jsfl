@@ -754,7 +754,7 @@
 					if (has_shapes || frame.elements.length > 1) {
 						ft.trace_fmt(
 							"[Warning] Timeline: '{0}' Layer: '{1}' Frame: {2}\n" +
-							"- Frame contains incorrect objects for correctly tween.",
+							"- Frame contains incorrect objects for motion tween.",
 							timeline.name, layer.name, frame_index + 1);
 						timeline.currentFrame = frame_index;
 						doc.selectNone();
