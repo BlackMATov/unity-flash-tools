@@ -266,12 +266,20 @@ namespace FTEditor {
 		//
 		// ---------------------------------------------------------------------
 
-		public static string GetFileHash(string path) {
+		public static string GetFileHashWithVersion(string path) {
+			return string.Format(
+				"{0}={1}",
+				GetFileHash(path), SwfVersion.AsString);
+		}
+
+		static string GetFileHash(string path) {
 			try {
 				using ( var sha256 = SHA256.Create() ) {
 					var file_bytes = File.ReadAllBytes(path);
 					var hash_bytes = sha256.ComputeHash(file_bytes);
-					return System.Convert.ToBase64String(hash_bytes) + file_bytes.LongLength.ToString();
+					return
+						System.Convert.ToBase64String(hash_bytes) +
+						file_bytes.LongLength.ToString();
 				}
 			} catch ( System.Exception ) {
 				return string.Empty;

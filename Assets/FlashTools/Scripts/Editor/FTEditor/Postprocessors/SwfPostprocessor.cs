@@ -42,7 +42,7 @@ namespace FTEditor.Postprocessors {
 		}
 
 		static void SwfFileProcess(string swf_path) {
-			var swf_hash       = SwfEditorUtils.GetFileHash(swf_path);
+			var swf_hash       = SwfEditorUtils.GetFileHashWithVersion(swf_path);
 			var swf_asset_path = Path.ChangeExtension(swf_path, ".asset");
 			SwfEditorUtils.LoadOrCreateAsset<SwfAsset>(swf_asset_path, (swf_asset, created) => {
 				if ( !string.IsNullOrEmpty(swf_asset.Hash) && swf_asset.Hash == swf_hash ) {
