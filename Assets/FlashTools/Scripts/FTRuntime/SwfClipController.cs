@@ -309,18 +309,23 @@ namespace FTRuntime {
 		// ---------------------------------------------------------------------
 
 		internal void Internal_Update(float scaled_dt, float unscaled_dt) {
-			if ( isPlaying ) {
-				_tickTimer += useUnscaledDt ? unscaled_dt : scaled_dt;
-				do {
-					var frame_rate = clip ? clip.frameRate * rateScale : 0.0f;
-					var frame_time = frame_rate > 0.0f ? 1.0f / frame_rate : 0.0f;
-					if ( frame_time > 0.0f && frame_time <= _tickTimer ) {
-						_tickTimer -= frame_time;
+			while ( isPlaying && clip ) {
+				var dt = useUnscaledDt ? unscaled_dt : scaled_dt;
+				var frame_rate = clip.frameRate * rateScale;
+				if ( dt > 0.0f && frame_rate > 0.0f ) {
+					_tickTimer += frame_rate * dt;
+					if ( _tickTimer >= 1.0f ) {
+						var unused_dt = (_tickTimer - 1.0f) / frame_rate;
+						_tickTimer = 0.0f;
 						TimerTick();
+						scaled_dt   = unused_dt * (scaled_dt   / dt);
+						unscaled_dt = unused_dt * (unscaled_dt / dt);
 					} else {
 						break;
 					}
-				} while ( isPlaying );
+				} else {
+					break;
+				}
 			}
 		}
 
