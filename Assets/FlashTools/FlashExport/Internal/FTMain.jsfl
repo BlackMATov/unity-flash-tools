@@ -740,6 +740,16 @@
 	fttim.prepare_all_tweens = function (doc, timeline) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(timeline, Timeline);
+		
+		var is_end_of_tween = function(frame_index, frames) {
+			while (--frame_index >= 0) {
+				var frame = frames[frame_index];
+				if (fttim.is_keyframe(frame, frame_index)) {
+					return fttim.is_motion_tween_frame(frame) && frame.duration > 1;					
+				}
+			}
+			return false;
+		};
 
 		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
@@ -753,7 +763,7 @@
 					} else {
 						throw "Animation uses shape tweens. To export this animation you should use Adobe Animate CC or higher!";
 					}
-				} else if (fttim.is_motion_tween_frame(frame)) {
+				} else if (fttim.is_motion_tween_frame(frame) || is_end_of_tween(frame_index, layer.frames)) {
 					var has_shapes = ft.array_any(frame.elements, fttim.is_shape_element);
 					if (has_shapes || frame.elements.length > 1) {
 						ft.trace_fmt(
