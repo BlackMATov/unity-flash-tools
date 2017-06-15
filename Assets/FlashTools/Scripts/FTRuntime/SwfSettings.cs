@@ -30,14 +30,14 @@ namespace FTRuntime {
 		public static SwfSettingsData identity {
 			get {
 				return new SwfSettingsData{
-					MaxAtlasSize       = 1024,
+					MaxAtlasSize       = 2048,
 					AtlasPadding       = 1,
 					PixelsPerUnit      = 100.0f,
 					GenerateMipMaps    = false,
 					AtlasPowerOfTwo    = true,
 					AtlasForceSquare   = true,
 					AtlasTextureFilter = AtlasFilter.Bilinear,
-					AtlasTextureFormat = AtlasFormat.AutomaticCompressed};
+					AtlasTextureFormat = AtlasFormat.AutomaticTruecolor};
 			}
 		}
 
