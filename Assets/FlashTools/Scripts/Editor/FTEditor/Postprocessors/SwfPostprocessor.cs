@@ -24,17 +24,18 @@ namespace FTEditor.Postprocessors {
 		{
 			var swf_paths = imported_assets
 				.Where(p => Path.GetExtension(p).ToLower().Equals(".swf"));
-			if ( swf_paths.Any() && SwfEditorUtils.IsDemoEnded ) {
-				var title   = "Demo version";
-				var message =
-					"This demo is for evaluation purpose only. " +
-					"It means that you can't have more than 5 animation assets in the project.";
-				EditorUtility.DisplayDialog(title, message, "Ok");
-			} else {
-				foreach ( var swf_path in swf_paths ) {
-					var swf_path_copy = swf_path;
+			if ( swf_paths.Any() ) {
+				if ( SwfEditorUtils.IsDemoEnded ) {
+					var title   = "Demo version";
+					var message =
+						"This demo is for evaluation purpose only. " +
+						"It means that you can't have more than 5 animation assets in the project.";
+					EditorUtility.DisplayDialog(title, message, "Ok");
+				} else {
 					EditorApplication.delayCall += () => {
-						SwfFileProcess(swf_path_copy);
+						foreach ( var swf_path in swf_paths ) {
+							SwfFileProcess(swf_path);
+						}
 						AssetDatabase.SaveAssets();
 					};
 				}
@@ -62,7 +63,11 @@ namespace FTEditor.Postprocessors {
 				var new_data    = LoadSwfAssetData(swf_path);
 				swf_asset.Data  = SwfEditorUtils.CompressAsset(new_data);
 				swf_asset.Hash  = swf_hash;
-				swf_asset.Atlas = null;
+				if ( swf_asset.Atlas ) {
+					AssetDatabase.DeleteAsset(
+						AssetDatabase.GetAssetPath(swf_asset.Atlas));
+					swf_asset.Atlas = null;
+				}
 				EditorUtility.SetDirty(swf_asset);
 				return true;
 			} catch ( Exception e ) {

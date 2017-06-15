@@ -18,15 +18,15 @@ namespace FTEditor.Postprocessors {
 			string[] moved_assets,
 			string[] moved_from_asset_paths)
 		{
-			var asset_paths = imported_assets
-				.Where(p => Path.GetExtension(p).ToLower().Equals(".asset"));
-			var assets = asset_paths
+			var assets = imported_assets
+				.Where(p => Path.GetExtension(p).ToLower().Equals(".asset"))
 				.Select(p => AssetDatabase.LoadAssetAtPath<SwfAsset>(p))
-				.Where(p => !!p);
-			foreach ( var asset in assets ) {
-				var asset_copy = asset;
+				.Where(p => p && !p.Atlas);
+			if ( assets.Any() ) {
 				EditorApplication.delayCall += () => {
-					SwfAssetProcess(asset_copy);
+					foreach ( var asset in assets ) {
+						SwfAssetProcess(asset);
+					}
 					AssetDatabase.SaveAssets();
 				};
 			}
@@ -34,18 +34,19 @@ namespace FTEditor.Postprocessors {
 
 		static void SwfAssetProcess(SwfAsset asset) {
 			try {
-				if ( !asset.Atlas ) {
+				EditorUtility.SetDirty(asset);
+				asset.Atlas = LoadAssetAtlas(asset);
+				if ( asset.Atlas ) {
+					ConfigureAtlas(asset);
+					ConfigureClips(
+						asset,
+						SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data));
+				} else {
 					_progressBar.UpdateTitle(asset.name);
 					var new_data = ConfigureBitmaps(
 						asset,
 						SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data));
-					asset.Data  = SwfEditorUtils.CompressAsset(new_data);
-					asset.Atlas = LoadAssetAtlas(asset);
-					if ( asset.Atlas ) {
-						ConfigureAtlas(asset);
-						ConfigureClips(asset, new_data);
-					}
-					EditorUtility.SetDirty(asset);
+					asset.Data = SwfEditorUtils.CompressAsset(new_data);
 				}
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(

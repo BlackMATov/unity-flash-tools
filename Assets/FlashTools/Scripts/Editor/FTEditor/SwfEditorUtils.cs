@@ -318,7 +318,11 @@ namespace FTEditor {
 			Tools_FlashTools_ReimportAllSwfFiles();
 			var swf_assets = GetAllSwfAssets();
 			foreach ( var swf_asset in swf_assets ) {
-				swf_asset.Atlas = null;
+				if ( swf_asset.Atlas ) {
+					AssetDatabase.DeleteAsset(
+						AssetDatabase.GetAssetPath(swf_asset.Atlas));
+					swf_asset.Atlas = null;
+				}
 				EditorUtility.SetDirty(swf_asset);
 				AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(swf_asset));
 			}
