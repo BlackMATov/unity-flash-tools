@@ -185,14 +185,14 @@ namespace FTEditor {
 				.ToArray();
 		}
 
-		public static byte[] CompressAsset<T>(T asset) {
+		public static byte[] CompressAsset<T>(T asset, System.Action<float> progress_act) {
 			var bytes  = AssetToBytes(asset);
-			var result = ZlibStream.CompressBuffer(bytes);
+			var result = CompressBuffer(bytes, progress_act);
 			return result;
 		}
 
-		public static T DecompressAsset<T>(byte[] data) {
-			var bytes  = ZlibStream.UncompressBuffer(data);
+		public static T DecompressAsset<T>(byte[] data, System.Action<float> progress_act) {
+			var bytes  = DecompressBuffer(data, progress_act);
 			var result = BytesToAsset<T>(bytes);
 			return result;
 		}
@@ -209,6 +209,41 @@ namespace FTEditor {
 			var formatter = new BinaryFormatter();
 			using ( var stream = new MemoryStream(bytes) ) {
 				return (T)formatter.Deserialize(stream);
+			}
+		}
+
+		static byte[] CompressBuffer(byte[] bytes, System.Action<float> progress_act) {
+			using ( var output = new MemoryStream() ) {
+				using ( var compressor = new ZlibStream(output, CompressionMode.Compress, CompressionLevel.Default) ) {
+					var n = 0;
+					while ( n < bytes.Length ) {
+						var count = Mathf.Min(4 * 1024, bytes.Length - n);
+						compressor.Write(bytes, n, count);
+						n += count;
+						if ( progress_act != null ) {
+							progress_act((float)n / bytes.Length);
+						}
+					}
+				}
+				return output.ToArray();
+			}
+		}
+
+		static byte[] DecompressBuffer(byte[] compressed_bytes, System.Action<float> progress_act) {
+			using ( var input = new MemoryStream(compressed_bytes) ) {
+				using ( var decompressor = new ZlibStream(input, CompressionMode.Decompress) ) {
+					using ( var output = new MemoryStream() ) {
+						int n;
+						var buffer = new byte[4 * 1024];
+						while ( (n = decompressor.Read(buffer, 0, buffer.Length)) != 0 ) {
+							output.Write(buffer, 0, n);
+							if ( progress_act != null ) {
+								progress_act((float)decompressor.Position / input.Length);
+							}
+						}
+						return output.ToArray();
+					}
+				}
 			}
 		}
 

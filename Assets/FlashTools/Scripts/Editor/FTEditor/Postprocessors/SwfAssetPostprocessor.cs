@@ -35,18 +35,19 @@ namespace FTEditor.Postprocessors {
 		static void SwfAssetProcess(SwfAsset asset) {
 			try {
 				EditorUtility.SetDirty(asset);
+				var asset_data = SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data, progress => {
+					_progressBar.UpdateProgress("decompress swf asset", progress);
+				});
 				asset.Atlas = LoadAssetAtlas(asset);
 				if ( asset.Atlas ) {
 					ConfigureAtlas(asset);
-					ConfigureClips(
-						asset,
-						SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data));
+					ConfigureClips(asset, asset_data);
 				} else {
 					_progressBar.UpdateTitle(asset.name);
-					var new_data = ConfigureBitmaps(
-						asset,
-						SwfEditorUtils.DecompressAsset<SwfAssetData>(asset.Data));
-					asset.Data = SwfEditorUtils.CompressAsset(new_data);
+					var new_data = ConfigureBitmaps(asset, asset_data);
+					asset.Data = SwfEditorUtils.CompressAsset(new_data, progress => {
+						_progressBar.UpdateProgress("compress swf asset", progress);
+					});
 				}
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(

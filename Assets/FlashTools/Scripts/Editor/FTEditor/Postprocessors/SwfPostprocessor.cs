@@ -60,9 +60,11 @@ namespace FTEditor.Postprocessors {
 		static bool SafeLoadSwfAsset(string swf_path, string swf_hash, SwfAsset swf_asset) {
 			try {
 				_progressBar.UpdateTitle(Path.GetFileName(swf_path));
-				var new_data    = LoadSwfAssetData(swf_path);
-				swf_asset.Data  = SwfEditorUtils.CompressAsset(new_data);
-				swf_asset.Hash  = swf_hash;
+				var new_data   = LoadSwfAssetData(swf_path);
+				swf_asset.Data = SwfEditorUtils.CompressAsset(new_data, progress => {
+					_progressBar.UpdateProgress("swf asset compression", progress);
+				});
+				swf_asset.Hash = swf_hash;
 				if ( swf_asset.Atlas ) {
 					AssetDatabase.DeleteAsset(
 						AssetDatabase.GetAssetPath(swf_asset.Atlas));
@@ -108,9 +110,6 @@ namespace FTEditor.Postprocessors {
 				.Where(p => !string.IsNullOrEmpty(p.ExportName))
 				.ToList();
 			for ( var i = 0; i < sprite_defs.Count; ++i ) {
-				_progressBar.UpdateProgress(
-					"load swf symbols",
-					(float)(i + 1) / sprite_defs.Count);
 				var def  = sprite_defs[i];
 				var name = def.ExportName;
 				var tags = def.ControlTags.Tags;
@@ -128,6 +127,9 @@ namespace FTEditor.Postprocessors {
 			});
 			var symbol_frames = new List<SwfFrameData>();
 			while ( executer.NextFrame(tags, disp_lst) ) {
+				_progressBar.UpdateProgress(
+					string.Format("swf symbols loading ({0})", symbol_name),
+					(float)(executer.CurrentTag + 1) / tags.Count);
 				symbol_frames.Add(LoadSymbolFrameData(library, disp_lst));
 			}
 			return new SwfSymbolData{
