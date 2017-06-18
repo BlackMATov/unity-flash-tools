@@ -124,7 +124,7 @@
 			(function() {
 				var wrapper_item_name = ft.gen_unique_name();
 				var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "top left");
-				fttim.recursive_scale_filters(doc, wrapper_item.timeline, final_scale);
+				fttim.recursive_scale_filters(doc, wrapper_item, final_scale);
 
 				var elem = doc.selection[0];
 				elem.setTransformationPoint({x: 0, y: 0});
@@ -150,6 +150,8 @@
 
 				elem.setTransformationPoint({x: (elem_x - elem.x), y: (elem_y - elem.y)});
 				doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
+				
+				fttim.recursive_scale_filters(doc, wrapper_item, 1.0 / final_scale);
 			})();
 		}
 	};
@@ -648,23 +650,51 @@
 		var frame_height = Math.max(0, bounds.bottom - bounds.top);
 		return Math.round(frame_width) * Math.round(frame_height);
 	};
+	
+	fttim.scale_elem_filters = function (elem, scale) {
+		if (fttim.is_symbol_instance(elem)) {
+			var elem_filters = elem.filters;
+			if (elem_filters && elem_filters !== undefined) {
+				ft.array_foreach(elem_filters, function (elem_filter, filter_index) {
+					elem_filter.blurX *= scale;
+					elem_filter.blurY *= scale;
+				});
+				elem.filters = elem_filters;
+			}
+		}
+		if (fttim.is_group_shape_element(elem)) {
+			ft.array_foreach(elem.members, function(member) {
+				fttim.scale_elem_filters(member, scale);
+			});
+		}
+	};
 
-	fttim.recursive_scale_filters = function (doc, timeline, scale) {
+	fttim.recursive_scale_filters = function (doc, item, scale, optional_scaled_items) {
 		ft.type_assert(doc, Document);
-		ft.type_assert(timeline, Timeline);
-		ft.array_foreach(timeline.layers, function (layer) {
+		ft.type_assert(item, LibraryItem);
+		ft.type_assert(scale, 'number');
+		ft.type_assert_if_defined(optional_scaled_items, Array);
+		
+		var scaled_items = optional_scaled_items || [];
+		if (ft.array_contains(scaled_items, item)) {
+			return;
+		} else {
+			scaled_items.push(item);
+		}
+		
+		ft.array_foreach(item.timeline.layers, function (layer) {
 			ft.array_foreach(layer.frames, function (frame, frame_index) {
 				ft.array_foreach(frame.elements, function (elem) {
-					var elem_filters = elem.filters;
-					if (elem_filters && elem_filters !== undefined) {
-						ft.array_foreach(elem_filters, function (elem_filter, filter_index) {
-							elem_filter.blurX *= scale;
-							elem_filter.blurY *= scale;
-						});
-						elem.filters = elem_filters;
+					fttim.scale_elem_filters(elem, scale);
+					if (fttim.is_group_shape_element(elem)) {
+						ft.array_foreach(elem.members, function(member) {
+							fttim.recursive_scale_filters(doc, member.libraryItem, scale, scaled_items);
+						}, fttim.is_symbol_instance);
 					}
-					fttim.recursive_scale_filters(doc, elem.libraryItem.timeline, scale);
-				}, fttim.is_symbol_instance);
+					if (fttim.is_symbol_instance(elem)) {
+						fttim.recursive_scale_filters(doc, elem.libraryItem, scale, scaled_items);
+					}
+				});
 			}, fttim.is_keyframe);
 		}, fttim.is_not_guide_layer);
 	};

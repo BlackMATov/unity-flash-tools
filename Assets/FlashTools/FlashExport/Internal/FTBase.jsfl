@@ -158,12 +158,7 @@ ft.array_foldr = function (arr, func, acc) {
 
 ft.array_clone = function (arr) {
 	ft.type_assert(arr, Array);
-	var new_arr = [];
-	for (var index = 0; index < arr.length; ++index) {
-		var value = arr[index];
-		new_arr.push(value);
-	}
-	return new_arr;
+	return arr.concat();
 };
 
 ft.array_filter = function (arr, filter) {
@@ -179,6 +174,19 @@ ft.array_filter = function (arr, filter) {
 	return new_arr;
 };
 
+ft.array_merge = function (arrA, arrB) {
+	ft.type_assert(arrA, Array);
+	ft.type_assert(arrB, Array);
+	return arrA.concat(ft.array_filter(arrB, function (value) {
+		return !ft.array_contains(arrA, value);
+	}));
+};
+
+ft.array_contains = function (arr, elem) {
+	ft.type_assert(arr, Array);
+	return arr.indexOf(elem) >= 0;
+};
+
 ft.array_foreach = function (arr, func, filter) {
 	ft.type_assert(arr, Array);
 	ft.type_assert(func, Function);
@@ -191,7 +199,7 @@ ft.array_foreach = function (arr, func, filter) {
 	}
 };
 
-ft.array_group_by = function(arr, func) {
+ft.array_group_by = function (arr, func) {
 	return ft.array_foldl(arr, function (value, acc) {
 		if (acc.length > 0 && func(acc.peek().peek()) === func(value)) {
 			acc.peek().push(value);
