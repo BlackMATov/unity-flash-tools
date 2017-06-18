@@ -73,10 +73,6 @@ namespace FTEditor.Editors {
 			AllAssetsForeach(p => ApplyOverriddenSettings(p));
 		}
 
-		void ReconvertAllAsset() {
-			AllAssetsForeach(p => ReconvertAsset(p));
-		}
-
 		//
 		//
 		//
@@ -109,7 +105,7 @@ namespace FTEditor.Editors {
 				GUILayout.BeginHorizontal();
 				{
 					if ( GUILayout.Button("Reconvert") ) {
-						ReconvertAllAsset();
+						ApplyAllOverriddenSettings();
 					}
 					GUILayout.FlexibleSpace();
 					var default_settings = GetSettingsHolder().Settings;
