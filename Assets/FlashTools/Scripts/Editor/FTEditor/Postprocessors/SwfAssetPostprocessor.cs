@@ -211,6 +211,12 @@ namespace FTEditor.Postprocessors {
 		#else
 			atlas_importer.textureFormat       = SwfAtlasFormatToImporterFormat(asset.Settings.AtlasTextureFormat);
 		#endif
+
+			var atlas_settings = new TextureImporterSettings();
+			atlas_importer.ReadTextureSettings(atlas_settings);
+			atlas_settings.spriteMeshType = SpriteMeshType.FullRect;
+			atlas_importer.SetTextureSettings(atlas_settings);
+
 			atlas_importer.SaveAndReimport();
 		}
 
