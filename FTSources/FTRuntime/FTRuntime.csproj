@@ -65,6 +65,9 @@
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfSettings.cs.meta">
       <Link>FTRuntime\SwfSettings.cs.meta</Link>
     </None>
+    <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfVersion.cs.meta">
+      <Link>FTRuntime\SwfVersion.cs.meta</Link>
+    </None>
     <None Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Yields.meta">
       <Link>FTRuntime\Yields.meta</Link>
     </None>
@@ -114,6 +117,9 @@
     </Compile>
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfSettings.cs">
       <Link>FTRuntime\SwfSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\SwfVersion.cs">
+      <Link>FTRuntime\SwfVersion.cs</Link>
     </Compile>
     <Compile Include="..\..\Assets\FlashTools\Scripts\FTRuntime\Internal\SwfAssocList.cs">
       <Link>FTRuntime\Internal\SwfAssocList.cs</Link>

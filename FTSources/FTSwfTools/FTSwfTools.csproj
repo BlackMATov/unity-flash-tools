@@ -29,9 +29,6 @@
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <Folder Include="FTSwfTools\" />
-  </ItemGroup>
-  <ItemGroup>
     <Reference Include="mscorlib">
       <HintPath>..\DLLs\mscorlib.dll</HintPath>
       <Private>False</Private>
@@ -44,6 +41,9 @@
       <HintPath>..\DLLs\System.dll</HintPath>
       <Private>False</Private>
     </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="FTSwfTools\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Assets\FlashTools\Scripts\Editor\FTSwfTools\SwfContext.cs">
