@@ -71,38 +71,38 @@
 		// Fonts and Text
 		// -----------------------------
 
-		DefineFont = 10,
-		DefineFontInfo = 13,
-		DefineFontInfo2 = 62,
-		DefineFont2 = 48,
-		DefineFont3 = 75,
-		DefineFontAlignZones = 73,
-		DefineFontName = 88,
-		DefineText = 11,
-		DefineText2 = 33,
-		DefineEditText = 37,
-		CSMTextSettings = 74,
-		DefineFont4 = 91,
+		DefineFont = 10,           // Unsupported
+		DefineFontInfo = 13,       // Unsupported
+		DefineFontInfo2 = 62,      // Unsupported
+		DefineFont2 = 48,          // Unsupported
+		DefineFont3 = 75,          // Unsupported
+		DefineFontAlignZones = 73, // Unsupported
+		DefineFontName = 88,       // Unsupported
+		DefineText = 11,           // Unsupported
+		DefineText2 = 33,          // Unsupported
+		DefineEditText = 37,       // Unsupported
+		CSMTextSettings = 74,      // Unsupported
+		DefineFont4 = 91,          // Unsupported
 
 		// -----------------------------
 		// Sounds
 		// -----------------------------
 
-		//DefineSound = 14,
-		//StartSound = 15,
-		//StartSound2 = 89,
-		//SoundStreamHead = 18,
-		//SoundStreamHead2 = 45,
-		//SoundStreamBlock = 19,
+		DefineSound = 14,      // Unsupported
+		StartSound = 15,       // Unsupported
+		StartSound2 = 89,      // Unsupported
+		SoundStreamHead = 18,  // Unsupported
+		SoundStreamHead2 = 45, // Unsupported
+		SoundStreamBlock = 19, // Unsupported
 
 		// -----------------------------
 		// Buttons
 		// -----------------------------
 
-		//DefineButton = 7,
-		//DefineButton2 = 34,
-		//DefineButtonCxform = 23,
-		//DefineButtonSound = 17,
+		DefineButton = 7,        // Unsupported
+		DefineButton2 = 34,      // Unsupported
+		DefineButtonCxform = 23, // Unsupported
+		DefineButtonSound = 17,  // Unsupported
 
 		// -----------------------------
 		// Sprites and Movie Clips
@@ -212,6 +212,18 @@
 			case (int)SwfTagType.DefineEditText:               return UnsupportedTag.Create(SwfTagType.DefineEditText);
 			case (int)SwfTagType.CSMTextSettings:              return UnsupportedTag.Create(SwfTagType.CSMTextSettings);
 			case (int)SwfTagType.DefineFont4:                  return UnsupportedTag.Create(SwfTagType.DefineFont4);
+			// Sounds
+			case (int)SwfTagType.DefineSound:                  return UnsupportedTag.Create(SwfTagType.DefineSound);
+			case (int)SwfTagType.StartSound:                   return UnsupportedTag.Create(SwfTagType.StartSound);
+			case (int)SwfTagType.StartSound2:                  return UnsupportedTag.Create(SwfTagType.StartSound2);
+			case (int)SwfTagType.SoundStreamHead:              return UnsupportedTag.Create(SwfTagType.SoundStreamHead);
+			case (int)SwfTagType.SoundStreamHead2:             return UnsupportedTag.Create(SwfTagType.SoundStreamHead2);
+			case (int)SwfTagType.SoundStreamBlock:             return UnsupportedTag.Create(SwfTagType.SoundStreamBlock);
+			// Buttons
+			case (int)SwfTagType.DefineButton:                 return UnsupportedTag.Create(SwfTagType.DefineButton);
+			case (int)SwfTagType.DefineButton2:                return UnsupportedTag.Create(SwfTagType.DefineButton2);
+			case (int)SwfTagType.DefineButtonCxform:           return UnsupportedTag.Create(SwfTagType.DefineButtonCxform);
+			case (int)SwfTagType.DefineButtonSound:            return UnsupportedTag.Create(SwfTagType.DefineButtonSound);
 			// Sprites and Movie Clips
 			case (int)SwfTagType.DefineSprite:                 return DefineSpriteTag.Create(reader);
 			// Video

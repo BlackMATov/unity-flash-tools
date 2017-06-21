@@ -66,7 +66,7 @@ https://gist.github.com/talecrafter/111ea3345911bd238f4998b4d5a04bf3
 **** TODO Возможно проблемы с DX9
 UNITY_UV_STARTS_AT_TOP
 UNITY_HALF_TEXEL_OFFSET
-** TODO Версия 1.3.8
+** DONE Версия 1.3.8
 *** Улучшения
 **** DONE Ворнинг на shape-tween
 **** DONE Скрипты для выгрузки в разных масштабах
