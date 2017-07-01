@@ -1,4 +1,5 @@
-﻿ft_main = function (opts) {
+﻿ft_main = function (external_ft, opts) {
+	ft = external_ft;
 	opts = opts || {};
 
 	//
