@@ -57,6 +57,8 @@ https://gist.github.com/talecrafter/111ea3345911bd238f4998b4d5a04bf3
 **** TODO У ворнингов конверта нет контекста
 **** TODO Поддержка юнити-атласов
 **** TODO Поддержка задавать теги и сплит текстур на альфу для etc
+**** TODO Заюзать step вместо if в шейдере
+https://web.archive.org/web/20161214092913/http://http.developer.nvidia.com:80/Cg/step.html
 *** Баги
 **** TODO Скейлы клипов не проверяются в группах
 **** TODO graphics_scale не влияет на растр
