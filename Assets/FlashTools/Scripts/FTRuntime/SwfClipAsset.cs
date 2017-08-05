@@ -42,6 +42,7 @@ namespace FTRuntime {
 				get {
 					if ( !_cachedMesh ) {
 						_cachedMesh = new Mesh();
+						_cachedMesh.hideFlags = HideFlags.DontSave;
 						SwfUtils.FillGeneratedMesh(_cachedMesh, MeshData);
 					}
 					return _cachedMesh;

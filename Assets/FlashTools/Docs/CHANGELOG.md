@@ -1,3 +1,7 @@
+###### Version 1.3.9
+* Not save generated meshes in scene
+* Fix (At line 908 of file "FTMain.jsfl": ReferenceError: ft is not defined)
+
 ###### Version 1.3.8
 * Fix shape groups in tweens problems
 * Fix drawing object shape problems
