@@ -11,15 +11,20 @@ namespace FTRuntime {
 #endif
 	public class SwfClip : MonoBehaviour {
 
-		MeshFilter            _meshFilter   = null;
-		MeshRenderer          _meshRenderer = null;
+		MeshFilter            _meshFilter              = null;
+		MeshRenderer          _meshRenderer            = null;
 	#if UNITY_5_6_OR_NEWER
-		SortingGroup          _sortingGroup = null;
+		SortingGroup          _sortingGroup            = null;
 	#endif
 
-		bool                  _dirtyMesh    = true;
-		SwfClipAsset.Sequence _curSequence  = null;
-		MaterialPropertyBlock _curPropBlock = null;
+		bool                  _dirtyMesh               = true;
+		SwfClipAsset.Sequence _curSequence             = null;
+		MaterialPropertyBlock _curPropBlock            = null;
+
+		static readonly int   _tintShaderProp          = Shader.PropertyToID("_Tint");
+		static readonly int   _mainTexShaderProp       = Shader.PropertyToID("_MainTex");
+		static readonly int   _alphaTexShaderProp      = Shader.PropertyToID("_AlphaTex");
+		static readonly int   _externalAlphaShaderProp = Shader.PropertyToID("_ExternalAlpha");
 
 		// ---------------------------------------------------------------------
 		//
@@ -389,19 +394,19 @@ namespace FTRuntime {
 					_curPropBlock = new MaterialPropertyBlock();
 				}
 				_meshRenderer.GetPropertyBlock(_curPropBlock);
-				_curPropBlock.SetColor("_Tint", tint);
+				_curPropBlock.SetColor(_tintShaderProp, tint);
 				var sprite = clip ? clip.Sprite : null;
 				var atlas  = sprite && sprite.texture ? sprite.texture : Texture2D.whiteTexture;
 				var atlasA = sprite ? sprite.associatedAlphaSplitTexture : null;
 				_curPropBlock.SetTexture(
-					"_MainTex",
+					_mainTexShaderProp,
 					atlas ? atlas : Texture2D.whiteTexture);
 				if ( atlasA ) {
-					_curPropBlock.SetTexture("_AlphaTex", atlasA);
-					_curPropBlock.SetFloat("_ExternalAlpha", 1.0f);
+					_curPropBlock.SetTexture(_alphaTexShaderProp, atlasA);
+					_curPropBlock.SetFloat(_externalAlphaShaderProp, 1.0f);
 				} else {
-					_curPropBlock.SetTexture("_AlphaTex", Texture2D.whiteTexture);
-					_curPropBlock.SetFloat("_ExternalAlpha", 0.0f);
+					_curPropBlock.SetTexture(_alphaTexShaderProp, Texture2D.whiteTexture);
+					_curPropBlock.SetFloat(_externalAlphaShaderProp, 0.0f);
 				}
 				_meshRenderer.SetPropertyBlock(_curPropBlock);
 			}

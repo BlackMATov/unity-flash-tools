@@ -2,7 +2,7 @@
 	public static class SwfVersion {
 		public const int Major    = 1;
 		public const int Minor    = 3;
-		public const int Revision = 8;
+		public const int Revision = 9;
 
 		public static string AsString {
 			get {
