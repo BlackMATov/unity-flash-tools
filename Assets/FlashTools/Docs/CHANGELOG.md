@@ -2,6 +2,7 @@
 * Not save generated meshes in scene
 * Fix (At line 908 of file "FTMain.jsfl": ReferenceError: ft is not defined)
 * Fix warning on add missing components
+* Replace shader "if" instruction to "step"
 
 ###### Version 1.3.8
 * Fix shape groups in tweens problems

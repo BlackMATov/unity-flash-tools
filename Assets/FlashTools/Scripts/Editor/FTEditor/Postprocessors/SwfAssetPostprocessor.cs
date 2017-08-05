@@ -378,7 +378,7 @@ namespace FTEditor.Postprocessors {
 				var bitmap = inst != null
 					? FindBitmapFromAssetData(data, inst.Bitmap)
 					: null;
-				if ( bitmap != null && IsVisibleInstance(inst) ) {
+				if ( bitmap != null ) {
 					var width  = bitmap.RealWidth  / 20.0f;
 					var height = bitmap.RealHeight / 20.0f;
 
@@ -489,11 +489,6 @@ namespace FTEditor.Postprocessors {
 				}
 			}
 			return null;
-		}
-
-		static bool IsVisibleInstance(SwfInstanceData inst) {
-			var result_color = inst.ColorTrans.ApplyToColor(Color.white);
-			return result_color.a >= 0.01f;
 		}
 
 		// ---------------------------------------------------------------------

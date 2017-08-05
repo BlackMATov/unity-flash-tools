@@ -154,14 +154,6 @@ namespace FTEditor {
 		public SwfVec4Data mulColor;
 		public SwfVec4Data addColor;
 
-		public Color ApplyToColor(Color color) {
-			return new Color(
-				Mathf.Clamp01(color.r * mulColor.x + addColor.x),
-				Mathf.Clamp01(color.g * mulColor.y + addColor.y),
-				Mathf.Clamp01(color.b * mulColor.z + addColor.z),
-				Mathf.Clamp01(color.a * mulColor.w + addColor.w));
-		}
-
 		public static SwfColorTransData identity {
 			get {
 				return new SwfColorTransData{
