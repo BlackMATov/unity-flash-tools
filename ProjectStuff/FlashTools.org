@@ -69,6 +69,8 @@ https://web.archive.org/web/20161214092913/http://http.developer.nvidia.com:80/C
 **** TODO Оптимизации по скейлу не влияют на растр
 **** TODO Не работает конвертация в batchmod'е
 **** DONE Ворнинг при авто-добавлении SortingGroup
+**** DONE Проблема с инклюдами в jsfl
+At line 908 of file "FTMain.jsfl": ReferenceError: ft is not defined
 **** TODO Площадь для оптимизации вычисляется некорректно при повёрнутых клипах
 **** TODO Возможно проблемы с DX9
 UNITY_UV_STARTS_AT_TOP
