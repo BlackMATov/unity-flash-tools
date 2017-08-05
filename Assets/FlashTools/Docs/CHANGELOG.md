@@ -4,6 +4,7 @@
 * Fix warning on add missing components
 * Replace string shader properties to id
 * Replace shader "if" instruction to "step"
+* Replace mask shader "if + discard" instruction to "clip"
 
 ###### Version 1.3.8
 * Fix shape groups in tweens problems

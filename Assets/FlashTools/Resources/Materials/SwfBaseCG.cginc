@@ -156,9 +156,7 @@ inline fixed4 swf_mask_frag(swf_mask_v2f_t IN) : SV_Target {
 	fixed4 c = tex2D(_MainTex, IN.uv);
 	fixed4 a = tex2D(_AlphaTex, IN.uv).r;
 	c.a = lerp(c.a, a.r, _ExternalAlpha);
-	if ( c.a < 0.01 ) {
-		discard;
-	}
+	clip(c.a - 0.01);
 	return c;
 }
 
