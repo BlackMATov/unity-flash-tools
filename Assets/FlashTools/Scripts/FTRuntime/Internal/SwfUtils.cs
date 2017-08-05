@@ -27,11 +27,12 @@ namespace FTRuntime.Internal {
 		//
 		//
 
-		public static T GetOrCreateComponent<T>(GameObject obj) where T : Component {
+		public static T GetComponent<T>(GameObject obj, bool allow_create) where T : Component {
 			var comp = obj.GetComponent<T>();
-			return comp != null
-				? comp
-				: obj.AddComponent<T>();
+			if ( allow_create && !comp ) {
+				comp = obj.AddComponent<T>();
+			}
+			return comp;
 		}
 
 		//

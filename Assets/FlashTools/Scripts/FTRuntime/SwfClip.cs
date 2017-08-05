@@ -301,7 +301,7 @@ namespace FTRuntime {
 		/// Update all animation properties (for internal use only)
 		/// </summary>
 		public void Internal_UpdateAllProperties() {
-			ClearCache();
+			ClearCache(false);
 			ChangeTint();
 			ChangeClip();
 			ChangeSequence();
@@ -309,11 +309,11 @@ namespace FTRuntime {
 			ChangeSortingProperties();
 		}
 
-		void ClearCache() {
-			_meshFilter   = SwfUtils.GetOrCreateComponent<MeshFilter>(gameObject);
-			_meshRenderer = SwfUtils.GetOrCreateComponent<MeshRenderer>(gameObject);
+		void ClearCache(bool allow_to_create_components) {
+			_meshFilter   = SwfUtils.GetComponent<MeshFilter>  (gameObject, allow_to_create_components);
+			_meshRenderer = SwfUtils.GetComponent<MeshRenderer>(gameObject, allow_to_create_components);
 		#if UNITY_5_6_OR_NEWER
-			_sortingGroup = SwfUtils.GetOrCreateComponent<SortingGroup>(gameObject);
+			_sortingGroup = SwfUtils.GetComponent<SortingGroup>(gameObject, allow_to_create_components);
 		#endif
 			_dirtyMesh    = true;
 			_curSequence  = null;
@@ -432,11 +432,9 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
-		void Awake() {
-			Internal_UpdateAllProperties();
-		}
-
 		void Start() {
+			ClearCache(true);
+			Internal_UpdateAllProperties();
 			EmitChangeEvents(true, true, true);
 		}
 

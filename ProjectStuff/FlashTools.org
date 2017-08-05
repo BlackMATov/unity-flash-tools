@@ -68,7 +68,7 @@ https://web.archive.org/web/20161214092913/http://http.developer.nvidia.com:80/C
 **** TODO graphics_scale не влияет на растр
 **** TODO Оптимизации по скейлу не влияют на растр
 **** TODO Не работает конвертация в batchmod'е
-**** TODO Ворнинг при авто-добавлении SortingGroup
+**** DONE Ворнинг при авто-добавлении SortingGroup
 **** TODO Площадь для оптимизации вычисляется некорректно при повёрнутых клипах
 **** TODO Возможно проблемы с DX9
 UNITY_UV_STARTS_AT_TOP
