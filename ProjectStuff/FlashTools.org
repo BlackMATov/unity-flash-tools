@@ -47,7 +47,7 @@ https://github.com/MattRix/UnityDecompiled/blob/master/UnityEditor/UnityEditor/P
 **** Нужен ворнинг на использование флеш-ide старой версии
 **** Возможность конфигурировать параметры групп в редакторе, а не только в рантайме
 https://gist.github.com/talecrafter/111ea3345911bd238f4998b4d5a04bf3
-** TODO Версия 1.3.9
+** TODO Версия 1.3.10
 *** Общее
 **** TODO Написать гайд по качеству выгружаемых анимаций
 **** TODO Гайд по использованию ETC1 текстур для анимаций
@@ -56,26 +56,29 @@ https://gist.github.com/talecrafter/111ea3345911bd238f4998b4d5a04bf3
 **** TODO Note на ассет когда текстура сжата до максимального размера
 **** TODO У ворнингов конверта нет контекста
 **** TODO Поддержка юнити-атласов
-**** DONE При создании ассет бандлов со сценами где есть анимации - сцены разбухают из-за наличия мешей в анимации
-можно использовать ISerializationCallbackReceiver
-можно в hideFlags на меше поиграться!
 **** TODO Поддержка задавать теги и сплит текстур на альфу для etc
-**** DONE Заменить установку пропертей шейдера с текстовых имён на id
-**** DONE Заюзать step вместо if в шейдере
-https://web.archive.org/web/20161214092913/http://http.developer.nvidia.com:80/Cg/step.html
-**** DONE if + discard заменить на clip
 *** Баги
 **** TODO Скейлы клипов не проверяются в группах
 **** TODO graphics_scale не влияет на растр
 **** TODO Оптимизации по скейлу не влияют на растр
 **** TODO Не работает конвертация в batchmod'е
-**** DONE Ворнинг при авто-добавлении SortingGroup
-**** DONE Проблема с инклюдами в jsfl
-At line 908 of file "FTMain.jsfl": ReferenceError: ft is not defined
 **** TODO Площадь для оптимизации вычисляется некорректно при повёрнутых клипах
 **** TODO Возможно проблемы с DX9
 UNITY_UV_STARTS_AT_TOP
 UNITY_HALF_TEXEL_OFFSET
+** DONE Версия 1.3.9
+*** Улучшения
+**** DONE При создании ассет бандлов со сценами где есть анимации - сцены разбухают из-за наличия мешей в анимации
+можно использовать ISerializationCallbackReceiver
+можно в hideFlags на меше поиграться!
+**** DONE Заменить установку пропертей шейдера с текстовых имён на id
+**** DONE Заюзать step вместо if в шейдере
+https://web.archive.org/web/20161214092913/http://http.developer.nvidia.com:80/Cg/step.html
+**** DONE if + discard заменить на clip
+*** Баги
+**** DONE Ворнинг при авто-добавлении SortingGroup
+**** DONE Проблема с инклюдами в jsfl
+At line 908 of file "FTMain.jsfl": ReferenceError: ft is not defined
 ** DONE Версия 1.3.8
 *** Улучшения
 **** DONE Ворнинг на shape-tween

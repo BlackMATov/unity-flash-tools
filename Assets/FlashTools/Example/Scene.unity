@@ -288,7 +288,7 @@ MonoBehaviour:
   _tint: {r: 1, g: 1, b: 1, a: 1}
   _clip: {fileID: 11400000, guid: 417182f0c8b6f4882a7fe54beb58877e, type: 2}
   _sequence: exitWithBox
-  _currentFrame: 26
+  _currentFrame: 20
 --- !u!23 &944418759
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -681,7 +681,7 @@ MonoBehaviour:
   _tint: {r: 1, g: 1, b: 1, a: 1}
   _clip: {fileID: 11400000, guid: 417182f0c8b6f4882a7fe54beb58877e, type: 2}
   _sequence: arriveWithBox
-  _currentFrame: 0
+  _currentFrame: 4
 --- !u!23 &1893990129
 MeshRenderer:
   m_ObjectHideFlags: 0
