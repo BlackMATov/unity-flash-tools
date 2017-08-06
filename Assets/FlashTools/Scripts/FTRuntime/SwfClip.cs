@@ -21,11 +21,6 @@ namespace FTRuntime {
 		SwfClipAsset.Sequence _curSequence             = null;
 		MaterialPropertyBlock _curPropBlock            = null;
 
-		static readonly int   _tintShaderProp          = Shader.PropertyToID("_Tint");
-		static readonly int   _mainTexShaderProp       = Shader.PropertyToID("_MainTex");
-		static readonly int   _alphaTexShaderProp      = Shader.PropertyToID("_AlphaTex");
-		static readonly int   _externalAlphaShaderProp = Shader.PropertyToID("_ExternalAlpha");
-
 		// ---------------------------------------------------------------------
 		//
 		// Events
@@ -394,19 +389,19 @@ namespace FTRuntime {
 					_curPropBlock = new MaterialPropertyBlock();
 				}
 				_meshRenderer.GetPropertyBlock(_curPropBlock);
-				_curPropBlock.SetColor(_tintShaderProp, tint);
+				_curPropBlock.SetColor(SwfUtils.TintShaderProp, tint);
 				var sprite = clip ? clip.Sprite : null;
 				var atlas  = sprite && sprite.texture ? sprite.texture : Texture2D.whiteTexture;
 				var atlasA = sprite ? sprite.associatedAlphaSplitTexture : null;
 				_curPropBlock.SetTexture(
-					_mainTexShaderProp,
+					SwfUtils.MainTexShaderProp,
 					atlas ? atlas : Texture2D.whiteTexture);
 				if ( atlasA ) {
-					_curPropBlock.SetTexture(_alphaTexShaderProp, atlasA);
-					_curPropBlock.SetFloat(_externalAlphaShaderProp, 1.0f);
+					_curPropBlock.SetTexture(SwfUtils.AlphaTexShaderProp, atlasA);
+					_curPropBlock.SetFloat(SwfUtils.ExternalAlphaShaderProp, 1.0f);
 				} else {
-					_curPropBlock.SetTexture(_alphaTexShaderProp, Texture2D.whiteTexture);
-					_curPropBlock.SetFloat(_externalAlphaShaderProp, 0.0f);
+					_curPropBlock.SetTexture(SwfUtils.AlphaTexShaderProp, Texture2D.whiteTexture);
+					_curPropBlock.SetFloat(SwfUtils.ExternalAlphaShaderProp, 0.0f);
 				}
 				_meshRenderer.SetPropertyBlock(_curPropBlock);
 			}

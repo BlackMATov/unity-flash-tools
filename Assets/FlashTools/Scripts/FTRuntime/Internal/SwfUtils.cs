@@ -4,6 +4,10 @@ using System.Collections.Generic;
 namespace FTRuntime.Internal {
 	static class SwfUtils {
 
+		//
+		// UnpackUV/UnpackFColorFromUInts
+		//
+
 		const ushort UShortMax          = ushort.MaxValue;
 		const float  FColorPrecision    = 1.0f / 512.0f;
 		const float  InvFColorPrecision = 1.0f / FColorPrecision;
@@ -24,7 +28,39 @@ namespace FTRuntime.Internal {
 		}
 
 		//
+		// Shader properties
 		//
+
+		public static int TintShaderProp {
+			get {
+				ShaderPropsCache.LazyInitialize();
+				return ShaderPropsCache.TintShaderProp;
+			}
+		}
+
+		public static int MainTexShaderProp {
+			get {
+				ShaderPropsCache.LazyInitialize();
+				return ShaderPropsCache.MainTexShaderProp;
+			}
+		}
+
+		public static int AlphaTexShaderProp {
+			get {
+				ShaderPropsCache.LazyInitialize();
+				return ShaderPropsCache.AlphaTexShaderProp;
+			}
+		}
+
+		public static int ExternalAlphaShaderProp {
+			get {
+				ShaderPropsCache.LazyInitialize();
+				return ShaderPropsCache.ExternalAlphaShaderProp;
+			}
+		}
+
+		//
+		// GetComponent<T>
 		//
 
 		public static T GetComponent<T>(GameObject obj, bool allow_create) where T : Component {
@@ -36,7 +72,7 @@ namespace FTRuntime.Internal {
 		}
 
 		//
-		//
+		// FillGeneratedMesh
 		//
 
 		public static void FillGeneratedMesh(Mesh mesh, SwfClipAsset.MeshData mesh_data) {
@@ -64,8 +100,28 @@ namespace FTRuntime.Internal {
 			}
 		}
 
+		// ShaderPropsCache
+
+		static class ShaderPropsCache {
+			public static int TintShaderProp          = 0;
+			public static int MainTexShaderProp       = 0;
+			public static int AlphaTexShaderProp      = 0;
+			public static int ExternalAlphaShaderProp = 0;
+
+			static bool _initialized = false;
+			public static void LazyInitialize() {
+				if ( !_initialized ) {
+					_initialized            = true;
+					TintShaderProp          = Shader.PropertyToID("_Tint");
+					MainTexShaderProp       = Shader.PropertyToID("_MainTex");
+					AlphaTexShaderProp      = Shader.PropertyToID("_AlphaTex");
+					ExternalAlphaShaderProp = Shader.PropertyToID("_ExternalAlpha");
+				}
+			}
+		}
+
 		//
-		//
+		// GeneratedMeshCache
 		//
 
 		static class GeneratedMeshCache {
