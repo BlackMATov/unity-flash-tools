@@ -82,78 +82,80 @@
 		ft.type_assert(doc, Document);
 		ft.type_assert(location_name, 'string');
 		ft.type_assert_if_defined(optional_item, LibraryItem);
-
-		var selection_r = doc.getSelectionRect();
-		var selection_w = selection_r.right  - selection_r.left;
-		var selection_h = selection_r.bottom - selection_r.top;
-
-		var max_scale    = cfg.max_convertible_selection / Math.max(selection_w, selection_h);
-		var prefer_scale = ftdoc.calculate_item_prefer_scale(doc, optional_item);
-		var final_scale  = Math.min(prefer_scale, max_scale);
-
-		if (final_scale < prefer_scale) {
-			var down_scale = Math.floor(final_scale / prefer_scale * 1000) * 0.001;
-			ft.trace_fmt(
-				"[Warning] {0}\n" +
-				"- Converted element was downscaled ({1}x) to maximum allowed size ({2}px)",
-				location_name, down_scale, cfg.max_convertible_selection);
-		}
 		
-		if (ft.approximately(final_scale, 1.0, cfg.scale_precision)) {
-			(function() {
-				var elem_r  = doc.getSelectionRect();
+		var selection_r = doc.getSelectionRect();
+		if ( selection_r ) { // getSelectionRect returns 0 for empty clips
+			var selection_w = selection_r.right  - selection_r.left;
+			var selection_h = selection_r.bottom - selection_r.top;
 
-				var elem_x  = elem_r.left;
-				var elem_y  = elem_r.top;
-				var elem_w  = elem_r.right  - elem_r.left;
-				var elem_h  = elem_r.bottom - elem_r.top;
+			var max_scale    = cfg.max_convertible_selection / Math.max(selection_w, selection_h);
+			var prefer_scale = ftdoc.calculate_item_prefer_scale(doc, optional_item);
+			var final_scale  = Math.min(prefer_scale, max_scale);
 
-				var elem_dx = Math.round(elem_x) - elem_x;
-				var elem_dy = Math.round(elem_y) - elem_y;
-				var elem_dw = Math.round(elem_w) - elem_w;
-				var elem_dh = Math.round(elem_h) - elem_h;
+			if (final_scale < prefer_scale) {
+				var down_scale = Math.floor(final_scale / prefer_scale * 1000) * 0.001;
+				ft.trace_fmt(
+					"[Warning] {0}\n" +
+					"- Converted element was downscaled ({1}x) to maximum allowed size ({2}px)",
+					location_name, down_scale, cfg.max_convertible_selection);
+			}
+			
+			if (ft.approximately(final_scale, 1.0, cfg.scale_precision)) {
+				(function() {
+					var elem_r  = doc.getSelectionRect();
 
-				doc.convertSelectionToBitmap();
-				var elem = doc.selection[0];
+					var elem_x  = elem_r.left;
+					var elem_y  = elem_r.top;
+					var elem_w  = elem_r.right  - elem_r.left;
+					var elem_h  = elem_r.bottom - elem_r.top;
 
-				elem.x      -= elem_dx;
-				elem.y      -= elem_dy;
-				elem.width  -= elem_dw;
-				elem.height -= elem_dh;
-			})();
-		} else {
-			(function() {
-				var wrapper_item_name = ft.gen_unique_name();
-				var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "top left");
-				fttim.recursive_scale_filters(doc, wrapper_item, final_scale);
+					var elem_dx = Math.round(elem_x) - elem_x;
+					var elem_dy = Math.round(elem_y) - elem_y;
+					var elem_dw = Math.round(elem_w) - elem_w;
+					var elem_dh = Math.round(elem_h) - elem_h;
 
-				var elem = doc.selection[0];
-				elem.setTransformationPoint({x: 0, y: 0});
-				doc.scaleSelection(final_scale, final_scale);
+					doc.convertSelectionToBitmap();
+					var elem = doc.selection[0];
 
-				var elem_x  = elem.x;
-				var elem_y  = elem.y;
-				var elem_w  = elem.width;
-				var elem_h  = elem.height;
+					elem.x      -= elem_dx;
+					elem.y      -= elem_dy;
+					elem.width  -= elem_dw;
+					elem.height -= elem_dh;
+				})();
+			} else {
+				(function() {
+					var wrapper_item_name = ft.gen_unique_name();
+					var wrapper_item = doc.convertToSymbol("graphic", wrapper_item_name , "top left");
+					fttim.recursive_scale_filters(doc, wrapper_item, final_scale);
 
-				var elem_dx = Math.round(elem_x) - elem_x;
-				var elem_dy = Math.round(elem_y) - elem_y;
-				var elem_dw = Math.round(elem_w) - elem_w;
-				var elem_dh = Math.round(elem_h) - elem_h;
+					var elem = doc.selection[0];
+					elem.setTransformationPoint({x: 0, y: 0});
+					doc.scaleSelection(final_scale, final_scale);
 
-				doc.convertSelectionToBitmap();
-				elem = doc.selection[0];
+					var elem_x  = elem.x;
+					var elem_y  = elem.y;
+					var elem_w  = elem.width;
+					var elem_h  = elem.height;
 
-				elem.x      -= elem_dx;
-				elem.y      -= elem_dy;
-				elem.width  -= elem_dw;
-				elem.height -= elem_dh;
+					var elem_dx = Math.round(elem_x) - elem_x;
+					var elem_dy = Math.round(elem_y) - elem_y;
+					var elem_dw = Math.round(elem_w) - elem_w;
+					var elem_dh = Math.round(elem_h) - elem_h;
 
-				elem.setTransformationPoint({x: (elem_x - elem.x), y: (elem_y - elem.y)});
-				doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
-				
-				fttim.recursive_scale_filters(doc, wrapper_item, 1.0 / final_scale);
-			})();
+					doc.convertSelectionToBitmap();
+					elem = doc.selection[0];
+
+					elem.x      -= elem_dx;
+					elem.y      -= elem_dy;
+					elem.width  -= elem_dw;
+					elem.height -= elem_dh;
+
+					elem.setTransformationPoint({x: (elem_x - elem.x), y: (elem_y - elem.y)});
+					doc.scaleSelection(1.0 / final_scale, 1.0 / final_scale);
+					
+					fttim.recursive_scale_filters(doc, wrapper_item, 1.0 / final_scale);
+				})();
+			}
 		}
 	};
 

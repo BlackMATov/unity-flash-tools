@@ -63,6 +63,8 @@ https://gist.github.com/talecrafter/111ea3345911bd238f4998b4d5a04bf3
 **** TODO Оптимизации по скейлу не влияют на растр
 **** TODO Не работает конвертация в batchmod'е
 **** TODO Площадь для оптимизации вычисляется некорректно при повёрнутых клипах
+**** DONE conversion error: 'Error: scaleSelection: Argument number 1 is invalid.'
+HsiyaoWang/magoichi-test.fla
 **** TODO Возможно проблемы с DX9
 UNITY_UV_STARTS_AT_TOP
 UNITY_HALF_TEXEL_OFFSET

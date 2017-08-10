@@ -1,3 +1,6 @@
+###### Version 1.3.10
+* Fix (conversion error: 'Error: scaleSelection: Argument number 1 is invalid.')
+
 ###### Version 1.3.9
 * Not save generated meshes in scene
 * Fix (At line 908 of file "FTMain.jsfl": ReferenceError: ft is not defined)
