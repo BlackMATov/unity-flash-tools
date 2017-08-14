@@ -1,5 +1,6 @@
 ###### Version 1.3.10
 * Fix (conversion error: 'Error: scaleSelection: Argument number 1 is invalid.')
+* More readable conversion warnings
 
 ###### Version 1.3.9
 * Not save generated meshes in scene
