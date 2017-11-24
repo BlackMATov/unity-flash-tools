@@ -64,6 +64,8 @@ https://gist.github.com/talecrafter/111ea3345911bd238f4998b4d5a04bf3
 **** TODO Оптимизации по скейлу не влияют на растр
 **** TODO Не работает конвертация в batchmod'е
 **** TODO Площадь для оптимизации вычисляется некорректно при повёрнутых клипах
+**** DONE Кнопки с вектором не растеризовались
+(mapResources.fla)
 **** DONE Parsing swf error: Failed to read past end of stream
 Из-за помеченых для экспорта битмапов (blockers_tmp_0.fla)
 **** DONE conversion error: 'Error: scaleSelection: Argument number 1 is invalid.'

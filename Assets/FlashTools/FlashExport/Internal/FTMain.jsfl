@@ -347,7 +347,7 @@
 
 	ftlib.is_symbol_item = function (item) {
 		ft.type_assert(item, LibraryItem);
-		return item.itemType == "graphic" || item.itemType == "movie clip";
+		return item.itemType == "button" || item.itemType == "graphic" || item.itemType == "movie clip";
 	};
 
 	ftlib.find_item_by_name = function (library, item_name) {

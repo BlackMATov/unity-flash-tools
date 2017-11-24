@@ -1,6 +1,7 @@
 ###### Version 1.3.10
 * Fix (conversion error: 'Error: scaleSelection: Argument number 1 is invalid.')
 * Fix (Parsing swf error: Failed to read past end of stream)
+* Fix rasterization error with vector graphics in buttons
 
 ###### Version 1.3.9
 * Not save generated meshes in scene
