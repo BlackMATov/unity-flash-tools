@@ -32,15 +32,21 @@ namespace FTSwfTools {
 			get { return Position >= Length; }
 		}
 
-		public long Length {
-			get { return _binaryReader.BaseStream.Length; }
+		public uint Length {
+			get {
+				var longLength = _binaryReader.BaseStream.Length;
+				return longLength < 0 ? 0 : (uint)longLength;
+			}
 		}
 
-		public long Position {
-			get { return _binaryReader.BaseStream.Position; }
+		public uint Position {
+			get {
+				var longPosition = _binaryReader.BaseStream.Position;
+				return longPosition < 0 ? 0 : (uint)longPosition;
+			}
 		}
 
-		public long BytesLeft {
+		public uint BytesLeft {
 			get { return Length - Position; }
 		}
 
@@ -50,7 +56,7 @@ namespace FTSwfTools {
 		}
 
 		public byte[] ReadRest() {
-			return ReadBytes((int)BytesLeft);
+			return ReadBytes(BytesLeft);
 		}
 
 		public bool ReadBit() {
@@ -66,20 +72,22 @@ namespace FTSwfTools {
 			return _binaryReader.ReadByte();
 		}
 
-		public byte[] ReadBytes(int count) {
-			return count <= 0
-				? new byte[0]
-				: _binaryReader.ReadBytes(count);
+		public byte[] ReadBytes(uint count) {
+			if ( count > (uint)int.MaxValue ) {
+				throw new IOException();
+			}
+			return _binaryReader.ReadBytes((int)count);
 		}
 
 		public char ReadChar() {
 			return _binaryReader.ReadChar();
 		}
 
-		public char[] ReadChars(int count) {
-			return count <= 0
-				? new char[0]
-				: _binaryReader.ReadChars(count);
+		public char[] ReadChars(uint count) {
+			if ( count > (uint)int.MaxValue ) {
+				throw new IOException();
+			}
+			return _binaryReader.ReadChars((int)count);
 		}
 
 		public short ReadInt16() {

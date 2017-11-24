@@ -146,7 +146,7 @@
 			var type_and_size = reader.ReadUInt16();
 			var tag_id        = type_and_size >> 6;
 			var short_size    = type_and_size & 0x3f;
-			var size          = short_size < 0x3f ? short_size : reader.ReadInt32();
+			var size          = short_size < 0x3f ? (uint)short_size : reader.ReadUInt32();
 			var tag_data      = reader.ReadBytes(size);
 			return Create(new SwfTagData{
 				TagId   = tag_id,

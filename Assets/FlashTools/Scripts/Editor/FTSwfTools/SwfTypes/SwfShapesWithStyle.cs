@@ -98,7 +98,7 @@ namespace FTSwfTools.SwfTypes {
 				SwfColor.Read(reader, with_alpha);
 			}
 			if ( fill_style.Type.IsGradientType ) {
-				SwfMatrix.Read(reader, true); // GradientMatrix
+				SwfMatrix.Read(reader); // GradientMatrix
 				switch ( fill_style.Type.Value ) {
 				case SwfFillStyleType.Type.LinearGradient:
 				case SwfFillStyleType.Type.RadialGradient:
@@ -111,7 +111,7 @@ namespace FTSwfTools.SwfTypes {
 			}
 			if ( fill_style.Type.IsBitmapType ) {
 				fill_style.BitmapId     = reader.ReadUInt16();
-				fill_style.BitmapMatrix = SwfMatrix.Read(reader, true);
+				fill_style.BitmapMatrix = SwfMatrix.Read(reader);
 			} else {
 				throw new System.Exception(
 					"Imported .swf file contains vector graphics. " +

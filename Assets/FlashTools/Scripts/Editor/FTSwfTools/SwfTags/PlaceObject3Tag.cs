@@ -101,7 +101,7 @@ namespace FTSwfTools.SwfTags {
 			tag.HasFilterList     = reader.ReadBit();
 			tag.Depth             = reader.ReadUInt16();
 
-			tag.ClassName         = (tag.HasClassName || (tag.HasImage && tag.HasCharacter))
+			tag.ClassName         = tag.HasClassName
 				? reader.ReadString()
 				: string.Empty;
 
@@ -110,7 +110,7 @@ namespace FTSwfTools.SwfTags {
 				: (ushort)0;
 
 			tag.Matrix            = tag.HasMatrix
-				? SwfMatrix.Read(reader, false)
+				? SwfMatrix.Read(reader)
 				: SwfMatrix.identity;
 
 			tag.ColorTransform    = tag.HasColorTransform

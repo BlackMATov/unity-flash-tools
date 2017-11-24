@@ -198,6 +198,19 @@ namespace FTEditor.Postprocessors {
 						self_masks,
 						frame);
 					break;
+				case SwfDisplayInstanceType.Bitmap:
+					AddBitmapInstanceToFrame(
+						library,
+						inst as SwfDisplayBitmapInstance,
+						child_matrix,
+						child_blend_mode,
+						child_color_transform,
+						parent_masked,
+						parent_mask,
+						parent_masks,
+						self_masks,
+						frame);
+					break;
 				case SwfDisplayInstanceType.Sprite:
 					AddSpriteInstanceToFrame(
 						library,
@@ -264,6 +277,47 @@ namespace FTEditor.Postprocessors {
 							self_masks.Add(frame.Instances[frame.Instances.Count - 1]);
 						}
 					}
+				}
+			}
+		}
+
+		static void AddBitmapInstanceToFrame(
+			SwfLibrary               library,
+			SwfDisplayBitmapInstance inst,
+			Matrix4x4                inst_matrix,
+			SwfBlendModeData         inst_blend_mode,
+			SwfColorTransData        inst_color_transform,
+			ushort                   parent_masked,
+			ushort                   parent_mask,
+			List<SwfInstanceData>    parent_masks,
+			List<SwfInstanceData>    self_masks,
+			SwfFrameData             frame)
+		{
+			var bitmap_def = library.FindDefine<SwfLibraryBitmapDefine>(inst.Id);
+			if ( bitmap_def != null ) {
+				var frame_inst_type =
+					(parent_mask > 0 || inst.ClipDepth > 0)
+						? SwfInstanceData.Types.Mask
+						: (parent_masked > 0 || self_masks.Count > 0)
+							? SwfInstanceData.Types.Masked
+							: SwfInstanceData.Types.Group;
+				var frame_inst_clip_depth =
+					(parent_mask > 0)
+						? parent_mask
+						: (inst.ClipDepth > 0)
+							? inst.ClipDepth
+							: parent_masked + self_masks.Count;
+				frame.Instances.Add(new SwfInstanceData{
+					Type       = frame_inst_type,
+					ClipDepth  = (ushort)frame_inst_clip_depth,
+					Bitmap     = inst.Id,
+					Matrix     = SwfMatrixData.FromUMatrix(inst_matrix * Matrix4x4.Scale(new Vector3(20,20,1))),
+					BlendMode  = inst_blend_mode,
+					ColorTrans = inst_color_transform});
+				if ( parent_mask > 0 ) {
+					parent_masks.Add(frame.Instances[frame.Instances.Count - 1]);
+				} else if ( inst.ClipDepth > 0 ) {
+					self_masks.Add(frame.Instances[frame.Instances.Count - 1]);
 				}
 			}
 		}

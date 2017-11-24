@@ -26,7 +26,7 @@ namespace FTSwfTools.SwfTags {
 			var tag            = new PlaceObjectTag();
 			tag.CharacterId    = reader.ReadUInt16();
 			tag.Depth          = reader.ReadUInt16();
-			tag.Matrix         = SwfMatrix.Read(reader, false);
+			tag.Matrix         = SwfMatrix.Read(reader);
 			tag.ColorTransform = reader.IsEOF
 				? SwfColorTransform.identity
 				: SwfColorTransform.Read(reader, false);
