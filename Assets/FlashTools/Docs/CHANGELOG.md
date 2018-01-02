@@ -1,6 +1,7 @@
 ###### Version 1.3.11
 * Fix trial version in Unity 2017
 * Fix warnings in Unity 2017
+* Fix possible mesh leak after scene switch
 
 ###### Version 1.3.10
 * Fix (conversion error: 'Error: scaleSelection: Argument number 1 is invalid.')
