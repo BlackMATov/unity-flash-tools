@@ -111,6 +111,24 @@ namespace FTEditor.Editors {
 				-10.0f);
 		}
 
+		static Camera GetCameraFromPreviewUtils(PreviewRenderUtility previewUtils) {
+			var cameraField = previewUtils.GetType().GetField("m_Camera");
+			var cameraFieldValue = cameraField != null
+				? cameraField.GetValue(previewUtils) as Camera
+				: null;
+			if ( cameraFieldValue ) {
+				return cameraFieldValue;
+			}
+			var cameraProperty = previewUtils.GetType().GetProperty("camera");
+			var cameraPropertyValue = cameraProperty != null
+				? cameraProperty.GetValue(previewUtils, null) as Camera
+				: null;
+			if ( cameraPropertyValue ) {
+				return cameraPropertyValue;
+			}
+			return null;
+		}
+
 		// ---------------------------------------------------------------------
 		//
 		// Functions
@@ -184,17 +202,20 @@ namespace FTEditor.Editors {
 							_matPropBlock.SetTexture("_AlphaTex", Texture2D.whiteTexture);
 							_matPropBlock.SetFloat("_ExternalAlpha", 0.0f);
 						}
-						ConfigureCameraForSequence(_previewUtils.m_Camera, targetSequence);
-						var frame = targetFrame;
-						for ( var i = 0; i < frame.Materials.Length; ++i ) {
-							_previewUtils.DrawMesh(
-								frame.CachedMesh,
-								Matrix4x4.identity,
-								frame.Materials[i],
-								i,
-								_matPropBlock);
+						var camera = GetCameraFromPreviewUtils(_previewUtils);
+						if ( camera ) {
+							ConfigureCameraForSequence(camera, targetSequence);
+							var frame = targetFrame;
+							for ( var i = 0; i < frame.Materials.Length; ++i ) {
+								_previewUtils.DrawMesh(
+									frame.CachedMesh,
+									Matrix4x4.identity,
+									frame.Materials[i],
+									i,
+									_matPropBlock);
+							}
+							camera.Render();
 						}
-						_previewUtils.m_Camera.Render();
 					}
 					_previewUtils.EndAndDrawPreview(r);
 				}
