@@ -314,7 +314,7 @@ namespace FTSwfTools {
 
 		void TagToWarningLog(SwfTagBase tag) {
 			if ( WarningLog != null ) {
-				WarningLog(string.Format("SwfContextExecuter: {0}", tag));
+				WarningLog(string.Format("{0}", tag));
 			}
 		}
 

@@ -75,7 +75,7 @@ namespace FTEditor.Postprocessors {
 			} catch ( Exception e ) {
 				Debug.LogErrorFormat(
 					AssetDatabase.LoadMainAssetAtPath(swf_path),
-					"<b>[FlashTools]</b> Parsing swf error: {0}\nPath: {1}",
+					"<b>[FlashTools]</b> Parsing swf error: {0}\nSwf path: {1}",
 					e.Message, swf_path);
 				return false;
 			} finally {
@@ -90,7 +90,7 @@ namespace FTEditor.Postprocessors {
 			});
 			return new SwfAssetData{
 				FrameRate = decoder.UncompressedHeader.FrameRate,
-				Symbols   = LoadSymbols(library, decoder),
+				Symbols   = LoadSymbols(swf_path, library, decoder),
 				Bitmaps   = LoadBitmaps(library)};
 		}
 
@@ -101,10 +101,10 @@ namespace FTEditor.Postprocessors {
 		// ---------------------------------------------------------------------
 
 		static List<SwfSymbolData> LoadSymbols(
-			SwfLibrary library, SwfDecoder decoder)
+			string swf_path, SwfLibrary library, SwfDecoder decoder)
 		{
 			var symbols = new List<SwfSymbolData>();
-			symbols.Add(LoadSymbol("_Stage_", library, decoder.Tags));
+			symbols.Add(LoadSymbol(swf_path, "_Stage_", library, decoder.Tags));
 			var sprite_defs = library.Defines.Values
 				.OfType<SwfLibrarySpriteDefine>()
 				.Where(p => !string.IsNullOrEmpty(p.ExportName))
@@ -113,24 +113,33 @@ namespace FTEditor.Postprocessors {
 				var def  = sprite_defs[i];
 				var name = def.ExportName;
 				var tags = def.ControlTags.Tags;
-				symbols.Add(LoadSymbol(name, library, tags));
+				symbols.Add(LoadSymbol(swf_path, name, library, tags));
 			}
 			return symbols;
 		}
 
 		static SwfSymbolData LoadSymbol(
-			string symbol_name, SwfLibrary library, List<SwfTagBase> tags)
+			string swf_path, string symbol_name, SwfLibrary library, List<SwfTagBase> tags)
 		{
+			var warnings = new HashSet<string>();
 			var disp_lst = new SwfDisplayList();
 			var executer = new SwfContextExecuter(library, 0, warning_msg => {
-				Debug.LogWarningFormat("<b>[FlashTools]</b> {0}", warning_msg);
+				warnings.Add(warning_msg);
 			});
 			var symbol_frames = new List<SwfFrameData>();
 			while ( executer.NextFrame(tags, disp_lst) ) {
 				_progressBar.UpdateProgress(
 					string.Format("swf symbols loading ({0})", symbol_name),
 					(float)(executer.CurrentTag + 1) / tags.Count);
-				symbol_frames.Add(LoadSymbolFrameData(library, disp_lst));
+				symbol_frames.Add(LoadSymbolFrameData(library, disp_lst, warning_msg => {
+					warnings.Add(warning_msg);
+				}));
+			}
+			foreach ( var warning in warnings ) {
+				Debug.LogWarningFormat(
+					AssetDatabase.LoadMainAssetAtPath(swf_path),
+					"<b>[FlashTools]</b> {0}\nSwf path: {1}",
+					warning, swf_path);
 			}
 			return new SwfSymbolData{
 				Name   = symbol_name,
@@ -138,7 +147,7 @@ namespace FTEditor.Postprocessors {
 		}
 
 		static SwfFrameData LoadSymbolFrameData(
-			SwfLibrary library, SwfDisplayList display_list)
+			SwfLibrary library, SwfDisplayList display_list, System.Action<string> warning_log)
 		{
 			var frame = new SwfFrameData{
 				Anchor = display_list.FrameAnchors.Count > 0
@@ -154,7 +163,8 @@ namespace FTEditor.Postprocessors {
 				0,
 				0,
 				null,
-				frame);
+				frame,
+				warning_log);
 		}
 
 		static SwfFrameData AddDisplayListToFrame(
@@ -166,23 +176,26 @@ namespace FTEditor.Postprocessors {
 			ushort                parent_masked,
 			ushort                parent_mask,
 			List<SwfInstanceData> parent_masks,
-			SwfFrameData          frame)
+			SwfFrameData          frame,
+			System.Action<string> warning_log)
 		{
-			var inst_filter_types = display_list.Instances.Values
-				.Where(p => p.Visible && p.FilterList.Filters.Count > 0)
-				.SelectMany(p => p.FilterList.Filters)
-				.Select(p => p.Type)
-				.Distinct();
-			foreach ( var filter_type in inst_filter_types ) {
-				Debug.LogWarningFormat(
-					"<b>[FlashTools]</b> SwfSurfaceFilters. Unsupported filter type '{0}'",
-					filter_type);
+			if ( warning_log != null ) {
+				var inst_filter_types = display_list.Instances.Values
+					.Where(p => p.Visible && p.FilterList.Filters.Count > 0)
+					.SelectMany(p => p.FilterList.Filters)
+					.Select(p => p.Type)
+					.Distinct();
+				foreach ( var filter_type in inst_filter_types ) {
+					warning_log(string.Format(
+						"Unsupported filter type '{0}'",
+						filter_type));
+				}
 			}
 			var self_masks = new List<SwfInstanceData>();
 			foreach ( var inst in display_list.Instances.Values.Where(p => p.Visible) ) {
 				CheckSelfMasks(self_masks, inst.Depth, frame);
 				var child_matrix          = parent_matrix          * inst.Matrix        .ToUMatrix();
-				var child_blend_mode      = parent_blend_mode      * inst.BlendMode     .ToBlendModeData();
+				var child_blend_mode      = parent_blend_mode      * inst.BlendMode     .ToBlendModeData(warning_log);
 				var child_color_transform = parent_color_transform * inst.ColorTransform.ToColorTransData();
 				switch ( inst.Type ) {
 				case SwfDisplayInstanceType.Shape:
@@ -222,7 +235,8 @@ namespace FTEditor.Postprocessors {
 						parent_mask,
 						parent_masks,
 						self_masks,
-						frame);
+						frame,
+						warning_log);
 					break;
 				default:
 					throw new UnityException(string.Format(
@@ -332,7 +346,8 @@ namespace FTEditor.Postprocessors {
 			ushort                   parent_mask,
 			List<SwfInstanceData>    parent_masks,
 			List<SwfInstanceData>    self_masks,
-			SwfFrameData             frame)
+			SwfFrameData             frame,
+			System.Action<string>    warning_log)
 		{
 			var sprite_def = library.FindDefine<SwfLibrarySpriteDefine>(inst.Id);
 			if ( sprite_def != null ) {
@@ -353,7 +368,8 @@ namespace FTEditor.Postprocessors {
 						: (inst.ClipDepth > 0
 							? self_masks
 							: null),
-					frame);
+					frame,
+					warning_log);
 			}
 		}
 
@@ -414,7 +430,9 @@ namespace FTEditor.Postprocessors {
 			return mat;
 		}
 
-		public static SwfBlendModeData ToBlendModeData(this SwfBlendMode self) {
+		public static SwfBlendModeData ToBlendModeData(
+			this SwfBlendMode self, System.Action<string> warning_log)
+		{
 			switch ( self.Value ) {
 			case SwfBlendMode.Mode.Normal:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Normal);
@@ -441,9 +459,11 @@ namespace FTEditor.Postprocessors {
 			case SwfBlendMode.Mode.Hardlight:
 				return new SwfBlendModeData(SwfBlendModeData.Types.Hardlight);
 			default:
-				Debug.LogWarningFormat(
-					"<b>[FlashTools]</b> SwfBlendMode. Unsupported blend mode '{0}'",
-					self.Value);
+				if ( warning_log != null ) {
+					warning_log(string.Format(
+						"Unsupported blend mode '{0}'",
+						self.Value));
+				}
 				return new SwfBlendModeData(SwfBlendModeData.Types.Normal);
 			}
 		}

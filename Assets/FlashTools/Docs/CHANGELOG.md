@@ -1,3 +1,6 @@
+###### Version 1.3.12
+* More readable conversion warnings
+
 ###### Version 1.3.11
 * Fix trial version in Unity 2017
 * Fix warnings in Unity 2017
