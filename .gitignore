@@ -1,0 +1,12 @@
+obj/*
+Temp/*
+Library/*
+
+AssetStoreTools/*
+AssetStoreTools.meta
+
+.DS_Store
+FlashTools.sln
+FlashTools.userprefs
+Assembly-CSharp.csproj
+Assembly-CSharp-Editor.csproj
