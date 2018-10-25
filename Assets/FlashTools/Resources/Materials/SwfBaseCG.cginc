@@ -105,7 +105,7 @@ struct swf_mask_v2f_t {
 
 inline swf_v2f_t swf_vert(swf_appdata_t IN) {
 	swf_v2f_t OUT;
-	OUT.vertex    = mul(UNITY_MATRIX_MVP, IN.vertex);
+	OUT.vertex    = UnityObjectToClipPos(IN.vertex);
 	OUT.uv        = IN.uv;
 	OUT.mulcolor  = IN.mulcolor * _Tint;
 	OUT.addcolor  = IN.addcolor;
@@ -114,7 +114,7 @@ inline swf_v2f_t swf_vert(swf_appdata_t IN) {
 
 inline swf_grab_v2f_t swf_grab_vert(swf_grab_appdata_t IN) {
 	swf_grab_v2f_t OUT;
-	OUT.vertex    = mul(UNITY_MATRIX_MVP, IN.vertex);
+	OUT.vertex    = UnityObjectToClipPos(IN.vertex);
 	OUT.uv        = IN.uv;
 	OUT.mulcolor  = IN.mulcolor * _Tint;
 	OUT.addcolor  = IN.addcolor;
@@ -124,7 +124,7 @@ inline swf_grab_v2f_t swf_grab_vert(swf_grab_appdata_t IN) {
 
 inline swf_mask_v2f_t swf_mask_vert(swf_mask_appdata_t IN) {
 	swf_mask_v2f_t OUT;
-	OUT.vertex    = mul(UNITY_MATRIX_MVP, IN.vertex);
+	OUT.vertex    = UnityObjectToClipPos(IN.vertex);
 	OUT.uv        = IN.uv;
 	return OUT;
 }

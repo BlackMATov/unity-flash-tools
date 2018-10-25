@@ -6,7 +6,7 @@ AssetStoreTools/*
 AssetStoreTools.meta
 
 .DS_Store
-FlashTools.sln
-FlashTools.userprefs
+flash-tools.sln
+flash-tools.userprefs
 Assembly-CSharp.csproj
 Assembly-CSharp-Editor.csproj
