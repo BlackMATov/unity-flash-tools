@@ -2,6 +2,11 @@ obj/*
 Temp/*
 Library/*
 
+FTSources/.vs/*
+FTSources/FTEditor/obj/*
+FTSources/FTRuntime/obj/*
+FTSources/FTSwfTools/obj/*
+
 AssetStoreTools/*
 AssetStoreTools.meta
 
