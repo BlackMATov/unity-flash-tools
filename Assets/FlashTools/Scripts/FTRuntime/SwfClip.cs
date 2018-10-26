@@ -4,22 +4,16 @@ using FTRuntime.Internal;
 
 namespace FTRuntime {
 	[ExecuteInEditMode, DisallowMultipleComponent]
-#if UNITY_5_6_OR_NEWER
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(SortingGroup))]
-#else
-	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
-#endif
 	public class SwfClip : MonoBehaviour {
 
-		MeshFilter            _meshFilter              = null;
-		MeshRenderer          _meshRenderer            = null;
-	#if UNITY_5_6_OR_NEWER
-		SortingGroup          _sortingGroup            = null;
-	#endif
+		MeshFilter            _meshFilter   = null;
+		MeshRenderer          _meshRenderer = null;
+		SortingGroup          _sortingGroup = null;
 
-		bool                  _dirtyMesh               = true;
-		SwfClipAsset.Sequence _curSequence             = null;
-		MaterialPropertyBlock _curPropBlock            = null;
+		bool                  _dirtyMesh    = true;
+		SwfClipAsset.Sequence _curSequence  = null;
+		MaterialPropertyBlock _curPropBlock = null;
 
 		// ---------------------------------------------------------------------
 		//
@@ -312,9 +306,7 @@ namespace FTRuntime {
 		void ClearCache(bool allow_to_create_components) {
 			_meshFilter   = SwfUtils.GetComponent<MeshFilter>  (gameObject, allow_to_create_components);
 			_meshRenderer = SwfUtils.GetComponent<MeshRenderer>(gameObject, allow_to_create_components);
-		#if UNITY_5_6_OR_NEWER
 			_sortingGroup = SwfUtils.GetComponent<SortingGroup>(gameObject, allow_to_create_components);
-		#endif
 			_dirtyMesh    = true;
 			_curSequence  = null;
 			_curPropBlock = null;
@@ -375,12 +367,10 @@ namespace FTRuntime {
 				_meshRenderer.sortingOrder     = sortingOrder;
 				_meshRenderer.sortingLayerName = sortingLayer;
 			}
-		#if UNITY_5_6_OR_NEWER
 			if ( _sortingGroup ) {
 				_sortingGroup.sortingOrder     = sortingOrder;
 				_sortingGroup.sortingLayerName = sortingLayer;
 			}
-		#endif
 		}
 
 		void UpdatePropBlock() {

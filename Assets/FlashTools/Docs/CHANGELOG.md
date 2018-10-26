@@ -1,4 +1,5 @@
 ###### Version 1.3.12
+* Upgrade to minimal LTS version
 * More readable conversion warnings
 
 ###### Version 1.3.11

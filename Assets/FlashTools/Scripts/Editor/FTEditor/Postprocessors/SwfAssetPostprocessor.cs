@@ -206,11 +206,7 @@ namespace FTEditor.Postprocessors {
 			atlas_importer.spritePixelsPerUnit = asset.Settings.PixelsPerUnit;
 			atlas_importer.mipmapEnabled       = asset.Settings.GenerateMipMaps;
 			atlas_importer.filterMode          = SwfAtlasFilterToImporterFilter(asset.Settings.AtlasTextureFilter);
-		#if UNITY_5_5_OR_NEWER
 			atlas_importer.textureCompression  = SwfAtlasFormatToImporterCompression(asset.Settings.AtlasTextureFormat);
-		#else
-			atlas_importer.textureFormat       = SwfAtlasFormatToImporterFormat(asset.Settings.AtlasTextureFormat);
-		#endif
 
 			var atlas_settings = new TextureImporterSettings();
 			atlas_importer.ReadTextureSettings(atlas_settings);
@@ -248,7 +244,6 @@ namespace FTEditor.Postprocessors {
 			}
 		}
 
-	#if UNITY_5_5_OR_NEWER
 		static TextureImporterCompression SwfAtlasFormatToImporterCompression(
 			SwfSettingsData.AtlasFormat format)
 		{
@@ -263,22 +258,6 @@ namespace FTEditor.Postprocessors {
 					format));
 			}
 		}
-	#else
-		static TextureImporterFormat SwfAtlasFormatToImporterFormat(
-			SwfSettingsData.AtlasFormat format)
-		{
-			switch ( format ) {
-			case SwfSettingsData.AtlasFormat.AutomaticCompressed:
-				return TextureImporterFormat.AutomaticCompressed;
-			case SwfSettingsData.AtlasFormat.AutomaticTruecolor:
-				return TextureImporterFormat.AutomaticTruecolor;
-			default:
-				throw new UnityException(string.Format(
-					"incorrect swf atlas format ({0})",
-					format));
-			}
-		}
-	#endif
 
 		// ---------------------------------------------------------------------
 		//
