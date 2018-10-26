@@ -1,5 +1,6 @@
 ###### Version 1.3.12
 * Upgrade to minimal LTS version
+* Fix anchor frame label detector
 * More readable conversion warnings
 
 ###### Version 1.3.11

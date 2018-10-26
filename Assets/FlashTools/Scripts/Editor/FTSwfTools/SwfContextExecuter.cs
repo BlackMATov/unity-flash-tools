@@ -181,7 +181,10 @@ namespace FTSwfTools {
 		}
 
 		public SwfDisplayList Visit(FrameLabelTag tag, SwfDisplayList dl) {
-			if ( tag.AnchorFlag == 0 ) {
+			const string anchor_prefix = "FT_ANCHOR:";
+			if ( tag.Name.StartsWith(anchor_prefix) ) {
+				dl.FrameAnchors.Add(tag.Name.Remove(0, anchor_prefix.Length).Trim());
+			} else if ( tag.AnchorFlag == 0 ) {
 				dl.FrameLabels.Add(tag.Name.Trim());
 			} else {
 				dl.FrameAnchors.Add(tag.Name.Trim());

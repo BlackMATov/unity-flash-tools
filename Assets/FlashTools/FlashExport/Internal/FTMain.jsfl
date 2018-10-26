@@ -38,6 +38,7 @@
 		ft.profile_function(cfg.profile_mode, function() { ftdoc.remove_unused_items(doc);    }, "Remove unused items");
 		ft.profile_function(cfg.profile_mode, function() { ftdoc.prepare_all_bitmaps(doc);    }, "Prepare all bitmaps");
 		ft.profile_function(cfg.profile_mode, function() { ftdoc.unlock_all_timelines(doc);   }, "Unlock all timelines");
+		ft.profile_function(cfg.profile_mode, function() { ftdoc.prepare_all_labels(doc);     }, "Prepare all labels");
 		ft.profile_function(cfg.profile_mode, function() { ftdoc.prepare_all_tweens(doc);     }, "Prepare all tweens");
 		ft.profile_function(cfg.profile_mode, function() { ftdoc.prepare_all_groups(doc);     }, "Prepare all groups");
 		ft.profile_function(cfg.profile_mode, function() { ftdoc.calculate_item_scales(doc);  }, "Calculate item scales");
@@ -206,6 +207,12 @@
 		fttim.unlock_all_layers(doc, doc.getTimeline());
 	};
 
+	ftdoc.prepare_all_labels = function (doc) {
+		ft.type_assert(doc, Document);
+		ftlib.prepare_all_labels(doc, doc.library);
+		fttim.prepare_all_labels(doc, doc.getTimeline());
+	};
+	
 	ftdoc.prepare_all_tweens = function (doc) {
 		ft.type_assert(doc, Document);
 		ftlib.prepare_all_tweens(doc, doc.library);
@@ -497,6 +504,14 @@
 		});
 	};
 
+	ftlib.prepare_all_labels = function (doc, library) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(library, Library);
+		ftlib.edit_all_symbol_items(doc, library, function (item) {
+			fttim.prepare_all_labels(doc, item.timeline);
+		});
+	};
+	
 	ftlib.prepare_all_tweens = function (doc, library) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(library, Library);
@@ -568,6 +583,11 @@
 
 	fttim.is_symbol_movie_clip_instance = function (elem) {
 		return fttim.is_symbol_instance(elem) && elem.symbolType == "movie clip";
+	};
+	
+	fttim.is_anchor_frame = function (frame) {
+		ft.type_assert(frame, Frame);
+		return frame.labelType == "anchor";
 	};
 
 	fttim.is_tween_frame = function (frame) {
@@ -770,6 +790,20 @@
 		}, true);
 	};
 
+	fttim.prepare_all_labels = function (doc, timeline) {
+		ft.type_assert(doc, Document);
+		ft.type_assert(timeline, Timeline);
+		
+		var anchor_prefix = "FT_ANCHOR:";
+		ft.array_reverse_foreach(timeline.layers, function (layer, layer_index) {
+			ft.array_foreach(layer.frames, function (frame, frame_index) {
+				if ( fttim.is_anchor_frame(frame) && !frame.name.startsWith(anchor_prefix) ) {
+					frame.name = anchor_prefix + frame.name;
+				}
+			}, fttim.is_keyframe);
+		});
+	};
+	
 	fttim.prepare_all_tweens = function (doc, timeline) {
 		ft.type_assert(doc, Document);
 		ft.type_assert(timeline, Timeline);
