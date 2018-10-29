@@ -131,7 +131,7 @@ namespace FTEditor.Editors {
 		}
 
 		void SetupPreviews() {
-			_previews.Clear();
+            ShutdownPreviews();
 			foreach ( var clip in _clips.Where(p => !!p.clip) ) {
 				var preview = new SwfClipAssetPreview();
 				preview.Initialize(new Object[]{clip.clip});
@@ -139,18 +139,29 @@ namespace FTEditor.Editors {
 			}
 		}
 
-		// ---------------------------------------------------------------------
-		//
-		// Messages
-		//
-		// ---------------------------------------------------------------------
+        void ShutdownPreviews() {
+            foreach ( var p in _previews ) {
+                p.Value.Shutdown();
+            }
+            _previews.Clear();
+        }
 
-		void OnEnable() {
+        // ---------------------------------------------------------------------
+        //
+        // Messages
+        //
+        // ---------------------------------------------------------------------
+
+        void OnEnable() {
 			_clips = targets.OfType<SwfClip>().ToList();
 			SetupPreviews();
 		}
 
-		public override void OnInspectorGUI() {
+        void OnDisable() {
+            ShutdownPreviews();
+        }
+
+        public override void OnInspectorGUI() {
 			serializedObject.Update();
 			DrawDefaultInspector();
 			DrawSequence();

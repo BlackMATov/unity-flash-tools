@@ -8,9 +8,9 @@ using FTRuntime;
 namespace FTEditor.Editors {
 	[CustomPreview(typeof(SwfClipAsset))]
 	class SwfClipAssetPreview : ObjectPreview {
-		int                          _sequence     = 0;
-		static MaterialPropertyBlock _matPropBlock = null;
-		static PreviewRenderUtility  _previewUtils = null;
+		int                   _sequence     = 0;
+		MaterialPropertyBlock _matPropBlock = null;
+		PreviewRenderUtility  _previewUtils = null;
 
 		Sprite targetSprite {
 			get {
@@ -141,6 +141,11 @@ namespace FTEditor.Editors {
 				? Mathf.Max(0, clip.Sequences.FindIndex(p => p.Name == sequence_name))
 				: 0;
 		}
+
+        public void Shutdown() {
+            _matPropBlock.Clear();
+            _previewUtils.Cleanup();
+        }
 
 		// ---------------------------------------------------------------------
 		//
