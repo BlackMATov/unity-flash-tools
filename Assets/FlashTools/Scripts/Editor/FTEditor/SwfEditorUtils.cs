@@ -3,11 +3,11 @@ using UnityEditor;
 
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Runtime.Serialization.Formatters.Binary;
 
 using Ionic.Zlib;
+using IZ = Ionic.Zlib;
 
 using FTRuntime;
 
@@ -214,7 +214,7 @@ namespace FTEditor {
 
 		static byte[] CompressBuffer(byte[] bytes, System.Action<float> progress_act) {
 			using ( var output = new MemoryStream() ) {
-				using ( var compressor = new ZlibStream(output, CompressionMode.Compress, CompressionLevel.Default) ) {
+				using ( var compressor = new ZlibStream(output, IZ.CompressionMode.Compress, IZ.CompressionLevel.Default) ) {
 					var n = 0;
 					while ( n < bytes.Length ) {
 						var count = Mathf.Min(4 * 1024, bytes.Length - n);
