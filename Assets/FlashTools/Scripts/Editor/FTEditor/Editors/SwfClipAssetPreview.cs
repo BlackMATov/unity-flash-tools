@@ -6,7 +6,6 @@ using System.Linq;
 using FTRuntime;
 
 namespace FTEditor.Editors {
-	[CustomPreview(typeof(SwfClipAsset))]
 	class SwfClipAssetPreview : ObjectPreview {
 		int                   _sequence     = 0;
 		MaterialPropertyBlock _matPropBlock = null;
@@ -30,15 +29,6 @@ namespace FTEditor.Editors {
 			get {
 				var sprite = targetSprite;
 				return sprite ? sprite.associatedAlphaSplitTexture : null;
-			}
-		}
-
-		int targetSequenceCount {
-			get {
-				var clip = target as SwfClipAsset;
-				return clip && clip.Sequences != null
-					? clip.Sequences.Count
-					: 0;
 			}
 		}
 
@@ -135,17 +125,17 @@ namespace FTEditor.Editors {
 		//
 		// ---------------------------------------------------------------------
 
-		public void SetCurrentSequence(string sequence_name) {
+		public void SetSequence(string sequence_name) {
 			var clip = target as SwfClipAsset;
 			_sequence = clip && clip.Sequences != null
 				? Mathf.Max(0, clip.Sequences.FindIndex(p => p.Name == sequence_name))
 				: 0;
 		}
 
-        public void Shutdown() {
-            _matPropBlock.Clear();
-            _previewUtils.Cleanup();
-        }
+		public void Shutdown() {
+			_matPropBlock.Clear();
+			_previewUtils.Cleanup();
+		}
 
 		// ---------------------------------------------------------------------
 		//
@@ -168,27 +158,35 @@ namespace FTEditor.Editors {
 		}
 
 		public override void OnPreviewSettings() {
-			var any_multi_sequences = m_Targets
-				.OfType<SwfClipAsset>()
-				.Any(p => p.Sequences != null && p.Sequences.Count > 1);
-			if ( any_multi_sequences && GUILayout.Button("<", EditorStyles.miniButton) ) {
-				--_sequence;
+			var clip = m_Targets.Length == 1
+				? m_Targets[0] as SwfClipAsset
+				: null;
+
+			if ( !clip || clip.Sequences == null ) {
+				return;
 			}
-			var sequence_names = m_Targets
-				.OfType<SwfClipAsset>()
-				.Select (p => GetSequenceForClip(p, _sequence))
-				.Where  (p => p != null && !string.IsNullOrEmpty(p.Name))
-				.Select (p => p.Name)
-				.ToArray();
-			var label_text = string.Empty;
-			for ( int i = 0, e = sequence_names.Length; i < e; ++i ) {
-				label_text += string.Format(
-					i > 0 ? ", {0}" : "{0}",
-					sequence_names[i]);
+
+			if ( clip.Sequences.Count > 1 ) {
+				if ( GUILayout.Button("<", EditorStyles.miniButton) ) {
+					--_sequence;
+					if ( _sequence < 0 ) {
+						_sequence = clip.Sequences.Count - 1;
+					}
+				}
 			}
-			GUILayout.Label(label_text, EditorStyles.whiteLabel);
-			if ( any_multi_sequences && GUILayout.Button(">", EditorStyles.miniButton) ) {
-				++_sequence;
+
+			var sequence = GetSequenceForClip(clip, _sequence);
+			if ( sequence != null && !string.IsNullOrEmpty(sequence.Name) ) {
+				GUILayout.Label(sequence.Name, EditorStyles.whiteLabel);
+			}
+
+			if ( clip.Sequences.Count > 1 ) {
+				if ( GUILayout.Button(">", EditorStyles.miniButton) ) {
+					++_sequence;
+					if ( _sequence >= clip.Sequences.Count ) {
+						_sequence = 0;
+					}
+				}
 			}
 		}
 

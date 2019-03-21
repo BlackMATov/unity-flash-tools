@@ -1,3 +1,6 @@
+###### Version 1.3.15
+* Fix preview leaks in the Editor mode
+
 ###### Version 1.3.14
 * Fix 2018.3.2f1 compilation
 

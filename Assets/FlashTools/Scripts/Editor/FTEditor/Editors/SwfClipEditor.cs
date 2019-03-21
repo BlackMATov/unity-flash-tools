@@ -131,37 +131,41 @@ namespace FTEditor.Editors {
 		}
 
 		void SetupPreviews() {
-            ShutdownPreviews();
-			foreach ( var clip in _clips.Where(p => !!p.clip) ) {
-				var preview = new SwfClipAssetPreview();
-				preview.Initialize(new Object[]{clip.clip});
-				_previews.Add(clip, preview);
-			}
+			ShutdownPreviews();
+			_previews = targets
+				.OfType<SwfClip>()
+				.Where(p => p.clip)
+				.ToDictionary(p => p, p => {
+					var preview = new SwfClipAssetPreview();
+					preview.Initialize(new Object[] { p.clip });
+					return preview;
+				});
 		}
 
-        void ShutdownPreviews() {
-            foreach ( var p in _previews ) {
-                p.Value.Shutdown();
-            }
-            _previews.Clear();
-        }
+		void ShutdownPreviews() {
+			foreach ( var p in _previews ) {
+		        p.Value.Shutdown();
+			}
+			_previews.Clear();
+		}
 
-        // ---------------------------------------------------------------------
-        //
-        // Messages
-        //
-        // ---------------------------------------------------------------------
+		// ---------------------------------------------------------------------
+		//
+		// Messages
+		//
+		// ---------------------------------------------------------------------
 
-        void OnEnable() {
+		void OnEnable() {
 			_clips = targets.OfType<SwfClip>().ToList();
 			SetupPreviews();
 		}
 
-        void OnDisable() {
-            ShutdownPreviews();
-        }
+		void OnDisable() {
+			ShutdownPreviews();
+			_clips.Clear();
+		}
 
-        public override void OnInspectorGUI() {
+		public override void OnInspectorGUI() {
 			serializedObject.Update();
 			DrawDefaultInspector();
 			DrawSequence();
@@ -173,11 +177,11 @@ namespace FTEditor.Editors {
 		}
 
 		public override bool RequiresConstantRepaint() {
-			return _previews.Count > 0;
+			return _clips.Count > 0;
 		}
 
 		public override bool HasPreviewGUI() {
-			return _previews.Count > 0;
+			return _clips.Count > 0;
 		}
 
 		public override void OnPreviewGUI(Rect r, GUIStyle background) {
@@ -185,7 +189,7 @@ namespace FTEditor.Editors {
 				SwfClipAssetPreview preview;
 				var clip = target as SwfClip;
 				if ( _previews.TryGetValue(clip, out preview) ) {
-					preview.SetCurrentSequence(clip.sequence);
+					preview.SetSequence(clip.sequence);
 					preview.DrawPreview(r);
 				}
 			}

@@ -11,7 +11,8 @@ using FTRuntime;
 namespace FTEditor.Editors {
 	[CustomEditor(typeof(SwfClipAsset)), CanEditMultipleObjects]
 	class SwfClipAssetEditor : Editor {
-		List<SwfClipAsset> _clips = new List<SwfClipAsset>();
+		List<SwfClipAsset>  _clips   = new List<SwfClipAsset>();
+		SwfClipAssetPreview _preview = null;
 
 		static string GetClipPath(SwfClipAsset clip) {
 			return clip
@@ -159,9 +160,29 @@ namespace FTEditor.Editors {
 		void DrawGUINotes() {
 			EditorGUILayout.Separator();
 			EditorGUILayout.HelpBox(
-				"Masks and blends of animation may not be displayed correctly in preview window. " + 
+				"Masks and blends of animation may not be displayed correctly in the preview window. " + 
 				"Instance animation to the scene, to see how it will look like the animation in the game.",
 				MessageType.Info);
+		}
+
+		//
+		//
+		//
+
+		void SetupPreviews() {
+			ShutdownPreviews();
+			_preview = new SwfClipAssetPreview();
+			_preview.Initialize(targets
+				.OfType<SwfClipAsset>()
+				.Where(p => p)
+				.ToArray());
+		}
+
+		void ShutdownPreviews() {
+			if ( _preview != null ) {
+				_preview.Shutdown();
+				_preview = null;
+			}
 		}
 
 		// ---------------------------------------------------------------------
@@ -172,6 +193,12 @@ namespace FTEditor.Editors {
 
 		void OnEnable() {
 			_clips = targets.OfType<SwfClipAsset>().ToList();
+			SetupPreviews();
+		}
+
+		void OnDisable() {
+			ShutdownPreviews();
+			_clips.Clear();
 		}
 
 		public override void OnInspectorGUI() {
@@ -188,7 +215,23 @@ namespace FTEditor.Editors {
 		}
 
 		public override bool RequiresConstantRepaint() {
-			return true;
+			return _clips.Count > 0;
+		}
+
+		public override bool HasPreviewGUI() {
+			return _clips.Count > 0;
+		}
+
+		public override void OnPreviewSettings() {
+			if ( _preview != null ) {
+				_preview.OnPreviewSettings();
+			}
+		}
+
+		public override void OnPreviewGUI(Rect r, GUIStyle background) {
+			if ( _preview != null ) {
+				_preview.OnPreviewGUI(r, background);
+			}
 		}
 	}
 }
