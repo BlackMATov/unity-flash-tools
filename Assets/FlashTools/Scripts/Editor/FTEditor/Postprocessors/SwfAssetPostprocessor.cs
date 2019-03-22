@@ -111,7 +111,7 @@ namespace FTEditor.Postprocessors {
 
 		static Texture2D LoadTextureFromData(SwfBitmapData bitmap) {
 			var texture = new Texture2D(
-				bitmap.RealWidth, bitmap.RealHeight,
+				bitmap.TrimmedRect.width, bitmap.TrimmedRect.height,
 				TextureFormat.ARGB32, false);
 			texture.LoadRawTextureData(bitmap.ARGB32);
 			return texture;
@@ -357,14 +357,15 @@ namespace FTEditor.Postprocessors {
 				var bitmap = inst != null
 					? FindBitmapFromAssetData(data, inst.Bitmap)
 					: null;
+				while ( bitmap != null && bitmap.Redirect > 0 ) {
+					bitmap = FindBitmapFromAssetData(data, bitmap.Redirect);
+				}
 				if ( bitmap != null ) {
-					var width  = bitmap.RealWidth  / 20.0f;
-					var height = bitmap.RealHeight / 20.0f;
-
-					var v0 = new Vector2(    0,      0);
-					var v1 = new Vector2(width,      0);
-					var v2 = new Vector2(width, height);
-					var v3 = new Vector2(    0, height);
+					var tr = bitmap.TrimmedRect;
+					var v0 = new Vector2(tr.xMin, tr.yMin) / 20.0f;
+					var v1 = new Vector2(tr.xMax, tr.yMin) / 20.0f;
+					var v2 = new Vector2(tr.xMax, tr.yMax) / 20.0f;
+					var v3 = new Vector2(tr.xMin, tr.yMax) / 20.0f;
 
 					var matrix =
 						Matrix4x4.Scale(

@@ -15,7 +15,7 @@ namespace FTRuntime {
 			AutomaticTruecolor  = 2
 		}
 
-		[SwfPowerOfTwoIfAttribute(5, 13, "AtlasPowerOfTwo")]
+		[SwfPowerOfTwoIf(5, 13, "AtlasPowerOfTwo")]
 		public int         MaxAtlasSize;
 		[SwfIntRange(0, int.MaxValue)]
 		public int         AtlasPadding;

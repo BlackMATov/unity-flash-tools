@@ -60,22 +60,96 @@ namespace FTEditor {
 		public float yMin;
 		public float yMax;
 
+		public SwfRectData(float w, float h) {
+			this.xMin = 0;
+			this.yMin = 0;
+			this.xMax = w;
+			this.yMax = h;
+		}
+
+		public SwfRectData(float x, float y, float w, float h) {
+			this.xMin = x;
+			this.yMin = y;
+			this.xMax = x + w;
+			this.yMax = y + h;
+		}
+
+		public float width {
+			get {
+				return xMax - xMin;
+			}
+		}
+
+		public float height {
+			get {
+				return yMax - yMin;
+			}
+		}
+
+		public float area {
+			get {
+				return width * height;
+			}
+		}
+
 		public static SwfRectData identity {
 			get {
-				return new SwfRectData{
-					xMin = 0.0f,
-					xMax = 0.0f,
-					yMin = 0.0f,
-					yMax = 0.0f};
+				return new SwfRectData(0.0f, 0.0f, 0.0f, 0.0f);
 			}
 		}
 
 		public static SwfRectData FromURect(Rect rect) {
-			return new SwfRectData{
-				xMin = rect.xMin,
-				xMax = rect.xMax,
-				yMin = rect.yMin,
-				yMax = rect.yMax};
+			return new SwfRectData(rect.xMin, rect.yMin, rect.width, rect.height);
+		}
+	}
+
+	[System.Serializable]
+	struct SwfRectIntData {
+		public int xMin;
+		public int xMax;
+		public int yMin;
+		public int yMax;
+
+		public SwfRectIntData(int w, int h) {
+			this.xMin = 0;
+			this.yMin = 0;
+			this.xMax = w;
+			this.yMax = h;
+		}
+
+		public SwfRectIntData(int x, int y, int w, int h) {
+			this.xMin = x;
+			this.yMin = y;
+			this.xMax = x + w;
+			this.yMax = y + h;
+		}
+
+		public int width {
+			get {
+				return xMax - xMin;
+			}
+		}
+
+		public int height {
+			get {
+				return yMax - yMin;
+			}
+		}
+
+		public int area {
+			get {
+				return width * height;
+			}
+		}
+
+		public static SwfRectIntData identity {
+			get {
+				return new SwfRectIntData(0, 0, 0, 0);
+			}
+		}
+
+		public static SwfRectIntData FromURect(RectInt rect) {
+			return new SwfRectIntData(rect.xMin, rect.yMin, rect.width, rect.height);
 		}
 	}
 
@@ -187,41 +261,40 @@ namespace FTEditor {
 			Masked,
 			MaskReset
 		}
-		public Types                 Type       = Types.Group;
-		public ushort                ClipDepth  = 0;
-		public ushort                Bitmap     = 0;
-		public SwfMatrixData         Matrix     = SwfMatrixData.identity;
-		public SwfBlendModeData      BlendMode  = SwfBlendModeData.identity;
-		public SwfColorTransData     ColorTrans = SwfColorTransData.identity;
+		public Types                 Type        = Types.Group;
+		public ushort                ClipDepth   = 0;
+		public ushort                Bitmap      = 0;
+		public SwfMatrixData         Matrix      = SwfMatrixData.identity;
+		public SwfBlendModeData      BlendMode   = SwfBlendModeData.identity;
+		public SwfColorTransData     ColorTrans  = SwfColorTransData.identity;
 	}
 
 	[System.Serializable]
 	class SwfFrameData {
-		public string                Anchor     = string.Empty;
-		public List<string>          Labels     = new List<string>();
-		public List<SwfInstanceData> Instances  = new List<SwfInstanceData>();
+		public string                Anchor      = string.Empty;
+		public List<string>          Labels      = new List<string>();
+		public List<SwfInstanceData> Instances   = new List<SwfInstanceData>();
 	}
 
 	[System.Serializable]
 	class SwfSymbolData {
-		public string                Name       = string.Empty;
-		public List<SwfFrameData>    Frames     = new List<SwfFrameData>();
+		public string                Name        = string.Empty;
+		public List<SwfFrameData>    Frames      = new List<SwfFrameData>();
 	}
 
 	[System.Serializable]
 	class SwfBitmapData {
-		public ushort                Id         = 0;
-		public byte[]                ARGB32     = new byte[0];
-		public ushort                Redirect   = 0;
-		public int                   RealWidth  = 0;
-		public int                   RealHeight = 0;
-		public SwfRectData           SourceRect = SwfRectData.identity;
+		public ushort                Id          = 0;
+		public byte[]                ARGB32      = new byte[0];
+		public ushort                Redirect    = 0;
+		public SwfRectData           SourceRect  = SwfRectData.identity;
+		public SwfRectIntData        TrimmedRect = SwfRectIntData.identity;
 	}
 
 	[System.Serializable]
 	class SwfAssetData {
-		public float                 FrameRate  = 0.0f;
-		public List<SwfSymbolData>   Symbols    = new List<SwfSymbolData>();
-		public List<SwfBitmapData>   Bitmaps    = new List<SwfBitmapData>();
+		public float                 FrameRate   = 0.0f;
+		public List<SwfSymbolData>   Symbols     = new List<SwfSymbolData>();
+		public List<SwfBitmapData>   Bitmaps     = new List<SwfBitmapData>();
 	}
 }

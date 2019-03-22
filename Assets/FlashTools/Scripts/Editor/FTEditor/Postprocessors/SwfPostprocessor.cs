@@ -402,13 +402,57 @@ namespace FTEditor.Postprocessors {
 			return library.Defines
 				.Where       (p => p.Value.Type == SwfLibraryDefineType.Bitmap)
 				.ToDictionary(p => p.Key, p => p.Value as SwfLibraryBitmapDefine)
-				.Select      (p => new SwfBitmapData{
-					Id         = p.Key,
-					ARGB32     = p.Value.ARGB32,
-					Redirect   = p.Value.Redirect,
-					RealWidth  = p.Value.Width,
-					RealHeight = p.Value.Height})
+				.Select      (p => ConvertBitmap(p.Key, p.Value))
 				.ToList();
+		}
+
+		static SwfBitmapData ConvertBitmap(ushort id, SwfLibraryBitmapDefine bitmap) {
+			var trimmed_rect = bitmap.Redirect > 0
+				? new SwfRectIntData(bitmap.Width, bitmap.Height)
+				: FindBitmapTrimmedRect(bitmap);
+			var trimmed_argb32 = bitmap.Redirect > 0
+				? bitmap.ARGB32
+				: TrimBitmapByRect(bitmap, trimmed_rect);
+			return new SwfBitmapData{
+				Id = id,
+				ARGB32 = trimmed_argb32,
+				Redirect = bitmap.Redirect,
+				TrimmedRect = trimmed_rect};
+		}
+
+		static SwfRectIntData FindBitmapTrimmedRect(SwfLibraryBitmapDefine bitmap) {
+			var rect = new SwfRectIntData{
+				xMin = bitmap.Width,
+				yMin = bitmap.Height,
+				xMax = 0,
+				yMax = 0};
+			for ( var i = 0; i < bitmap.Height; ++i ) {
+				for ( var j = 0; j < bitmap.Width; ++j ) {
+					var a = bitmap.ARGB32[(j + i * bitmap.Width) * 4];
+					if ( a > 0 ) {
+						rect.xMin = Mathf.Min(j, rect.xMin);
+						rect.yMin = Mathf.Min(i, rect.yMin);
+						rect.xMax = Mathf.Max(j + 1, rect.xMax);
+						rect.yMax = Mathf.Max(i + 1, rect.yMax);
+					}
+				}
+			}
+			return rect.width < 1 || rect.height < 1
+				? new SwfRectIntData(0, 0, 1, 1)
+				: rect;
+		}
+
+		static byte[] TrimBitmapByRect(SwfLibraryBitmapDefine bitmap, SwfRectIntData rect) {
+			var trimmed_argb32 = new byte[rect.area * 4];
+			for ( var i = 0; i < rect.height; ++i ) {
+				var src_index = rect.xMin + (rect.yMin + i) * bitmap.Width;
+				var dst_index = i * rect.width;
+				Array.Copy(
+					bitmap.ARGB32, src_index * 4,
+					trimmed_argb32, dst_index * 4,
+					rect.width * 4);
+			}
+			return trimmed_argb32;
 		}
 	}
 

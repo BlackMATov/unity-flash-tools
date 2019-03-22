@@ -1,4 +1,5 @@
 ###### Version 1.3.15
+* Add bitmap trimming
 * Fix preview leaks in the Editor mode
 
 ###### Version 1.3.14
