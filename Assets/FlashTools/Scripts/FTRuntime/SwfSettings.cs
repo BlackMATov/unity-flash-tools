@@ -21,6 +21,7 @@ namespace FTRuntime {
 		public int         AtlasPadding;
 		[SwfFloatRange(float.Epsilon, float.MaxValue)]
 		public float       PixelsPerUnit;
+		public bool        BitmapTrimming;
 		public bool        GenerateMipMaps;
 		public bool        AtlasPowerOfTwo;
 		public bool        AtlasForceSquare;
@@ -33,6 +34,7 @@ namespace FTRuntime {
 					MaxAtlasSize       = 2048,
 					AtlasPadding       = 1,
 					PixelsPerUnit      = 100.0f,
+					BitmapTrimming     = true,
 					GenerateMipMaps    = false,
 					AtlasPowerOfTwo    = true,
 					AtlasForceSquare   = true,
@@ -46,6 +48,7 @@ namespace FTRuntime {
 				MaxAtlasSize       == other.MaxAtlasSize &&
 				AtlasPadding       == other.AtlasPadding &&
 				Mathf.Approximately(PixelsPerUnit, other.PixelsPerUnit) &&
+				BitmapTrimming     == other.BitmapTrimming &&
 				GenerateMipMaps    == other.GenerateMipMaps &&
 				AtlasPowerOfTwo    == other.AtlasPowerOfTwo &&
 				AtlasForceSquare   == other.AtlasForceSquare &&

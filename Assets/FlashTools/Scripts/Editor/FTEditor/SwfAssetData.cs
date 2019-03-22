@@ -287,6 +287,8 @@ namespace FTEditor {
 		public ushort                Id          = 0;
 		public byte[]                ARGB32      = new byte[0];
 		public ushort                Redirect    = 0;
+		public int                   RealWidth   = 0;
+		public int                   RealHeight  = 0;
 		public SwfRectData           SourceRect  = SwfRectData.identity;
 		public SwfRectIntData        TrimmedRect = SwfRectIntData.identity;
 	}

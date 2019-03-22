@@ -97,7 +97,7 @@ namespace FTEditor.Postprocessors {
 				if ( bitmap.Redirect == 0 ) {
 					textures.Add(new KeyValuePair<ushort, Texture2D>(
 						bitmap.Id,
-						LoadTextureFromData(bitmap)));
+						LoadTextureFromData(bitmap, asset.Settings)));
 				}
 			}
 			var rects = PackAndSaveBitmapsAtlas(
@@ -113,12 +113,34 @@ namespace FTEditor.Postprocessors {
 			return data;
 		}
 
-		static Texture2D LoadTextureFromData(SwfBitmapData bitmap) {
+		static Texture2D LoadTextureFromData(SwfBitmapData bitmap, SwfSettingsData settings) {
+			var argb32 = settings.BitmapTrimming
+				? TrimBitmapByRect(bitmap, bitmap.TrimmedRect)
+				: bitmap.ARGB32;
+			var widht = settings.BitmapTrimming
+				? bitmap.TrimmedRect.width
+				: bitmap.RealWidth;
+			var height = settings.BitmapTrimming
+				? bitmap.TrimmedRect.height
+				: bitmap.RealHeight;
 			var texture = new Texture2D(
-				bitmap.TrimmedRect.width, bitmap.TrimmedRect.height,
+				widht, height,
 				TextureFormat.ARGB32, false);
-			texture.LoadRawTextureData(bitmap.ARGB32);
+			texture.LoadRawTextureData(argb32);
 			return texture;
+		}
+
+		static byte[] TrimBitmapByRect(SwfBitmapData bitmap, SwfRectIntData rect) {
+			var argb32 = new byte[rect.area * 4];
+			for ( var i = 0; i < rect.height; ++i ) {
+				var src_index = rect.xMin + (rect.yMin + i) * bitmap.RealWidth;
+				var dst_index = i * rect.width;
+				Array.Copy(
+					bitmap.ARGB32, src_index * 4,
+					argb32, dst_index * 4,
+					rect.width * 4);
+			}
+			return argb32;
 		}
 
 		struct BitmapsAtlasInfo {
@@ -365,17 +387,19 @@ namespace FTEditor.Postprocessors {
 					bitmap = FindBitmapFromAssetData(data, bitmap.Redirect);
 				}
 				if ( bitmap != null ) {
-					var tr = bitmap.TrimmedRect;
-					var v0 = new Vector2(tr.xMin, tr.yMin) / 20.0f;
-					var v1 = new Vector2(tr.xMax, tr.yMin) / 20.0f;
-					var v2 = new Vector2(tr.xMax, tr.yMax) / 20.0f;
-					var v3 = new Vector2(tr.xMin, tr.yMax) / 20.0f;
+					var br = asset.Settings.BitmapTrimming
+						? bitmap.TrimmedRect
+						: new SwfRectIntData(bitmap.RealWidth, bitmap.RealHeight);
+
+					var v0 = new Vector2(br.xMin, br.yMin);
+					var v1 = new Vector2(br.xMax, br.yMin);
+					var v2 = new Vector2(br.xMax, br.yMax);
+					var v3 = new Vector2(br.xMin, br.yMax);
 
 					var matrix =
-						Matrix4x4.Scale(
-							new Vector3(1.0f, -1.0f, 1.0f) /
-							asset.Settings.PixelsPerUnit) *
-						inst.Matrix.ToUMatrix();
+						Matrix4x4.Scale(new Vector3(1.0f, -1.0f, 1.0f) / asset.Settings.PixelsPerUnit) *
+						inst.Matrix.ToUMatrix() *
+						Matrix4x4.Scale(new Vector3(1.0f / 20.0f, 1.0f / 20.0f, 1.0f));
 
 					baked_vertices.Add(matrix.MultiplyPoint3x4(v0));
 					baked_vertices.Add(matrix.MultiplyPoint3x4(v1));

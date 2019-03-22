@@ -409,18 +409,17 @@ namespace FTEditor.Postprocessors {
 		static SwfBitmapData ConvertBitmap(ushort id, SwfLibraryBitmapDefine bitmap) {
 			var trimmed_rect = bitmap.Redirect > 0
 				? new SwfRectIntData(bitmap.Width, bitmap.Height)
-				: FindBitmapTrimmedRect(bitmap);
-			var trimmed_argb32 = bitmap.Redirect > 0
-				? bitmap.ARGB32
-				: TrimBitmapByRect(bitmap, trimmed_rect);
+				: CalculateBitmapTrimmedRect(bitmap);
 			return new SwfBitmapData{
 				Id = id,
-				ARGB32 = trimmed_argb32,
+				ARGB32 = bitmap.ARGB32,
 				Redirect = bitmap.Redirect,
+				RealWidth = bitmap.Width,
+				RealHeight = bitmap.Height,
 				TrimmedRect = trimmed_rect};
 		}
 
-		static SwfRectIntData FindBitmapTrimmedRect(SwfLibraryBitmapDefine bitmap) {
+		static SwfRectIntData CalculateBitmapTrimmedRect(SwfLibraryBitmapDefine bitmap) {
 			var rect = new SwfRectIntData{
 				xMin = bitmap.Width,
 				yMin = bitmap.Height,
@@ -440,19 +439,6 @@ namespace FTEditor.Postprocessors {
 			return rect.width < 1 || rect.height < 1
 				? new SwfRectIntData(0, 0, 1, 1)
 				: rect;
-		}
-
-		static byte[] TrimBitmapByRect(SwfLibraryBitmapDefine bitmap, SwfRectIntData rect) {
-			var trimmed_argb32 = new byte[rect.area * 4];
-			for ( var i = 0; i < rect.height; ++i ) {
-				var src_index = rect.xMin + (rect.yMin + i) * bitmap.Width;
-				var dst_index = i * rect.width;
-				Array.Copy(
-					bitmap.ARGB32, src_index * 4,
-					trimmed_argb32, dst_index * 4,
-					rect.width * 4);
-			}
-			return trimmed_argb32;
 		}
 	}
 
