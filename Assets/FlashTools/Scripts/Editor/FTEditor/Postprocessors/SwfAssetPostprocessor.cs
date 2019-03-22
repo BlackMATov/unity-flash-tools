@@ -42,6 +42,10 @@ namespace FTEditor.Postprocessors {
 				if ( asset.Atlas ) {
 					ConfigureAtlas(asset);
 					ConfigureClips(asset, asset_data);
+					Debug.LogFormat(
+						asset,
+						"<b>[FlashTools]</b> SwfAsset has been successfully converted:\nPath: {0}",
+						AssetDatabase.GetAssetPath(asset));
 				} else {
 					_progressBar.UpdateTitle(asset.name);
 					var new_data = ConfigureBitmaps(asset, asset_data);

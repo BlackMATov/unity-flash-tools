@@ -2,6 +2,7 @@
 * Add bitmap trimming
 * Fix preview leaks in the Editor mode
 * Add warning notes about outdated assets
+* Add log message about successfully converting
 
 ###### Version 1.3.14
 * Fix 2018.3.2f1 compilation
