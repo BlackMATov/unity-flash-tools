@@ -11,8 +11,9 @@ using FTRuntime;
 namespace FTEditor.Editors {
 	[CustomEditor(typeof(SwfClipAsset)), CanEditMultipleObjects]
 	class SwfClipAssetEditor : Editor {
-		List<SwfClipAsset>  _clips   = new List<SwfClipAsset>();
-		SwfClipAssetPreview _preview = null;
+		bool                _outdated = false;
+		List<SwfClipAsset>  _clips    = new List<SwfClipAsset>();
+		SwfClipAssetPreview _preview  = null;
 
 		static string GetClipPath(SwfClipAsset clip) {
 			return clip
@@ -158,11 +159,10 @@ namespace FTEditor.Editors {
 		}
 
 		void DrawGUINotes() {
-			EditorGUILayout.Separator();
-			EditorGUILayout.HelpBox(
-				"Masks and blends of animation may not be displayed correctly in the preview window. " + 
-				"Instance animation to the scene, to see how it will look like the animation in the game.",
-				MessageType.Info);
+			SwfEditorUtils.DrawMasksGUINotes();
+			if ( _outdated ) {
+				SwfEditorUtils.DrawOutdatedGUINotes("SwfClipAsset", _clips);
+			}
 		}
 
 		//
@@ -193,6 +193,7 @@ namespace FTEditor.Editors {
 
 		void OnEnable() {
 			_clips = targets.OfType<SwfClipAsset>().ToList();
+			_outdated = SwfEditorUtils.CheckForOutdatedAsset(_clips);
 			SetupPreviews();
 		}
 

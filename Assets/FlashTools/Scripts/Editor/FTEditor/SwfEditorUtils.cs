@@ -3,6 +3,7 @@ using UnityEditor;
 
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Runtime.Serialization.Formatters.Binary;
 
@@ -307,6 +308,13 @@ namespace FTEditor {
 				GetFileHash(path), SwfVersion.AsString);
 		}
 
+		static string GetVersionFromFileHashWithVersion(string hash) {
+			var index = hash.LastIndexOf('=');
+			return index != -1
+				? hash.Substring(index + 1)
+				: string.Empty;
+		}
+
 		static string GetFileHash(string path) {
 			try {
 				using ( var sha256 = SHA256.Create() ) {
@@ -318,6 +326,117 @@ namespace FTEditor {
 				}
 			} catch ( System.Exception ) {
 				return string.Empty;
+			}
+		}
+
+		// ---------------------------------------------------------------------
+		//
+		// Outdated assets
+		//
+		// ---------------------------------------------------------------------
+
+		public static bool CheckForOutdatedAsset(SwfClip clip) {
+			return clip
+				&& CheckForOutdatedAsset(clip.clip);
+		}
+
+		public static bool CheckForOutdatedAsset(SwfClipAsset clip_asset) {
+			return clip_asset
+				&& CheckForOutdatedAsset(AssetDatabase.LoadAssetAtPath<SwfAsset>(
+					AssetDatabase.GUIDToAssetPath(clip_asset.AssetGUID)));
+		}
+
+		public static bool CheckForOutdatedAsset(SwfAsset asset) {
+			return asset
+				&& GetVersionFromFileHashWithVersion(asset.Hash) != SwfVersion.AsString;
+		}
+
+		public static bool CheckForOutdatedAsset(IEnumerable<SwfClip> clips) {
+			var iter = clips.GetEnumerator();
+			while ( iter.MoveNext() ) {
+				if ( CheckForOutdatedAsset(iter.Current) ) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public static bool CheckForOutdatedAsset(IEnumerable<SwfClipAsset> clip_assets) {
+			var iter = clip_assets.GetEnumerator();
+			while ( iter.MoveNext() ) {
+				if ( CheckForOutdatedAsset(iter.Current) ) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public static bool CheckForOutdatedAsset(IEnumerable<SwfAsset> assets) {
+			var iter = assets.GetEnumerator();
+			while ( iter.MoveNext() ) {
+				if ( CheckForOutdatedAsset(iter.Current) ) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		// ---------------------------------------------------------------------
+		//
+		// GUI notes
+		//
+		// ---------------------------------------------------------------------
+
+		public static void DrawMasksGUINotes() {
+			EditorGUILayout.Separator();
+			EditorGUILayout.HelpBox(
+				"Masks and blends of animation may not be displayed correctly in the preview window. " +
+				"Instance animation to the scene, to see how it will look like the animation in the game.",
+				MessageType.Info);
+		}
+
+		public static void DrawOutdatedGUINotes(string target, IEnumerable<SwfClip> clips) {
+			DrawOutdatedGUINotes(target, clips
+				.Select(p => p ? p.clip : null));
+		}
+
+		public static void DrawOutdatedGUINotes(string target, IEnumerable<SwfClipAsset> clips) {
+			DrawOutdatedGUINotes(target, clips
+				.Select(p => {
+					return p
+						? AssetDatabase.LoadAssetAtPath<SwfAsset>(AssetDatabase.GUIDToAssetPath(p.AssetGUID))
+						: null;
+				}));
+		}
+
+		public static void DrawOutdatedGUINotes(string target, IEnumerable<SwfAsset> assets) {
+			var asset_count = assets.Count(p => p);
+			if ( asset_count == 1 ) {
+				var asset = assets.FirstOrDefault(p => p);
+				if ( asset ) {
+					var asset_version = GetVersionFromFileHashWithVersion(asset.Hash);
+					if ( asset_version != SwfVersion.AsString ) {
+						EditorGUILayout.Separator();
+						EditorGUILayout.HelpBox(string.Format(
+							"The {0} was created in the {1} version of Flash Animation Toolset, and it's outdated.\n" +
+							"Please, reimport the source .swf file. It's may be essential to correctness working.\n" +
+							"You can do it in Tools/FlashTools menu.",
+							target, asset_version),
+							MessageType.Error);
+					}
+				}
+			} else if ( asset_count > 1 ) {
+				var any_outdated = assets
+					.Any(p => GetVersionFromFileHashWithVersion(p.Hash) != SwfVersion.AsString);
+				if ( any_outdated ) {
+					EditorGUILayout.Separator();
+					EditorGUILayout.HelpBox(string.Format(
+						"Some {0} is outdated.\n" +
+						"Please, reimport the source .swf files. It's may be essential to correctness working.\n" +
+						"You can do it in Tools/FlashTools menu.",
+						target),
+						MessageType.Error);
+				}
 			}
 		}
 

@@ -10,7 +10,8 @@ using FTRuntime;
 namespace FTEditor.Editors {
 	[CustomEditor(typeof(SwfAsset)), CanEditMultipleObjects]
 	class SwfAssetEditor : Editor {
-		List<SwfAsset> _assets = new List<SwfAsset>();
+		bool           _outdated = false;
+		List<SwfAsset> _assets   = new List<SwfAsset>();
 
 		//
 		//
@@ -129,6 +130,12 @@ namespace FTEditor.Editors {
 			}
 		}
 
+		void DrawGUINotes() {
+			if ( _outdated ) {
+				SwfEditorUtils.DrawOutdatedGUINotes("SwfAsset", _assets);
+			}
+		}
+
 		// ---------------------------------------------------------------------
 		//
 		// Messages
@@ -137,6 +144,7 @@ namespace FTEditor.Editors {
 
 		void OnEnable() {
 			_assets = targets.OfType<SwfAsset>().ToList();
+			_outdated = SwfEditorUtils.CheckForOutdatedAsset(_assets);
 		}
 
 		void OnDisable() {
@@ -147,6 +155,7 @@ namespace FTEditor.Editors {
 			serializedObject.Update();
 			DrawDefaultInspector();
 			DrawGUISettingsControls();
+			DrawGUINotes();
 			if ( GUI.changed ) {
 				serializedObject.ApplyModifiedProperties();
 			}
