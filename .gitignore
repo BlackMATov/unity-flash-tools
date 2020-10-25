@@ -1,9 +1,11 @@
+.vs/*
+.vscode/*
+
 obj/*
 Logs/*
 Temp/*
 Library/*
 
-.vs/*
 FTSources/.vs/*
 FTSources/FTEditor/obj/*
 FTSources/FTRuntime/obj/*
