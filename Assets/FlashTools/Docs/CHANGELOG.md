@@ -1,3 +1,6 @@
+###### Version 1.3.16
+* Minor promo fixes
+
 ###### Version 1.3.15
 * Add optional bitmap trimming
 * Fix preview leaks in the Editor mode

@@ -4,13 +4,12 @@ Convert your flash animation for Unity easy!
 
 * [Usage video](http://www.youtube.com/watch?v=uE_XRWZ5KHA)
 
-* [Blog](http://matov.me)
-* [Site](http://matov.me/flash-animation-toolset)
-* [Web demo](http://matov.me/public/blog_share/flash_tools/web_demo)
-* [User guide](http://matov.me/flash-animation-toolset-user-guide)
+* [Site](https://blackmatov.github.io/unity-assets/flash-animation-toolset)
+* [Web demo](https://blackmatov.github.io/unity-assets/flash-animation-toolset/demo)
+* [User guide](https://blackmatov.github.io/unity-assets/flash-animation-toolset/user-guide.html)
 
-* [Trial version](https://www.assetstore.unity3d.com/#!/content/73896)
-* [Full version](https://www.assetstore.unity3d.com/#!/content/73323)
+* [Trial version](https://assetstore.unity.com/packages/tools/animation/flash-animation-toolset-trial-73896)
+* [Full version](https://assetstore.unity.com/packages/tools/animation/flash-animation-toolset-73323)
 
 ###### Features
 * Support all transformations like 'rotation', 'skew' and 'scale' (except 3D)
