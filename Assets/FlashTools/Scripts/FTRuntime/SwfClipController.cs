@@ -2,6 +2,7 @@
 using FTRuntime.Internal;
 
 namespace FTRuntime {
+	[AddComponentMenu("FlashTools/SwfClipController")]
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	[RequireComponent(typeof(SwfClip))]
 	public class SwfClipController : MonoBehaviour {
