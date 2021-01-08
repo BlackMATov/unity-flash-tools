@@ -3,6 +3,7 @@ using FTRuntime.Internal;
 using System.Collections.Generic;
 
 namespace FTRuntime {
+	[AddComponentMenu("FlashTools/SwfManager")]
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	public class SwfManager : MonoBehaviour {
 		SwfAssocList<SwfClip>           _clips           = new SwfAssocList<SwfClip>();

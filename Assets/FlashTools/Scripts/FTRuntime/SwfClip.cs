@@ -3,6 +3,7 @@ using UnityEngine.Rendering;
 using FTRuntime.Internal;
 
 namespace FTRuntime {
+	[AddComponentMenu("FlashTools/SwfClip")]
 	[ExecuteInEditMode, DisallowMultipleComponent]
 	[RequireComponent(typeof(MeshFilter), typeof(MeshRenderer), typeof(SortingGroup))]
 	public class SwfClip : MonoBehaviour {
