@@ -3,6 +3,7 @@ using FTRuntime.Internal;
 using System.Collections.Generic;
 
 namespace FTRuntime {
+	[PreferBinarySerialization]
 	public class SwfClipAsset : ScriptableObject {
 		[System.Serializable]
 		public class SubMeshData {
