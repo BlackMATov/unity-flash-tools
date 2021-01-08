@@ -57,14 +57,12 @@ namespace FTEditor.Editors {
 			if ( clip_go ) {
 				var prefab_path = GetPrefabPath(clip);
 				if ( !string.IsNullOrEmpty(prefab_path) ) {
-					var prefab = AssetDatabase.LoadMainAssetAtPath(prefab_path);
-					if ( !prefab ) {
-						prefab = PrefabUtility.CreateEmptyPrefab(prefab_path);
-					}
-					result = PrefabUtility.ReplacePrefab(
-						clip_go,
-						prefab,
-						ReplacePrefabOptions.ConnectToPrefab);
+					prefab_path = AssetDatabase.GenerateUniqueAssetPath(prefab_path);
+				#if UNITY_2018_3_OR_NEWER
+					result = PrefabUtility.SaveAsPrefabAsset(clip_go, prefab_path);
+				#else
+					result = PrefabUtility.CreatePrefab(prefab_path, clip_go);
+				#endif
 				}
 				GameObject.DestroyImmediate(clip_go, true);
 			}
