@@ -1,3 +1,7 @@
+###### Version 1.3.17
+* Fix 2019 warnings
+* Force swf asset binary serialization
+
 ###### Version 1.3.16
 * Minor promo fixes
 
