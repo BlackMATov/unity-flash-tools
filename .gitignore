@@ -16,6 +16,5 @@ AssetStoreTools.meta
 
 .DS_Store
 flash-tools.sln
-flash-tools.userprefs
-Assembly-CSharp.csproj
-Assembly-CSharp-Editor.csproj
+flash-tools.csproj
+flash-tools.Editor.csproj
