@@ -1,0 +1,15 @@
+.vs/*
+.vscode/*
+
+*.sln
+*.csproj
+.vsconfig
+
+/[Ll]ibrary/*
+/[Tt]emp/*
+/[Oo]bj/*
+/[Ll]ogs/*
+/[Uu]ser[Ss]ettings/*
+
+AssetStoreTools/*
+AssetStoreTools.meta
