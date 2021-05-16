@@ -1,3 +1,6 @@
+###### Version 1.3.18
+* Fix frameCount working before Start
+
 ###### Version 1.3.17
 * Fix 2019 warnings
 * Force swf asset binary serialization

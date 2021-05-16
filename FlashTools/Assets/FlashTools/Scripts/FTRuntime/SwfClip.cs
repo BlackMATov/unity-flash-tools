@@ -423,9 +423,12 @@ namespace FTRuntime {
 		//
 		// ---------------------------------------------------------------------
 
-		void Start() {
+		void Awake() {
 			ClearCache(true);
 			Internal_UpdateAllProperties();
+		}
+
+		void Start() {
 			EmitChangeEvents(true, true, true);
 		}
 
