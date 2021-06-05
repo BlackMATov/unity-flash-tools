@@ -135,6 +135,9 @@ namespace FTEditor.Editors {
 		public void Shutdown() {
 			_matPropBlock.Clear();
 			_previewUtils.Cleanup();
+		#if UNITY_2021_1_OR_NEWER
+			Cleanup();
+		#endif
 		}
 
 		// ---------------------------------------------------------------------

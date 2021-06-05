@@ -1,5 +1,6 @@
 ###### Version 1.3.18
 * Fix frameCount working before Start
+* Fix preview in Unity 2021
 
 ###### Version 1.3.17
 * Fix 2019 warnings
