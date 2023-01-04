@@ -8,7 +8,8 @@
 [Full Version](https://assetstore.unity.com/packages/tools/animation/flash-animation-toolset-73323) |
 [Forum](https://forum.unity.com/threads/1-3-15-flash-animation-toolset.440085) |
 [Web Demo](.github/demo) |
-[User Guide](Assets/FlashTools/Docs/GUIDE.md) |
+[User Guide](Assets/FlashTools/Docs/USERGUIDE.md) |
+[Usage Video](http://www.youtube.com/watch?v=uE_XRWZ5KHA) |
 [API Reference](Assets/FlashTools/Docs/API.md) |
 [Changelog](Assets/FlashTools/Docs/CHANGELOG.md)
 
@@ -30,10 +31,6 @@
 Supports Unity 2017.4 (LTS) and newer, both Personal and Pro. Full C# source code included.
 
 Leave your rating for this Asset. It is very important for me and the development of the project :) Thank you!
-
-## Usage video
-
-<iframe width="520" height="360" src="https://www.youtube.com/embed/uE_XRWZ5KHA" frameborder="0" allowfullscreen></iframe>
 
 ## Screenshots
 
