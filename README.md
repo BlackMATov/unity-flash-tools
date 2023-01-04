@@ -7,7 +7,6 @@
 [Trial Version](https://assetstore.unity.com/packages/tools/animation/flash-animation-toolset-trial-73896) |
 [Full Version](https://assetstore.unity.com/packages/tools/animation/flash-animation-toolset-73323) |
 [Forum](https://forum.unity.com/threads/1-3-15-flash-animation-toolset.440085) |
-[Web Demo](.github/demo) |
 [User Guide](Assets/FlashTools/Docs/USERGUIDE.md) |
 [Usage Video](http://www.youtube.com/watch?v=uE_XRWZ5KHA) |
 [API Reference](Assets/FlashTools/Docs/API.md) |
@@ -40,4 +39,4 @@ Leave your rating for this Asset. It is very important for me and the developmen
 
 ## [License (MIT)](./LICENSE.md)
 
-Samples use "Creative Commons CC0 1.0 Universal License" animations from [Glitch game](http://www.glitchthegame.com/public-domain-game-art)
+* Samples use "Creative Commons CC0 1.0 Universal License" animations from [Glitch game](http://www.glitchthegame.com/public-domain-game-art)
