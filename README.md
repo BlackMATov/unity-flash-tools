@@ -7,6 +7,7 @@
 [Trial Version](https://assetstore.unity.com/packages/tools/animation/flash-animation-toolset-trial-73896) |
 [Full Version](https://assetstore.unity.com/packages/tools/animation/flash-animation-toolset-73323) |
 [Forum](https://forum.unity.com/threads/1-3-15-flash-animation-toolset.440085) |
+[Web Demo](https://blackmatov.github.io/unity-assets/flash-animation-toolset/demo) |
 [User Guide](Assets/FlashTools/Docs/USERGUIDE.md) |
 [Usage Video](http://www.youtube.com/watch?v=uE_XRWZ5KHA) |
 [API Reference](Assets/FlashTools/Docs/API.md) |
