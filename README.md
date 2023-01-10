@@ -4,14 +4,14 @@
 
 > Convert your flash animation for Unity easy!
 
-[Trial Version](https://assetstore.unity.com/packages/tools/animation/flash-animation-toolset-trial-73896) |
-[Full Version](https://assetstore.unity.com/packages/tools/animation/flash-animation-toolset-73323) |
+[Asset Store](https://assetstore.unity.com/packages/slug/73323) |
+[GitHub Repo](https://github.com/BlackMATov/unity-flash-tools) |
 [Forum](https://forum.unity.com/threads/1-3-15-flash-animation-toolset.440085) |
 [Web Demo](https://blackmatov.github.io/unity-assets/flash-animation-toolset/demo) |
-[User Guide](Assets/FlashTools/Docs/USERGUIDE.md) |
+[User Guide](https://github.com/BlackMATov/unity-flash-tools/blob/main/Assets/FlashTools/Docs/USERGUIDE.md) |
 [Usage Video](http://www.youtube.com/watch?v=uE_XRWZ5KHA) |
-[API Reference](Assets/FlashTools/Docs/API.md) |
-[Changelog](Assets/FlashTools/Docs/CHANGELOG.md)
+[API Reference](https://github.com/BlackMATov/unity-flash-tools/blob/main/Assets/FlashTools/Docs/API.md) |
+[Changelog](https://github.com/BlackMATov/unity-flash-tools/blob/main/Assets/FlashTools/Docs/CHANGELOG.md)
 
 ## Features
 
@@ -28,9 +28,9 @@
 - Export marked "for export" clips and main timeline
 - Live preview of animations in the Unity editor
 
-Supports Unity 2017.4 (LTS) and newer, both Personal and Pro. Full C# source code included.
+Supports Unity 2019.4 and newer. Full C# source code included.
 
-Leave your rating for this Asset. It is very important for me and the development of the project :) Thank you!
+⭐⭐⭐ Leave your rating for this Asset. It is very important for me and the development of the project :) Also, give your stars on GitHub if you want to support me. Thank you! ⭐⭐⭐
 
 ## Screenshots
 
