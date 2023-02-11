@@ -231,6 +231,12 @@ namespace FTRuntime {
 			_controllers.Remove(controller);
 		}
 
+		void SetupCameras() {
+			foreach ( var camera in Camera.allCameras ) {
+				camera.clearStencilAfterLightingPass = true;
+			}
+		}
+
 		void GrabEnabledClips() {
 			var clips = FindObjectsOfType<SwfClip>();
 			for ( int i = 0, e = clips.Length; i < e; ++i ) {
@@ -294,6 +300,7 @@ namespace FTRuntime {
 		// ---------------------------------------------------------------------
 
 		void OnEnable() {
+			SetupCameras();
 			GrabEnabledClips();
 			GrabEnabledControllers();
 		}
