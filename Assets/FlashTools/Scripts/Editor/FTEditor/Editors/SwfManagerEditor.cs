@@ -98,7 +98,7 @@ namespace FTEditor.Editors {
 
 		void OnEnable() {
 			_manager     = target as SwfManager;
-			_controllers = FindObjectsOfType<SwfClipController>().ToList();
+			_controllers = SwfEditorUtils.FindObjectsOfType<SwfClipController>().ToList();
 		}
 
 		public override void OnInspectorGUI() {

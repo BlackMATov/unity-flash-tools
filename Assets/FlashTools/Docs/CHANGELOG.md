@@ -1,3 +1,9 @@
+### Version 1.4.1
+
+* Fix camera settings for the builtin deferred rendering
+* Fix Unity deprecation warnings
+
+
 ### Version 1.4.0
 
 * It's free and Open Source now!

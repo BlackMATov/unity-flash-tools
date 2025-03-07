@@ -507,7 +507,7 @@ namespace FTEditor.Postprocessors {
 
 		static void UpdateAssetClips(SwfAsset asset) {
 			var asset_guid  = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(asset));
-			var scene_clips = GameObject.FindObjectsOfType<SwfClip>()
+			var scene_clips = SwfEditorUtils.FindObjectsOfType<SwfClip>()
 				.Where (p => p && p.clip && p.clip.AssetGUID == asset_guid)
 				.ToList();
 			for ( var i = 0; i < scene_clips.Count; ++i ) {
